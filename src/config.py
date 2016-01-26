@@ -211,4 +211,3 @@ def run(args, runner):
     if options.value:
         print_value(runner.cfg, options.value, True, level=0, show_full_path=False)
     
-    runner.config_copy('-v VARS')
