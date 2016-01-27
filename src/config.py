@@ -21,6 +21,9 @@ import sys
 import common
 import platform
 import datetime
+import glob
+import re
+import shutil
 
 # Define all possible option for config command :  sat config <options>
 parser = common.options.Options()
@@ -37,6 +40,23 @@ class MergeHandler:
         else:
             return common.config_pyconf.overwriteMergeResolve(map1, map2, key)
 '''
+
+class ConfigOpener:
+    def __init__(self, pathList):
+        self.pathList = pathList
+
+    def __call__(self, name):
+        if os.path.isabs(name):
+            return common.config_pyconf.ConfigInputStream(open(name, 'rb'))
+        else:
+            return common.config_pyconf.ConfigInputStream( open(os.path.join( self.getPath(name), name ), 'rb') )
+        raise IOError(_("Configuration file '%s' not found") % name)
+
+    def getPath( self, name ):
+        for path in self.pathList:
+            if os.path.exists(os.path.join(path, name)):
+                return path
+        raise IOError(_("Configuration file '%s' not found") % name)
 
 class ConfigManager:
     '''Class that manages the read of all the configuration files of salomeTools
@@ -155,8 +175,159 @@ class ConfigManager:
         for rule in self.get_command_line_overrides(options, ["VARS"]):
             exec('cfg.' + rule) # this cannot be factorized because of the exec
         
+        # =======================================================================================
+        # Load INTERNAL config
+        # read src/common/internal_config/salomeTools.pyconf
+        common.config_pyconf.streamOpener = ConfigOpener([os.path.join(cfg.VARS.srcDir, 'common', 'internal_config')])
+        try:
+            internal_cfg = common.config_pyconf.Config(open(os.path.join(cfg.VARS.srcDir, 'common', 'internal_config', 'salomeTools.pyconf')))
+        except common.config_pyconf.ConfigError as e:
+            raise common.SatException(_("Error in configuration file: salomeTools.pyconf\n  %(error)s") % \
+                {'error': str(e) })
+
+        merger.merge(cfg, internal_cfg)
+
+        for rule in self.get_command_line_overrides(options, ["INTERNAL"]):
+            exec('cfg.' + rule) # this cannot be factorized because of the exec        
+        
+        # =======================================================================================
+        # Load SITE config file
+        # search only in the data directory
+        common.config_pyconf.streamOpener = ConfigOpener([cfg.VARS.dataDir])
+        try:
+            site_cfg = common.config_pyconf.Config(open(os.path.join(cfg.VARS.dataDir, 'site.pyconf')))
+        except common.config_pyconf.ConfigError as e:
+            raise common.SatException(_("Error in configuration file: site.pyconf\n  %(error)s") % \
+                {'error': str(e) })
+        except IOError as error:
+            e = str(error)
+            if "site.pyconf" in e :
+                e += "\nYou can copy data" + cfg.VARS.sep + "site.template.pyconf to data" + cfg.VARS.sep + "site.pyconf and edit the file"
+            raise common.SatException( e );
+
+        merger.merge(cfg, site_cfg)
+
+        for rule in self.get_command_line_overrides(options, ["SITE"]):
+            exec('cfg.' + rule) # this cannot be factorized because of the exec
+        
+        # =======================================================================================
+        # Load APPLICATION config file
+        if application is not None:
+            # search APPLICATION file in all directories in configPath
+            cp = cfg.SITE.config.configPath
+            common.config_pyconf.streamOpener = ConfigOpener(cp)
+            try:
+                application_cfg = common.config_pyconf.Config(application + '.pyconf')
+            except IOError as e:
+                raise common.SatException(_("%s, use 'config --list' to get the list of available applications.") %e)
+            except common.config_pyconf.ConfigError as e:
+                raise common.SatException(_("Error in configuration file: %(application)s.pyconf\n  %(error)s") % \
+                    { 'application': application, 'error': str(e) } )
+
+            merger.merge(cfg, application_cfg)
+
+            for rule in self.get_command_line_overrides(options, ["APPLICATION"]):
+                exec('cfg.' + rule) # this cannot be factorized because of the exec
+        
+        # =======================================================================================
+        # load USER config
+        self.setUserConfigFile(cfg)
+        user_cfg_file = self.getUserConfigFile()
+        user_cfg = common.config_pyconf.Config(open(user_cfg_file))
+        merger.merge(cfg, user_cfg)
+
+        for rule in self.get_command_line_overrides(options, ["USER"]):
+            exec('cfg.' + rule) # this cannot be factorize because of the exec
+
         return cfg
+
+    def setUserConfigFile(self, config):
+        '''Set the user config file name and path.
+        If necessary, build it from another one or create it from scratch.
+        '''
+        if not config:
+            raise common.SatException(_("Error in setUserConfigFile: config is None"))
+        sat_version = config.INTERNAL.sat_version
+        self.config_file_name = 'salomeTools-%s.pyconf'%sat_version
+        self.user_config_file_path = os.path.join(config.VARS.personalDir, self.config_file_name)
+        if not os.path.isfile(self.user_config_file_path):
+            # if pyconf does not exist, 
+            # Make a copy of an existing  salomeTools-<sat_version>.pyconf
+            # or at least a copy of salomeTools.pyconf
+            # If there is no pyconf file at all, create it from scratch 
+            already_exisiting_pyconf_file = self.getAlreadyExistingUserPyconf( config.VARS.personalDir, sat_version )
+            if already_exisiting_pyconf_file:  
+                # copy
+                shutil.copyfile( already_exisiting_pyconf_file, self.user_config_file_path )
+                cfg = common.config_pyconf.Config(open(self.user_config_file_path))
+            else: # create from scratch
+                self.createConfigFile(config)
     
+    def getAlreadyExistingUserPyconf(self, dir, sat_version ):
+        '''Get a pyconf file younger than the given sat version in the given directory
+        The file basename can be one of salometools-<younger version>.pyconf or salomeTools.pyconf
+        Returns the file path or None if no file has been found.
+        '''
+        file_path = None  
+        # Get a younger pyconf version   
+        pyconfFiles = glob.glob( os.path.join(dir, 'salomeTools-*.pyconf') )
+        sExpr = "^salomeTools-(.*)\.pyconf$"
+        oExpr = re.compile(sExpr)
+        younger_version = None
+        for s in pyconfFiles:
+            oSreMatch = oExpr.search( os.path.basename(s) )
+            if oSreMatch:
+                pyconf_version = oSreMatch.group(1)
+                if pyconf_version < sat_version: 
+                    younger_version = pyconf_version 
+
+        # Build the pyconf filepath
+        if younger_version :   
+            file_path = os.path.join( dir, 'salomeTools-%s.pyconf'%younger_version )
+        elif os.path.isfile( os.path.join(dir, 'salomeTools.pyconf') ):
+            file_path = os.path.join( dir, 'salomeTools.pyconf' )
+        
+        return file_path 
+    
+    def createConfigFile(self, config):
+        
+        cfg_name = self.getUserConfigFile()
+
+        user_cfg = common.config_pyconf.Config()
+        #
+        user_cfg.addMapping('USER', common.config_pyconf.Mapping(user_cfg), "")
+
+        #
+        user_cfg.USER.addMapping('workDir', os.path.expanduser('~'),
+            "This is where salomeTools will work. You may (and probably do) change it.\n")
+        user_cfg.USER.addMapping('cvs_user', config.VARS.user,
+            "This is the user name used to access salome cvs base.\n")
+        user_cfg.USER.addMapping('svn_user', config.VARS.user,
+            "This is the user name used to access salome svn base.\n")
+        user_cfg.USER.addMapping('output_level', 3,
+            "This is the default output_level you want. 0=>no output, 5=>debug.\n")
+        user_cfg.USER.addMapping('publish_dir', os.path.join(os.path.expanduser('~'), 'websupport', 'satreport'), "")
+        user_cfg.USER.addMapping('editor', 'vi', "This is the editor used to modify configuration files\n")
+        user_cfg.USER.addMapping('browser', 'firefox', "This is the browser used to read html documentation\n")
+        user_cfg.USER.addMapping('pdf_viewer', 'evince', "This is the pdf_viewer used to read pdf documentation\n")
+        # 
+        common.ensure_path_exists(config.VARS.personalDir)
+        common.ensure_path_exists(os.path.join(config.VARS.personalDir, 'Applications'))
+
+        f = open(cfg_name, 'w')
+        user_cfg.__save__(f)
+        f.close()
+        print(_("You can edit it to configure salomeTools (use: sat config --edit).\n"))
+
+        return user_cfg   
+
+    def getUserConfigFile(self):
+        '''Get the user config file
+        '''
+        if not self.user_config_file_path:
+            raise common.SatException(_("Error in getUserConfigFile: missing user config file path"))
+        return self.user_config_file_path     
+        
     
 def print_value(config, path, show_label, level=0, show_full_path=False):
     '''Prints a value from the configuration. Prints recursively the values under the initial path.

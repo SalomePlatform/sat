@@ -16,8 +16,16 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+import os
 
 from . import config_pyconf
 from . import architecture
 from . import printcolors
 from . import options
+
+class SatException(Exception):
+    pass
+
+def ensure_path_exists(p):
+    if not os.path.exists(p):
+        os.mkdir(p)

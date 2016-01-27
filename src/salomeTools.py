@@ -53,9 +53,23 @@ parser = common.options.Options()
 parser.add_option('h', 'help', 'boolean', 'help', _(u"shows global help or help on a specific command."))
 
 class salomeTools(object):
-    def __init__(self, options, dataDir=None):
+    def __init__(self, opt, dataDir=None):
         '''Initialization
         '''
+        # Read the salomeTools options (the list of possible options is at the beginning of this file)
+        try:
+            (options, args) = parser.parse_args(opt)
+        except Exception as exc:
+            write_exception(exc)
+            sys.exit(-1)
+            
+        if options.help:
+            try:
+                sat.print_help(args)
+            except Exception as exc:
+                code = 1
+                write_exception(exc)
+                
         self.__dict__ = dict()
         self.options = options
         self.dataDir = dataDir
@@ -134,19 +148,14 @@ if __name__ == "__main__":
     # Initialize the code that will be returned by the terminal command 
     code = 0
     
-    # Read the salomeTools options (the list of possible options is at the beginning of this file)
-    try:
-        (options, args) = parser.parse_args(sys.argv[1:])
-    except Exception as exc:
-        write_exception(exc)
-        sys.exit(-1)
+    (options, args) = parser.parse_args(sys.argv[1:])
     
     if len(args) == 0:
         # no options => show help
         print_help(options)
-    
-    sat = salomeTools('')
-    sat.config('-v VARS.python')
+    else:
+        sat = salomeTools(sys.argv[1:])
+
     
 
 

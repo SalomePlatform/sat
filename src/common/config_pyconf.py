@@ -642,7 +642,7 @@ class Config(Mapping):
         object.__setattr__(self, 'reader', ConfigReader(self))
         object.__setattr__(self, 'namespaces', [Config.Namespace()])
         if streamOrFile is not None:
-            if isinstance(streamOrFile, str) or isinstance(streamOrFile, unicode):
+            if isinstance(streamOrFile, str) or isinstance(streamOrFile, bytes):
                 global streamOpener
                 if streamOpener is None:
                     streamOpener = defaultStreamOpener
@@ -742,6 +742,14 @@ class Sequence(Container):
             return self
 
         def next(self):
+            if self.index >= self.limit:
+                raise StopIteration
+            rv = self.seq[self.index]
+            self.index += 1
+            return rv
+        
+        # This method is for python3 compatibility
+        def __next__(self): 
             if self.index >= self.limit:
                 raise StopIteration
             rv = self.seq[self.index]
@@ -1058,7 +1066,10 @@ class ConfigReader(object):
         else:
             c = self.stream.read(1)
             if isinstance(c,bytes):
-                c = c.decode()
+                try:
+                    c = c.decode()
+                except:
+                    import pdb;pdb.set_trace()
             self.colno += 1
             if c == '\n':
                 self.lineno += 1
