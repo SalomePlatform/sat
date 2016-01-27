@@ -1,0 +1,41 @@
+msgid "shows global help or help on a specific command."
+msgstr "affiche l'aide gnrale ou pour une commande spcifique."
+
+msgid " is not a valid command"
+msgstr " n'est pas une commande valide"
+
+msgid "Usage: "
+msgstr "Utilisation : "
+
+msgid "Available commands are:\n"
+msgstr "Les commandes disponibles sont:\n"
+
+msgid ""
+"\n"
+"Getting the help for a specific command: "
+msgstr ""
+"\n"
+"Obtenir l'aide d'une commande spcifique : "
+
+msgid "lsb_release not installed\n"
+msgstr "lsb_release n'est pas install\n"
+
+msgid "You can define $LSB_PATH to give the path to lsb_release\n"
+msgstr "Vous pouvez dfinir $LSB_PATH pour donner le chemin vers lsb_release\n"
+
+#, python-format
+msgid "Unknown distribution: '%s'\n"
+msgstr "Distribution inconnue : '%s'\n"
+
+msgid "Please add your distribution to data/distrib.pyconf\n"
+msgstr "SVP ajoutez votre distribution au fichier data/distrib.pyconf\n"
+
+#, python-format
+msgid "Unknown architecture: '%s'\n"
+msgstr "Architecture inconnue: '%s'\n"
+
+msgid " is not a valid option"
+msgstr " n'est pas une option valide"
+
+msgid "Available options are:"
+msgstr "Les options disponibles sont:"

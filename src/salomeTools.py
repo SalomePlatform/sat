@@ -23,23 +23,19 @@ import os
 import sys
 import imp
 import types
+import gettext
+
 import common.options
 import config
 
-def copy_func(f, name=None):
-    '''
-    return a function with same code, globals, defaults, closure, and 
-    name (or provide a new name)
-    '''
-
-    fn = types.FunctionType(f.__code__, f.__globals__, name or f.__name__,
-        f.__defaults__, f.__closure__)
-    # in case f was given attrs (note this dict is a shallow copy):
-    fn.__dict__.update(f.__dict__) 
-    return fn
-
 # get path to salomeTools sources
 srcdir = os.path.dirname(os.path.realpath(__file__))
+
+# load resources for internationalization
+#gettext.install('salomeTools', os.path.join(srcdir, 'common', 'i18n'))
+
+es = gettext.translation('salomeTools', os.path.join(srcdir, 'common', 'i18n'))
+es.install()
 
 def find_command_list():
     cmd_list = []
@@ -54,7 +50,7 @@ lCommand = find_command_list()
 
 # Define all possible option for salomeTools command :  sat <option> <args>
 parser = common.options.Options()
-parser.add_option('h', 'help', 'boolean', 'help', "shows global help or help on a specific command.")
+parser.add_option('h', 'help', 'boolean', 'help', _(u"shows global help or help on a specific command."))
 
 class salomeTools(object):
     def __init__(self, options, dataDir=None):
@@ -70,7 +66,7 @@ class salomeTools(object):
         if name in self.__dict__:
             return self.__dict__[name]
         else:
-            raise AttributeError(name + " is not a valid command")
+            raise AttributeError(name + _(" is not a valid command"))
 
     def __setattr__(self, name, value):
         object.__setattr__(self,name,value)
@@ -79,7 +75,7 @@ class salomeTools(object):
         for nameCmd in lCommand:
             (file_, pathname, description) = imp.find_module(nameCmd, [dirPath])
             module = imp.load_module(nameCmd, file_, pathname, description)
-                       
+
             def run_command(args):
                 print('Je suis dans l\'initialisation de la commande ' + __name__)
                 argv = args.split(" ")
@@ -99,9 +95,9 @@ class salomeTools(object):
             globals_up = {}
             globals_up.update(run_command.__globals__)
             globals_up.update({'__name__': nameCmd, '__module__' : module})
-            fn = types.FunctionType(run_command.__code__, globals_up, run_command.__name__,run_command.__defaults__, run_command.__closure__)
+            func = types.FunctionType(run_command.__code__, globals_up, run_command.__name__,run_command.__defaults__, run_command.__closure__)
 
-            self.__setattr__(nameCmd, fn)
+            self.__setattr__(nameCmd, func)
              
 
 
@@ -113,16 +109,16 @@ def print_help(options):
     #print_version(cfg)
     #print
 
-    print(common.printcolors.printcHeader( "Usage: " ) + "sat [sat_options] <command> [product] [command_options]\n")
+    print(common.printcolors.printcHeader( _("Usage: ") ) + "sat [sat_options] <command> [product] [command_options]\n")
 
     parser.print_help()
 
     # parse the src directory to list the available commands.
-    print(common.printcolors.printcHeader("Available commands are:\n"))
+    print(common.printcolors.printcHeader(_("Available commands are:\n")))
     for command in lCommand:
         print(" - %s" % (command))
 
-    print(common.printcolors.printcHeader("\nGetting the help for a specific command: " + "sat --help <command>\n"))
+    print(common.printcolors.printcHeader(_(u"\nGetting the help for a specific command: ")) + "sat --help <command>\n")
 
 def write_exception(exc):
     sys.stderr.write("\n***** ")

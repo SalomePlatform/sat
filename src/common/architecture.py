@@ -59,8 +59,8 @@ def _lsb_release(args):
             res = res.decode()
         return res
     except OSError:
-        sys.stderr.write(_("lsb_release not installed\n"))
-        sys.stderr.write(_("You can define $LSB_PATH to give the path to lsb_release\n"))
+        sys.stderr.write(_(u"lsb_release not installed\n"))
+        sys.stderr.write(_(u"You can define $LSB_PATH to give the path to lsb_release\n"))
         sys.exit(-1)
 
 def get_distribution(codes):
@@ -77,8 +77,8 @@ def get_distribution(codes):
     if codes is not None and distrib in codes:
         distrib = codes[distrib]
     else:
-        sys.stderr.write(_("Unknown distribution: '%s'\n") % distrib)
-        sys.stderr.write(_("Please add your distribution to data/distrib.pyconf\n"))
+        sys.stderr.write(_(u"Unknown distribution: '%s'\n") % distrib)
+        sys.stderr.write(_(u"Please add your distribution to data/distrib.pyconf\n"))
         sys.exit(-1)
 
     return distrib
@@ -116,7 +116,7 @@ def get_nb_bit():
     elif nb_bit == "32bit":
         nb_bit = "32"
     else:
-        sys.stderr.write(_("Unknown architecture: '%s'\n") % nb_bit)
+        sys.stderr.write(_(u"Unknown architecture: '%s'\n") % nb_bit)
         sys.exit(-1)
 
     return nb_bit

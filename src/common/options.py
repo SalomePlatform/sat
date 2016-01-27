@@ -42,7 +42,7 @@ class OptResult(object):
         if name in self.__dict__:
             return self.__dict__[name]
         else:
-            raise AttributeError(name + " is not a valid option")
+            raise AttributeError(name + _(u" is not a valid option"))
 
     def __setattr__(self, name, value):
         '''Overwrite of the __setattr__ function to customize it for option usage
@@ -98,7 +98,7 @@ class Options:
             return
 
         # for all options, print its values. "shortname" is an optional field of the options 
-        print(printcolors.printcHeader("Available options are:"))
+        print(printcolors.printcHeader(_("Available options are:")))
         for option in self.options:
             if 'shortName' in option and len(option['shortName']) > 0:
                 print(" -%(shortName)1s, --%(longName)s (%(optionType)s)\n\t%(helpString)s\n" % option)
