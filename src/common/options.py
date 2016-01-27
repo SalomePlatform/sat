@@ -130,7 +130,7 @@ class Options:
 
         # call to getopt.getopt function to get the option passed in the command regarding the available options
         optlist, args = getopt.getopt(argList, shortNameOption, longNameOption)
-
+        
         # instantiate and completing the optResult that will be returned
         optResult = OptResult()
         for option in self.options:
@@ -163,6 +163,5 @@ class Options:
                             option['result'].extend(elts)
 
             optResult.__setattr__(option['destName'], option['result'])
-        
         return optResult, args
 

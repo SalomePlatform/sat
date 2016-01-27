@@ -62,19 +62,20 @@ class salomeTools(object):
         except Exception as exc:
             write_exception(exc)
             sys.exit(-1)
-            
-        if options.help:
-            try:
-                sat.print_help(args)
-            except Exception as exc:
-                code = 1
-                write_exception(exc)
-                
+                           
         self.__dict__ = dict()
         self.options = options
         self.dataDir = dataDir
         # set the commands
         self.__setCommands__(srcdir)
+        
+        if options.help:
+            try:
+                self.print_help(args)
+                sys.exit(0)
+            except Exception as exc:
+                code = 1
+                write_exception(exc)
 
     def __getattr__(self, name):
         if name in self.__dict__:
@@ -84,6 +85,7 @@ class salomeTools(object):
 
     def __setattr__(self, name, value):
         object.__setattr__(self,name,value)
+
 
     def __setCommands__(self, dirPath):
         for nameCmd in lCommand:
@@ -112,17 +114,47 @@ class salomeTools(object):
             func = types.FunctionType(run_command.__code__, globals_up, run_command.__name__,run_command.__defaults__, run_command.__closure__)
 
             self.__setattr__(nameCmd, func)
-             
 
+    def print_help(self, argv):
+        '''Prints help for a command
+        '''
+        command = argv[0]
+        # read the configuration from all the pyconf files    
+        cfgManager = config.ConfigManager()
+        self.cfg = cfgManager.getConfig(dataDir=self.dataDir)
+
+        if not hasattr(self, command):
+            raise common.SatException(_("Command '%s' does not exist") % command)
+
+        print_version()
+        
+        module = self.get_module(command)
+
+        if hasattr( module, "description" ) :
+            print(common.printcolors.printcHeader( _("Description:") ))
+            print(module.description() + '\n')
+
+        if hasattr( module, "parser" ) :
+            module.parser.print_help()
+
+    def get_module(self, module):
+        if not hasattr(self, module):
+            raise common.SatException(_("Command '%s' does not exist") % module)
+
+        # reduce variables substitution and so on
+        (file_, pathname, description) = imp.find_module(module, [srcdir])
+        module = imp.load_module(module, file_, pathname, description)
+        return module
+ 
+def print_version():
+    cfgManager = config.ConfigManager()
+    cfg = cfgManager.getConfig()
+    print(common.printcolors.printcHeader( _("Version: ") ) + cfg.INTERNAL.sat_version + '\n')
 
 
 def print_help(options):
-    #from config import ConfigManager
-    #cfgManager = ConfigManager(STAND_ALONE_VERSION)
-    #cfg = cfgManager.getConfig(None, options)
-    #print_version(cfg)
-    #print
-
+    print_version()
+    
     print(common.printcolors.printcHeader( _("Usage: ") ) + "sat [sat_options] <command> [product] [command_options]\n")
 
     parser.print_help()
@@ -147,7 +179,7 @@ if __name__ == "__main__":
     cmd_line = " ".join(sys.argv)
     # Initialize the code that will be returned by the terminal command 
     code = 0
-    
+
     (options, args) = parser.parse_args(sys.argv[1:])
     
     if len(args) == 0:
@@ -155,6 +187,12 @@ if __name__ == "__main__":
         print_help(options)
     else:
         sat = salomeTools(sys.argv[1:])
+        command = args[0]
+        fun_command = sat.__getattr__(command)
+        if len(args[1:]) == 0:
+            print(common.printcolors.printcWarning(_("No arguments")))
+            sys.exit(0)
+        fun_command(' '.join(args[1:]))
 
     
 

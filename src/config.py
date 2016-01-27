@@ -375,7 +375,11 @@ def print_value(config, path, show_label, level=0, show_full_path=False):
             index = index + 1
     else: # case where val is just a str
         sys.stdout.write("%s\n" % val)
-        
+
+def description():
+    return _("The config command allows manipulation and operation on config files.")
+    
+
 def run(args, runner):
     (options, args) = parser.parse_args(args)
     print('Je suis dans la commande config ! Bien joué ! COUCOU')
