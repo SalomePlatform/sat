@@ -34,8 +34,9 @@ import config
 srcdir = os.path.dirname(os.path.realpath(__file__))
 
 # load resources for internationalization
-es = gettext.translation('salomeTools', os.path.join(srcdir, 'common', 'i18n'))
-es.install()
+#es = gettext.translation('salomeTools', os.path.join(srcdir, 'common', 'i18n'))
+#es.install()
+gettext.install('salomeTools', os.path.join(srcdir, 'common', 'i18n'))
 
 def find_command_list(dirPath):
     ''' Parse files in dirPath that end with .py : it gives commands list
@@ -238,6 +239,7 @@ if __name__ == "__main__":
     command = args[0]
     # get dynamically the command function to call
     fun_command = sat.__getattr__(command)
+    # call the command with two cases : mode debug or not
     if options.debug_mode:
         # call classically the command and if it fails, show exception and stack (usual python mode)
         code = fun_command(' '.join(args[1:]))

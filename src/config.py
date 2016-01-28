@@ -23,12 +23,23 @@ import datetime
 import glob
 import re
 import shutil
+import gettext
 
 import common
 
+# internationalization
+srcdir = os.path.dirname(os.path.realpath(__file__))
+gettext.install('salomeTools', os.path.join(srcdir, 'common', 'i18n'))
+
 # Define all possible option for config command :  sat config <options>
 parser = common.options.Options()
-parser.add_option('v', 'value', 'string', 'value', "print the value of CONFIG_VARIABLE.")
+parser.add_option('v', 'value', 'string', 'value', _("print the value of CONFIG_VARIABLE."))
+parser.add_option('e', 'edit', 'boolean', 'edit', _("edit the product configuration file."))
+parser.add_option('l', 'list', 'boolean', 'list',_("list all available applications."))
+parser.add_option('c', 'copy', 'boolean', 'copy',
+    _("""copy a config file to the personnal config files directory.
+\tWARNING the included files are not copied.
+\tIf a name is given the new config file takes the given name."""))
 
 '''
 class MergeHandler:
@@ -206,7 +217,10 @@ class ConfigManager:
             if "site.pyconf" in e :
                 e += "\nYou can copy data" + cfg.VARS.sep + "site.template.pyconf to data" + cfg.VARS.sep + "site.pyconf and edit the file"
             raise common.SatException( e );
-
+        
+        # add user local path for configPath
+        site_cfg.SITE.config.configPath.append(os.path.join(cfg.VARS.personalDir, 'Applications'), "User applications path")
+        
         merger.merge(cfg, site_cfg)
 
         for rule in self.get_command_line_overrides(options, ["SITE"]):
@@ -261,18 +275,17 @@ class ConfigManager:
             if already_exisiting_pyconf_file:  
                 # copy
                 shutil.copyfile( already_exisiting_pyconf_file, self.user_config_file_path )
-                cfg = common.config_pyconf.Config(open(self.user_config_file_path))
             else: # create from scratch
                 self.createConfigFile(config)
     
-    def getAlreadyExistingUserPyconf(self, dir, sat_version ):
+    def getAlreadyExistingUserPyconf(self, userDir, sat_version ):
         '''Get a pyconf file younger than the given sat version in the given directory
         The file basename can be one of salometools-<younger version>.pyconf or salomeTools.pyconf
         Returns the file path or None if no file has been found.
         '''
         file_path = None  
         # Get a younger pyconf version   
-        pyconfFiles = glob.glob( os.path.join(dir, 'salomeTools-*.pyconf') )
+        pyconfFiles = glob.glob( os.path.join(userDir, 'salomeTools-*.pyconf') )
         sExpr = "^salomeTools-(.*)\.pyconf$"
         oExpr = re.compile(sExpr)
         younger_version = None
@@ -285,9 +298,9 @@ class ConfigManager:
 
         # Build the pyconf filepath
         if younger_version :   
-            file_path = os.path.join( dir, 'salomeTools-%s.pyconf'%younger_version )
-        elif os.path.isfile( os.path.join(dir, 'salomeTools.pyconf') ):
-            file_path = os.path.join( dir, 'salomeTools.pyconf' )
+            file_path = os.path.join( userDir, 'salomeTools-%s.pyconf'%younger_version )
+        elif os.path.isfile( os.path.join(userDir, 'salomeTools.pyconf') ):
+            file_path = os.path.join( userDir, 'salomeTools.pyconf' )
         
         return file_path 
     
@@ -384,6 +397,95 @@ def description():
 
 def run(args, runner):
     (options, args) = parser.parse_args(args)
+    
+    # case : print a value of the config
     if options.value:
+        if options.value == ".":
+            # if argument is ".", print all the config
+            for val in sorted(runner.cfg.keys()):
+                print_value(runner.cfg, val, True)
+            return
         print_value(runner.cfg, options.value, True, level=0, show_full_path=False)
+        return
+    
+    # case : edit user pyconf file or application file
+    elif options.edit:
+        editor = runner.cfg.USER.editor
+        if 'APPLICATION' not in runner.cfg: # edit user pyconf
+            usercfg = os.path.join(runner.cfg.VARS.personalDir, 'salomeTools-%s.pyconf'%runner.cfg.INTERNAL['sat_version'])
+            common.fileSystem.show_in_editor(editor, usercfg)
+        else:
+            # search for file <application>.pyconf and open it
+            for path in runner.cfg.SITE.config.configPath:
+                pyconf_path = os.path.join(path, runner.cfg.VARS.application + ".pyconf")
+                if os.path.exists(pyconf_path):
+                    common.fileSystem.show_in_editor(editor, pyconf_path)
+                    break
+    
+    # case : copy an existing <application>.pyconf to ~/.salomeTools/Applications/LOCAL_<application>.pyconf
+    elif options.copy:
+        # product is required
+        common.check_config_has_application( runner.cfg )
+
+        # get application file path 
+        source = runner.cfg.VARS.application + '.pyconf'
+        source_full_path = ""
+        for path in runner.cfg.SITE.config.configPath:
+            # ignore personal directory
+            if path == runner.cfg.VARS.personalDir:
+                continue
+            # loop on all directories that can have pyconf applications
+            zz = os.path.join(path, source)
+            if os.path.exists(zz):
+                source_full_path = zz
+                break
+
+        if len(source_full_path) == 0:
+            raise common.SatException(_("Config file for product %s not found\n") % source)
+        else:
+            if len(args) > 0:
+                # a name is given as parameter, use it
+                dest = args[0]
+            elif 'copy_prefix' in runner.cfg.SITE.config:
+                # use prefix
+                dest = runner.cfg.SITE.config.copy_prefix + runner.cfg.VARS.application
+            else:
+                # use same name as source
+                dest = runner.cfg.VARS.application
+                
+            # the full path
+            dest_file = os.path.join(runner.cfg.VARS.personalDir, 'Applications', dest + '.pyconf')
+            if os.path.exists(dest_file):
+                raise common.SatException(_("A personal application '%s' already exists") % dest)
+            
+            # perform the copy
+            shutil.copyfile(source_full_path, dest_file)
+            print(_("%s has been created.") % dest_file)
+    
+    # case : display all the available pyconf applications
+    elif options.list:
+        lproduct = list()
+        # search in all directories that can have pyconf applications
+        for path in runner.cfg.SITE.config.configPath:
+            # print a header
+            sys.stdout.write("------ %s\n" % common.printcolors.printcHeader(path))
+
+            if not os.path.exists(path):
+                sys.stdout.write(common.printcolors.printcError(_("Directory not found")) + "\n")
+            else:
+                for f in sorted(os.listdir(path)):
+                    # ignore file that does not ends with .pyconf
+                    if not f.endswith('.pyconf'):
+                        continue
+
+                    appliname = f[:-len('.pyconf')]
+                    if appliname not in lproduct:
+                        lproduct.append(appliname)
+                        if path.startswith(runner.cfg.VARS.personalDir):
+                            sys.stdout.write("%s*\n" % appliname)
+                        else:
+                            sys.stdout.write("%s\n" % appliname)
+
+            sys.stdout.write("\n")
+    
     

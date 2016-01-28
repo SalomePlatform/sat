@@ -16,24 +16,31 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import os
+'''
+In this file : all functions that do a system call, like open a browser or an editor, or call a git command
+'''
 
-from . import config_pyconf
-from . import architecture
-from . import printcolors
-from . import options
-from . import fileSystem
+import sys
+import subprocess
 
-class SatException(Exception):
-    pass
 
-def ensure_path_exists(p):
-    if not os.path.exists(p):
-        os.mkdir(p)
-        
-def check_config_has_application( config, details = None ):
-    if 'APPLICATION' not in config:
-        message = _("An APPLICATION is required. Use 'config --list' to get the list of available applications.\n")
-        if details :
-            details.append(message)
-        raise SatException( message )
+def show_in_editor(editor, filePath):
+    '''open filePath using editor.
+    :param editor str: The editor to use.
+    :param filePath str: The path to the file to open.
+    '''
+    # default editor is vi
+    if editor is None or len(editor) == 0:
+        editor = 'vi'
+    
+    if '%s' not in editor:
+        editor += ' %s'
+
+    try:
+        # launch cmd using subprocess.Popen
+        cmd = editor % filePath
+        p = subprocess.Popen(cmd, shell=True)
+        p.communicate()
+    except:
+        sys.stderr.write("Unable to edit file %s\n" % filePath)
+    

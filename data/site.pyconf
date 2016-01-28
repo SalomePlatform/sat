@@ -6,6 +6,7 @@ SITE :
     config : 
     {
         configPath : ["/home/salome/SPN_PRIVATE/sat5dev_Applications"]
+    	copy_prefix : "LOCAL_"
     }
 }
 
