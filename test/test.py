@@ -24,5 +24,8 @@ sys.path.append(os.path.join(testdir, '..', 'src'))
 
 from salomeTools import salomeTools
 
-sat = salomeTools('--help')
+sat = salomeTools('')
 sat.config('appli-test -v APPLICATION')
+
+sat2 = salomeTools("-oINTERNAL.sat_version='coucou'")
+sat2.config('appli-test -v INTERNAL.sat_version')

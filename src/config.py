@@ -18,12 +18,13 @@
 
 import os
 import sys
-import common
 import platform
 import datetime
 import glob
 import re
 import shutil
+
+import common
 
 # Define all possible option for config command :  sat config <options>
 parser = common.options.Options()
@@ -134,17 +135,18 @@ class ConfigManager:
 
     def get_command_line_overrides(self, options, sections):
         '''get all the overwrites that are in the command line
-        :param options : TO DO
-        :param sections str: The command that is called.
-        :return: The list of all the overwrites of the command line.
+        :param options : the options from salomeTools class initialization (like -l5 or --overwrite)
+        :param sections str: The config section to overwrite.
+        :return: The list of all the overwrites to apply.
         :rtype: list
         '''
         # when there are no options or not the overwrite option, return an empty list
         if options is None or options.overwrite is None:
             return []
-
+        
         over = []
         for section in sections:
+            # only overwrite the sections that correspond to the option 
             over.extend(filter(lambda l: l.startswith(section + "."), options.overwrite))
         return over
 
@@ -382,7 +384,6 @@ def description():
 
 def run(args, runner):
     (options, args) = parser.parse_args(args)
-    print('Je suis dans la commande config ! Bien joué ! COUCOU')
     if options.value:
         print_value(runner.cfg, options.value, True, level=0, show_full_path=False)
     
