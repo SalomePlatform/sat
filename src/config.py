@@ -98,7 +98,7 @@ class ConfigManager:
         var['personalDir'] = os.path.join(os.path.expanduser('~'), '.salomeTools')
 
         # read linux distributions dictionary
-        distrib_cfg = common.config_pyconf.Config(os.path.join(var['dataDir'], "distrib.pyconf"))
+        distrib_cfg = common.config_pyconf.Config(os.path.join(var['srcDir'], 'common', 'internal_config', 'distrib.pyconf'))
 
         # set platform parameters
         dist_name = common.architecture.get_distribution(codes=distrib_cfg.DISTRIBUTIONS)
@@ -225,6 +225,7 @@ class ConfigManager:
 
         for rule in self.get_command_line_overrides(options, ["SITE"]):
             exec('cfg.' + rule) # this cannot be factorized because of the exec
+  
         
         # =======================================================================================
         # Load APPLICATION config file
@@ -244,6 +245,31 @@ class ConfigManager:
 
             for rule in self.get_command_line_overrides(options, ["APPLICATION"]):
                 exec('cfg.' + rule) # this cannot be factorized because of the exec
+        
+        # =======================================================================================
+        # Load softwares config files in SOFTWARE section
+       
+        # The directory containing the softwares definition
+        softsDir = os.path.join(cfg.VARS.dataDir, 'software_pyconf')
+        
+        # Loop on all files that are in softsDir directory and read its config
+        for fName in os.listdir(softsDir):
+            if fName.endswith(".pyconf"):
+                common.config_pyconf.streamOpener = ConfigOpener([softsDir])
+                try:
+                    soft_cfg = common.config_pyconf.Config(open(os.path.join(softsDir, fName)))
+                except common.config_pyconf.ConfigError as e:
+                    raise common.SatException(_("Error in configuration file: %(soft)s\n  %(error)s") % \
+                        {'soft' :  fName, 'error': str(e) })
+                except IOError as error:
+                    e = str(error)
+                    raise common.SatException( e );
+                
+                merger.merge(cfg, soft_cfg)
+
+        for rule in self.get_command_line_overrides(options, ["SOFTWARE"]):
+            exec('cfg.' + rule) # this cannot be factorized because of the exec
+
         
         # =======================================================================================
         # load USER config
@@ -487,5 +513,6 @@ def run(args, runner):
                             sys.stdout.write("%s\n" % appliname)
 
             sys.stdout.write("\n")
+
     
     

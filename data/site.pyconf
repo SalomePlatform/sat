@@ -8,5 +8,13 @@ SITE :
         configPath : ["/home/salome/SPN_PRIVATE/sat5dev_Applications"]
     	copy_prefix : "LOCAL_"
     }
+    prepare :
+    {
+    	default_git_server : "http://default.git"
+    	default_git_server_dev : "http://default_dev.git"
+    	archive_dir : "/home/salome/ETC"
+    	cvs_dir : "/test"
+    	default_cvs_server : "http://default.cvs"
+    }
 }
 
