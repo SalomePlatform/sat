@@ -232,7 +232,12 @@ if __name__ == "__main__":
     # Initialize the code that will be returned by the terminal command 
     code = 0
     (options, args) = parser.parse_args(sys.argv[1:])
-
+    
+    # no arguments : print general help
+    if len(args) == 0:
+        print_help()
+        sys.exit(0)
+    
     # instantiate the salomeTools class with correct options
     sat = salomeTools(' '.join(sys.argv[1:]))
     # the command called
