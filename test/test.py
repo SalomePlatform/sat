@@ -16,7 +16,8 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-import os, sys
+import os
+import sys
 
 # get execution path
 testdir = os.path.dirname(os.path.realpath(__file__))

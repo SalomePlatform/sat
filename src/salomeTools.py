@@ -128,14 +128,14 @@ class salomeTools(object):
                 if not self.cfg:
                     # read the configuration from all the pyconf files    
                     cfgManager = config.ConfigManager()
-                    self.cfg = cfgManager.getConfig(dataDir=self.dataDir, application=appliToLoad, options=self.options)
+                    self.cfg = cfgManager.getConfig(dataDir=self.dataDir, application=appliToLoad, options=self.options, command=__nameCmd__)
                 
                 return __module__.run(argv, self)
 
             # Make sure that run_command will be redefined at each iteration of the loop
             globals_up = {}
             globals_up.update(run_command.__globals__)
-            globals_up.update({'__name__': nameCmd, '__module__' : module})
+            globals_up.update({'__nameCmd__': nameCmd, '__module__' : module})
             func = types.FunctionType(run_command.__code__, globals_up, run_command.__name__,run_command.__defaults__, run_command.__closure__)
 
             # set the attribute corresponding to the command
