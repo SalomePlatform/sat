@@ -41,9 +41,14 @@ __colormap__ = {
 # list of available codes
 __code_range__ = [1, 4] + list(range(30, 38)) + list(range(40, 48)) + list(range(90, 98)) + list(range(100, 108))
 
-# print a text with colors
 def printc(txt, code=''):
-    # no code means 'auto mode'
+    '''print a text with colors
+    :param txt str: The text to be printed.
+    :param code str: The color to use.
+    :return: The colored text.
+    :rtype: str
+    '''
+    # no code means 'auto mode' (works only for OK, KO, NO and ERR*)
     if code == '':
         striptxt = txt.strip().upper()
         if striptxt == "OK":
@@ -60,46 +65,98 @@ def printc(txt, code=''):
     return __colormap__[code] + txt + '\033[0m'
 
 def printcInfo(txt):
+    '''print a text info color
+    :param txt str: The text to be printed.
+    :return: The colored text.
+    :rtype: str
+    '''
     return printc(txt, COLOR_INFO)
 
 def printcError(txt):
+    '''print a text error color
+    :param txt str: The text to be printed.
+    :return: The colored text.
+    :rtype: str
+    '''
     return printc(txt, COLOR_ERROR)
 
 def printcWarning(txt):
+    '''print a text warning color
+    :param txt str: The text to be printed.
+    :return: The colored text.
+    :rtype: str
+    '''
     return printc(txt, COLOR_WARNING)
 
 def printcHeader(txt):
+    '''print a text header color
+    :param txt str: The text to be printed.
+    :return: The colored text.
+    :rtype: str
+    '''
     return printc(txt, COLOR_HEADER)
 
 def printcLabel(txt):
+    '''print a text label color
+    :param txt str: The text to be printed.
+    :return: The colored text.
+    :rtype: str
+    '''
     return printc(txt, COLOR_LABEL)
 
 def printcSuccess(txt):
+    '''print a text success color
+    :param txt str: The text to be printed.
+    :return: The colored text.
+    :rtype: str
+    '''
     return printc(txt, COLOR_SUCCESS)
 
 def printcHighlight(txt):
+    '''print a text highlight color
+    :param txt str: The text to be printed.
+    :return: The colored text.
+    :rtype: str
+    '''
     return printc(txt, COLOR_HIGLIGHT)
 
 def cleancolor(message):
+    '''remove color from a colored text.
+    :param message str: The text to be cleaned.
+    :return: The cleaned text.
+    :rtype: str
+    '''
     message = message.replace('\033[0m', '')
     for i in __code_range__:
         message = message.replace('\033[%dm' % i, '')
     return message
 
-# shortcut method to print a label and a value with the info color
 def print_value(logger, label, value, level=1, suffix=""):
+    '''shortcut method to print a label and a value with the info color
+    :param logger class logger: the logger instance.
+    :param label int: the label to print.
+    :param value str: the value to print.
+    :param level int: the level of verboseness.
+    :param suffix str: the suffix to add at the end.
+    '''
     if logger is None:
         print("  %s = %s %s" % (label, printcInfo(str(value)), suffix))
     else:
         logger.write("  %s = %s %s\n" % (label, printcInfo(str(value)), suffix), level)
 
 def print_color_range(start, end):
+    '''print possible range values for colors
+    :param start int: The smaller value.
+    :param end int: The bigger value.
+    '''
     for k in range(start, end+1):
         print("\033[%dm%3d\033[0m" % (k, k),)
     print
 
 # This method prints the color map
 def print_color_map():
+    '''This method prints the color map
+    '''
     print("colormap:")
     print("{")
     for k in sorted(__colormap__.keys()):

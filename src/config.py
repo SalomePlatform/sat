@@ -41,20 +41,13 @@ parser.add_option('c', 'copy', 'boolean', 'copy',
 \tWARNING the included files are not copied.
 \tIf a name is given the new config file takes the given name."""))
 
-'''
-class MergeHandler:
-    def __init__(self):
-        pass
-
-    def __call__(self, map1, map2, key):
-        if '__overwrite__' in map2 and key in map2.__overwrite__:
-            return "overwrite"
-        else:
-            return common.config_pyconf.overwriteMergeResolve(map1, map2, key)
-'''
-
 class ConfigOpener:
+    ''' Class that helps to find an application pyconf in all the possible directories (pathList)
+    '''
     def __init__(self, pathList):
+        '''Initialization
+        :param pathList list: The list of paths where to serach a pyconf.
+        '''
         self.pathList = pathList
 
     def __call__(self, name):
@@ -65,6 +58,9 @@ class ConfigOpener:
         raise IOError(_("Configuration file '%s' not found") % name)
 
     def getPath( self, name ):
+        '''The method that returns the entire path of the pyconf searched
+        :param name str: The name of the searched pyconf.
+        '''
         for path in self.pathList:
             if os.path.exists(os.path.join(path, name)):
                 return path
@@ -164,7 +160,7 @@ class ConfigManager:
     def getConfig(self, application=None, options=None, command=None, dataDir=None):
         '''get the config from all the configuration files.
         :param application str: The application for which salomeTools is called.
-        :param options TODO
+        :param options calss Options: The general salomeToosl options (--overwrite or -l5, for example)
         :param command str: The command that is called.
         :param dataDir str: The repository that contain external data for salomeTools.
         :return: The final config.
@@ -184,7 +180,8 @@ class ConfigManager:
         cfg.VARS = common.config_pyconf.Mapping(cfg)
         for variable in var:
             cfg.VARS[variable] = var[variable]
-
+        
+        # apply overwrite from command line if needed
         for rule in self.get_command_line_overrides(options, ["VARS"]):
             exec('cfg.' + rule) # this cannot be factorized because of the exec
         
@@ -197,9 +194,10 @@ class ConfigManager:
         except common.config_pyconf.ConfigError as e:
             raise common.SatException(_("Error in configuration file: salomeTools.pyconf\n  %(error)s") % \
                 {'error': str(e) })
-
+        
         merger.merge(cfg, internal_cfg)
 
+        # apply overwrite from command line if needed
         for rule in self.get_command_line_overrides(options, ["INTERNAL"]):
             exec('cfg.' + rule) # this cannot be factorized because of the exec        
         
@@ -223,6 +221,7 @@ class ConfigManager:
         
         merger.merge(cfg, site_cfg)
 
+        # apply overwrite from command line if needed
         for rule in self.get_command_line_overrides(options, ["SITE"]):
             exec('cfg.' + rule) # this cannot be factorized because of the exec
   
@@ -243,6 +242,7 @@ class ConfigManager:
 
             merger.merge(cfg, application_cfg)
 
+            # apply overwrite from command line if needed
             for rule in self.get_command_line_overrides(options, ["APPLICATION"]):
                 exec('cfg.' + rule) # this cannot be factorized because of the exec
         
@@ -252,7 +252,7 @@ class ConfigManager:
         # The directory containing the softwares definition
         softsDir = os.path.join(cfg.VARS.dataDir, 'software_pyconf')
         
-        # Loop on all files that are in softsDir directory and read its config
+        # Loop on all files that are in softsDir directory and read their config
         for fName in os.listdir(softsDir):
             if fName.endswith(".pyconf"):
                 common.config_pyconf.streamOpener = ConfigOpener([softsDir])
@@ -267,6 +267,7 @@ class ConfigManager:
                 
                 merger.merge(cfg, soft_cfg)
 
+        # apply overwrite from command line if needed
         for rule in self.get_command_line_overrides(options, ["SOFTWARE"]):
             exec('cfg.' + rule) # this cannot be factorized because of the exec
 
@@ -278,6 +279,7 @@ class ConfigManager:
         user_cfg = common.config_pyconf.Config(open(user_cfg_file))
         merger.merge(cfg, user_cfg)
 
+        # apply overwrite from command line if needed
         for rule in self.get_command_line_overrides(options, ["USER"]):
             exec('cfg.' + rule) # this cannot be factorize because of the exec
 
@@ -286,10 +288,12 @@ class ConfigManager:
     def setUserConfigFile(self, config):
         '''Set the user config file name and path.
         If necessary, build it from another one or create it from scratch.
+        :param config class 'common.config_pyconf.Config': The global config (containing all pyconf).
         '''
         if not config:
             raise common.SatException(_("Error in setUserConfigFile: config is None"))
         sat_version = config.INTERNAL.sat_version
+        # get the expected name and path of the file
         self.config_file_name = 'salomeTools-%s.pyconf'%sat_version
         self.user_config_file_path = os.path.join(config.VARS.personalDir, self.config_file_name)
         if not os.path.isfile(self.user_config_file_path):
@@ -308,6 +312,10 @@ class ConfigManager:
         '''Get a pyconf file younger than the given sat version in the given directory
         The file basename can be one of salometools-<younger version>.pyconf or salomeTools.pyconf
         Returns the file path or None if no file has been found.
+        :param userDir str: the directory that contain the user pyconf to find. (~/.salomeTools)
+        :param sat_version str: the version of salomeTools.
+        :return: the path to the already existing user pyconf.
+        :rtype: str
         '''
         file_path = None  
         # Get a younger pyconf version   
@@ -331,6 +339,11 @@ class ConfigManager:
         return file_path 
     
     def createConfigFile(self, config):
+        '''This method is called when there are no user config file. It build it from scratch.
+        :param config class 'common.config_pyconf.Config': The global config.
+        :return: the config corresponding to the file created.
+        :rtype: config class 'common.config_pyconf.Config'
+        '''
         
         cfg_name = self.getUserConfigFile()
 
@@ -364,6 +377,8 @@ class ConfigManager:
 
     def getUserConfigFile(self):
         '''Get the user config file
+        :return: path to the user config file.
+        :rtype: str
         '''
         if not self.user_config_file_path:
             raise common.SatException(_("Error in getUserConfigFile: missing user config file path"))
@@ -377,8 +392,6 @@ def print_value(config, path, show_label, level=0, show_full_path=False):
     :param show_label boolean: if True, do a basic display. (useful for bash completion)
     :param level int: The number of spaces to add before display.
     :param show_full_path :
-    :return: The final config.
-    :rtype: class 'common.config_pyconf.Config'
     '''            
     
     # display all the path or not
@@ -418,10 +431,17 @@ def print_value(config, path, show_label, level=0, show_full_path=False):
         sys.stdout.write("%s\n" % val)
 
 def description():
+    '''method that is called when salomeTools is called with --help option.
+    :return: The text to display for the config command description.
+    :rtype: str
+    '''
     return _("The config command allows manipulation and operation on config files.")
     
 
 def run(args, runner):
+    '''method that is called when salomeTools is called with config parameter.
+    '''
+    # Parse the options
     (options, args) = parser.parse_args(args)
     
     # case : print a value of the config
