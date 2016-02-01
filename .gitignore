@@ -10,3 +10,4 @@ sat-py3
 doc/build
 .coverage
 test/htmlcov
+test/test_res.html
