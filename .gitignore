@@ -1,0 +1,12 @@
+*~
+*.bak
+*.pyc
+.nfs*
+sat-py2
+sat-py3
+.pydevproject
+.project
+.settings
+doc/build
+.coverage
+test/htmlcov
