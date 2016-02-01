@@ -44,7 +44,7 @@ class TestConfig(unittest.TestCase):
 
         # The command to test
         sat = salomeTools('')
-        sat.config('-v VARS.hostname')
+        sat.config('-v VARS.python')
 
         # stop output redirection
         my_out.end_redirection()

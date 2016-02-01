@@ -22,7 +22,7 @@ import sys
 from . import printcolors
 
 class OptResult(object):
-    '''An instance of this class will be the object manipulated in code of all salomeTools command
+    '''An instance of this class will be the object manipulated in code of all salomeTools commands
     The aim of this class is to have an elegant syntax to manipulate the options. 
     ex: 
     print(options.level)
