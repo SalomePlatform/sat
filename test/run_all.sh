@@ -16,8 +16,8 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-coverage run --source=../src/config.py    config/integration/option_value.py > test_res.html
-coverage run --source=../src/config.py -a config/integration/option_value_2.py >> test_res.html
-coverage run --source=../src/config.py -a config/integration/create_user_pyconf.py >> test_res.html
-coverage run --source=../src/config.py -a config/integration/option_copy.py >> test_res.html
+coverage run --source=../src/config.py    config/option_value.py > test_res.html
+coverage run --source=../src/config.py -a config/option_value_2.py >> test_res.html
+coverage run --source=../src/config.py -a config/create_user_pyconf.py >> test_res.html
+coverage run --source=../src/config.py -a config/option_copy.py >> test_res.html
 coverage html

@@ -47,7 +47,7 @@ def find_command_list(dirPath):
     '''
     cmd_list = []
     for item in os.listdir(dirPath):
-        if item.endswith('.py') and item!='salomeTools.py':
+        if item.endswith('.py') and item!='salomeTools.py' and item!='__init__.py':
             cmd_list.append(item[:-len('.py')])
     return cmd_list
 
@@ -64,7 +64,7 @@ parser.add_option('g', 'debug', 'boolean', 'debug_mode', _("run salomeTools in d
 class salomeTools(object):
     '''The main class that stores all the commands of salomeTools
     '''
-    def __init__(self, opt, dataDir=None):
+    def __init__(self, opt='', dataDir=None):
         '''Initialization
         
         :param opt str: The sat options 
@@ -79,7 +79,7 @@ class salomeTools(object):
 
         # initialization of class attributes       
         self.__dict__ = dict()
-        self.cfg = None # the config that will be read using config_pyconf module
+        self.cfg = None # the config that will be read using pyconf module
         self.options = options # the options passed to salomeTools
         self.dataDir = dataDir # default value will be <salomeTools root>/data
         # set the commands by calling the dedicated function
@@ -115,7 +115,7 @@ class salomeTools(object):
             (file_, pathname, description) = imp.find_module(nameCmd, [dirPath])
             module = imp.load_module(nameCmd, file_, pathname, description)
             
-            def run_command(args):
+            def run_command(args=''):
                 '''The function that will load the configuration (all pyconf)
                 and return the function run of the command corresponding to module
                 

@@ -18,11 +18,11 @@
 
 import os
 
-from . import config_pyconf
+from . import pyconf
 from . import architecture
 from . import printcolors
 from . import options
-from . import fileSystem
+from . import system
 
 class SatException(Exception):
     '''rename Exception Class
@@ -40,7 +40,7 @@ def ensure_path_exists(p):
 def check_config_has_application( config, details = None ):
     '''check that the config has the key APPLICATION. Else raise an exception.
     
-    :param config class 'common.config_pyconf.Config': The config.
+    :param config class 'common.pyconf.Config': The config.
     '''
     if 'APPLICATION' not in config:
         message = _("An APPLICATION is required. Use 'config --list' to get the list of available applications.\n")

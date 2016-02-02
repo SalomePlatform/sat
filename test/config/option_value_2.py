@@ -22,8 +22,8 @@ import sys
 
 # get execution path
 testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..', '..', 'src'))
-sys.path.append(os.path.join(testdir, '..', '..', '..', 'test', '__TOOLS__'))
+sys.path.append(os.path.join(testdir, '..', '..', 'src'))
+sys.path.append(os.path.join(testdir, '..', '..', 'test', '_testTools'))
 
 from salomeTools import salomeTools
 from tools import outRedirection

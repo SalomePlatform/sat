@@ -23,8 +23,8 @@ import shutil
 
 # get execution path
 testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..', '..', 'src'))
-sys.path.append(os.path.join(testdir, '..', '..', '..', 'test', '__TOOLS__'))
+sys.path.append(os.path.join(testdir, '..', '..', 'src'))
+sys.path.append(os.path.join(testdir, '..', '..', 'test', '_testTools'))
 
 from salomeTools import salomeTools
 import HTMLTestRunner
@@ -33,21 +33,26 @@ class TestConfig(unittest.TestCase):
     '''pyunit class : each method execute one test.
     '''
     
-    def test_option_copy(self):
-        '''Test the copy of a pyconf"
+    def test_option_value(self):
+        '''Test the display of the right value of "sat config -v VARS.hostname"
         '''
         res = "KO"
-        appli_to_copy = "appli-test"
+        user_dir = os.path.expanduser(os.path.join('~','.salomeTools'))
+        user_dir_save = os.path.expanduser(os.path.join('~','.salomeTools_save'))
+        if os.path.exists(user_dir):
+            shutil.move(user_dir, user_dir_save)
                
         # The command to test
         sat = salomeTools('')
-        sat.config('appli-test -c')
+        sat.config('-v .')
 
-        expected_file = os.path.expanduser(os.path.join('~','.salomeTools', 'Application', 'LOCAL_' + appli_to_copy + '.pyconf'))
+        expected_file = os.path.expanduser(os.path.join('~','.salomeTools', 'salomeTools-' + sat.cfg.INTERNAL.sat_version + ".pyconf"))
 
         if os.path.exists(expected_file):
             res = "OK"
-            os.remove(expected_file)
+
+        shutil.rmtree(user_dir)
+        shutil.move(user_dir_save, user_dir)
 
         # pyunit method to compare 2 str
         self.assertEqual(res, "OK")
