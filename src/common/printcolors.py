@@ -43,6 +43,7 @@ __code_range__ = [1, 4] + list(range(30, 38)) + list(range(40, 48)) + list(range
 
 def printc(txt, code=''):
     '''print a text with colors
+    
     :param txt str: The text to be printed.
     :param code str: The color to use.
     :return: The colored text.
@@ -66,6 +67,7 @@ def printc(txt, code=''):
 
 def printcInfo(txt):
     '''print a text info color
+    
     :param txt str: The text to be printed.
     :return: The colored text.
     :rtype: str
@@ -74,6 +76,7 @@ def printcInfo(txt):
 
 def printcError(txt):
     '''print a text error color
+    
     :param txt str: The text to be printed.
     :return: The colored text.
     :rtype: str
@@ -82,6 +85,7 @@ def printcError(txt):
 
 def printcWarning(txt):
     '''print a text warning color
+    
     :param txt str: The text to be printed.
     :return: The colored text.
     :rtype: str
@@ -90,6 +94,7 @@ def printcWarning(txt):
 
 def printcHeader(txt):
     '''print a text header color
+    
     :param txt str: The text to be printed.
     :return: The colored text.
     :rtype: str
@@ -98,6 +103,7 @@ def printcHeader(txt):
 
 def printcLabel(txt):
     '''print a text label color
+    
     :param txt str: The text to be printed.
     :return: The colored text.
     :rtype: str
@@ -106,6 +112,7 @@ def printcLabel(txt):
 
 def printcSuccess(txt):
     '''print a text success color
+    
     :param txt str: The text to be printed.
     :return: The colored text.
     :rtype: str
@@ -114,6 +121,7 @@ def printcSuccess(txt):
 
 def printcHighlight(txt):
     '''print a text highlight color
+    
     :param txt str: The text to be printed.
     :return: The colored text.
     :rtype: str
@@ -122,6 +130,7 @@ def printcHighlight(txt):
 
 def cleancolor(message):
     '''remove color from a colored text.
+    
     :param message str: The text to be cleaned.
     :return: The cleaned text.
     :rtype: str
@@ -133,6 +142,7 @@ def cleancolor(message):
 
 def print_value(logger, label, value, level=1, suffix=""):
     '''shortcut method to print a label and a value with the info color
+    
     :param logger class logger: the logger instance.
     :param label int: the label to print.
     :param value str: the value to print.
@@ -146,6 +156,7 @@ def print_value(logger, label, value, level=1, suffix=""):
 
 def print_color_range(start, end):
     '''print possible range values for colors
+    
     :param start int: The smaller value.
     :param end int: The bigger value.
     '''

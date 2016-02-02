@@ -35,6 +35,7 @@ class OptResult(object):
 
     def __getattr__(self, name):
         '''Overwrite of the __getattr__ function to customize it for option usage
+        
         :param name str: The attribute to get the value.
         :return: the value corresponding to the attribute.
         :rtype: str,int,list,boolean
@@ -46,6 +47,7 @@ class OptResult(object):
 
     def __setattr__(self, name, value):
         '''Overwrite of the __setattr__ function to customize it for option usage
+        
         :param name str: The attribute to set.
         :param value str: The value  corresponding to the attribute.
         :return: Nothing.
@@ -66,6 +68,7 @@ class Options:
 
     def add_option(self, shortName, longName, optionType, destName, helpString=""):
         '''Method to add an option to a command. It gets all attributes of an option and append it in the options field
+        
         :param shortName str: The short name of the option (ex "l" for level option).
         :param longName str: The long name of the option (ex "level" for level option).
         :param optionType str: The type of the option (ex "int").
@@ -90,6 +93,7 @@ class Options:
 
     def print_help(self):
         '''Method that display all options stored in self.options and there help
+        
         :return: Nothing.
         :rtype: N\A
         '''
@@ -107,6 +111,7 @@ class Options:
 
     def parse_args(self, argList=None):
         '''Method that instantiates the class OptResult that gives access to all options in the code
+        
         :param argList list: the raw list of arguments that were passed
         :return: optResult, args : optResult is the option instance to manipulate in the code. args is the full raw list of passed options 
         :rtype: (class 'common.options.OptResult',list)

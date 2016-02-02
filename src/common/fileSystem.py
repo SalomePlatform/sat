@@ -26,6 +26,7 @@ import subprocess
 
 def show_in_editor(editor, filePath):
     '''open filePath using editor.
+    
     :param editor str: The editor to use.
     :param filePath str: The path to the file to open.
     '''

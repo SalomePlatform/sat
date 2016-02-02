@@ -40,6 +40,7 @@ gettext.install('salomeTools', os.path.join(srcdir, 'common', 'i18n'))
 
 def find_command_list(dirPath):
     ''' Parse files in dirPath that end with .py : it gives commands list
+    
     :param dirPath str: The directory path where to search the commands
     :return: cmd_list : the list containing the commands name 
     :rtype: list
@@ -65,6 +66,7 @@ class salomeTools(object):
     '''
     def __init__(self, opt, dataDir=None):
         '''Initialization
+        
         :param opt str: The sat options 
         :param: dataDir str : the directory that contain all the external data (like software pyconf and software scripts)
         '''
@@ -94,6 +96,7 @@ class salomeTools(object):
 
     def __getattr__(self, name):
         ''' overwrite of __getattr__ function in order to display a customized message in case of a wrong call
+        
         :param name str: The name of the attribute 
         '''
         if name in self.__dict__:
@@ -103,6 +106,7 @@ class salomeTools(object):
     
     def __setCommands__(self, dirPath):
         '''set class attributes corresponding to all commands that are in the dirPath directory
+        
         :param dirPath str: The directory path containing the commands 
         '''
         # loop on the commands name
@@ -114,6 +118,7 @@ class salomeTools(object):
             def run_command(args):
                 '''The function that will load the configuration (all pyconf)
                 and return the function run of the command corresponding to module
+                
                 :param args str: The directory path containing the commands 
                 '''
                 argv = args.split(" ")
@@ -143,6 +148,7 @@ class salomeTools(object):
 
     def print_help(self, opt):
         '''Prints help for a command. Function called when "sat -h <command>"
+        
         :param argv str: the options passed (to get the command name)
         '''
         # if no command as argument (sat -h)
@@ -176,6 +182,7 @@ class salomeTools(object):
 
     def get_module(self, module):
         '''Loads a command. Function called only by print_help
+        
         :param module str: the command to load
         '''
         # Check if this command exists
@@ -199,6 +206,7 @@ def print_version():
 
 def print_help():
     '''prints salomeTools general help
+    
     :param options str: the options
     '''
     print_version()
@@ -217,6 +225,7 @@ def print_help():
 
 def write_exception(exc):
     '''write exception in case of error in a command
+    
     :param exc exception: the exception to print
     '''
     sys.stderr.write("\n***** ")

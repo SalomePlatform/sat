@@ -31,6 +31,7 @@ class SatException(Exception):
 
 def ensure_path_exists(p):
     '''Create a path if not existing
+    
     :param p str: The path.
     '''
     if not os.path.exists(p):
@@ -38,6 +39,7 @@ def ensure_path_exists(p):
         
 def check_config_has_application( config, details = None ):
     '''check that the config has the key APPLICATION. Else raise an exception.
+    
     :param config class 'common.config_pyconf.Config': The config.
     '''
     if 'APPLICATION' not in config:

@@ -46,6 +46,7 @@ class ConfigOpener:
     '''
     def __init__(self, pathList):
         '''Initialization
+        
         :param pathList list: The list of paths where to serach a pyconf.
         '''
         self.pathList = pathList
@@ -74,6 +75,7 @@ class ConfigManager:
 
     def _create_vars(self, application=None, command=None, dataDir=None):
         '''Create a dictionary that stores all information about machine, user, date, repositories, etc...
+        
         :param application str: The application for which salomeTools is called.
         :param command str: The command that is called.
         :param dataDir str: The repository that contain external data for salomeTools.
@@ -142,7 +144,8 @@ class ConfigManager:
 
     def get_command_line_overrides(self, options, sections):
         '''get all the overwrites that are in the command line
-        :param options : the options from salomeTools class initialization (like -l5 or --overwrite)
+        
+        :param options: the options from salomeTools class initialization (like -l5 or --overwrite)
         :param sections str: The config section to overwrite.
         :return: The list of all the overwrites to apply.
         :rtype: list
@@ -159,6 +162,7 @@ class ConfigManager:
 
     def getConfig(self, application=None, options=None, command=None, dataDir=None):
         '''get the config from all the configuration files.
+        
         :param application str: The application for which salomeTools is called.
         :param options calss Options: The general salomeToosl options (--overwrite or -l5, for example)
         :param command str: The command that is called.
@@ -288,6 +292,7 @@ class ConfigManager:
     def setUserConfigFile(self, config):
         '''Set the user config file name and path.
         If necessary, build it from another one or create it from scratch.
+        
         :param config class 'common.config_pyconf.Config': The global config (containing all pyconf).
         '''
         if not config:
@@ -312,6 +317,7 @@ class ConfigManager:
         '''Get a pyconf file younger than the given sat version in the given directory
         The file basename can be one of salometools-<younger version>.pyconf or salomeTools.pyconf
         Returns the file path or None if no file has been found.
+        
         :param userDir str: the directory that contain the user pyconf to find. (~/.salomeTools)
         :param sat_version str: the version of salomeTools.
         :return: the path to the already existing user pyconf.
@@ -340,6 +346,7 @@ class ConfigManager:
     
     def createConfigFile(self, config):
         '''This method is called when there are no user config file. It build it from scratch.
+        
         :param config class 'common.config_pyconf.Config': The global config.
         :return: the config corresponding to the file created.
         :rtype: config class 'common.config_pyconf.Config'
@@ -387,6 +394,7 @@ class ConfigManager:
     
 def print_value(config, path, show_label, level=0, show_full_path=False):
     '''Prints a value from the configuration. Prints recursively the values under the initial path.
+    
     :param config class 'common.config_pyconf.Config': The configuration from which the value is displayed.
     :param path str : the path in the configuration of the value to print.
     :param show_label boolean: if True, do a basic display. (useful for bash completion)
@@ -432,6 +440,7 @@ def print_value(config, path, show_label, level=0, show_full_path=False):
 
 def description():
     '''method that is called when salomeTools is called with --help option.
+    
     :return: The text to display for the config command description.
     :rtype: str
     '''

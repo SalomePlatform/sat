@@ -23,13 +23,15 @@ In this file : all the stuff that can change with the architecture on which SAT 
 import os, sys, platform, pwd
 
 def is_windows():
-    '''method that checks windows OS  
+    '''method that checks windows OS
+      
     :rtype: boolean
     '''
     return platform.system() == 'Windows'
 
 def get_user():
     '''method that gets the username that launched sat  
+    
     :rtype: str
     '''
     # In windows case, the USERNAME environment variable has to be set
@@ -42,6 +44,7 @@ def get_user():
 
 def _lsb_release(args):
     '''Get system information with lsb_release.
+    
     :param args str: The arguments to give to lsb_release.
     :return: The distribution.
     :rtype: str
@@ -65,6 +68,7 @@ def _lsb_release(args):
 
 def get_distribution(codes):
     '''Gets the code for the distribution
+    
     :param codes L{Mapping}: The map containing distribution correlation table.
     :return: The distribution on which salomeTools is running, regarding the distribution correlation table contained in codes variable.
     :rtype: str
@@ -86,6 +90,7 @@ def get_distribution(codes):
 
 def get_distrib_version(distrib, codes):
     '''Gets the version of the distribution
+    
     :param distrib str: The distribution on which the version will be found.
     :param codes L{Mapping}: The map containing distribution correlation table.
     :return: The version of the distribution on which salomeTools is running, regarding the distribution correlation table contained in codes variable.
@@ -105,6 +110,7 @@ def get_distrib_version(distrib, codes):
 
 def get_nb_bit():
     '''Gets the number of bytes.
+    
     :return: the number of bytes of the OS on which salomeTools is running.
     :rtype: str
     '''
@@ -123,6 +129,7 @@ def get_nb_bit():
 
 def get_python_version():
     '''Gets the version of the running python.
+    
     :return: the version of the running python.
     :rtype: str
     '''
@@ -132,6 +139,7 @@ def get_python_version():
 
 def get_nb_proc():
     '''Gets the number of processors of the machine on which salomeTools is running.
+    
     :return: the number of processors.
     :rtype: str
     '''
