@@ -97,33 +97,21 @@ class ConfigManager:
 
         # read linux distributions dictionary
         distrib_cfg = common.pyconf.Config(os.path.join(var['srcDir'], 'common', 'internal_config', 'distrib.pyconf'))
-
+        
         # set platform parameters
         dist_name = common.architecture.get_distribution(codes=distrib_cfg.DISTRIBUTIONS)
         dist_version = common.architecture.get_distrib_version(dist_name, codes=distrib_cfg.VERSIONS)
         dist = dist_name + dist_version
         
-        # Forcing architecture with env variable ARCH on Windows
-        if common.architecture.is_windows() and "ARCH" in os.environ :
-            bitsdict={"Win32":"32","Win64":"64"}
-            nb_bits = bitsdict[os.environ["ARCH"]]
-        else :
-            nb_bits = common.architecture.get_nb_bit()
-
         var['dist_name'] = dist_name
         var['dist_version'] = dist_version
         var['dist'] = dist
-        var['arch'] = dist + '_' + nb_bits
-        var['bits'] = nb_bits
         var['python'] = common.architecture.get_python_version()
 
         var['nb_proc'] = common.architecture.get_nb_proc()
         node_name = platform.node()
         var['node'] = node_name
         var['hostname'] = node_name
-        # particular win case 
-        if common.architecture.is_windows() :
-            var['hostname'] = node_name+'-'+nb_bits
 
         # set date parameters
         dt = datetime.datetime.now()
@@ -295,54 +283,13 @@ class ConfigManager:
         
         :param config class 'common.pyconf.Config': The global config (containing all pyconf).
         '''
-        if not config:
-            raise common.SatException(_("Error in setUserConfigFile: config is None"))
-        sat_version = config.INTERNAL.sat_version
         # get the expected name and path of the file
-        self.config_file_name = 'salomeTools-%s.pyconf'%sat_version
+        self.config_file_name = 'salomeTools.pyconf'
         self.user_config_file_path = os.path.join(config.VARS.personalDir, self.config_file_name)
-        if not os.path.isfile(self.user_config_file_path):
-            # if pyconf does not exist, 
-            # Make a copy of an existing  salomeTools-<sat_version>.pyconf
-            # or at least a copy of salomeTools.pyconf
-            # If there is no pyconf file at all, create it from scratch 
-            already_exisiting_pyconf_file = self.getAlreadyExistingUserPyconf( config.VARS.personalDir, sat_version )
-            if already_exisiting_pyconf_file:  
-                # copy
-                shutil.copyfile( already_exisiting_pyconf_file, self.user_config_file_path )
-            else: # create from scratch
-                self.createConfigFile(config)
-    
-    def getAlreadyExistingUserPyconf(self, userDir, sat_version ):
-        '''Get a pyconf file younger than the given sat version in the given directory
-        The file basename can be one of salometools-<younger version>.pyconf or salomeTools.pyconf
-        Returns the file path or None if no file has been found.
         
-        :param userDir str: the directory that contain the user pyconf to find. (~/.salomeTools)
-        :param sat_version str: the version of salomeTools.
-        :return: the path to the already existing user pyconf.
-        :rtype: str
-        '''
-        file_path = None  
-        # Get a younger pyconf version   
-        pyconfFiles = glob.glob( os.path.join(userDir, 'salomeTools-*.pyconf') )
-        sExpr = "^salomeTools-(.*)\.pyconf$"
-        oExpr = re.compile(sExpr)
-        younger_version = None
-        for s in pyconfFiles:
-            oSreMatch = oExpr.search( os.path.basename(s) )
-            if oSreMatch:
-                pyconf_version = oSreMatch.group(1)
-                if pyconf_version < sat_version: 
-                    younger_version = pyconf_version 
-
-        # Build the pyconf filepath
-        if younger_version :   
-            file_path = os.path.join( userDir, 'salomeTools-%s.pyconf'%younger_version )
-        elif os.path.isfile( os.path.join(userDir, 'salomeTools.pyconf') ):
-            file_path = os.path.join( userDir, 'salomeTools.pyconf' )
-        
-        return file_path 
+        # if pyconf does not exist, create it from scratch
+        if not os.path.isfile(self.user_config_file_path): 
+            self.createConfigFile(config)
     
     def createConfigFile(self, config):
         '''This method is called when there are no user config file. It build it from scratch.
@@ -467,7 +414,7 @@ def run(args, runner):
     elif options.edit:
         editor = runner.cfg.USER.editor
         if 'APPLICATION' not in runner.cfg: # edit user pyconf
-            usercfg = os.path.join(runner.cfg.VARS.personalDir, 'salomeTools-%s.pyconf'%runner.cfg.INTERNAL['sat_version'])
+            usercfg = os.path.join(runner.cfg.VARS.personalDir, 'salomeTools.pyconf')
             common.system.show_in_editor(editor, usercfg)
         else:
             # search for file <application>.pyconf and open it

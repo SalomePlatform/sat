@@ -108,25 +108,6 @@ def get_distrib_version(distrib, codes):
 
     return version
 
-def get_nb_bit():
-    '''Gets the number of bytes.
-    
-    :return: the number of bytes of the OS on which salomeTools is running.
-    :rtype: str
-    '''
-
-    # The platform python module gives the answer
-    nb_bit = platform.architecture()[0]
-    if nb_bit == "64bit":
-        nb_bit = "64"
-    elif nb_bit == "32bit":
-        nb_bit = "32"
-    else:
-        sys.stderr.write(_(u"Unknown architecture: '%s'\n") % nb_bit)
-        sys.exit(-1)
-
-    return nb_bit
-
 def get_python_version():
     '''Gets the version of the running python.
     

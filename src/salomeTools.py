@@ -123,7 +123,7 @@ class salomeTools(object):
                 '''
                 argv = args.split(" ")
                 
-                # first argument is the APPLICATION
+                # if it is provided by the command line, get the application
                 appliToLoad = None
                 if argv != [''] and argv[0][0] != "-":
                     appliToLoad = argv[0].rstrip('*')
