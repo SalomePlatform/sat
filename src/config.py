@@ -20,8 +20,6 @@ import os
 import sys
 import platform
 import datetime
-import glob
-import re
 import shutil
 import gettext
 
