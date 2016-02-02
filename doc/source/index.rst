@@ -28,6 +28,16 @@ List of Commands
    
    config <commands/config>
 
+Code documentation
+==================
+ 
+.. toctree::
+   :maxdepth: 1
+   
+   SAT modules <commands/apidoc/modules.rst>
+
+
+
 Release Notes
 =============
 Here are the release notes for sat:
