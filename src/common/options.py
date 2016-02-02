@@ -113,7 +113,7 @@ class Options:
         '''
         if argList is None:
             argList = sys.argv[1:]
-
+        
         # format shortNameOption and longNameOption to make right arguments to getopt.getopt function
         shortNameOption = ""
         longNameOption = []
@@ -163,5 +163,7 @@ class Options:
                             option['result'].extend(elts)
 
             optResult.__setattr__(option['destName'], option['result'])
+            # free the option in order to be able to make a new free call of options (API case)
+            option['result'] = None
         return optResult, args
 
