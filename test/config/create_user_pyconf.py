@@ -34,7 +34,7 @@ class TestConfig(unittest.TestCase):
     '''
     
     def test_option_value(self):
-        '''Test the display of the right value of "sat config -v VARS.hostname"
+        '''Creation of ~/.salomeTools/salomeTools.pyconf
         '''
         res = "KO"
         user_dir = os.path.expanduser(os.path.join('~','.salomeTools'))
@@ -46,7 +46,7 @@ class TestConfig(unittest.TestCase):
         sat = salomeTools('')
         sat.config('-v .')
 
-        expected_file = os.path.expanduser(os.path.join('~','.salomeTools', 'salomeTools-' + sat.cfg.INTERNAL.sat_version + ".pyconf"))
+        expected_file = os.path.expanduser(os.path.join('~','.salomeTools', 'salomeTools.pyconf'))
 
         if os.path.exists(expected_file):
             res = "OK"

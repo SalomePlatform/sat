@@ -19,6 +19,7 @@
 import unittest
 import os
 import sys
+import platform
 
 # get execution path
 testdir = os.path.dirname(os.path.realpath(__file__))
@@ -30,14 +31,14 @@ from tools import outRedirection
 import HTMLTestRunner
 
 class TestConfig(unittest.TestCase):
-    '''pyunit class : each method execute one test.
+    '''OPTION VALUE.
     '''
     
     def test_option_value(self):
         '''Test the display of the right value of "sat config -v VARS.hostname"
         '''
-        # expected value
-        expected = '\x1b[36mhostname\x1b[0m: is221560\n'
+
+        OK = "KO"
 
         # output redirection
         my_out = outRedirection()
@@ -52,14 +53,17 @@ class TestConfig(unittest.TestCase):
         # get results
         res = my_out.read_results()
 
+        if platform.node() in res:
+            OK = "OK"
+
         # pyunit method to compare 2 str
-        self.assertEqual(res, expected)
+        self.assertEqual(OK, "OK")
 
     def test_option_list(self):
         '''Test the display of the right value of "sat config -l"
         '''
-        # expected value
-        expected = '------ \x1b[34m/home/salome/SPN_PRIVATE/sat5dev_Applications\x1b[0m\nappli-test\n\n------ \x1b[34m/export/home/serioja/.salomeTools/Applications\x1b[0m\n\n'
+        
+        OK = "KO"
 
         # output redirection
         my_out = outRedirection()
@@ -74,8 +78,12 @@ class TestConfig(unittest.TestCase):
         # get results
         res = my_out.read_results()
 
+        # get results
+        if "ERROR" not in res:
+            OK = "OK"
+
         # pyunit method to compare 2 str
-        self.assertEqual(res, expected)
+        self.assertEqual(OK, "OK")
 
 # test launch
 if __name__ == '__main__':

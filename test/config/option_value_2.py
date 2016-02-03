@@ -19,6 +19,7 @@
 import unittest
 import os
 import sys
+import platform
 
 # get execution path
 testdir = os.path.dirname(os.path.realpath(__file__))
@@ -30,14 +31,14 @@ from tools import outRedirection
 import HTMLTestRunner
 
 class TestConfig(unittest.TestCase):
-    '''pyunit class : each method execute one test.
+    '''test of sat config -v VARS.python
     '''
     
     def test_option_value(self):
-        '''Test the display of the right value of "sat config -v VARS.hostname"
+        '''Test the display of the right value of "sat config -v VARS.python"
         '''
-        # expected value
-        expected = '\x1b[36mhostname\x1b[0m: is221560\n'
+        
+        OK = 'KO'
 
         # output redirection
         my_out = outRedirection()
@@ -51,31 +52,14 @@ class TestConfig(unittest.TestCase):
 
         # get results
         res = my_out.read_results()
+        
+        
+        if platform.python_version() in res:
+            OK = 'OK'
 
         # pyunit method to compare 2 str
-        self.assertEqual(res, expected)
+        self.assertEqual(OK, 'OK')
 
-    def test_option_list(self):
-        '''Test the display of the right value of "sat config -l"
-        '''
-        # expected value
-        expected = '------ \x1b[34m/home/salome/SPN_PRIVATE/sat5dev_Applications\x1b[0m\nappli-test\n\n------ \x1b[34m/export/home/serioja/.salomeTools/Applications\x1b[0m\n\n'
-
-        # output redirection
-        my_out = outRedirection()
-
-        # The command to test
-        sat = salomeTools('')
-        sat.config('-l')
-
-        # stop output redirection
-        my_out.end_redirection()
-
-        # get results
-        res = my_out.read_results()
-
-        # pyunit method to compare 2 str
-        self.assertEqual(res, expected)
 
 # test launch
 if __name__ == '__main__':

@@ -30,20 +30,23 @@ from salomeTools import salomeTools
 import HTMLTestRunner
 
 class TestConfig(unittest.TestCase):
-    '''pyunit class : each method execute one test.
+    '''sat config -c
     '''
     
     def test_option_copy(self):
-        '''Test the copy of a pyconf"
+        '''Test the copy of a pyconf
         '''
         res = "KO"
         appli_to_copy = "appli-test"
+
+        expected_file = os.path.expanduser(os.path.join('~','.salomeTools', 'Applications', 'LOCAL_' + appli_to_copy + '.pyconf'))
+        if os.path.exists(expected_file):
+            os.remove(expected_file)
                
         # The command to test
         sat = salomeTools('')
         sat.config('appli-test -c')
 
-        expected_file = os.path.expanduser(os.path.join('~','.salomeTools', 'Application', 'LOCAL_' + appli_to_copy + '.pyconf'))
 
         if os.path.exists(expected_file):
             res = "OK"
