@@ -27,16 +27,22 @@ import types
 import gettext
 
 # salomeTools imports
-import common.options
-import config
+import src.options
 
 # get path to salomeTools sources
-srcdir = os.path.dirname(os.path.realpath(__file__))
+satdir  = os.path.dirname(os.path.realpath(__file__))
+cmdsdir = os.path.join(satdir, 'commands')
+
+# Make the src package accessible from all code
+sys.path.append(satdir)
+sys.path.append(cmdsdir)
+
+import config
 
 # load resources for internationalization
-#es = gettext.translation('salomeTools', os.path.join(srcdir, 'common', 'i18n'))
+#es = gettext.translation('salomeTools', os.path.join(satdir, 'src', 'i18n'))
 #es.install()
-gettext.install('salomeTools', os.path.join(srcdir, 'common', 'i18n'))
+gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
 
 def find_command_list(dirPath):
     ''' Parse files in dirPath that end with .py : it gives commands list
@@ -47,21 +53,21 @@ def find_command_list(dirPath):
     '''
     cmd_list = []
     for item in os.listdir(dirPath):
-        if item.endswith('.py') and item!='salomeTools.py' and item!='__init__.py':
+        if item.endswith('.py'):
             cmd_list.append(item[:-len('.py')])
     return cmd_list
 
 # The list of valid salomeTools commands
 #lCommand = ['config', 'compile', 'prepare']
-lCommand = find_command_list(srcdir)
+lCommand = find_command_list(cmdsdir)
 
 # Define all possible option for salomeTools command :  sat <option> <args>
-parser = common.options.Options()
+parser = src.options.Options()
 parser.add_option('h', 'help', 'boolean', 'help', _("shows global help or help on a specific command."))
 parser.add_option('o', 'overwrite', 'list', "overwrite", _("overwrites a configuration parameters."))
 parser.add_option('g', 'debug', 'boolean', 'debug_mode', _("run salomeTools in debug mode."))
 
-class salomeTools(object):
+class Sat(object):
     '''The main class that stores all the commands of salomeTools
     '''
     def __init__(self, opt='', dataDir=None):
@@ -83,7 +89,7 @@ class salomeTools(object):
         self.options = options # the options passed to salomeTools
         self.dataDir = dataDir # default value will be <salomeTools root>/data
         # set the commands by calling the dedicated function
-        self.__setCommands__(srcdir)
+        self.__setCommands__(cmdsdir)
         
         # if the help option has been called, print help and exit
         if options.help:
@@ -163,7 +169,7 @@ class salomeTools(object):
 
         # Check if this command exists
         if not hasattr(self, command):
-            raise common.SatException(_("Command '%s' does not exist") % command)
+            raise src.SatException(_("Command '%s' does not exist") % command)
         
         # Print salomeTools version
         print_version()
@@ -173,7 +179,7 @@ class salomeTools(object):
 
         # print the description of the command that is done in the command file
         if hasattr( module, "description" ) :
-            print(common.printcolors.printcHeader( _("Description:") ))
+            print(src.printcolors.printcHeader( _("Description:") ))
             print(module.description() + '\n')
 
         # print the description of the command options
@@ -187,21 +193,21 @@ class salomeTools(object):
         '''
         # Check if this command exists
         if not hasattr(self, module):
-            raise common.SatException(_("Command '%s' does not exist") % module)
+            raise src.SatException(_("Command '%s' does not exist") % module)
 
         # load the module
-        (file_, pathname, description) = imp.find_module(module, [srcdir])
+        (file_, pathname, description) = imp.find_module(module, [cmdsdir])
         module = imp.load_module(module, file_, pathname, description)
         return module
  
 def print_version():
-    '''prints salomeTools version (in src/common/internal_config/salomeTools.pyconf)
+    '''prints salomeTools version (in src/internal_config/salomeTools.pyconf)
     '''
     # read the config 
     cfgManager = config.ConfigManager()
     cfg = cfgManager.getConfig()
     # print the key corresponding to salomeTools version
-    print(common.printcolors.printcHeader( _("Version: ") ) + cfg.INTERNAL.sat_version + '\n')
+    print(src.printcolors.printcHeader( _("Version: ") ) + cfg.INTERNAL.sat_version + '\n')
 
 
 def print_help():
@@ -211,17 +217,17 @@ def print_help():
     '''
     print_version()
     
-    print(common.printcolors.printcHeader( _("Usage: ") ) + "sat [sat_options] <command> [product] [command_options]\n")
+    print(src.printcolors.printcHeader( _("Usage: ") ) + "sat [sat_options] <command> [product] [command_options]\n")
 
     parser.print_help()
 
     # display all the available commands.
-    print(common.printcolors.printcHeader(_("Available commands are:\n")))
+    print(src.printcolors.printcHeader(_("Available commands are:\n")))
     for command in lCommand:
         print(" - %s" % (command))
         
     # Explain how to get the help for a specific command
-    print(common.printcolors.printcHeader(_("\nGetting the help for a specific command: ")) + "sat --help <command>\n")
+    print(src.printcolors.printcHeader(_("\nGetting the help for a specific command: ")) + "sat --help <command>\n")
 
 def write_exception(exc):
     '''write exception in case of error in a command
@@ -229,7 +235,7 @@ def write_exception(exc):
     :param exc exception: the exception to print
     '''
     sys.stderr.write("\n***** ")
-    sys.stderr.write(common.printcolors.printcError("salomeTools ERROR:"))
+    sys.stderr.write(src.printcolors.printcError("salomeTools ERROR:"))
     sys.stderr.write("\n" + str(exc) + "\n")
 
 # ###############################
@@ -248,7 +254,7 @@ if __name__ == "__main__":
         sys.exit(0)
     
     # instantiate the salomeTools class with correct options
-    sat = salomeTools(' '.join(sys.argv[1:]))
+    sat = Sat(' '.join(sys.argv[1:]))
     # the command called
     command = args[0]
     # get dynamically the command function to call

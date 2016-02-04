@@ -23,14 +23,14 @@ import datetime
 import shutil
 import gettext
 
-import common
+import src
 
 # internationalization
-srcdir = os.path.dirname(os.path.realpath(__file__))
-gettext.install('salomeTools', os.path.join(srcdir, 'common', 'i18n'))
+satdir  = os.path.dirname(os.path.realpath(__file__))
+gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
 
 # Define all possible option for config command :  sat config <options>
-parser = common.options.Options()
+parser = src.options.Options()
 parser.add_option('v', 'value', 'string', 'value', _("print the value of CONFIG_VARIABLE."))
 parser.add_option('e', 'edit', 'boolean', 'edit', _("edit the product configuration file."))
 parser.add_option('l', 'list', 'boolean', 'list',_("list all available applications."))
@@ -51,9 +51,9 @@ class ConfigOpener:
 
     def __call__(self, name):
         if os.path.isabs(name):
-            return common.pyconf.ConfigInputStream(open(name, 'rb'))
+            return src.pyconf.ConfigInputStream(open(name, 'rb'))
         else:
-            return common.pyconf.ConfigInputStream( open(os.path.join( self.getPath(name), name ), 'rb') )
+            return src.pyconf.ConfigInputStream( open(os.path.join( self.getPath(name), name ), 'rb') )
         raise IOError(_("Configuration file '%s' not found") % name)
 
     def getPath( self, name ):
@@ -81,7 +81,7 @@ class ConfigManager:
         :rtype: dict
         '''
         var = {}      
-        var['user'] = common.architecture.get_user()
+        var['user'] = src.architecture.get_user()
         var['salometoolsway'] = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         var['srcDir'] = os.path.join(var['salometoolsway'], 'src')
         var['sep']= os.path.sep
@@ -94,19 +94,19 @@ class ConfigManager:
         var['personalDir'] = os.path.join(os.path.expanduser('~'), '.salomeTools')
 
         # read linux distributions dictionary
-        distrib_cfg = common.pyconf.Config(os.path.join(var['srcDir'], 'common', 'internal_config', 'distrib.pyconf'))
+        distrib_cfg = src.pyconf.Config(os.path.join(var['srcDir'], 'internal_config', 'distrib.pyconf'))
         
         # set platform parameters
-        dist_name = common.architecture.get_distribution(codes=distrib_cfg.DISTRIBUTIONS)
-        dist_version = common.architecture.get_distrib_version(dist_name, codes=distrib_cfg.VERSIONS)
+        dist_name = src.architecture.get_distribution(codes=distrib_cfg.DISTRIBUTIONS)
+        dist_version = src.architecture.get_distrib_version(dist_name, codes=distrib_cfg.VERSIONS)
         dist = dist_name + dist_version
         
         var['dist_name'] = dist_name
         var['dist_version'] = dist_version
         var['dist'] = dist
-        var['python'] = common.architecture.get_python_version()
+        var['python'] = src.architecture.get_python_version()
 
-        var['nb_proc'] = common.architecture.get_nb_proc()
+        var['nb_proc'] = src.architecture.get_nb_proc()
         node_name = platform.node()
         var['node'] = node_name
         var['hostname'] = node_name
@@ -123,7 +123,7 @@ class ConfigManager:
         # Root dir for temporary files 
         var['tmp_root'] = os.sep + 'tmp' + os.sep + var['user']
         # particular win case 
-        if common.architecture.is_windows() : 
+        if src.architecture.is_windows() : 
             var['tmp_root'] =  os.path.expanduser('~') + os.sep + 'tmp'
         
         return var
@@ -154,20 +154,20 @@ class ConfigManager:
         :param command str: The command that is called.
         :param dataDir str: The repository that contain external data for salomeTools.
         :return: The final config.
-        :rtype: class 'common.pyconf.Config'
+        :rtype: class 'src.pyconf.Config'
         '''        
         
         # create a ConfigMerger to handle merge
-        merger = common.pyconf.ConfigMerger()#MergeHandler())
+        merger = src.pyconf.ConfigMerger()#MergeHandler())
         
         # create the configuration instance
-        cfg = common.pyconf.Config()
+        cfg = src.pyconf.Config()
         
         # =======================================================================================
         # create VARS section
         var = self._create_vars(application=application, command=command, dataDir=dataDir)
         # add VARS to config
-        cfg.VARS = common.pyconf.Mapping(cfg)
+        cfg.VARS = src.pyconf.Mapping(cfg)
         for variable in var:
             cfg.VARS[variable] = var[variable]
         
@@ -177,12 +177,12 @@ class ConfigManager:
         
         # =======================================================================================
         # Load INTERNAL config
-        # read src/common/internal_config/salomeTools.pyconf
-        common.pyconf.streamOpener = ConfigOpener([os.path.join(cfg.VARS.srcDir, 'common', 'internal_config')])
+        # read src/internal_config/salomeTools.pyconf
+        src.pyconf.streamOpener = ConfigOpener([os.path.join(cfg.VARS.srcDir, 'internal_config')])
         try:
-            internal_cfg = common.pyconf.Config(open(os.path.join(cfg.VARS.srcDir, 'common', 'internal_config', 'salomeTools.pyconf')))
-        except common.pyconf.ConfigError as e:
-            raise common.SatException(_("Error in configuration file: salomeTools.pyconf\n  %(error)s") % \
+            internal_cfg = src.pyconf.Config(open(os.path.join(cfg.VARS.srcDir, 'internal_config', 'salomeTools.pyconf')))
+        except src.pyconf.ConfigError as e:
+            raise src.SatException(_("Error in configuration file: salomeTools.pyconf\n  %(error)s") % \
                 {'error': str(e) })
         
         merger.merge(cfg, internal_cfg)
@@ -194,17 +194,17 @@ class ConfigManager:
         # =======================================================================================
         # Load SITE config file
         # search only in the data directory
-        common.pyconf.streamOpener = ConfigOpener([cfg.VARS.dataDir])
+        src.pyconf.streamOpener = ConfigOpener([cfg.VARS.dataDir])
         try:
-            site_cfg = common.pyconf.Config(open(os.path.join(cfg.VARS.dataDir, 'site.pyconf')))
-        except common.pyconf.ConfigError as e:
-            raise common.SatException(_("Error in configuration file: site.pyconf\n  %(error)s") % \
+            site_cfg = src.pyconf.Config(open(os.path.join(cfg.VARS.dataDir, 'site.pyconf')))
+        except src.pyconf.ConfigError as e:
+            raise src.SatException(_("Error in configuration file: site.pyconf\n  %(error)s") % \
                 {'error': str(e) })
         except IOError as error:
             e = str(error)
             if "site.pyconf" in e :
                 e += "\nYou can copy data" + cfg.VARS.sep + "site.template.pyconf to data" + cfg.VARS.sep + "site.pyconf and edit the file"
-            raise common.SatException( e );
+            raise src.SatException( e );
         
         # add user local path for configPath
         site_cfg.SITE.config.configPath.append(os.path.join(cfg.VARS.personalDir, 'Applications'), "User applications path")
@@ -221,13 +221,13 @@ class ConfigManager:
         if application is not None:
             # search APPLICATION file in all directories in configPath
             cp = cfg.SITE.config.configPath
-            common.pyconf.streamOpener = ConfigOpener(cp)
+            src.pyconf.streamOpener = ConfigOpener(cp)
             try:
-                application_cfg = common.pyconf.Config(application + '.pyconf')
+                application_cfg = src.pyconf.Config(application + '.pyconf')
             except IOError as e:
-                raise common.SatException(_("%s, use 'config --list' to get the list of available applications.") %e)
-            except common.pyconf.ConfigError as e:
-                raise common.SatException(_("Error in configuration file: %(application)s.pyconf\n  %(error)s") % \
+                raise src.SatException(_("%s, use 'config --list' to get the list of available applications.") %e)
+            except src.pyconf.ConfigError as e:
+                raise src.SatException(_("Error in configuration file: %(application)s.pyconf\n  %(error)s") % \
                     { 'application': application, 'error': str(e) } )
 
             merger.merge(cfg, application_cfg)
@@ -245,15 +245,15 @@ class ConfigManager:
         # Loop on all files that are in softsDir directory and read their config
         for fName in os.listdir(softsDir):
             if fName.endswith(".pyconf"):
-                common.pyconf.streamOpener = ConfigOpener([softsDir])
+                src.pyconf.streamOpener = ConfigOpener([softsDir])
                 try:
-                    soft_cfg = common.pyconf.Config(open(os.path.join(softsDir, fName)))
-                except common.pyconf.ConfigError as e:
-                    raise common.SatException(_("Error in configuration file: %(soft)s\n  %(error)s") % \
+                    soft_cfg = src.pyconf.Config(open(os.path.join(softsDir, fName)))
+                except src.pyconf.ConfigError as e:
+                    raise src.SatException(_("Error in configuration file: %(soft)s\n  %(error)s") % \
                         {'soft' :  fName, 'error': str(e) })
                 except IOError as error:
                     e = str(error)
-                    raise common.SatException( e );
+                    raise src.SatException( e );
                 
                 merger.merge(cfg, soft_cfg)
 
@@ -266,7 +266,7 @@ class ConfigManager:
         # load USER config
         self.setUserConfigFile(cfg)
         user_cfg_file = self.getUserConfigFile()
-        user_cfg = common.pyconf.Config(open(user_cfg_file))
+        user_cfg = src.pyconf.Config(open(user_cfg_file))
         merger.merge(cfg, user_cfg)
 
         # apply overwrite from command line if needed
@@ -279,7 +279,7 @@ class ConfigManager:
         '''Set the user config file name and path.
         If necessary, build it from another one or create it from scratch.
         
-        :param config class 'common.pyconf.Config': The global config (containing all pyconf).
+        :param config class 'src.pyconf.Config': The global config (containing all pyconf).
         '''
         # get the expected name and path of the file
         self.config_file_name = 'salomeTools.pyconf'
@@ -292,16 +292,16 @@ class ConfigManager:
     def createConfigFile(self, config):
         '''This method is called when there are no user config file. It build it from scratch.
         
-        :param config class 'common.pyconf.Config': The global config.
+        :param config class 'src.pyconf.Config': The global config.
         :return: the config corresponding to the file created.
-        :rtype: config class 'common.pyconf.Config'
+        :rtype: config class 'src.pyconf.Config'
         '''
         
         cfg_name = self.getUserConfigFile()
 
-        user_cfg = common.pyconf.Config()
+        user_cfg = src.pyconf.Config()
         #
-        user_cfg.addMapping('USER', common.pyconf.Mapping(user_cfg), "")
+        user_cfg.addMapping('USER', src.pyconf.Mapping(user_cfg), "")
 
         #
         user_cfg.USER.addMapping('workDir', os.path.expanduser('~'),
@@ -317,8 +317,8 @@ class ConfigManager:
         user_cfg.USER.addMapping('browser', 'firefox', "This is the browser used to read html documentation\n")
         user_cfg.USER.addMapping('pdf_viewer', 'evince', "This is the pdf_viewer used to read pdf documentation\n")
         # 
-        common.ensure_path_exists(config.VARS.personalDir)
-        common.ensure_path_exists(os.path.join(config.VARS.personalDir, 'Applications'))
+        src.ensure_path_exists(config.VARS.personalDir)
+        src.ensure_path_exists(os.path.join(config.VARS.personalDir, 'Applications'))
 
         f = open(cfg_name, 'w')
         user_cfg.__save__(f)
@@ -333,14 +333,14 @@ class ConfigManager:
         :rtype: str
         '''
         if not self.user_config_file_path:
-            raise common.SatException(_("Error in getUserConfigFile: missing user config file path"))
+            raise src.SatException(_("Error in getUserConfigFile: missing user config file path"))
         return self.user_config_file_path     
         
     
 def print_value(config, path, show_label, level=0, show_full_path=False):
     '''Prints a value from the configuration. Prints recursively the values under the initial path.
     
-    :param config class 'common.pyconf.Config': The configuration from which the value is displayed.
+    :param config class 'src.pyconf.Config': The configuration from which the value is displayed.
     :param path str : the path in the configuration of the value to print.
     :param show_label boolean: if True, do a basic display. (useful for bash completion)
     :param level int: The number of spaces to add before display.
@@ -361,20 +361,20 @@ def print_value(config, path, show_label, level=0, show_full_path=False):
         val = config.getByPath(path)
     except Exception as e:
         sys.stdout.write(tab_level)
-        sys.stdout.write("%s: ERROR %s\n" % (common.printcolors.printcLabel(vname), common.printcolors.printcError(str(e))))
+        sys.stdout.write("%s: ERROR %s\n" % (src.printcolors.printcLabel(vname), src.printcolors.printcError(str(e))))
         return
 
     # in this case, display only the value
     if show_label:
         sys.stdout.write(tab_level)
-        sys.stdout.write("%s: " % common.printcolors.printcLabel(vname))
+        sys.stdout.write("%s: " % src.printcolors.printcLabel(vname))
 
     # The case where the value has under values, do a recursive call to the function
     if dir(val).__contains__('keys'):
         if show_label: sys.stdout.write("\n")
         for v in sorted(val.keys()):
             print_value(config, path + '.' + v, show_label, level + 1)
-    elif val.__class__ == common.pyconf.Sequence or isinstance(val, list): # in this case, value is a list (or a Sequence)
+    elif val.__class__ == src.pyconf.Sequence or isinstance(val, list): # in this case, value is a list (or a Sequence)
         if show_label: sys.stdout.write("\n")
         index = 0
         for v in val:
@@ -413,19 +413,19 @@ def run(args, runner):
         editor = runner.cfg.USER.editor
         if 'APPLICATION' not in runner.cfg: # edit user pyconf
             usercfg = os.path.join(runner.cfg.VARS.personalDir, 'salomeTools.pyconf')
-            common.system.show_in_editor(editor, usercfg)
+            src.system.show_in_editor(editor, usercfg)
         else:
             # search for file <application>.pyconf and open it
             for path in runner.cfg.SITE.config.configPath:
                 pyconf_path = os.path.join(path, runner.cfg.VARS.application + ".pyconf")
                 if os.path.exists(pyconf_path):
-                    common.system.show_in_editor(editor, pyconf_path)
+                    src.system.show_in_editor(editor, pyconf_path)
                     break
     
     # case : copy an existing <application>.pyconf to ~/.salomeTools/Applications/LOCAL_<application>.pyconf
     elif options.copy:
         # product is required
-        common.check_config_has_application( runner.cfg )
+        src.check_config_has_application( runner.cfg )
 
         # get application file path 
         source = runner.cfg.VARS.application + '.pyconf'
@@ -441,7 +441,7 @@ def run(args, runner):
                 break
 
         if len(source_full_path) == 0:
-            raise common.SatException(_("Config file for product %s not found\n") % source)
+            raise src.SatException(_("Config file for product %s not found\n") % source)
         else:
             if len(args) > 0:
                 # a name is given as parameter, use it
@@ -456,7 +456,7 @@ def run(args, runner):
             # the full path
             dest_file = os.path.join(runner.cfg.VARS.personalDir, 'Applications', dest + '.pyconf')
             if os.path.exists(dest_file):
-                raise common.SatException(_("A personal application '%s' already exists") % dest)
+                raise src.SatException(_("A personal application '%s' already exists") % dest)
             
             # perform the copy
             shutil.copyfile(source_full_path, dest_file)
@@ -468,10 +468,10 @@ def run(args, runner):
         # search in all directories that can have pyconf applications
         for path in runner.cfg.SITE.config.configPath:
             # print a header
-            sys.stdout.write("------ %s\n" % common.printcolors.printcHeader(path))
+            sys.stdout.write("------ %s\n" % src.printcolors.printcHeader(path))
 
             if not os.path.exists(path):
-                sys.stdout.write(common.printcolors.printcError(_("Directory not found")) + "\n")
+                sys.stdout.write(src.printcolors.printcError(_("Directory not found")) + "\n")
             else:
                 for f in sorted(os.listdir(path)):
                     # ignore file that does not ends with .pyconf

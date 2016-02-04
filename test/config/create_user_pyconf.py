@@ -23,10 +23,10 @@ import shutil
 
 # get execution path
 testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..', 'src'))
-sys.path.append(os.path.join(testdir, '..', '..', 'test', '_testTools'))
+sys.path.append(os.path.join(testdir, '..', '..'))
+sys.path.append(os.path.join(testdir, '..', '_testTools'))
 
-from salomeTools import salomeTools
+from salomeTools import Sat
 import HTMLTestRunner
 
 class TestConfig(unittest.TestCase):
@@ -43,7 +43,7 @@ class TestConfig(unittest.TestCase):
             shutil.move(user_dir, user_dir_save)
                
         # The command to test
-        sat = salomeTools('')
+        sat = Sat('')
         sat.config('-v .')
 
         expected_file = os.path.expanduser(os.path.join('~','.salomeTools', 'salomeTools.pyconf'))

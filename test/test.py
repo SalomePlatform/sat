@@ -21,12 +21,12 @@ import sys
 
 # get execution path
 testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', 'src'))
+sys.path.append(os.path.join(testdir, '..'))
 
-from salomeTools import salomeTools
+from salomeTools import Sat
 
-sat = salomeTools('')
+sat = Sat()
 sat.config('appli-test -v APPLICATION')
 
-sat2 = salomeTools("-oINTERNAL.sat_version='coucou'")
+sat2 = Sat("-oINTERNAL.sat_version='coucou'")
 sat2.config('appli-test -v INTERNAL.sat_version')

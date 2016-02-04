@@ -23,10 +23,10 @@ import platform
 
 # get execution path
 testdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.append(os.path.join(testdir, '..', '..', 'src'))
-sys.path.append(os.path.join(testdir, '..', '..', 'test', '_testTools'))
+sys.path.append(os.path.join(testdir, '..', '..'))
+sys.path.append(os.path.join(testdir, '..', '_testTools'))
 
-from salomeTools import salomeTools
+from salomeTools import Sat
 from tools import outRedirection
 import HTMLTestRunner
 
@@ -44,7 +44,7 @@ class TestConfig(unittest.TestCase):
         my_out = outRedirection()
 
         # The command to test
-        sat = salomeTools('')
+        sat = Sat('')
         sat.config('-v VARS.python')
 
         # stop output redirection
