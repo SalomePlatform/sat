@@ -1,0 +1,50 @@
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+#  Copyright (C) 2010-2013  CEA/DEN
+#
+#  This library is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU Lesser General Public
+#  License as published by the Free Software Foundation; either
+#  version 2.1 of the License.
+#
+#  This library is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#  Lesser General Public License for more details.
+#
+#  You should have received a copy of the GNU Lesser General Public
+#  License along with this library; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+
+import os
+
+import src
+from . import ElementTree as etree
+
+class xmlLogFile(object):
+    '''Class to manage writing in salomeTools xml log file
+    '''
+    def __init__(self, filePath, command):
+        self.logFile = filePath
+        src.ensure_path_exists(os.path.dirname(filePath))           
+        self.xmlroot = etree.Element("SATcommand", attrib = {"command" : command})
+    
+    def write_tree(self, stylesheet=None):
+        f = open(self.logFile, 'w')
+        f.write("<?xml version='1.0' encoding='utf-8'?>\n")
+        if stylesheet:
+            f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % stylesheet)    
+        f.write(etree.tostring(self.xmlroot, encoding='utf-8'))
+        f.close()  
+        
+    
+    def add_simple_node(self, node_name, text=None, attrib={}):
+        n = etree.Element(node_name, attrib=attrib)
+        n.text = text
+        self.xmlroot.append(n)
+        return n
+    
+    def append_node(self, node_name, text):
+        for field in self.xmlroot:
+            if field.tag == node_name:
+                field.text += text

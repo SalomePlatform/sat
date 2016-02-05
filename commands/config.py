@@ -487,6 +487,8 @@ def run(args, runner):
                             runner.logger.write("%s\n" % appliname)
                             
             runner.logger.write("\n")
+    
+    runner.logger.endWrite()
 
     
     

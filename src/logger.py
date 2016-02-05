@@ -18,8 +18,10 @@
 
 import sys
 import os
+
 import src
 from . import printcolors
+from . import xmlManager
 
 class Logger(object):
     '''Class that handle log mechanism
@@ -43,10 +45,19 @@ class Logger(object):
         src.ensure_path_exists(os.path.dirname(logFilePath))
         
         self.logFileName = logFileName
-        self.logFilePath = logFilePath
-        # Open the file for writing
-        self.logFile = open(logFilePath, 'w')
+        self.logFilePath = logFilePath   
         
+        self.xmlFile = xmlManager.xmlLogFile(logFilePath, config.VARS.command)
+        self.putInitialXMLFields()
+        
+    def putInitialXMLFields(self):
+        self.xmlFile.add_simple_node("field", text=self.config.VARS.command , attrib={"name" : "command"})
+        self.xmlFile.add_simple_node("field", text=self.config.INTERNAL.sat_version , attrib={"name" : "satversion"})
+        self.xmlFile.add_simple_node("field", text=self.config.VARS.hostname , attrib={"name" : "hostname"})
+        self.xmlFile.add_simple_node("field", text=self.config.VARS.dist , attrib={"name" : "OS"})
+        self.xmlFile.add_simple_node("field", text=self.config.VARS.user , attrib={"name" : "user"})
+        self.xmlFile.add_simple_node("field", text=self.config.VARS.datehour , attrib={"name" : "beginTime"})
+        self.xmlFile.add_simple_node("traces",text="")
 
     def write(self, message, level=None, screenOnly=False):
         '''the function used in the commands that will print in the terminal and the log file.
@@ -56,8 +67,8 @@ class Logger(object):
         :param screenOnly boolean: if True, do not write in log file.
         '''
         # do not write message starting with \r to log file
-        if self.logFile and not message.startswith("\r") and not screenOnly:
-            self.logFile.write(printcolors.cleancolor(message))
+        if not message.startswith("\r") and not screenOnly:
+            self.xmlFile.append_node("traces", printcolors.cleancolor(message))
 
         # get user or option output level
         current_output_level = self.config.USER.output_level
@@ -80,8 +91,7 @@ class Logger(object):
         :param message str: The message to print.
         '''
         # Print in the log file
-        if self.logFile:
-            self.logFile.write(_('ERROR:') + message)
+        self.xmlFile.append_node("traces", _('ERROR:') + message)
 
         # Print in the terminal and clean colors if the terminal is redirected by user
         if not ('isatty' in dir(sys.stderr) and sys.stderr.isatty()):
@@ -90,8 +100,9 @@ class Logger(object):
             sys.stderr.write(_('ERROR:') + message)
 
     def flush(self):
-        '''Flush terminal and file
+        '''Flush terminal
         '''
-        if self.logFile:
-            self.logFile.flush()
         sys.stdout.flush()
+        
+    def endWrite(self):
+        self.xmlFile.write_tree()
