@@ -27,7 +27,7 @@ import types
 import gettext
 
 # salomeTools imports
-import src.options
+import src
 
 # get path to salomeTools sources
 satdir  = os.path.dirname(os.path.realpath(__file__))
@@ -66,6 +66,8 @@ parser = src.options.Options()
 parser.add_option('h', 'help', 'boolean', 'help', _("shows global help or help on a specific command."))
 parser.add_option('o', 'overwrite', 'list', "overwrite", _("overwrites a configuration parameters."))
 parser.add_option('g', 'debug', 'boolean', 'debug_mode', _("run salomeTools in debug mode."))
+parser.add_option('l', 'level', 'int', "output_level", _("change output level (default is 3)."))
+parser.add_option('s', 'silent', 'boolean', 'silent', _("do not write log or show errors."))
 
 class Sat(object):
     '''The main class that stores all the commands of salomeTools
@@ -88,6 +90,7 @@ class Sat(object):
         self.cfg = None # the config that will be read using pyconf module
         self.options = options # the options passed to salomeTools
         self.dataDir = dataDir # default value will be <salomeTools root>/data
+        self.logger = None
         # set the commands by calling the dedicated function
         self.__setCommands__(cmdsdir)
         
@@ -140,6 +143,15 @@ class Sat(object):
                     # read the configuration from all the pyconf files    
                     cfgManager = config.ConfigManager()
                     self.cfg = cfgManager.getConfig(dataDir=self.dataDir, application=appliToLoad, options=self.options, command=__nameCmd__)
+                    
+                    # set output level
+                    if self.options.output_level:
+                        self.cfg.USER.output_level = self.options.output_level
+                    if self.cfg.USER.output_level < 1:
+                        self.cfg.USER.output_level = 1
+
+                    # create log file
+                    self.logger = src.logger.Logger(self.cfg, silent_sysstd=self.options.silent)
                 
                 return __module__.run(argv, self)
 

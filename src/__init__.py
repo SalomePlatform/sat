@@ -23,6 +23,8 @@ from . import architecture
 from . import printcolors
 from . import options
 from . import system
+from . import ElementTree
+from . import logger
 
 class SatException(Exception):
     '''rename Exception Class
@@ -35,7 +37,7 @@ def ensure_path_exists(p):
     :param p str: The path.
     '''
     if not os.path.exists(p):
-        os.mkdir(p)
+        os.makedirs(p)
         
 def check_config_has_application( config, details = None ):
     '''check that the config has the key APPLICATION. Else raise an exception.

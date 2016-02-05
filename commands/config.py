@@ -468,10 +468,10 @@ def run(args, runner):
         # search in all directories that can have pyconf applications
         for path in runner.cfg.SITE.config.configPath:
             # print a header
-            sys.stdout.write("------ %s\n" % src.printcolors.printcHeader(path))
+            runner.logger.write("------ %s\n" % src.printcolors.printcHeader(path))
 
             if not os.path.exists(path):
-                sys.stdout.write(src.printcolors.printcError(_("Directory not found")) + "\n")
+                runner.logger.write(src.printcolors.printcError(_("Directory not found")) + "\n")
             else:
                 for f in sorted(os.listdir(path)):
                     # ignore file that does not ends with .pyconf
@@ -482,11 +482,11 @@ def run(args, runner):
                     if appliname not in lproduct:
                         lproduct.append(appliname)
                         if path.startswith(runner.cfg.VARS.personalDir):
-                            sys.stdout.write("%s*\n" % appliname)
+                            runner.logger.write("%s*\n" % appliname)
                         else:
-                            sys.stdout.write("%s\n" % appliname)
-
-            sys.stdout.write("\n")
+                            runner.logger.write("%s\n" % appliname)
+                            
+            runner.logger.write("\n")
 
     
     
