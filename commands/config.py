@@ -17,7 +17,6 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
-import sys
 import platform
 import datetime
 import shutil
@@ -337,12 +336,13 @@ class ConfigManager:
         return self.user_config_file_path     
         
     
-def print_value(config, path, show_label, level=0, show_full_path=False):
+def print_value(config, path, show_label, logger, level=0, show_full_path=False):
     '''Prints a value from the configuration. Prints recursively the values under the initial path.
     
     :param config class 'src.pyconf.Config': The configuration from which the value is displayed.
     :param path str : the path in the configuration of the value to print.
     :param show_label boolean: if True, do a basic display. (useful for bash completion)
+    :param logger Logger: the logger instance
     :param level int: The number of spaces to add before display.
     :param show_full_path :
     '''            
@@ -360,28 +360,28 @@ def print_value(config, path, show_label, level=0, show_full_path=False):
     try:
         val = config.getByPath(path)
     except Exception as e:
-        sys.stdout.write(tab_level)
-        sys.stdout.write("%s: ERROR %s\n" % (src.printcolors.printcLabel(vname), src.printcolors.printcError(str(e))))
+        logger.write(tab_level)
+        logger.write("%s: ERROR %s\n" % (src.printcolors.printcLabel(vname), src.printcolors.printcError(str(e))))
         return
 
     # in this case, display only the value
     if show_label:
-        sys.stdout.write(tab_level)
-        sys.stdout.write("%s: " % src.printcolors.printcLabel(vname))
+        logger.write(tab_level)
+        logger.write("%s: " % src.printcolors.printcLabel(vname))
 
     # The case where the value has under values, do a recursive call to the function
     if dir(val).__contains__('keys'):
-        if show_label: sys.stdout.write("\n")
+        if show_label: logger.write("\n")
         for v in sorted(val.keys()):
-            print_value(config, path + '.' + v, show_label, level + 1)
+            print_value(config, path + '.' + v, show_label, logger, level + 1)
     elif val.__class__ == src.pyconf.Sequence or isinstance(val, list): # in this case, value is a list (or a Sequence)
-        if show_label: sys.stdout.write("\n")
+        if show_label: logger.write("\n")
         index = 0
         for v in val:
-            print_value(config, path + "[" + str(index) + "]", show_label, level + 1)
+            print_value(config, path + "[" + str(index) + "]", show_label, logger, level + 1)
             index = index + 1
     else: # case where val is just a str
-        sys.stdout.write("%s\n" % val)
+        logger.write("%s\n" % val)
 
 def description():
     '''method that is called when salomeTools is called with --help option.
@@ -403,10 +403,9 @@ def run(args, runner):
         if options.value == ".":
             # if argument is ".", print all the config
             for val in sorted(runner.cfg.keys()):
-                print_value(runner.cfg, val, True)
-            return
-        print_value(runner.cfg, options.value, True, level=0, show_full_path=False)
-        return
+                print_value(runner.cfg, val, True, runner.logger)
+        else:
+            print_value(runner.cfg, options.value, True, runner.logger, level=0, show_full_path=False)
     
     # case : edit user pyconf file or application file
     elif options.edit:
@@ -460,7 +459,7 @@ def run(args, runner):
             
             # perform the copy
             shutil.copyfile(source_full_path, dest_file)
-            print(_("%s has been created.") % dest_file)
+            runner.logger.write(_("%s has been created.") % dest_file)
     
     # case : display all the available pyconf applications
     elif options.list:

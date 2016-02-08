@@ -18,6 +18,7 @@
 
 import sys
 import os
+import datetime
 
 import src
 from . import printcolors
@@ -105,4 +106,24 @@ class Logger(object):
         sys.stdout.flush()
         
     def endWrite(self):
-        self.xmlFile.write_tree()
+        dt = datetime.datetime.now()
+        endtime = dt.strftime('%Y%m%d_%H%M%S')
+        t0 = date_to_datetime(self.config.VARS.datehour)
+        tf = dt
+        delta = tf - t0
+        total_time = delta.total_seconds()
+        hours = int(total_time / 3600)
+        minutes = int((total_time - hours*3600) / 60)
+        seconds = total_time - hours*3600 - minutes*60
+        self.xmlFile.add_simple_node("field", text=endtime , attrib={"name" : "endTime"})
+        self.xmlFile.add_simple_node("field", text="%ih%im%is" % (hours, minutes, seconds) , attrib={"name" : "Total Time"})
+        self.xmlFile.write_tree(stylesheet = "command.xsl")
+
+def date_to_datetime(date):
+    Y = int(date[:4])
+    m = int(date[4:6])
+    dd = int(date[6:8])
+    H = int(date[9:11])
+    M = int(date[11:13])
+    S = int(date[13:15])
+    return datetime.datetime(Y, m, dd, H, M, S)

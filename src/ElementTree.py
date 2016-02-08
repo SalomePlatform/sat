@@ -106,7 +106,7 @@ __all__ = [
 # structure, and convert it from and to XML.
 ##
 
-import string, sys, re
+import string, sys, re, platform
 
 class _SimpleElementPath:
     # emulate pre-1.2 find/findtext/findall behaviour
@@ -798,6 +798,13 @@ def _encode_entity(text, pattern=_escape):
 def _escape_cdata(text, encoding=None, replace=str.replace):
     # escape character data
     try:
+        if platform.python_version()[0] == '2': # python 2.x.y
+            if encoding:
+                try:
+                    text = _encode(text, encoding)
+                except UnicodeError:
+                    return _encode_entity(text)
+            
         text = replace(text, "&", "&amp;")
         text = replace(text, "<", "&lt;")
         text = replace(text, ">", "&gt;")
