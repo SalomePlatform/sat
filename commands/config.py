@@ -272,6 +272,15 @@ class ConfigManager:
         for rule in self.get_command_line_overrides(options, ["USER"]):
             exec('cfg.' + rule) # this cannot be factorize because of the exec
 
+        # =======================================================================================
+        # Add log directory in the config
+        # get the log directory regarding the fact the command uses an application or not
+        if 'APPLICATION' in cfg:
+            logDir = os.path.join(cfg.APPLICATION.out_dir, 'LOGS')
+        else:
+            logDir = os.path.join(cfg.VARS.personalDir, 'LOGS')
+        cfg.VARS.logDir = logDir
+
         return cfg
 
     def setUserConfigFile(self, config):
@@ -459,7 +468,7 @@ def run(args, runner):
             
             # perform the copy
             shutil.copyfile(source_full_path, dest_file)
-            runner.logger.write(_("%s has been created.") % dest_file)
+            runner.logger.write(_("%s has been created.\n") % dest_file)
     
     # case : display all the available pyconf applications
     elif options.list:

@@ -48,7 +48,7 @@ class Logger(object):
         self.logFileName = logFileName
         self.logFilePath = logFilePath   
         
-        self.xmlFile = xmlManager.xmlLogFile(logFilePath, config.VARS.command)
+        self.xmlFile = xmlManager.xmlLogFile(logFilePath, "SATcommand", attrib = {"command" : config.VARS.command})
         self.putInitialXMLFields()
         
     def putInitialXMLFields(self):
@@ -118,6 +118,7 @@ class Logger(object):
         self.xmlFile.add_simple_node("field", text=endtime , attrib={"name" : "endTime"})
         self.xmlFile.add_simple_node("field", text="%ih%im%is" % (hours, minutes, seconds) , attrib={"name" : "Total Time"})
         self.xmlFile.write_tree(stylesheet = "command.xsl")
+        src.xmlManager.update_hat_xml(self.config.VARS.logDir)
 
 def date_to_datetime(date):
     Y = int(date[:4])
