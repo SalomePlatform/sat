@@ -118,7 +118,10 @@ class Logger(object):
         self.xmlFile.add_simple_node("field", text=endtime , attrib={"name" : "endTime"})
         self.xmlFile.add_simple_node("field", text="%ih%im%is" % (hours, minutes, seconds) , attrib={"name" : "Total Time"})
         self.xmlFile.write_tree(stylesheet = "command.xsl")
-        src.xmlManager.update_hat_xml(self.config.VARS.logDir)
+        if 'APPLICATION' in self.config:
+            src.xmlManager.update_hat_xml(self.config.VARS.logDir, self.config.VARS.application)
+        else:
+            src.xmlManager.update_hat_xml(self.config.VARS.logDir)
 
 def date_to_datetime(date):
     Y = int(date[:4])

@@ -49,9 +49,12 @@ class xmlLogFile(object):
             if field.tag == node_name:
                 field.text += text
                 
-def update_hat_xml(logDir):
+def update_hat_xml(logDir, application=None):
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
-    xmlHat = xmlLogFile(xmlHatFilePath,  "LOGlist")
+    if application:
+        xmlHat = xmlLogFile(xmlHatFilePath,  "LOGlist", {"application" : application})
+    else:
+        xmlHat = xmlLogFile(xmlHatFilePath,  "LOGlist", {"application" : "NO"})
           
     for fileName in os.listdir(logDir):
         sExpr = "^[0-9]{8}_+[0-9]{6}_+[A-Za-z0-9]*.xml$"

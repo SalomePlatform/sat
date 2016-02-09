@@ -34,7 +34,10 @@ def run(args, runner):
     shutil.copy2(xslHat, logDir)
     shutil.copy2(imgLogo, logDir)
     
-    xmlHatFilePath = os.path.join(logDir, 'hat.xml')   
-    src.xmlManager.update_hat_xml(logDir)
+    xmlHatFilePath = os.path.join(logDir, 'hat.xml')
+    if 'APPLICATION' in runner.cfg:
+        src.xmlManager.update_hat_xml(runner.cfg.VARS.logDir, runner.cfg.VARS.application)
+    else:
+        src.xmlManager.update_hat_xml(runner.cfg.VARS.logDir)
     
     src.system.show_in_editor(runner.cfg.USER.browser, xmlHatFilePath)

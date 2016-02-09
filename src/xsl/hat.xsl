@@ -28,6 +28,16 @@
 </head>
 	<body class="def" bgcolor="aliceblue">
 		<h1><img src="LOGO-SAT.png"/></h1>
+			<xsl:choose>
+			  <xsl:when test="LOGlist/@application='NO'">
+				  <h1>Logs of commands without application</h1>
+			  </xsl:when>
+			  <xsl:otherwise>
+				  <h1>
+					  Logs of application <xsl:value-of select="LOGlist/@application"/>
+				  </h1>
+			  </xsl:otherwise>
+			</xsl:choose>
 			<table border="0">
 				<tr>
 				<td width="100px">Command</td><td width="100px">date</td><td>time</td>
