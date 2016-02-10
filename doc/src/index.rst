@@ -27,6 +27,7 @@ List of Commands
    :maxdepth: 1
    
    config <commands/config>
+   log <commands/log>
 
 Code documentation
 ==================

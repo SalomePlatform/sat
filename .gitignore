@@ -11,4 +11,4 @@ doc/build
 .coverage
 test/htmlcov
 test/test_res.html
-doc/source/commands/apidoc
+doc/src/commands/apidoc*
