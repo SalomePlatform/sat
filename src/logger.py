@@ -47,7 +47,6 @@ class Logger(object):
         
         self.logFileName = logFileName
         self.logFilePath = logFilePath   
-        
         self.xmlFile = xmlManager.xmlLogFile(logFilePath, "SATcommand", attrib = {"command" : config.VARS.command})
         self.putInitialXMLFields()
         
@@ -106,6 +105,10 @@ class Logger(object):
         sys.stdout.flush()
         
     def endWrite(self):
+        
+        self.write(_('\nTap the following command to get the log :\n'), screenOnly=True)
+        self.write('%s/sat log\n' % self.config.VARS.salometoolsway, screenOnly=True)
+        
         dt = datetime.datetime.now()
         endtime = dt.strftime('%Y%m%d_%H%M%S')
         t0 = date_to_datetime(self.config.VARS.datehour)

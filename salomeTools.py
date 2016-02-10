@@ -138,22 +138,26 @@ class Sat(object):
                     appliToLoad = argv[0].rstrip('*')
                     argv = argv[1:]
                 
-                # Read the config if it is not already done
-                if not self.cfg:
-                    # read the configuration from all the pyconf files    
-                    cfgManager = config.ConfigManager()
-                    self.cfg = cfgManager.getConfig(dataDir=self.dataDir, application=appliToLoad, options=self.options, command=__nameCmd__)
+                # read the configuration from all the pyconf files    
+                cfgManager = config.ConfigManager()
+                self.cfg = cfgManager.getConfig(dataDir=self.dataDir, application=appliToLoad, options=self.options, command=__nameCmd__)
                     
-                    # set output level
-                    if self.options.output_level:
-                        self.cfg.USER.output_level = self.options.output_level
-                    if self.cfg.USER.output_level < 1:
-                        self.cfg.USER.output_level = 1
+                # set output level
+                if self.options.output_level:
+                    self.cfg.USER.output_level = self.options.output_level
+                if self.cfg.USER.output_level < 1:
+                    self.cfg.USER.output_level = 1
 
-                    # create log file
-                    self.logger = src.logger.Logger(self.cfg, silent_sysstd=self.options.silent)
+                # create log file
+                self.logger = src.logger.Logger(self.cfg, silent_sysstd=self.options.silent)
                 
-                return __module__.run(argv, self)
+                # Execute the run method of the command
+                res = __module__.run(argv, self)
+                
+                # put final attributes in xml log file (end time, total time, ...) and write it
+                self.logger.endWrite()
+                
+                return res
 
             # Make sure that run_command will be redefined at each iteration of the loop
             globals_up = {}

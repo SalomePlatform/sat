@@ -496,7 +496,4 @@ def run(args, runner):
                             
             runner.logger.write("\n")
     
-    runner.logger.endWrite()
-
-    
     

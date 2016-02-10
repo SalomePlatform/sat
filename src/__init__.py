@@ -49,3 +49,10 @@ def check_config_has_application( config, details = None ):
         if details :
             details.append(message)
         raise SatException( message )
+    
+def print_info(logger, info):    
+    smax = max(map(lambda l: len(l[0]), info))
+    for i in info:
+        sp = " " * (smax - len(i[0]))
+        printcolors.print_value(logger, sp + i[0], i[1], 2)
+    logger.write("\n", 2)

@@ -15,7 +15,7 @@ def description():
 def run(args, runner):
     (options, args) = parser.parse_args(args)
     if options.unique:
-        print('unique')
+        runner.logger.write('unique\n')
     elif options.value:
         runner.cfg.VARS.user = 'TEST'
         runner.config('-v ' + options.value)

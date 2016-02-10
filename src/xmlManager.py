@@ -48,7 +48,29 @@ class xmlLogFile(object):
         for field in self.xmlroot:
             if field.tag == node_name:
                 field.text += text
-                
+
+class readXmlFile(object):
+    '''Class to manage reading of an xml log file
+    '''
+    def __init__(self, filePath):
+        self.filePath = filePath
+        etree_inst = etree.parse(filePath)
+        self.xmlroot = etree_inst.parse(filePath)
+    
+    def get_attrib_text(self, attribname):
+        lres = []
+        for field in self.xmlroot:
+            if attribname in field.attrib:
+                lres.append((field.attrib[attribname], field.text))
+        return lres
+    
+    def get_node_text(self, node):
+        for field in self.xmlroot:
+            if field.tag == node:
+                return field.text
+        return ''
+
+
 def update_hat_xml(logDir, application=None):
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
     if application:
@@ -57,7 +79,7 @@ def update_hat_xml(logDir, application=None):
         xmlHat = xmlLogFile(xmlHatFilePath,  "LOGlist", {"application" : "NO"})
           
     for fileName in os.listdir(logDir):
-        sExpr = "^[0-9]{8}_+[0-9]{6}_+[A-Za-z0-9]*.xml$"
+        sExpr = "^[0-9]{8}_+[0-9]{6}_+.*.xml$"
         oExpr = re.compile(sExpr)
         if oExpr.search(fileName):
             date_hour_cmd = fileName.split('_')
