@@ -50,8 +50,15 @@ def check_config_has_application( config, details = None ):
             details.append(message)
         raise SatException( message )
     
-def print_info(logger, info):    
+def print_info(logger, info):
+    '''Prints the tuples that are in info variable in a formatted way.
+    
+    :param logger Logger: The logging instance to use for the prints.
+    :param info list: The list of tuples to display
+    '''
+    # find the maximum length of the first value of the tuples in info
     smax = max(map(lambda l: len(l[0]), info))
+    # Print each item of info with good indentation
     for i in info:
         sp = " " * (smax - len(i[0]))
         printcolors.print_value(logger, sp + i[0], i[1], 2)

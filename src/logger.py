@@ -25,7 +25,7 @@ from . import printcolors
 from . import xmlManager
 
 class Logger(object):
-    '''Class that handle log mechanism
+    '''Class to handle log mechanism
     '''
     def __init__(self, config, silent_sysstd=False):
         '''Initialization
@@ -51,12 +51,21 @@ class Logger(object):
         self.putInitialXMLFields()
         
     def putInitialXMLFields(self):
+        '''Method called at class initialization : Put all fields corresponding to the command context (user, time, ...)
+        '''
+        # command name
         self.xmlFile.add_simple_node("field", text=self.config.VARS.command , attrib={"name" : "command"})
+        # version of salomeTools
         self.xmlFile.add_simple_node("field", text=self.config.INTERNAL.sat_version , attrib={"name" : "satversion"})
+        # machine name on which the command has been launched
         self.xmlFile.add_simple_node("field", text=self.config.VARS.hostname , attrib={"name" : "hostname"})
+        # Distribution of the machine
         self.xmlFile.add_simple_node("field", text=self.config.VARS.dist , attrib={"name" : "OS"})
+        # The user that have launched the command
         self.xmlFile.add_simple_node("field", text=self.config.VARS.user , attrib={"name" : "user"})
+        # The time when command was launched
         self.xmlFile.add_simple_node("field", text=self.config.VARS.datehour , attrib={"name" : "beginTime"})
+        # The initialization of the trace node
         self.xmlFile.add_simple_node("traces",text="")
 
     def write(self, message, level=None, screenOnly=False):
@@ -105,13 +114,18 @@ class Logger(object):
         sys.stdout.flush()
         
     def endWrite(self):
-        
+        '''Method called just after command end : Put all fields corresponding to the command end context (time).
+        Write the log xml file on the hard drive.
+        And display the command to launch to get the log
+        '''
+        # Print the command to launch to get the log, regarding the fact that there an application or not
         self.write(_('\nTap the following command to get the log :\n'), screenOnly=True)
         if 'APPLICATION' in self.config:
             self.write('%s/sat log %s\n' % (self.config.VARS.salometoolsway, self.config.VARS.application), screenOnly=True)
         else:
             self.write('%s/sat log\n' % self.config.VARS.salometoolsway, screenOnly=True)
         
+        # Get current time (end of command) and format it
         dt = datetime.datetime.now()
         endtime = dt.strftime('%Y%m%d_%H%M%S')
         t0 = date_to_datetime(self.config.VARS.datehour)
@@ -121,15 +135,26 @@ class Logger(object):
         hours = int(total_time / 3600)
         minutes = int((total_time - hours*3600) / 60)
         seconds = total_time - hours*3600 - minutes*60
+        # Add the fields corresponding to the end time and the total time of command
         self.xmlFile.add_simple_node("field", text=endtime , attrib={"name" : "endTime"})
         self.xmlFile.add_simple_node("field", text="%ih%im%is" % (hours, minutes, seconds) , attrib={"name" : "Total Time"})
+        
+        # Call the method to write the xml file on the hard drive
         self.xmlFile.write_tree(stylesheet = "command.xsl")
+        
+        # Update the hat xml (that shows all logs) in order to make the new log visible on the main log page)
         if 'APPLICATION' in self.config:
             src.xmlManager.update_hat_xml(self.config.VARS.logDir, self.config.VARS.application)
         else:
             src.xmlManager.update_hat_xml(self.config.VARS.logDir)
 
 def date_to_datetime(date):
+    '''Little method that convert a date in format YYYYMMDD_HHMMSS to a datetime format
+    
+    :param date str: The date in format YYYYMMDD_HHMMSS
+    :return: the same date in datetime format.
+    :rtype: datetime.datetime
+    '''
     Y = int(date[:4])
     m = int(date[4:6])
     dd = int(date[6:8])
