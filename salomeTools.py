@@ -90,7 +90,6 @@ class Sat(object):
         self.cfg = None # the config that will be read using pyconf module
         self.options = options # the options passed to salomeTools
         self.dataDir = dataDir # default value will be <salomeTools root>/data
-        self.logger = None
         # set the commands by calling the dedicated function
         self.__setCommands__(cmdsdir)
         
@@ -124,7 +123,7 @@ class Sat(object):
             (file_, pathname, description) = imp.find_module(nameCmd, [dirPath])
             module = imp.load_module(nameCmd, file_, pathname, description)
             
-            def run_command(args=''):
+            def run_command(args='', logger=None):
                 '''The function that will load the configuration (all pyconf)
                 and return the function run of the command corresponding to module
                 
@@ -148,14 +147,16 @@ class Sat(object):
                 if self.cfg.USER.output_level < 1:
                     self.cfg.USER.output_level = 1
 
-                # create log file
-                self.logger = src.logger.Logger(self.cfg, silent_sysstd=self.options.silent)
+                # create log file, unless the command is called with a logger as parameter
+                logger_command = src.logger.Logger(self.cfg, silent_sysstd=self.options.silent)
+                if logger:
+                    logger_command = logger
                 
                 # Execute the run method of the command
-                res = __module__.run(argv, self)
+                res = __module__.run(argv, self, logger_command)
                 
                 # put final attributes in xml log file (end time, total time, ...) and write it
-                self.logger.endWrite()
+                logger_command.endWrite()
                 
                 return res
 

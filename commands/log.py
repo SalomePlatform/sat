@@ -39,7 +39,7 @@ def show_log_command_in_terminal(filePath, logger):
 def description():
     return _("Gives access to logs of salomeTools.")    
 
-def run(args, runner):
+def run(args, runner, logger):
     (options, args) = parser.parse_args(args)
 
     # get the log directory. If there is an application, it is in cfg.APPLICATION.out_dir, else in user directory
@@ -64,7 +64,7 @@ def run(args, runner):
             cmd = date_hour_cmd[2][:-len('.xml')]
             
             num = src.printcolors.printcLabel("%2d" % (nb_logs - index))
-            runner.logger.write("%s: %13s %s %s\n" % (num, cmd, date, hour), 1, False)
+            logger.write("%s: %13s %s %s\n" % (num, cmd, date, hour), 1, False)
             index += 1
         
         # ask the user
@@ -74,7 +74,7 @@ def run(args, runner):
     
             if x > 0:
                 index = len(lLogs) - int(x)
-                show_log_command_in_terminal(os.path.join(logDir, lLogs[index]), runner.logger)                
+                show_log_command_in_terminal(os.path.join(logDir, lLogs[index]), logger)                
                 x = 0
         
         return

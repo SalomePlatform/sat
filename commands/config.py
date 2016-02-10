@@ -401,7 +401,7 @@ def description():
     return _("The config command allows manipulation and operation on config files.")
     
 
-def run(args, runner):
+def run(args, runner, logger):
     '''method that is called when salomeTools is called with config parameter.
     '''
     # Parse the options
@@ -412,9 +412,9 @@ def run(args, runner):
         if options.value == ".":
             # if argument is ".", print all the config
             for val in sorted(runner.cfg.keys()):
-                print_value(runner.cfg, val, True, runner.logger)
+                print_value(runner.cfg, val, True, logger)
         else:
-            print_value(runner.cfg, options.value, True, runner.logger, level=0, show_full_path=False)
+            print_value(runner.cfg, options.value, True, logger, level=0, show_full_path=False)
     
     # case : edit user pyconf file or application file
     elif options.edit:
@@ -468,7 +468,7 @@ def run(args, runner):
             
             # perform the copy
             shutil.copyfile(source_full_path, dest_file)
-            runner.logger.write(_("%s has been created.\n") % dest_file)
+            logger.write(_("%s has been created.\n") % dest_file)
     
     # case : display all the available pyconf applications
     elif options.list:
@@ -476,10 +476,10 @@ def run(args, runner):
         # search in all directories that can have pyconf applications
         for path in runner.cfg.SITE.config.configPath:
             # print a header
-            runner.logger.write("------ %s\n" % src.printcolors.printcHeader(path))
+            logger.write("------ %s\n" % src.printcolors.printcHeader(path))
 
             if not os.path.exists(path):
-                runner.logger.write(src.printcolors.printcError(_("Directory not found")) + "\n")
+                logger.write(src.printcolors.printcError(_("Directory not found")) + "\n")
             else:
                 for f in sorted(os.listdir(path)):
                     # ignore file that does not ends with .pyconf
@@ -490,10 +490,10 @@ def run(args, runner):
                     if appliname not in lproduct:
                         lproduct.append(appliname)
                         if path.startswith(runner.cfg.VARS.personalDir):
-                            runner.logger.write("%s*\n" % appliname)
+                            logger.write("%s*\n" % appliname)
                         else:
-                            runner.logger.write("%s\n" % appliname)
+                            logger.write("%s\n" % appliname)
                             
-            runner.logger.write("\n")
+            logger.write("\n")
     
     

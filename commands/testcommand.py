@@ -12,10 +12,10 @@ def description():
     return _("Test d'une commande supplémentaire.")
     
 
-def run(args, runner):
+def run(args, runner, logger):
     (options, args) = parser.parse_args(args)
     if options.unique:
-        runner.logger.write('unique\n')
+        logger.write('unique\n')
     elif options.value:
         runner.cfg.VARS.user = 'TEST'
-        runner.config('-v ' + options.value)
+        runner.config('-v ' + options.value, logger)
