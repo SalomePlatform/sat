@@ -107,7 +107,10 @@ class Logger(object):
     def endWrite(self):
         
         self.write(_('\nTap the following command to get the log :\n'), screenOnly=True)
-        self.write('%s/sat log\n' % self.config.VARS.salometoolsway, screenOnly=True)
+        if 'APPLICATION' in self.config:
+            self.write('%s/sat log %s\n' % (self.config.VARS.salometoolsway, self.config.VARS.application), screenOnly=True)
+        else:
+            self.write('%s/sat log\n' % self.config.VARS.salometoolsway, screenOnly=True)
         
         dt = datetime.datetime.now()
         endtime = dt.strftime('%Y%m%d_%H%M%S')

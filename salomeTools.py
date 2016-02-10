@@ -152,11 +152,12 @@ class Sat(object):
                 if logger:
                     logger_command = logger
                 
-                # Execute the run method of the command
-                res = __module__.run(argv, self, logger_command)
-                
-                # put final attributes in xml log file (end time, total time, ...) and write it
-                logger_command.endWrite()
+                try:
+                    # Execute the run method of the command
+                    res = __module__.run(argv, self, logger_command)
+                finally:
+                    # put final attributes in xml log file (end time, total time, ...) and write it
+                    logger_command.endWrite()
                 
                 return res
 
