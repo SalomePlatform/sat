@@ -20,4 +20,5 @@ coverage run --source=../commands/config.py    config/option_value.py > test_res
 coverage run --source=../commands/config.py -a config/option_value_2.py >> test_res.html
 coverage run --source=../commands/config.py -a config/create_user_pyconf.py >> test_res.html
 coverage run --source=../commands/config.py -a config/option_copy.py >> test_res.html
+coverage run --source=../commands/log.py,../src/xmlManager.py,../src/logger.py -a log/launch_browser.py >> test_res.html
 coverage html

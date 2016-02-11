@@ -11,6 +11,27 @@ import src
 parser = src.options.Options()
 parser.add_option('t', 'terminal', 'boolean', 'terminal', "Terminal log.")
 
+def show_log_command_in_terminal(filePath, logger):
+    '''Print the contain of filePath. It contains a command log in xml format.
+    
+    :param filePath: The command xml file from which extract the commands context and traces
+    :logger Logger: the logging instance to use in order to print.  
+    '''
+    # Instantiate the readXmlFile class that reads xml files
+    xmlRead = src.xmlManager.readXmlFile(filePath)
+    # Get the attributes containing the context (user, OS, time, etc..)
+    lAttrText = xmlRead.get_attrib_text('name')
+    logger.write("\n", 1)
+    # Print the context
+    src.print_info(logger, lAttrText)
+    # Get the traces
+    command_traces = xmlRead.get_node_text('traces')
+    # Print it if there is any
+    if command_traces:
+        logger.write(_("Here are the command traces :\n"), 1)
+        logger.write(command_traces, 1)
+        logger.write("\n", 1)
+
 def ask_value(nb):
     '''Ask for an int n. 0<n<nb
     
@@ -32,27 +53,6 @@ def ask_value(nb):
         x = -1
     
     return x
-
-def show_log_command_in_terminal(filePath, logger):
-    '''Print the contain of filePath. It contains a command log in xml format.
-    
-    :param filePath: The command xml file from which extract the commands context and traces
-    :logger Logger: the logging instance to use in order to print.  
-    '''
-    # Instantiate the readXmlFile class that reads xml files
-    xmlRead = src.xmlManager.readXmlFile(filePath)
-    # Get the attributes containing the context (user, OS, time, etc..)
-    lAttrText = xmlRead.get_attrib_text('name')
-    logger.write("\n", 1)
-    # Print the context
-    src.print_info(logger, lAttrText)
-    # Get the traces
-    command_traces = xmlRead.get_node_text('traces')
-    # Print it if there is any
-    if command_traces:
-        logger.write(_("Here are the command traces :\n"), 1)
-        logger.write(command_traces, 1)
-        logger.write("\n", 1)
 
 def description():
     '''method that is called when salomeTools is called with --help option.

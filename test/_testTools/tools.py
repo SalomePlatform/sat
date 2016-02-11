@@ -47,8 +47,19 @@ class outRedirection():
         except Exception as exc:
             print('Problem with redirection : %s' % exc)
             sys.exit(1)
-            
-def check_proc_existence(cmd, text_to_find):
-    
-    p = subprocess.Popen(cmd, shell=True)
-    p.communicate()
+
+def kill9(pid):
+    subprocess.call("kill -9 " + pid, shell=True)
+
+def check_proc_existence_and_kill(regex):
+    cmd = 'ps aux | grep "' + regex + '"'
+    psRes = subprocess.check_output(cmd, shell=True)
+    psRes = psRes.split('\n')
+    for line in psRes:
+        if 'grep' in line or len(line) == 0:
+            continue
+        line2 = [i for i in line.split(' ') if i != '']
+        pid = line2[1]
+        kill9(pid)
+        return pid
+    return 0 
