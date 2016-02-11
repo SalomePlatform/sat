@@ -64,7 +64,9 @@ class Logger(object):
         # The user that have launched the command
         self.xmlFile.add_simple_node("field", text=self.config.VARS.user , attrib={"name" : "user"})
         # The time when command was launched
-        self.xmlFile.add_simple_node("field", text=self.config.VARS.datehour , attrib={"name" : "beginTime"})
+        Y, m, dd, H, M, S = date_to_datetime(self.config.VARS.datehour)
+        date_hour = "%2s/%2s/%4s %2sh%2sm%2ss" % (dd, m, Y, H, M, S)
+        self.xmlFile.add_simple_node("field", text=date_hour , attrib={"name" : "beginTime"})
         # The initialization of the trace node
         self.xmlFile.add_simple_node("traces",text="")
 
@@ -127,8 +129,8 @@ class Logger(object):
         
         # Get current time (end of command) and format it
         dt = datetime.datetime.now()
-        endtime = dt.strftime('%Y%m%d_%H%M%S')
-        t0 = date_to_datetime(self.config.VARS.datehour)
+        Y, m, dd, H, M, S = date_to_datetime(self.config.VARS.datehour)
+        t0 = datetime.datetime(int(Y), int(m), int(dd), int(H), int(M), int(S))
         tf = dt
         delta = tf - t0
         total_time = delta.total_seconds()
@@ -136,6 +138,7 @@ class Logger(object):
         minutes = int((total_time - hours*3600) / 60)
         seconds = total_time - hours*3600 - minutes*60
         # Add the fields corresponding to the end time and the total time of command
+        endtime = dt.strftime('%d/%Y/%m %Hh%Mm%Ss')
         self.xmlFile.add_simple_node("field", text=endtime , attrib={"name" : "endTime"})
         self.xmlFile.add_simple_node("field", text="%ih%im%is" % (hours, minutes, seconds) , attrib={"name" : "Total Time"})
         
@@ -149,16 +152,16 @@ class Logger(object):
             src.xmlManager.update_hat_xml(self.config.VARS.logDir)
 
 def date_to_datetime(date):
-    '''Little method that convert a date in format YYYYMMDD_HHMMSS to a datetime format
+    '''Little method that gets year, mon, day, hour , minutes and seconds from a str in format YYYYMMDD_HHMMSS
     
     :param date str: The date in format YYYYMMDD_HHMMSS
-    :return: the same date in datetime format.
-    :rtype: datetime.datetime
+    :return: the same date and time in separate variables.
+    :rtype: (str,str,str,str,str,str)
     '''
-    Y = int(date[:4])
-    m = int(date[4:6])
-    dd = int(date[6:8])
-    H = int(date[9:11])
-    M = int(date[11:13])
-    S = int(date[13:15])
-    return datetime.datetime(Y, m, dd, H, M, S)
+    Y = date[:4]
+    m = date[4:6]
+    dd = date[6:8]
+    H = date[9:11]
+    M = date[11:13]
+    S = date[13:15]
+    return Y, m, dd, H, M, S
