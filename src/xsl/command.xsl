@@ -30,20 +30,20 @@
 		<h1><img src="LOGO-SAT.png"/></h1>
 		<table border="1">
 			<tr>
-				<xsl:for-each select="SATcommand/field">
+				<xsl:for-each select="SATcommand/Site/@*">
 					<td bgcolor="LightBlue">
-						<th><xsl:value-of select="@name"/></th>
+						<th><xsl:value-of select="name(.)"/></th>
 					</td>
 				</xsl:for-each>
 			</tr>
 			<tr>
-				<xsl:for-each select="SATcommand/field">	
+				<xsl:for-each select="SATcommand/Site/@*">	
 					<td bgcolor="Beige"><xsl:value-of select="."/></td>
 				</xsl:for-each>
 			</tr>
 		</table>
 		<h1>command's traces :</h1>
-		<PRE><xsl:value-of select="SATcommand/traces"/></PRE>
+		<PRE><xsl:value-of select="SATcommand/Log"/></PRE>
 	</body>
 </xsl:template>
 </xsl:stylesheet>

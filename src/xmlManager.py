@@ -62,7 +62,7 @@ class xmlLogFile(object):
         self.xmlroot.append(n)
         return n
     
-    def append_node(self, node_name, text):
+    def append_node_text(self, node_name, text):
         '''Append a new text to the node that has node_name as name
         
         :param node_name str: The name of the node on which append text
@@ -73,6 +73,14 @@ class xmlLogFile(object):
             if field.tag == node_name:
                 # append the text
                 field.text += text
+
+    def append_node_attrib(self, node_name, attrib):
+        '''Append a new attributes to the node that has node_name as name
+        
+        :param node_name str: The name of the node on which append text
+        :param attrib dixt: The attrib to append
+        '''
+        self.xmlroot.find(node_name).attrib.update(attrib)
 
 class readXmlFile(object):
     '''Class to manage reading of an xml log file

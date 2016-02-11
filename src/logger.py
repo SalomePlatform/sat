@@ -54,21 +54,21 @@ class Logger(object):
         '''Method called at class initialization : Put all fields corresponding to the command context (user, time, ...)
         '''
         # command name
-        self.xmlFile.add_simple_node("field", text=self.config.VARS.command , attrib={"name" : "command"})
+        self.xmlFile.add_simple_node("Site", attrib={"command" : self.config.VARS.command})
         # version of salomeTools
-        self.xmlFile.add_simple_node("field", text=self.config.INTERNAL.sat_version , attrib={"name" : "satversion"})
+        self.xmlFile.append_node_attrib("Site", attrib={"satversion" : self.config.INTERNAL.sat_version})
         # machine name on which the command has been launched
-        self.xmlFile.add_simple_node("field", text=self.config.VARS.hostname , attrib={"name" : "hostname"})
+        self.xmlFile.append_node_attrib("Site", attrib={"hostname" : self.config.VARS.hostname})
         # Distribution of the machine
-        self.xmlFile.add_simple_node("field", text=self.config.VARS.dist , attrib={"name" : "OS"})
+        self.xmlFile.append_node_attrib("Site", attrib={"OS" : self.config.VARS.dist})
         # The user that have launched the command
-        self.xmlFile.add_simple_node("field", text=self.config.VARS.user , attrib={"name" : "user"})
+        self.xmlFile.append_node_attrib("Site", attrib={"user" : self.config.VARS.user})
         # The time when command was launched
         Y, m, dd, H, M, S = date_to_datetime(self.config.VARS.datehour)
         date_hour = "%2s/%2s/%4s %2sh%2sm%2ss" % (dd, m, Y, H, M, S)
-        self.xmlFile.add_simple_node("field", text=date_hour , attrib={"name" : "beginTime"})
+        self.xmlFile.append_node_attrib("Site", attrib={"beginTime" : date_hour})
         # The initialization of the trace node
-        self.xmlFile.add_simple_node("traces",text="")
+        self.xmlFile.add_simple_node("Log",text="")
 
     def write(self, message, level=None, screenOnly=False):
         '''the function used in the commands that will print in the terminal and the log file.
@@ -79,7 +79,7 @@ class Logger(object):
         '''
         # do not write message starting with \r to log file
         if not message.startswith("\r") and not screenOnly:
-            self.xmlFile.append_node("traces", printcolors.cleancolor(message))
+            self.xmlFile.append_node_text("Log", printcolors.cleancolor(message))
 
         # get user or option output level
         current_output_level = self.config.USER.output_level
@@ -102,7 +102,7 @@ class Logger(object):
         :param message str: The message to print.
         '''
         # Print in the log file
-        self.xmlFile.append_node("traces", _('ERROR:') + message)
+        self.xmlFile.append_node_text("traces", _('ERROR:') + message)
 
         # Print in the terminal and clean colors if the terminal is redirected by user
         if not ('isatty' in dir(sys.stderr) and sys.stderr.isatty()):
@@ -139,8 +139,8 @@ class Logger(object):
         seconds = total_time - hours*3600 - minutes*60
         # Add the fields corresponding to the end time and the total time of command
         endtime = dt.strftime('%d/%Y/%m %Hh%Mm%Ss')
-        self.xmlFile.add_simple_node("field", text=endtime , attrib={"name" : "endTime"})
-        self.xmlFile.add_simple_node("field", text="%ih%im%is" % (hours, minutes, seconds) , attrib={"name" : "Total Time"})
+        self.xmlFile.append_node_attrib("Site", attrib={"endTime" : endtime})
+        self.xmlFile.append_node_attrib("Site", attrib={"TotalTime" : "%ih%im%is" % (hours, minutes, seconds)})
         
         # Call the method to write the xml file on the hard drive
         self.xmlFile.write_tree(stylesheet = "command.xsl")
