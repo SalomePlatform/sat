@@ -95,7 +95,9 @@ class readXmlFile(object):
         self.xmlroot = etree_inst.parse(filePath)
     
     def get_attrib(self, node_name):
-        '''Parse the root nodes and get all node that have the attribname. Return the list of [(value of attribname, text), ...]
+        '''Get the attibutes of the node node_name in self.xmlroot
+        
+        :param node_name str: the name of the node
         '''
         return self.xmlroot.find(node_name).attrib
     
