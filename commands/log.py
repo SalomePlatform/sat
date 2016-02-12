@@ -20,12 +20,16 @@ def show_log_command_in_terminal(filePath, logger):
     # Instantiate the readXmlFile class that reads xml files
     xmlRead = src.xmlManager.readXmlFile(filePath)
     # Get the attributes containing the context (user, OS, time, etc..)
-    lAttrText = xmlRead.get_attrib_text('name')
+    dAttrText = xmlRead.get_attrib('Site')
+    
+    # format dAttrText and print the context
+    lAttrText = []
+    for attrib in dAttrText:
+        lAttrText.append((attrib, dAttrText[attrib]))
     logger.write("\n", 1)
-    # Print the context
     src.print_info(logger, lAttrText)
     # Get the traces
-    command_traces = xmlRead.get_node_text('traces')
+    command_traces = xmlRead.get_node_text('Log')
     # Print it if there is any
     if command_traces:
         logger.write(_("Here are the command traces :\n"), 1)
@@ -128,4 +132,4 @@ def run(args, runner, logger):
         src.xmlManager.update_hat_xml(runner.cfg.VARS.logDir)
     
     # open the hat xml in the user editor
-    src.system.show_in_editor(runner.cfg.USER.browser, xmlHatFilePath)
+    src.system.show_in_editor(runner.cfg.USER.browser, xmlHatFilePath, logger)

@@ -94,15 +94,10 @@ class readXmlFile(object):
         etree_inst = etree.parse(filePath)
         self.xmlroot = etree_inst.parse(filePath)
     
-    def get_attrib_text(self, attribname):
+    def get_attrib(self, node_name):
         '''Parse the root nodes and get all node that have the attribname. Return the list of [(value of attribname, text), ...]
         '''
-        lres = []
-        # Loop on all root nodes
-        for field in self.xmlroot:
-            if attribname in field.attrib:
-                lres.append((field.attrib[attribname], field.text))
-        return lres
+        return self.xmlroot.find(node_name).attrib
     
     def get_node_text(self, node):
         '''Get the text of the first node that has name that corresponds to the parameter node

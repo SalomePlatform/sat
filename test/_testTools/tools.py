@@ -53,7 +53,7 @@ def kill9(pid):
 
 def check_proc_existence_and_kill(regex):
     cmd = 'ps aux | grep "' + regex + '"'
-    psRes = subprocess.check_output(cmd, shell=True)
+    psRes = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0]
     psRes = psRes.split('\n')
     for line in psRes:
         if 'grep' in line or len(line) == 0:

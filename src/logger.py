@@ -133,7 +133,7 @@ class Logger(object):
         t0 = datetime.datetime(int(Y), int(m), int(dd), int(H), int(M), int(S))
         tf = dt
         delta = tf - t0
-        total_time = delta.total_seconds()
+        total_time = timedelta_total_seconds(delta)
         hours = int(total_time / 3600)
         minutes = int((total_time - hours*3600) / 60)
         seconds = total_time - hours*3600 - minutes*60
@@ -165,3 +165,14 @@ def date_to_datetime(date):
     M = date[11:13]
     S = date[13:15]
     return Y, m, dd, H, M, S
+
+def timedelta_total_seconds(timedelta):
+    '''Little method to replace total_seconds from datetime module in order to be compatible with old python versions
+    
+    :param timedelta datetime.timedelta: The delta between two dates
+    :return: The number of seconds corresponding to timedelta.
+    :rtype: float
+    '''
+    return (
+        timedelta.microseconds + 0.0 +
+        (timedelta.seconds + timedelta.days * 24 * 3600) * 10 ** 6) / 10 ** 6

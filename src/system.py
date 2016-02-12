@@ -20,11 +20,11 @@
 In this file : all functions that do a system call, like open a browser or an editor, or call a git command
 '''
 
-import sys
 import subprocess
 
+from . import printcolors
 
-def show_in_editor(editor, filePath):
+def show_in_editor(editor, filePath, logger):
     '''open filePath using editor.
     
     :param editor str: The editor to use.
@@ -40,8 +40,9 @@ def show_in_editor(editor, filePath):
     try:
         # launch cmd using subprocess.Popen
         cmd = editor % filePath
+        logger.write('Launched command:\n' + cmd + '\n', 5)
         p = subprocess.Popen(cmd, shell=True)
         p.communicate()
     except:
-        sys.stderr.write("Unable to edit file %s\n" % filePath)
+        logger.write(printcolors.printcError(_("Unable to edit file %s\n") % filePath), 1)
     
