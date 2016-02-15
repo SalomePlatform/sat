@@ -115,7 +115,7 @@ class Logger(object):
         '''
         sys.stdout.flush()
         
-    def endWrite(self):
+    def endWrite(self, attribute):
         '''Method called just after command end : Put all fields corresponding to the command end context (time).
         Write the log xml file on the hard drive.
         And display the command to launch to get the log
@@ -141,6 +141,9 @@ class Logger(object):
         endtime = dt.strftime('%d/%Y/%m %Hh%Mm%Ss')
         self.xmlFile.append_node_attrib("Site", attrib={"endTime" : endtime})
         self.xmlFile.append_node_attrib("Site", attrib={"TotalTime" : "%ih%im%is" % (hours, minutes, seconds)})
+        
+        # Add the attribute passed to the method
+        self.xmlFile.append_node_attrib("Site", attrib=attribute)
         
         # Call the method to write the xml file on the hard drive
         self.xmlFile.write_tree(stylesheet = "command.xsl")

@@ -88,6 +88,7 @@ class Sat(object):
         # initialization of class attributes       
         self.__dict__ = dict()
         self.cfg = None # the config that will be read using pyconf module
+        self.arguments = opt
         self.options = options # the options passed to salomeTools
         self.dataDir = dataDir # default value will be <salomeTools root>/data
         # set the commands by calling the dedicated function
@@ -157,7 +158,8 @@ class Sat(object):
                     res = __module__.run(argv, self, logger_command)
                 finally:
                     # put final attributes in xml log file (end time, total time, ...) and write it
-                    logger_command.endWrite()
+                    launchedCommand = ' '.join([self.cfg.VARS.salometoolsway + os.path.sep + 'sat', self.arguments.split(' ')[0], args])
+                    logger_command.endWrite({"launchedCommand" : launchedCommand})
                 
                 return res
 
