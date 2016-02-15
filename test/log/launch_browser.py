@@ -66,7 +66,7 @@ class TestLog(unittest.TestCase):
         sat.config('appli-test -v USER.browser')
         
         # get log file path
-        logDir = sat.cfg.VARS.logDir
+        logDir = sat.cfg.SITE.log.logDir
         logPath = os.path.join(logDir, sat.cfg.VARS.datehour + "_" + sat.cfg.VARS.command + ".xml")
         
         if os.path.exists(logPath):

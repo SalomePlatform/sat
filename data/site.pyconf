@@ -16,5 +16,9 @@ SITE :
     	cvs_dir : "/test"
     	default_cvs_server : "http://default.cvs"
     }
+    log :
+    {
+        logDir : $USER.workDir + "/LOGS"
+    }
 }
 

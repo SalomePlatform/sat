@@ -39,10 +39,8 @@ class Logger(object):
         
         # Construct log file location. There are two cases. With an application an without any application.
         logFileName = config.VARS.datehour + "_" + config.VARS.command + ".xml"
-        if 'APPLICATION' in config:
-            logFilePath = os.path.join(config.APPLICATION.out_dir, 'LOGS', logFileName)
-        else:
-            logFilePath = os.path.join(config.VARS.personalDir, 'LOGS', logFileName)
+        logFilePath = os.path.join(config.SITE.log.logDir, logFileName)
+
         src.ensure_path_exists(os.path.dirname(logFilePath))
         
         self.logFileName = logFileName
@@ -119,14 +117,9 @@ class Logger(object):
         '''Method called just after command end : Put all fields corresponding to the command end context (time).
         Write the log xml file on the hard drive.
         And display the command to launch to get the log
-        '''
-        # Print the command to launch to get the log, regarding the fact that there an application or not
-        self.write(_('\nTap the following command to get the log :\n'), screenOnly=True)
-        if 'APPLICATION' in self.config:
-            self.write('%s/sat log %s\n' % (self.config.VARS.salometoolsway, self.config.VARS.application), screenOnly=True)
-        else:
-            self.write('%s/sat log\n' % self.config.VARS.salometoolsway, screenOnly=True)
         
+        :param attribute dict: the attribute to add to the node "Site".
+        '''       
         # Get current time (end of command) and format it
         dt = datetime.datetime.now()
         Y, m, dd, H, M, S = date_to_datetime(self.config.VARS.datehour)
@@ -149,10 +142,7 @@ class Logger(object):
         self.xmlFile.write_tree(stylesheet = "command.xsl")
         
         # Update the hat xml (that shows all logs) in order to make the new log visible on the main log page)
-        if 'APPLICATION' in self.config:
-            src.xmlManager.update_hat_xml(self.config.VARS.logDir, self.config.VARS.application)
-        else:
-            src.xmlManager.update_hat_xml(self.config.VARS.logDir)
+        src.xmlManager.update_hat_xml(self.config.SITE.log.logDir)
 
 def date_to_datetime(date):
     '''Little method that gets year, mon, day, hour , minutes and seconds from a str in format YYYYMMDD_HHMMSS

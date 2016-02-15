@@ -272,15 +272,6 @@ class ConfigManager:
         for rule in self.get_command_line_overrides(options, ["USER"]):
             exec('cfg.' + rule) # this cannot be factorize because of the exec
 
-        # =======================================================================================
-        # Add log directory in the config
-        # get the log directory regarding the fact the command uses an application or not
-        if 'APPLICATION' in cfg:
-            logDir = os.path.join(cfg.APPLICATION.out_dir, 'LOGS')
-        else:
-            logDir = os.path.join(cfg.VARS.personalDir, 'LOGS')
-        cfg.VARS.logDir = logDir
-
         return cfg
 
     def setUserConfigFile(self, config):
@@ -421,13 +412,13 @@ def run(args, runner, logger):
         editor = runner.cfg.USER.editor
         if 'APPLICATION' not in runner.cfg: # edit user pyconf
             usercfg = os.path.join(runner.cfg.VARS.personalDir, 'salomeTools.pyconf')
-            src.system.show_in_editor(editor, usercfg)
+            src.system.show_in_editor(editor, usercfg, logger)
         else:
             # search for file <application>.pyconf and open it
             for path in runner.cfg.SITE.config.configPath:
                 pyconf_path = os.path.join(path, runner.cfg.VARS.application + ".pyconf")
                 if os.path.exists(pyconf_path):
-                    src.system.show_in_editor(editor, pyconf_path)
+                    src.system.show_in_editor(editor, pyconf_path, logger)
                     break
     
     # case : copy an existing <application>.pyconf to ~/.salomeTools/Applications/LOCAL_<application>.pyconf

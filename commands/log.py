@@ -73,7 +73,7 @@ def run(args, runner, logger):
     (options, args) = parser.parse_args(args)
 
     # get the log directory. If there is an application, it is in cfg.APPLICATION.out_dir, else in user directory
-    logDir = runner.cfg.VARS.logDir
+    logDir = runner.cfg.SITE.log.logDir
 
     # If the user asks for a terminal display
     if options.terminal:
@@ -126,10 +126,7 @@ def run(args, runner, logger):
     
     # Create or update the hat xml that gives access to all the commands log files
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
-    if 'APPLICATION' in runner.cfg:
-        src.xmlManager.update_hat_xml(runner.cfg.VARS.logDir, runner.cfg.VARS.application)
-    else:
-        src.xmlManager.update_hat_xml(runner.cfg.VARS.logDir)
+    src.xmlManager.update_hat_xml(runner.cfg.SITE.log.logDir, runner.cfg.VARS.application)
     
     # open the hat xml in the user editor
     src.system.show_in_editor(runner.cfg.USER.browser, xmlHatFilePath, logger)
