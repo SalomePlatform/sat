@@ -45,7 +45,7 @@ class Logger(object):
         
         self.logFileName = logFileName
         self.logFilePath = logFilePath   
-        self.xmlFile = xmlManager.xmlLogFile(logFilePath, "SATcommand", attrib = {"command" : config.VARS.command})
+        self.xmlFile = xmlManager.xmlLogFile(logFilePath, "SATcommand", attrib = {"application" : config.VARS.application})
         self.putInitialXMLFields()
         
     def putInitialXMLFields(self):
@@ -65,6 +65,9 @@ class Logger(object):
         Y, m, dd, H, M, S = date_to_datetime(self.config.VARS.datehour)
         date_hour = "%2s/%2s/%4s %2sh%2sm%2ss" % (dd, m, Y, H, M, S)
         self.xmlFile.append_node_attrib("Site", attrib={"beginTime" : date_hour})
+        # The application if any
+        if "APPLICATION" in self.config:
+            self.xmlFile.append_node_attrib("Site", attrib={"application" : self.config.VARS.application})
         # The initialization of the trace node
         self.xmlFile.add_simple_node("Log",text="")
 
@@ -141,8 +144,6 @@ class Logger(object):
         # Call the method to write the xml file on the hard drive
         self.xmlFile.write_tree(stylesheet = "command.xsl")
         
-        # Update the hat xml (that shows all logs) in order to make the new log visible on the main log page)
-        src.xmlManager.update_hat_xml(self.config.SITE.log.logDir)
 
 def date_to_datetime(date):
     '''Little method that gets year, mon, day, hour , minutes and seconds from a str in format YYYYMMDD_HHMMSS

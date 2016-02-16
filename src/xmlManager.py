@@ -93,11 +93,21 @@ class readXmlFile(object):
         self.filePath = filePath
         etree_inst = etree.parse(filePath)
         self.xmlroot = etree_inst.parse(filePath)
+
+    def getRootAttrib(self):
+        '''Get the attibutes of the self.xmlroot
+        
+        :return: The attributes of the root node
+        :rtype: dict
+        '''
+        return self.xmlroot.attrib
     
     def get_attrib(self, node_name):
         '''Get the attibutes of the node node_name in self.xmlroot
         
         :param node_name str: the name of the node
+        :return: the attibutes of the node node_name in self.xmlroot
+        :rtype: dict
         '''
         return self.xmlroot.find(node_name).attrib
     
@@ -105,6 +115,8 @@ class readXmlFile(object):
         '''Get the text of the first node that has name that corresponds to the parameter node
         
         :param node str: the name of the node from which get the text
+        :return: the text of the first node that has name that corresponds to the parameter node
+        :rtype: str
         '''
         # Loop on all root nodes
         for field in self.xmlroot:
@@ -112,8 +124,40 @@ class readXmlFile(object):
                 return field.text
         return ''
 
+def showcommandLog(logFilePath, cmd, application, notShownCommands):
+    '''Used in updateHatXml. Determine if the log xml file logFilePath has to be shown or not in the hat log.
+    
+    :param logFilePath str: the path to the command xml log file
+    :param cmd str: the command of the log file
+    :param application str: the application passed as parameter to the salomeTools command
+    :param notShownCommands list: the list of commands that are not shown by default
+    
+    :return: True if cmd is not in notShownCommands and the application in the log file corresponds to application
+    :rtype: boolean
+    '''
+    # When the command is not in notShownCommands, no need to go further. Do not show
+    if cmd in notShownCommands:
+        return False, None
+ 
+    # Get the application of the log file
+    logFileXml = readXmlFile(logFilePath)
+    if 'application' in logFileXml.xmlroot.keys():
+        appliLog = logFileXml.xmlroot.get('application')
+        # if it corresponds, then the log has to be shown
+        if appliLog == application:
+            return True, appliLog
+        elif application != 'None':
+            return False, appliLog
+        
+        return True, appliLog
+    
+    if application == 'None':
+            return True, None    
+        
+    return False, None
+    
 
-def update_hat_xml(logDir, application=None):
+def update_hat_xml(logDir, application=None, notShownCommands = []):
     '''Create the xml file in logDir that contain all the xml file and have a name like YYYYMMDD_HHMMSS_namecmd.xml
     
     :param logDir str: the directory to parse
@@ -121,16 +165,11 @@ def update_hat_xml(logDir, application=None):
     '''
     # Create an instance of xmlLogFile class to create hat.xml file
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
-    # If there is an application, add the attribute to the root node
-    if application:
-        xmlHat = xmlLogFile(xmlHatFilePath,  "LOGlist", {"application" : application})
-    else:
-        xmlHat = xmlLogFile(xmlHatFilePath,  "LOGlist", {"application" : "NO"})
-    
+    xmlHat = xmlLogFile(xmlHatFilePath,  "LOGlist", {"application" : application})
     # parse the log directory to find all the command logs, then add it to the xml file
     for fileName in os.listdir(logDir):
         # YYYYMMDD_HHMMSS_namecmd.xml
-        sExpr = "^[0-9]{8}_+[0-9]{6}_+.*.xml$"
+        sExpr = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
         oExpr = re.compile(sExpr)
         if oExpr.search(fileName):
             # get date and hour and format it
@@ -140,8 +179,11 @@ def update_hat_xml(logDir, application=None):
             hour_not_formated = date_hour_cmd[1]
             hour = "%s:%s:%s" % (hour_not_formated[0:2], hour_not_formated[2:4], hour_not_formated[4:6])
             cmd = date_hour_cmd[2][:-len('.xml')]
-            # add a node to the hat.xml file
-            xmlHat.add_simple_node("LogCommand", text=fileName, attrib = {"date" : date, "hour" : hour, "cmd" : cmd})
+            showLog, cmdAppli = showcommandLog(os.path.join(logDir, fileName), cmd, application, notShownCommands)
+            #if cmd not in notShownCommands:
+            if showLog:
+                # add a node to the hat.xml file
+                xmlHat.add_simple_node("LogCommand", text=fileName, attrib = {"date" : date, "hour" : hour, "cmd" : cmd, "application" : cmdAppli})
     
     # Write the file on the hard drive
     xmlHat.write_tree('hat.xsl')

@@ -29,18 +29,18 @@
 	<body class="def" bgcolor="aliceblue">
 		<h1><img src="LOGO-SAT.png"/></h1>
 			<xsl:choose>
-			  <xsl:when test="LOGlist/@application='NO'">
-				  <h1>Logs of commands without application</h1>
+			  <xsl:when test="not(LOGlist/@application='None')">
+				  <h1>Logs of application <xsl:value-of select="LOGlist/@application"/></h1>
 			  </xsl:when>
 			  <xsl:otherwise>
 				  <h1>
-					  Logs of application <xsl:value-of select="LOGlist/@application"/>
+					  General Logs
 				  </h1>
 			  </xsl:otherwise>
 			</xsl:choose>
 			<table border="0">
 				<tr>
-				<td width="100px">Command</td><td width="100px">date</td><td>time</td>
+				<td width="100px">Command</td><td width="100px">date</td><td width="100px">time</td><td>application</td>
 				</tr>
 				<xsl:for-each select="LOGlist/LogCommand">
 					<xsl:sort select="." order="descending" />
@@ -53,6 +53,7 @@
 						</td>
 						<td><xsl:value-of select="@date"/></td>
 						<td><xsl:value-of select="@hour"/></td>
+						<td><xsl:value-of select="@application"/></td>
 					</tr>
 				</xsl:for-each>
 			</table>

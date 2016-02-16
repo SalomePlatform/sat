@@ -370,7 +370,13 @@ class _ElementInterface:
     # @defreturn string or None
 
     def get(self, key, default=None):
-        return self.attrib.get(key, default)
+        res = self.attrib.get(key, default)
+        if not res:
+            res = self.attrib.get(key.encode(), default)
+        if isinstance(res, bytes):
+            return res.decode()
+        else:
+            return res
 
     ##
     # Sets an element attribute.
@@ -389,8 +395,14 @@ class _ElementInterface:
     # @defreturn list of strings
 
     def keys(self):
-        return self.attrib.keys()
-
+        res = []
+        for key in self.attrib.keys():
+            if isinstance(key, bytes):
+                res.append(key.decode())
+            else:
+                res.append(key)
+        return res
+                
     ##
     # Gets element attributes, as a sequence.  The attributes are
     # returned in an arbitrary order.
@@ -1057,7 +1069,12 @@ class TreeBuilder:
     def _flush(self):
         if self._data:
             if self._last is not None:
-                text = string.join(self._data, "")
+                text = ""
+                for item in self._data:
+                    try:
+                        text += item
+                    except:
+                        text += item.decode()
                 if self._tail:
                     assert self._last.tail is None, "internal error (tail)"
                     self._last.tail = text
@@ -1150,9 +1167,9 @@ class XMLTreeBuilder:
             parser.StartElementHandler = self._start_list
         except AttributeError:
             pass
-        encoding = None
-        if not parser.returns_unicode:
-            encoding = "utf-8"
+        #encoding = None
+        #if not parser.returns_unicode:
+        #    encoding = "utf-8"
         # target.xml(encoding, None)
         self._doctype = None
         self.entity = {}

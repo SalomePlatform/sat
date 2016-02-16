@@ -4,5 +4,9 @@
 INTERNAL :
 {   
     sat_version : "5.0.0dev"
+    log :
+    {
+    	notShownCommands : ["log"]
+    }
 }
 

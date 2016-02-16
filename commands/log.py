@@ -10,6 +10,10 @@ import src
 # Define all possible option for log command :  sat log <options>
 parser = src.options.Options()
 parser.add_option('t', 'terminal', 'boolean', 'terminal', "Terminal log.")
+parser.add_option('l', 'last', 'boolean', 'last', "Show the log of the last launched command.")
+parser.add_option('f', 'full', 'boolean', 'full', "Show the logs of ALL launched commands.")
+parser.add_option('c', 'clean', 'int', 'clean', "Erase the n most ancient log files.")
+
 
 def show_log_command_in_terminal(filePath, logger):
     '''Print the contain of filePath. It contains a command log in xml format.
@@ -123,10 +127,15 @@ def run(args, runner, logger):
     shutil.copy2(xslCommand, logDir)
     shutil.copy2(xslHat, logDir)
     shutil.copy2(imgLogo, logDir)
-    
+
+    # determine the commands to show in the hat log
+    notShownCommands = runner.cfg.INTERNAL.log.notShownCommands
+    if options.full:
+        notShownCommands = []
+
     # Create or update the hat xml that gives access to all the commands log files
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
-    src.xmlManager.update_hat_xml(runner.cfg.SITE.log.logDir, runner.cfg.VARS.application)
+    src.xmlManager.update_hat_xml(runner.cfg.SITE.log.logDir, application = runner.cfg.VARS.application, notShownCommands = notShownCommands)
     
     # open the hat xml in the user editor
     src.system.show_in_editor(runner.cfg.USER.browser, xmlHatFilePath, logger)
