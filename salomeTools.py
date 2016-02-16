@@ -262,8 +262,6 @@ def write_exception(exc):
 # MAIN : terminal command usage #
 # ###############################
 if __name__ == "__main__":  
-    # Get the command line using sys.argv
-    cmd_line = " ".join(sys.argv)
     # Initialize the code that will be returned by the terminal command 
     code = 0
     (options, args) = parser.parse_args(sys.argv[1:])

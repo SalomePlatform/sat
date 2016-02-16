@@ -14,6 +14,22 @@ parser.add_option('l', 'last', 'boolean', 'last', "Show the log of the last laun
 parser.add_option('f', 'full', 'boolean', 'full', "Show the logs of ALL launched commands.")
 parser.add_option('c', 'clean', 'int', 'clean', "Erase the n most ancient log files.")
 
+def getLastLogFile(logDir, notShownCommands):
+    last = (_, 0)
+    for fileName in os.listdir(logDir):
+        # YYYYMMDD_HHMMSS_namecmd.xml
+        sExpr = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
+        oExpr = re.compile(sExpr)
+        if oExpr.search(fileName):
+            # get date and hour and format it
+            date_hour_cmd = fileName.split('_')
+            datehour = date_hour_cmd[0] + date_hour_cmd[1]
+            cmd = date_hour_cmd[2][:-len('.xml')]
+            if cmd in notShownCommands:
+                continue
+            if int(datehour) > last[1]:
+                last = (fileName, int(datehour))
+    return os.path.join(logDir, last[0])
 
 def show_log_command_in_terminal(filePath, logger):
     '''Print the contain of filePath. It contains a command log in xml format.
@@ -133,9 +149,17 @@ def run(args, runner, logger):
     if options.full:
         notShownCommands = []
 
+    # If the last option is invoked, just, show the last log file
+    if options.last:
+        lastLogFilePath = getLastLogFile(logDir, notShownCommands)
+        # open the log xml file in the user editor
+        src.system.show_in_editor(runner.cfg.USER.browser, lastLogFilePath, logger)
+        return 0
+
     # Create or update the hat xml that gives access to all the commands log files
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
     src.xmlManager.update_hat_xml(runner.cfg.SITE.log.logDir, application = runner.cfg.VARS.application, notShownCommands = notShownCommands)
     
     # open the hat xml in the user editor
     src.system.show_in_editor(runner.cfg.USER.browser, xmlHatFilePath, logger)
+    return 0
