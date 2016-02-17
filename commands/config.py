@@ -52,10 +52,10 @@ class ConfigOpener:
         if os.path.isabs(name):
             return src.pyconf.ConfigInputStream(open(name, 'rb'))
         else:
-            return src.pyconf.ConfigInputStream( open(os.path.join( self.getPath(name), name ), 'rb') )
+            return src.pyconf.ConfigInputStream( open(os.path.join( self.get_path(name), name ), 'rb') )
         raise IOError(_("Configuration file '%s' not found") % name)
 
-    def getPath( self, name ):
+    def get_path( self, name ):
         '''The method that returns the entire path of the pyconf searched
         :param name str: The name of the searched pyconf.
         '''
@@ -145,7 +145,7 @@ class ConfigManager:
             over.extend(filter(lambda l: l.startswith(section + "."), options.overwrite))
         return over
 
-    def getConfig(self, application=None, options=None, command=None, dataDir=None):
+    def get_config(self, application=None, options=None, command=None, dataDir=None):
         '''get the config from all the configuration files.
         
         :param application str: The application for which salomeTools is called.
@@ -263,8 +263,8 @@ class ConfigManager:
         
         # =======================================================================================
         # load USER config
-        self.setUserConfigFile(cfg)
-        user_cfg_file = self.getUserConfigFile()
+        self.set_user_config_file(cfg)
+        user_cfg_file = self.get_user_config_file()
         user_cfg = src.pyconf.Config(open(user_cfg_file))
         merger.merge(cfg, user_cfg)
 
@@ -274,7 +274,7 @@ class ConfigManager:
 
         return cfg
 
-    def setUserConfigFile(self, config):
+    def set_user_config_file(self, config):
         '''Set the user config file name and path.
         If necessary, build it from another one or create it from scratch.
         
@@ -286,9 +286,9 @@ class ConfigManager:
         
         # if pyconf does not exist, create it from scratch
         if not os.path.isfile(self.user_config_file_path): 
-            self.createConfigFile(config)
+            self.create_config_file(config)
     
-    def createConfigFile(self, config):
+    def create_config_file(self, config):
         '''This method is called when there are no user config file. It build it from scratch.
         
         :param config class 'src.pyconf.Config': The global config.
@@ -296,7 +296,7 @@ class ConfigManager:
         :rtype: config class 'src.pyconf.Config'
         '''
         
-        cfg_name = self.getUserConfigFile()
+        cfg_name = self.get_user_config_file()
 
         user_cfg = src.pyconf.Config()
         #
@@ -326,13 +326,13 @@ class ConfigManager:
 
         return user_cfg   
 
-    def getUserConfigFile(self):
+    def get_user_config_file(self):
         '''Get the user config file
         :return: path to the user config file.
         :rtype: str
         '''
         if not self.user_config_file_path:
-            raise src.SatException(_("Error in getUserConfigFile: missing user config file path"))
+            raise src.SatException(_("Error in get_user_config_file: missing user config file path"))
         return self.user_config_file_path     
         
     

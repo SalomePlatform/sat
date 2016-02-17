@@ -4,7 +4,6 @@
 import os
 import shutil
 import re
-import gettext
 
 # Compatibility python 2/3 for input function
 # input stays input for python 3 and input = raw_input for python 2
@@ -22,7 +21,7 @@ parser.add_option('l', 'last', 'boolean', 'last', "Show the log of the last laun
 parser.add_option('f', 'full', 'boolean', 'full', "Show the logs of ALL launched commands.")
 parser.add_option('c', 'clean', 'int', 'clean', "Erase the n most ancient log files.")
 
-def getLastLogFile(logDir, notShownCommands):
+def get_last_log_file(logDir, notShownCommands):
     '''Used in case of last option. Get the last log command file path.
     
     :param logDir str: The directory where to search the log files
@@ -114,7 +113,7 @@ def run(args, runner, logger):
     if options.clean:
         nbClean = options.clean
         # get the list of files to remove
-        lLogs = src.logger.listLogFile(logDir, src.logger.logCommandFileExpression)
+        lLogs = src.logger.list_log_file(logDir, src.logger.logCommandFileExpression)
         nbLogFiles = len(lLogs)
         # Delete all if the invoked number is bigger than the number of log files
         if nbClean > nbLogFiles:
@@ -137,10 +136,10 @@ def run(args, runner, logger):
     # If the user asks for a terminal display
     if options.terminal:
         # Parse the log directory in order to find all the files corresponding to the commands
-        lLogs = src.logger.listLogFile(logDir, src.logger.logCommandFileExpression)
+        lLogs = src.logger.list_log_file(logDir, src.logger.logCommandFileExpression)
         lLogsFiltered = []
         for filePath, _, date, _, hour, cmd in lLogs:
-            showLog, cmdAppli = src.logger.showcommandLog(filePath, cmd, runner.cfg.VARS.application, notShownCommands)
+            showLog, cmdAppli = src.logger.show_command_log(filePath, cmd, runner.cfg.VARS.application, notShownCommands)
             if showLog:
                 lLogsFiltered.append((filePath, date, hour, cmd, cmdAppli))
             
@@ -179,7 +178,7 @@ def run(args, runner, logger):
 
     # If the last option is invoked, just, show the last log file
     if options.last:
-        lastLogFilePath = getLastLogFile(logDir, notShownCommands)
+        lastLogFilePath = get_last_log_file(logDir, notShownCommands)
         # open the log xml file in the user editor
         src.system.show_in_editor(runner.cfg.USER.browser, lastLogFilePath, logger)
         return 0

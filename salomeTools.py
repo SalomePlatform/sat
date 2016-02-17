@@ -140,7 +140,7 @@ class Sat(object):
                 
                 # read the configuration from all the pyconf files    
                 cfgManager = config.ConfigManager()
-                self.cfg = cfgManager.getConfig(dataDir=self.dataDir, application=appliToLoad, options=self.options, command=__nameCmd__)
+                self.cfg = cfgManager.get_config(dataDir=self.dataDir, application=appliToLoad, options=self.options, command=__nameCmd__)
                     
                 # set output level
                 if self.options.output_level:
@@ -159,7 +159,7 @@ class Sat(object):
                 finally:
                     # put final attributes in xml log file (end time, total time, ...) and write it
                     launchedCommand = ' '.join([self.cfg.VARS.salometoolsway + os.path.sep + 'sat', self.arguments.split(' ')[0], args])
-                    logger_command.endWrite({"launchedCommand" : launchedCommand})
+                    logger_command.end_write({"launchedCommand" : launchedCommand})
                 
                 return res
 
@@ -185,7 +185,7 @@ class Sat(object):
         command = opt[0]
         # read the configuration from all the pyconf files    
         cfgManager = config.ConfigManager()
-        self.cfg = cfgManager.getConfig(dataDir=self.dataDir)
+        self.cfg = cfgManager.get_config(dataDir=self.dataDir)
 
         # Check if this command exists
         if not hasattr(self, command):
@@ -225,7 +225,7 @@ def print_version():
     '''
     # read the config 
     cfgManager = config.ConfigManager()
-    cfg = cfgManager.getConfig()
+    cfg = cfgManager.get_config()
     # print the key corresponding to salomeTools version
     print(src.printcolors.printcHeader( _("Version: ") ) + cfg.INTERNAL.sat_version + '\n')
 

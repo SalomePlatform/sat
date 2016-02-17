@@ -21,7 +21,7 @@ import os
 import src
 from . import ElementTree as etree
 
-class xmlLogFile(object):
+class XmlLogFile(object):
     '''Class to manage writing in salomeTools xml log file
     '''
     def __init__(self, filePath, rootname, attrib = {}):

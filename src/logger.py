@@ -55,12 +55,12 @@ class Logger(object):
         self.txtFileName = txtFileName
         self.txtFilePath = txtFilePath
         # Initialize xml instance and put first fields like beginTime, user, command, etc... 
-        self.xmlFile = xmlManager.xmlLogFile(logFilePath, "SATcommand", attrib = {"application" : config.VARS.application})
-        self.putInitialXMLFields()
+        self.xmlFile = xmlManager.XmlLogFile(logFilePath, "SATcommand", attrib = {"application" : config.VARS.application})
+        self.put_initial_xml_fields()
         # Initialize the txt file for reading
         self.logTxtFile = open(str(self.txtFilePath), 'w')
         
-    def putInitialXMLFields(self):
+    def put_initial_xml_fields(self):
         '''Method called at class initialization : Put all fields corresponding to the command context (user, time, ...)
         '''
         # command name
@@ -129,7 +129,7 @@ class Logger(object):
         '''
         sys.stdout.flush()
         
-    def endWrite(self, attribute):
+    def end_write(self, attribute):
         '''Method called just after command end : Put all fields corresponding to the command end context (time).
         Write the log xml file on the hard drive.
         And display the command to launch to get the log
@@ -184,7 +184,7 @@ def timedelta_total_seconds(timedelta):
         timedelta.microseconds + 0.0 +
         (timedelta.seconds + timedelta.days * 24 * 3600) * 10 ** 6) / 10 ** 6
         
-def showcommandLog(logFilePath, cmd, application, notShownCommands):
+def show_command_log(logFilePath, cmd, application, notShownCommands):
     '''Used in updateHatXml. Determine if the log xml file logFilePath has to be shown or not in the hat log.
     
     :param logFilePath str: the path to the command xml log file
@@ -216,7 +216,7 @@ def showcommandLog(logFilePath, cmd, application, notShownCommands):
         
     return False, None
 
-def listLogFile(dirPath, expression):
+def list_log_file(dirPath, expression):
     '''Find all files corresponding to expression in dirPath
     
     :param dirPath str: the directory where to search the files
@@ -246,13 +246,13 @@ def update_hat_xml(logDir, application=None, notShownCommands = []):
     :param logDir str: the directory to parse
     :param application str: the name of the application if there is any
     '''
-    # Create an instance of xmlLogFile class to create hat.xml file
+    # Create an instance of XmlLogFile class to create hat.xml file
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
-    xmlHat = src.xmlManager.xmlLogFile(xmlHatFilePath,  "LOGlist", {"application" : application})
+    xmlHat = src.xmlManager.XmlLogFile(xmlHatFilePath,  "LOGlist", {"application" : application})
     # parse the log directory to find all the command logs, then add it to the xml file
-    lLogFile = listLogFile(logDir, logCommandFileExpression)
+    lLogFile = list_log_file(logDir, logCommandFileExpression)
     for filePath, _, date, _, hour, cmd in lLogFile:
-        showLog, cmdAppli = showcommandLog(filePath, cmd, application, notShownCommands)
+        showLog, cmdAppli = show_command_log(filePath, cmd, application, notShownCommands)
         #if cmd not in notShownCommands:
         if showLog:
             # add a node to the hat.xml file
