@@ -17,7 +17,8 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 '''
-In this file : all the stuff that can change with the architecture on which SAT is running
+In this file : all the stuff that can change with the architecture 
+on which SAT is running
 '''
 
 import os, sys, platform, pwd
@@ -56,21 +57,24 @@ def _lsb_release(args):
             path = lsb_path + ":" + path
         
         from subprocess import Popen, PIPE
-        res = Popen(['lsb_release', args], env={'PATH': path}, stdout=PIPE).communicate()[0][:-1]
+        res = Popen(['lsb_release', args], env={'PATH': path},
+                     stdout=PIPE).communicate()[0][:-1]
         # in case of python3, convert byte to str
         if isinstance(res, bytes):
             res = res.decode()
         return res
     except OSError:
         sys.stderr.write(_(u"lsb_release not installed\n"))
-        sys.stderr.write(_(u"You can define $LSB_PATH to give the path to lsb_release\n"))
+        sys.stderr.write(_(u"You can define $LSB_PATH to give"
+                           " the path to lsb_release\n"))
         sys.exit(-1)
 
 def get_distribution(codes):
     '''Gets the code for the distribution
     
     :param codes L{Mapping}: The map containing distribution correlation table.
-    :return: The distribution on which salomeTools is running, regarding the distribution correlation table contained in codes variable.
+    :return: The distribution on which salomeTools is running, regarding the 
+             distribution correlation table contained in codes variable.
     :rtype: str
     '''
     if is_windows():
@@ -82,7 +86,8 @@ def get_distribution(codes):
         distrib = codes[distrib]
     else:
         sys.stderr.write(_(u"Unknown distribution: '%s'\n") % distrib)
-        sys.stderr.write(_(u"Please add your distribution to data/distrib.pyconf\n"))
+        sys.stderr.write(_(u"Please add your distribution to"
+                           " data/distrib.pyconf\n"))
         sys.exit(-1)
 
     return distrib
@@ -93,7 +98,9 @@ def get_distrib_version(distrib, codes):
     
     :param distrib str: The distribution on which the version will be found.
     :param codes L{Mapping}: The map containing distribution correlation table.
-    :return: The version of the distribution on which salomeTools is running, regarding the distribution correlation table contained in codes variable.
+    :return: The version of the distribution on which salomeTools is running, 
+             regarding the distribution correlation table contained in codes 
+             variable.
     :rtype: str
     '''
 
@@ -119,7 +126,8 @@ def get_python_version():
     return platform.python_version()
 
 def get_nb_proc():
-    '''Gets the number of processors of the machine on which salomeTools is running.
+    '''Gets the number of processors of the machine 
+       on which salomeTools is running.
     
     :return: the number of processors.
     :rtype: str

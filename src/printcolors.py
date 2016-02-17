@@ -39,7 +39,8 @@ __colormap__ = {
 }
 
 # list of available codes
-__code_range__ = [1, 4] + list(range(30, 38)) + list(range(40, 48)) + list(range(90, 98)) + list(range(100, 108))
+__code_range__ = ([1, 4] + list(range(30, 38)) + list(range(40, 48))
+                + list(range(90, 98)) + list(range(100, 108)))
 
 def printc(txt, code=''):
     '''print a text with colors
@@ -152,7 +153,8 @@ def print_value(logger, label, value, level=1, suffix=""):
     if logger is None:
         print("  %s = %s %s" % (label, printcInfo(str(value)), suffix))
     else:
-        logger.write("  %s = %s %s\n" % (label, printcInfo(str(value)), suffix), level)
+        logger.write("  %s = %s %s\n" % (label, printcInfo(str(value)),
+                                          suffix), level)
 
 def print_color_range(start, end):
     '''print possible range values for colors

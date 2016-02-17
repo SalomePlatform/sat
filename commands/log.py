@@ -17,9 +17,12 @@ import src
 # Define all possible option for log command :  sat log <options>
 parser = src.options.Options()
 parser.add_option('t', 'terminal', 'boolean', 'terminal', "Terminal log.")
-parser.add_option('l', 'last', 'boolean', 'last', "Show the log of the last launched command.")
-parser.add_option('f', 'full', 'boolean', 'full', "Show the logs of ALL launched commands.")
-parser.add_option('c', 'clean', 'int', 'clean', "Erase the n most ancient log files.")
+parser.add_option('l', 'last', 'boolean', 'last', "Show the log of the last "
+                  "launched command.")
+parser.add_option('f', 'full', 'boolean', 'full', "Show the logs of ALL "
+                  "launched commands.")
+parser.add_option('c', 'clean', 'int', 'clean', "Erase the n most ancient "
+                  "log files.")
 
 def get_last_log_file(logDir, notShownCommands):
     '''Used in case of last option. Get the last log command file path.
@@ -48,7 +51,8 @@ def get_last_log_file(logDir, notShownCommands):
 def print_log_command_in_terminal(filePath, logger):
     '''Print the contain of filePath. It contains a command log in xml format.
     
-    :param filePath: The command xml file from which extract the commands context and traces
+    :param filePath: The command xml file from which extract the commands 
+                     context and traces
     :param logger Logger: the logging instance to use in order to print.  
     '''
     logger.write(_("Reading ") + src.printcolors.printcHeader(filePath) + "\n", 5)
@@ -66,7 +70,8 @@ def print_log_command_in_terminal(filePath, logger):
     command_traces = xmlRead.get_node_text('Log')
     # Print it if there is any
     if command_traces:
-        logger.write(src.printcolors.printcHeader(_("Here are the command traces :\n")), 1)
+        logger.write(src.printcolors.printcHeader(
+                                    _("Here are the command traces :\n")), 1)
         logger.write(command_traces, 1)
         logger.write("\n", 1)
 
@@ -106,14 +111,18 @@ def run(args, runner, logger):
     # Parse the options
     (options, args) = parser.parse_args(args)
 
-    # get the log directory. If there is an application, it is in cfg.APPLICATION.out_dir, else in user directory
+    # get the log directory. 
+    # If there is an application, it is in cfg.APPLICATION.out_dir, 
+    # else in user directory
     logDir = runner.cfg.SITE.log.logDir
 
-    # If the clean options is invoked, do nothing but deleting the concerned files.
+    # If the clean options is invoked, 
+    # do nothing but deleting the concerned files.
     if options.clean:
         nbClean = options.clean
         # get the list of files to remove
-        lLogs = src.logger.list_log_file(logDir, src.logger.logCommandFileExpression)
+        lLogs = src.logger.list_log_file(logDir, 
+                                         src.logger.logCommandFileExpression)
         nbLogFiles = len(lLogs)
         # Delete all if the invoked number is bigger than the number of log files
         if nbClean > nbLogFiles:
@@ -121,7 +130,8 @@ def run(args, runner, logger):
         # Get the list to delete and do the removing
         lLogsToDelete = sorted(lLogs)[:nbClean]
         for filePath, _, _, _, _, _ in lLogsToDelete:
-            logger.write(src.printcolors.printcWarning("Removing ") + filePath + "\n", 5)
+            logger.write(src.printcolors.printcWarning("Removing ")
+                          + filePath + "\n", 5)
             os.remove(filePath)
         
         logger.write(src.printcolors.printcSuccess("OK\n"))
@@ -135,11 +145,14 @@ def run(args, runner, logger):
 
     # If the user asks for a terminal display
     if options.terminal:
-        # Parse the log directory in order to find all the files corresponding to the commands
-        lLogs = src.logger.list_log_file(logDir, src.logger.logCommandFileExpression)
+        # Parse the log directory in order to find 
+        # all the files corresponding to the commands
+        lLogs = src.logger.list_log_file(logDir, 
+                                         src.logger.logCommandFileExpression)
         lLogsFiltered = []
         for filePath, _, date, _, hour, cmd in lLogs:
-            showLog, cmdAppli = src.logger.show_command_log(filePath, cmd, runner.cfg.VARS.application, notShownCommands)
+            showLog, cmdAppli = src.logger.show_command_log(filePath, cmd, 
+                                runner.cfg.VARS.application, notShownCommands)
             if showLog:
                 lLogsFiltered.append((filePath, date, hour, cmd, cmdAppli))
             
@@ -149,7 +162,8 @@ def run(args, runner, logger):
         # loop on all files and print it with date, time and command name 
         for _, date, hour, cmd, cmdAppli in lLogsFiltered:          
             num = src.printcolors.printcLabel("%2d" % (nb_logs - index))
-            logger.write("%s: %13s %s %s %s\n" % (num, cmd, date, hour, cmdAppli), 1, False)
+            logger.write("%s: %13s %s %s %s\n" % 
+                         (num, cmd, date, hour, cmdAppli), 1, False)
             index += 1
         
         # ask the user what for what command he wants to be displayed
@@ -180,12 +194,15 @@ def run(args, runner, logger):
     if options.last:
         lastLogFilePath = get_last_log_file(logDir, notShownCommands)
         # open the log xml file in the user editor
-        src.system.show_in_editor(runner.cfg.USER.browser, lastLogFilePath, logger)
+        src.system.show_in_editor(runner.cfg.USER.browser, 
+                                  lastLogFilePath, logger)
         return 0
 
     # Create or update the hat xml that gives access to all the commands log files
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
-    src.logger.update_hat_xml(runner.cfg.SITE.log.logDir, application = runner.cfg.VARS.application, notShownCommands = notShownCommands)
+    src.logger.update_hat_xml(runner.cfg.SITE.log.logDir, 
+                              application = runner.cfg.VARS.application, 
+                              notShownCommands = notShownCommands)
     
     # open the hat xml in the user editor
     src.system.show_in_editor(runner.cfg.USER.browser, xmlHatFilePath, logger)

@@ -29,9 +29,11 @@ class XmlLogFile(object):
         
         :param filePath str: The path to the file where to write the log file
         :param rootname str: The name of the root node of the xml file
-        :param attrib dict: the dictionary that contains the attributes and value of the root node
+        :param attrib dict: the dictionary that contains the attributes 
+                            and value of the root node
         '''
-        # Initialize the filePath and ensure that the directory that contain the file exists (make it if necessary)
+        # Initialize the filePath and ensure that the directory 
+        # that contain the file exists (make it if necessary)
         self.logFile = filePath
         src.ensure_path_exists(os.path.dirname(filePath))
         # Initialize the field that contain the xml in memory
@@ -45,7 +47,8 @@ class XmlLogFile(object):
         f = open(self.logFile, 'w')
         f.write("<?xml version='1.0' encoding='utf-8'?>\n")
         if stylesheet:
-            f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % stylesheet)    
+            f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % 
+                    stylesheet)    
         f.write(etree.tostring(self.xmlroot, encoding='utf-8'))
         f.close()  
         
@@ -54,7 +57,8 @@ class XmlLogFile(object):
         
         :param node_name str: the name of the node to add
         :param text str: the text of the node
-        :param attrib dict: the dictionary containing the attribute of the new node
+        :param attrib dict: the dictionary containing the 
+                            attribute of the new node
         '''
         n = etree.Element(node_name, attrib=attrib)
         n.text = text
@@ -124,11 +128,12 @@ class readXmlFile(object):
         return fixedAttrib
     
     def get_node_text(self, node):
-        '''Get the text of the first node that has name that corresponds to the parameter node
+        '''Get the text of the first node that has name 
+           that corresponds to the parameter node
         
         :param node str: the name of the node from which get the text
-        :return: the text of the first node that has name that corresponds to the parameter node
+        :return: the text of the first node that has name 
+                 that corresponds to the parameter node
         :rtype: str
         '''
         return self.xmlroot.find(node).text
-

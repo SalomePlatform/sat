@@ -45,7 +45,8 @@ def check_config_has_application( config, details = None ):
     :param config class 'common.pyconf.Config': The config.
     '''
     if 'APPLICATION' not in config:
-        message = _("An APPLICATION is required. Use 'config --list' to get the list of available applications.\n")
+        message = _("An APPLICATION is required. Use 'config --list' to get"
+                    " the list of available applications.\n")
         if details :
             details.append(message)
         raise SatException( message )

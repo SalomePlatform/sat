@@ -17,7 +17,8 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 '''
-In this file : all functions that do a system call, like open a browser or an editor, or call a git command
+In this file : all functions that do a system call, 
+like open a browser or an editor, or call a git command
 '''
 
 import subprocess
@@ -44,5 +45,6 @@ def show_in_editor(editor, filePath, logger):
         p = subprocess.Popen(cmd, shell=True)
         p.communicate()
     except:
-        logger.write(printcolors.printcError(_("Unable to edit file %s\n") % filePath), 1)
+        logger.write(printcolors.printcError(_("Unable to edit file %s\n") 
+                                             % filePath), 1)
     
