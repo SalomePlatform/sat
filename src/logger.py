@@ -28,7 +28,7 @@ from . import xmlManager
 logCommandFileExpression = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
 
 class Logger(object):
-    '''Class to handle log mechanism
+    '''Class to handle log mechanism.
     '''
     def __init__(self, config, silent_sysstd=False):
         '''Initialization
@@ -40,16 +40,25 @@ class Logger(object):
         self.default_level = 3
         self.silentSysStd = silent_sysstd
         
-        # Construct log file location. There are two cases. With an application an without any application.
+        # Construct xml log file location for sat prints.
         logFileName = config.VARS.datehour + "_" + config.VARS.command + ".xml"
         logFilePath = os.path.join(config.SITE.log.logDir, logFileName)
-
+        # Construct txt file location in order to log the external commands calls (cmake, make, git clone, etc...)
+        txtFileName = config.VARS.datehour + "_" + config.VARS.command + ".txt"
+        txtFilePath = os.path.join(config.SITE.log.logDir, "OUT", txtFileName)
+        
         src.ensure_path_exists(os.path.dirname(logFilePath))
+        src.ensure_path_exists(os.path.dirname(txtFilePath))
         
         self.logFileName = logFileName
-        self.logFilePath = logFilePath   
+        self.logFilePath = logFilePath
+        self.txtFileName = txtFileName
+        self.txtFilePath = txtFilePath
+        # Initialize xml instance and put first fields like beginTime, user, command, etc... 
         self.xmlFile = xmlManager.xmlLogFile(logFilePath, "SATcommand", attrib = {"application" : config.VARS.application})
         self.putInitialXMLFields()
+        # Initialize the txt file for reading
+        self.logTxtFile = open(str(self.txtFilePath), 'w', buffering=0)
         
     def putInitialXMLFields(self):
         '''Method called at class initialization : Put all fields corresponding to the command context (user, time, ...)
@@ -73,6 +82,7 @@ class Logger(object):
             self.xmlFile.append_node_attrib("Site", attrib={"application" : self.config.VARS.application})
         # The initialization of the trace node
         self.xmlFile.add_simple_node("Log",text="")
+        self.xmlFile.add_simple_node("OutLog",text=os.path.join("OUT", self.txtFileName))
 
     def write(self, message, level=None, screenOnly=False):
         '''the function used in the commands that will print in the terminal and the log file.

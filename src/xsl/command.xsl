@@ -2,7 +2,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="html" /> <!-- encoding="utf-8" doctype-public="-//W3C//DTD XHTML 1.0 Transitional//EN" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"/>-->
 <xsl:template match="/">
-	
+
 <head>  
     <title>SAlomeTools log</title>
     <style type="text/css">
@@ -25,6 +25,7 @@
                       max-height: 250px;
                     }
     </style>
+       
 </head>
 	<body class="def" bgcolor="aliceblue">
 		<h1><img src="LOGO-SAT.png"/></h1>
@@ -42,8 +43,15 @@
 				</xsl:for-each>
 			</tr>
 		</table>
-		<h1>command's traces :</h1>
+		
+		<h1>command's interne traces :</h1>
 		<PRE><xsl:value-of select="SATcommand/Log"/></PRE>
+		
+		<h1>Called commands traces :</h1>
+		<xsl:variable name="txtLog">
+			<xsl:value-of select="SATcommand/OutLog"/>
+		</xsl:variable>
+		<iframe src="{$txtLog}" frameborder="0" class="center" width="100%" height="1500000" scrolling="no"></iframe>
 	</body>
 </xsl:template>
 </xsl:stylesheet>
