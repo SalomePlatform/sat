@@ -324,6 +324,8 @@ class _ElementInterface:
     # @defreturn Element or None
 
     def find(self, path):
+        if ElementPath.find(self, path) == None:
+            return ElementPath.find(self, path.encode())
         return ElementPath.find(self, path)
 
     ##

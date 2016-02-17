@@ -19,10 +19,13 @@
 import sys
 import os
 import datetime
+import re
 
 import src
 from . import printcolors
 from . import xmlManager
+
+logCommandFileExpression = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
 
 class Logger(object):
     '''Class to handle log mechanism
@@ -170,3 +173,80 @@ def timedelta_total_seconds(timedelta):
     return (
         timedelta.microseconds + 0.0 +
         (timedelta.seconds + timedelta.days * 24 * 3600) * 10 ** 6) / 10 ** 6
+        
+def showcommandLog(logFilePath, cmd, application, notShownCommands):
+    '''Used in updateHatXml. Determine if the log xml file logFilePath has to be shown or not in the hat log.
+    
+    :param logFilePath str: the path to the command xml log file
+    :param cmd str: the command of the log file
+    :param application str: the application passed as parameter to the salomeTools command
+    :param notShownCommands list: the list of commands that are not shown by default
+    
+    :return: True if cmd is not in notShownCommands and the application in the log file corresponds to application
+    :rtype: boolean
+    '''
+    # When the command is not in notShownCommands, no need to go further. Do not show
+    if cmd in notShownCommands:
+        return False, None
+ 
+    # Get the application of the log file
+    logFileXml = src.xmlManager.readXmlFile(logFilePath)
+    if 'application' in logFileXml.xmlroot.keys():
+        appliLog = logFileXml.xmlroot.get('application')
+        # if it corresponds, then the log has to be shown
+        if appliLog == application:
+            return True, appliLog
+        elif application != 'None':
+            return False, appliLog
+        
+        return True, appliLog
+    
+    if application == 'None':
+            return True, None    
+        
+    return False, None
+
+def listLogFile(dirPath, expression):
+    '''Find all files corresponding to expression in dirPath
+    
+    :param dirPath str: the directory where to search the files
+    :param expression str: the regular expression of files to find
+    :return: the list of files path and informations about it
+    :rtype: list
+    '''
+    lRes = []
+    for fileName in os.listdir(dirPath):
+        # YYYYMMDD_HHMMSS_namecmd.xml
+        sExpr = expression
+        oExpr = re.compile(sExpr)
+        if oExpr.search(fileName):
+            # get date and hour and format it
+            date_hour_cmd = fileName.split('_')
+            date_not_formated = date_hour_cmd[0]
+            date = "%s/%s/%s" % (date_not_formated[6:8], date_not_formated[4:6], date_not_formated[0:4] )
+            hour_not_formated = date_hour_cmd[1]
+            hour = "%s:%s:%s" % (hour_not_formated[0:2], hour_not_formated[2:4], hour_not_formated[4:6])
+            cmd = date_hour_cmd[2][:-len('.xml')]
+            lRes.append((os.path.join(dirPath, fileName), date_not_formated, date, hour_not_formated, hour, cmd))
+    return lRes
+
+def update_hat_xml(logDir, application=None, notShownCommands = []):
+    '''Create the xml file in logDir that contain all the xml file and have a name like YYYYMMDD_HHMMSS_namecmd.xml
+    
+    :param logDir str: the directory to parse
+    :param application str: the name of the application if there is any
+    '''
+    # Create an instance of xmlLogFile class to create hat.xml file
+    xmlHatFilePath = os.path.join(logDir, 'hat.xml')
+    xmlHat = src.xmlManager.xmlLogFile(xmlHatFilePath,  "LOGlist", {"application" : application})
+    # parse the log directory to find all the command logs, then add it to the xml file
+    lLogFile = listLogFile(logDir, logCommandFileExpression)
+    for filePath, _, date, _, hour, cmd in lLogFile:
+        showLog, cmdAppli = showcommandLog(filePath, cmd, application, notShownCommands)
+        #if cmd not in notShownCommands:
+        if showLog:
+            # add a node to the hat.xml file
+            xmlHat.add_simple_node("LogCommand", text=os.path.basename(filePath), attrib = {"date" : date, "hour" : hour, "cmd" : cmd, "application" : cmdAppli})
+    
+    # Write the file on the hard drive
+    xmlHat.write_tree('hat.xsl')
