@@ -92,7 +92,7 @@ class Sat(object):
         self.options = options # the options passed to salomeTools
         self.dataDir = dataDir # default value will be <salomeTools root>/data
         # set the commands by calling the dedicated function
-        self.__setCommands__(cmdsdir)
+        self._setCommands(cmdsdir)
         
         # if the help option has been called, print help and exit
         if options.help:
@@ -113,7 +113,7 @@ class Sat(object):
         else:
             raise AttributeError(name + _(" is not a valid command"))
     
-    def __setCommands__(self, dirPath):
+    def _setCommands(self, dirPath):
         '''set class attributes corresponding to all commands that are in the dirPath directory
         
         :param dirPath str: The directory path containing the commands 

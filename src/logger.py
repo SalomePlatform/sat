@@ -58,7 +58,7 @@ class Logger(object):
         self.xmlFile = xmlManager.xmlLogFile(logFilePath, "SATcommand", attrib = {"application" : config.VARS.application})
         self.putInitialXMLFields()
         # Initialize the txt file for reading
-        self.logTxtFile = open(str(self.txtFilePath), 'w', buffering=0)
+        self.logTxtFile = open(str(self.txtFilePath), 'w')
         
     def putInitialXMLFields(self):
         '''Method called at class initialization : Put all fields corresponding to the command context (user, time, ...)
