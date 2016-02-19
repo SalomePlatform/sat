@@ -56,8 +56,8 @@ def print_log_command_in_terminal(filePath, logger):
     :param logger Logger: the logging instance to use in order to print.  
     '''
     logger.write(_("Reading ") + src.printcolors.printcHeader(filePath) + "\n", 5)
-    # Instantiate the readXmlFile class that reads xml files
-    xmlRead = src.xmlManager.readXmlFile(filePath)
+    # Instantiate the ReadXmlFile class that reads xml files
+    xmlRead = src.xmlManager.ReadXmlFile(filePath)
     # Get the attributes containing the context (user, OS, time, etc..)
     dAttrText = xmlRead.get_attrib('Site')
     # format dAttrText and print the context

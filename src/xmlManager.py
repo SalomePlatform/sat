@@ -85,7 +85,7 @@ class XmlLogFile(object):
         '''
         self.xmlroot.find(node_name).attrib.update(attrib)
 
-class readXmlFile(object):
+class ReadXmlFile(object):
     '''Class to manage reading of an xml log file
     '''
     def __init__(self, filePath):

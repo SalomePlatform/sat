@@ -20,6 +20,7 @@ import unittest
 import os
 import sys
 import platform
+import shutil
 
 # get execution path
 testdir = os.path.dirname(os.path.realpath(__file__))
@@ -27,6 +28,7 @@ sys.path.append(os.path.join(testdir, '..', '..'))
 sys.path.append(os.path.join(testdir, '..', '_testTools'))
 
 from salomeTools import Sat
+import src
 from tools import outRedirection
 import HTMLTestRunner
 
@@ -84,7 +86,43 @@ class TestConfig(unittest.TestCase):
 
         # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
-
+    
+    """    
+    def test_error_salomeToolspyconf(self):
+        '''Test the exception when salomeTools.pyconf has errors
+        '''      
+        
+        OK = "KO"
+        
+        # The command to test
+        sat = Sat()
+        sat.config()
+        
+        salomeToolspyconfPath = os.path.join(sat.cfg.VARS.srcDir, "internal_config", "salomeTools.pyconf")
+        salomeToolspyconfPath_save = os.path.join(sat.cfg.VARS.srcDir, "internal_config", "salomeTools.pyconf_save")
+        if os.path.exists(salomeToolspyconfPath_save):
+            os.remove(salomeToolspyconfPath_save)
+        shutil.copyfile(salomeToolspyconfPath, salomeToolspyconfPath_save)
+        f_read = open(salomeToolspyconfPath, 'r')
+        text = f_read.read()
+        f_read.close()
+        os.remove(salomeToolspyconfPath)
+        f_write = open(salomeToolspyconfPath, 'w')
+        f_write.write(text.replace(':', ''))
+        f_write.close()
+        
+        try:
+            sat.config()
+        except TypeError:
+            OK = "OK"
+        finally:
+            shutil.copyfile(salomeToolspyconfPath_save, salomeToolspyconfPath)
+            os.remove(salomeToolspyconfPath_save)
+        
+        # pyunit method to compare 2 str
+        self.assertEqual(OK, "OK")
+    """       
+        
 # test launch
 if __name__ == '__main__':
     HTMLTestRunner.main()

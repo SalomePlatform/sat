@@ -33,12 +33,14 @@ class TestConfig(unittest.TestCase):
     '''pyunit class : each method execute one test.
     '''
     
-    def test_option_value(self):
+    def test_user_dir_creation(self):
         '''Creation of ~/.salomeTools/salomeTools.pyconf
         '''
         res = "KO"
         user_dir = os.path.expanduser(os.path.join('~','.salomeTools'))
         user_dir_save = os.path.expanduser(os.path.join('~','.salomeTools_save'))
+        if os.path.exists(user_dir_save):
+            shutil.rmtree(user_dir_save)
         if os.path.exists(user_dir):
             shutil.move(user_dir, user_dir_save)
                
@@ -56,6 +58,81 @@ class TestConfig(unittest.TestCase):
 
         # pyunit method to compare 2 str
         self.assertEqual(res, "OK")
+
+    def test_override_VARS(self):
+        '''override VARS
+        '''
+        OK = "KO"
+        
+        # The command to test
+        sat = Sat("-oVARS.user='user_test'")
+        sat.config()
+
+        if sat.cfg.VARS.user == 'user_test':
+            OK = "OK"
+
+        # pyunit method to compare 2 str
+        self.assertEqual(OK, "OK")
+
+    def test_override_INTERNAL(self):
+        '''override INTERNAL
+        '''
+        OK = "KO"
+        
+        # The command to test
+        sat = Sat("-oINTERNAL.sat_version='V0'")
+        sat.config()
+
+        if sat.cfg.INTERNAL.sat_version == 'V0':
+            OK = "OK"
+
+        # pyunit method to compare 2 str
+        self.assertEqual(OK, "OK")
+
+    def test_override_SITE(self):
+        '''override SITE
+        '''
+        OK = "KO"
+        
+        # The command to test
+        sat = Sat("-oSITE.prepare.default_git_server='testgit'")
+        sat.config()
+
+        if sat.cfg.SITE.prepare.default_git_server == 'testgit':
+            OK = "OK"
+
+        # pyunit method to compare 2 str
+        self.assertEqual(OK, "OK")
+
+    def test_override_APPLICATION(self):
+        '''override APPLICATION
+        '''
+        OK = "KO"
+        
+        # The command to test
+        sat = Sat("-oAPPLICATION.out_dir='/tmp'")
+        sat.config('appli-test')
+
+        if sat.cfg.APPLICATION.out_dir == '/tmp':
+            OK = "OK"
+
+        # pyunit method to compare 2 str
+        self.assertEqual(OK, "OK")
+
+    def test_override_SOFTWARE(self):
+        '''override SOFTWARE
+        '''
+        OK = "KO"
+        
+        # The command to test
+        sat = Sat("-oSOFTWARE.softA.compile_method='test'")
+        sat.config('')
+
+        if sat.cfg.SOFTWARE.softA.compile_method == 'test':
+            OK = "OK"
+
+        # pyunit method to compare 2 str
+        self.assertEqual(OK, "OK")
 
 # test launch
 if __name__ == '__main__':

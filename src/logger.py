@@ -227,7 +227,7 @@ def show_command_log(logFilePath, cmd, application, notShownCommands):
         return False, None
  
     # Get the application of the log file
-    logFileXml = src.xmlManager.readXmlFile(logFilePath)
+    logFileXml = src.xmlManager.ReadXmlFile(logFilePath)
     if 'application' in logFileXml.xmlroot.keys():
         appliLog = logFileXml.xmlroot.get('application')
         # if it corresponds, then the log has to be shown
