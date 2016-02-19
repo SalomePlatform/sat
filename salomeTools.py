@@ -44,6 +44,12 @@ import config
 #es.install()
 gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
 
+# The possible hooks : 
+# pre is for hooks to be executed before commands
+# post is for hooks to be executed after commands
+C_PRE_HOOK = "pre"
+C_POST_HOOK = "post"
+
 def find_command_list(dirPath):
     ''' Parse files in dirPath that end with .py : it gives commands list
     
@@ -63,11 +69,16 @@ lCommand = find_command_list(cmdsdir)
 
 # Define all possible option for salomeTools command :  sat <option> <args>
 parser = src.options.Options()
-parser.add_option('h', 'help', 'boolean', 'help', _("shows global help or help on a specific command."))
-parser.add_option('o', 'overwrite', 'list', "overwrite", _("overwrites a configuration parameters."))
-parser.add_option('g', 'debug', 'boolean', 'debug_mode', _("run salomeTools in debug mode."))
-parser.add_option('l', 'level', 'int', "output_level", _("change output level (default is 3)."))
-parser.add_option('s', 'silent', 'boolean', 'silent', _("do not write log or show errors."))
+parser.add_option('h', 'help', 'boolean', 'help', 
+                  _("shows global help or help on a specific command."))
+parser.add_option('o', 'overwrite', 'list', "overwrite", 
+                  _("overwrites a configuration parameters."))
+parser.add_option('g', 'debug', 'boolean', 'debug_mode', 
+                  _("run salomeTools in debug mode."))
+parser.add_option('l', 'level', 'int', "output_level", 
+                  _("change output level (default is 3)."))
+parser.add_option('s', 'silent', 'boolean', 'silent', 
+                  _("do not write log or show errors."))
 
 class Sat(object):
     '''The main class that stores all the commands of salomeTools
@@ -76,9 +87,11 @@ class Sat(object):
         '''Initialization
         
         :param opt str: The sat options 
-        :param: dataDir str : the directory that contain all the external data (like software pyconf and software scripts)
+        :param: dataDir str : the directory that contain all the external 
+                              data (like software pyconf and software scripts)
         '''
-        # Read the salomeTools options (the list of possible options is at the beginning of this file)
+        # Read the salomeTools options (the list of possible options is 
+        # at the beginning of this file)
         try:
             (options, argus) = parser.parse_args(opt.split(' '))
         except Exception as exc:
@@ -104,7 +117,8 @@ class Sat(object):
                 sys.exit(1)
 
     def __getattr__(self, name):
-        ''' overwrite of __getattr__ function in order to display a customized message in case of a wrong call
+        ''' overwrite of __getattr__ function in order to display 
+            a customized message in case of a wrong call
         
         :param name str: The name of the attribute 
         '''
@@ -114,7 +128,8 @@ class Sat(object):
             raise AttributeError(name + _(" is not a valid command"))
     
     def _setCommands(self, dirPath):
-        '''set class attributes corresponding to all commands that are in the dirPath directory
+        '''set class attributes corresponding to all commands that are 
+           in the dirPath directory
         
         :param dirPath str: The directory path containing the commands 
         '''
@@ -140,7 +155,10 @@ class Sat(object):
                 
                 # read the configuration from all the pyconf files    
                 cfgManager = config.ConfigManager()
-                self.cfg = cfgManager.get_config(dataDir=self.dataDir, application=appliToLoad, options=self.options, command=__nameCmd__)
+                self.cfg = cfgManager.get_config(dataDir=self.dataDir, 
+                                                 application=appliToLoad, 
+                                                 options=self.options, 
+                                                 command=__nameCmd__)
                     
                 # set output level
                 if self.options.output_level:
@@ -148,29 +166,93 @@ class Sat(object):
                 if self.cfg.USER.output_level < 1:
                     self.cfg.USER.output_level = 1
 
-                # create log file, unless the command is called with a logger as parameter
-                logger_command = src.logger.Logger(self.cfg, silent_sysstd=self.options.silent)
+                # create log file, unless the command is called 
+                # with a logger as parameter
+                logger_command = src.logger.Logger(self.cfg, 
+                                                   silent_sysstd=self.options.silent)
                 if logger:
                     logger_command = logger
                 
                 try:
-                    # Execute the run method of the command
+                    # Execute the hooks (if there is any) 
+                    # and run method of the command
+                    self.run_hook(__nameCmd__, C_PRE_HOOK, logger_command)
                     res = __module__.run(argv, self, logger_command)
+                    self.run_hook(__nameCmd__, C_POST_HOOK, logger_command)
                 finally:
-                    # put final attributes in xml log file (end time, total time, ...) and write it
-                    launchedCommand = ' '.join([self.cfg.VARS.salometoolsway + os.path.sep + 'sat', self.arguments.split(' ')[0], args])
+                    # put final attributes in xml log file 
+                    # (end time, total time, ...) and write it
+                    launchedCommand = ' '.join([self.cfg.VARS.salometoolsway +
+                                                os.path.sep +
+                                                'sat',
+                                                self.arguments.split(' ')[0], 
+                                                args])
                     logger_command.end_write({"launchedCommand" : launchedCommand})
                 
                 return res
 
-            # Make sure that run_command will be redefined at each iteration of the loop
+            # Make sure that run_command will be redefined 
+            # at each iteration of the loop
             globals_up = {}
             globals_up.update(run_command.__globals__)
             globals_up.update({'__nameCmd__': nameCmd, '__module__' : module})
-            func = types.FunctionType(run_command.__code__, globals_up, run_command.__name__,run_command.__defaults__, run_command.__closure__)
+            func = types.FunctionType(run_command.__code__,
+                                      globals_up,
+                                      run_command.__name__,
+                                      run_command.__defaults__,
+                                      run_command.__closure__)
 
             # set the attribute corresponding to the command
             self.__setattr__(nameCmd, func)
+
+    def run_hook(self, cmd_name, hook_type, logger):
+        '''Execute a hook file for a given command regarding the fact 
+           it is pre or post
+        
+        :param cmd_name str: The the command on which execute the hook
+        :param hook_type str: pre or post
+        :param logger Logger: the logging instance to use for the prints
+        '''
+        # The hooks must be defined in the application pyconf
+        # So, if there is no application, do not do anything
+        if not src.config_has_application(self.cfg):
+            return
+
+        # The hooks must be defined in the application pyconf in the
+        # APPLICATION section, hooks : { command : 'script_path.py'}
+        if "hook" not in self.cfg.APPLICATION \
+                    or cmd_name not in self.cfg.APPLICATION.hook:
+            return
+
+        # Get the hook_script path and verify that it exists
+        hook_script_path = self.cfg.APPLICATION.hook[cmd_name]
+        if not os.path.exists(hook_script_path):
+            raise src.SatException(_("Hook script not found: %s") % 
+                                   hook_script_path)
+        
+        # Try to execute the script, catch the exception if it fails
+        try:
+            # import the module (in the sense of python)
+            pymodule = imp.load_source(cmd_name, hook_script_path)
+            
+            # format a message to be printed at hook execution
+            msg = src.printcolors.printcWarning(_("Run hook script"))
+            msg = "%s: %s\n" % (msg, 
+                                src.printcolors.printcInfo(hook_script_path))
+            
+            # run the function run_pre_hook if this function is called 
+            # before the command, run_post_hook if it is called after
+            if hook_type == C_PRE_HOOK and "run_pre_hook" in dir(pymodule):
+                logger.write(msg, 1)
+                pymodule.run_pre_hook(self.cfg, logger)
+            elif hook_type == C_POST_HOOK and "run_post_hook" in dir(pymodule):
+                logger.write(msg, 1)
+                pymodule.run_post_hook(self.cfg, logger)
+
+        except Exception as exc:
+            msg = _("Unable to run hook script: %s") % hook_script_path
+            msg += "\n" + str(exc)
+            raise src.SatException(msg)
 
     def print_help(self, opt):
         '''Prints help for a command. Function called when "sat -h <command>"
@@ -227,7 +309,8 @@ def print_version():
     cfgManager = config.ConfigManager()
     cfg = cfgManager.get_config()
     # print the key corresponding to salomeTools version
-    print(src.printcolors.printcHeader( _("Version: ") ) + cfg.INTERNAL.sat_version + '\n')
+    print(src.printcolors.printcHeader( _("Version: ") ) + 
+          cfg.INTERNAL.sat_version + '\n')
 
 
 def print_help():
@@ -237,7 +320,8 @@ def print_help():
     '''
     print_version()
     
-    print(src.printcolors.printcHeader( _("Usage: ") ) + "sat [sat_options] <command> [product] [command_options]\n")
+    print(src.printcolors.printcHeader( _("Usage: ") ) + 
+          "sat [sat_options] <command> [product] [command_options]\n")
 
     parser.print_help()
 
@@ -247,7 +331,8 @@ def print_help():
         print(" - %s" % (command))
         
     # Explain how to get the help for a specific command
-    print(src.printcolors.printcHeader(_("\nGetting the help for a specific command: ")) + "sat --help <command>\n")
+    print(src.printcolors.printcHeader(_("\nGetting the help for a specific"
+                                    " command: ")) + "sat --help <command>\n")
 
 def write_exception(exc):
     '''write exception in case of error in a command
@@ -279,7 +364,8 @@ if __name__ == "__main__":
     fun_command = sat.__getattr__(command)
     # call the command with two cases : mode debug or not
     if options.debug_mode:
-        # call classically the command and if it fails, show exception and stack (usual python mode)
+        # call classically the command and if it fails, 
+        # show exception and stack (usual python mode)
         code = fun_command(' '.join(args[1:]))
     else:
         # catch exception in order to show less verbose but elegant message

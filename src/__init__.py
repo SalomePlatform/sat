@@ -50,6 +50,9 @@ def check_config_has_application( config, details = None ):
         if details :
             details.append(message)
         raise SatException( message )
+
+def config_has_application( config ):
+    return 'APPLICATION' in config
     
 def print_info(logger, info):
     '''Prints the tuples that are in info variable in a formatted way.
