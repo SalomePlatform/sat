@@ -48,6 +48,12 @@ def get_last_log_file(logDir, notShownCommands):
                 last = (fileName, int(datehour))
     return os.path.join(logDir, last[0])
 
+def remove_log_file(filePath, logger):
+    if os.path.exists(filePath):
+        logger.write(src.printcolors.printcWarning("Removing ")
+                     + filePath + "\n", 5)
+        os.remove(filePath)
+
 def print_log_command_in_terminal(filePath, logger):
     '''Print the contain of filePath. It contains a command log in xml format.
     
@@ -130,12 +136,22 @@ def run(args, runner, logger):
         # Get the list to delete and do the removing
         lLogsToDelete = sorted(lLogs)[:nbClean]
         for filePath, _, _, _, _, _ in lLogsToDelete:
-            logger.write(src.printcolors.printcWarning("Removing ")
-                          + filePath + "\n", 5)
-            os.remove(filePath)
+            # remove the xml log file
+            remove_log_file(filePath, logger)
+            # remove also the corresponding txt file in OUT directory
+            txtFilePath = os.path.join(os.path.dirname(filePath), 
+                            'OUT', 
+                            os.path.basename(filePath)[:-len('.xml')] + '.txt')
+            remove_log_file(txtFilePath, logger)
+            # remove also the corresponding pyconf file in OUT directory
+            pyconfFilePath = os.path.join(os.path.dirname(filePath), 
+                            'OUT', 
+                            os.path.basename(filePath)[:-len('.xml')] + '.pyconf')
+            remove_log_file(pyconfFilePath, logger)
+
         
         logger.write(src.printcolors.printcSuccess("OK\n"))
-        logger.write("%i files deleted.\n" % nbClean)
+        logger.write("%i logs deleted.\n" % nbClean)
         return 0 
 
     # determine the commands to show in the hat log

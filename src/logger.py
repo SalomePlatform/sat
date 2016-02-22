@@ -177,6 +177,17 @@ class Logger(object):
         # Call the method to write the xml file on the hard drive
         self.xmlFile.write_tree(stylesheet = "command.xsl")
         
+        # Dump the config in a pyconf file in the log directory
+        logDir = self.config.SITE.log.logDir
+        dumpedPyconfFileName = (self.config.VARS.datehour 
+                                + "_" 
+                                + self.config.VARS.command 
+                                + ".pyconf")
+        dumpedPyconfFilePath = os.path.join(logDir, 'OUT', dumpedPyconfFileName)
+        f = open(dumpedPyconfFilePath, 'w')
+        self.config.__save__(f)
+        f.close()
+        
 
 def date_to_datetime(date):
     '''Little method that gets year, mon, day, hour , 
