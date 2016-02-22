@@ -159,6 +159,17 @@ def run(args, runner, logger):
     if options.full:
         notShownCommands = []
 
+    # Find the stylesheets Directory and files
+    xslDir = os.path.join(runner.cfg.VARS.srcDir, 'xsl')
+    xslCommand = os.path.join(xslDir, "command.xsl")
+    xslHat = os.path.join(xslDir, "hat.xsl")
+    imgLogo = os.path.join(xslDir, "LOGO-SAT.png")
+    
+    # copy the stylesheets in the log directory
+    shutil.copy2(xslCommand, logDir)
+    shutil.copy2(xslHat, logDir)
+    shutil.copy2(imgLogo, logDir)
+
     # If the last option is invoked, just, show the last log file
     if options.last:
         lastLogFilePath = get_last_log_file(logDir, notShownCommands)        
@@ -206,18 +217,6 @@ def run(args, runner, logger):
         
         return 0
                     
-    
-    # Find the stylesheets Directory and files
-    xslDir = os.path.join(runner.cfg.VARS.srcDir, 'xsl')
-    xslCommand = os.path.join(xslDir, "command.xsl")
-    xslHat = os.path.join(xslDir, "hat.xsl")
-    imgLogo = os.path.join(xslDir, "LOGO-SAT.png")
-    
-    # copy the stylesheets in the log directory
-    shutil.copy2(xslCommand, logDir)
-    shutil.copy2(xslHat, logDir)
-    shutil.copy2(imgLogo, logDir)
-
     # Create or update the hat xml that gives access to all the commands log files
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
     src.logger.update_hat_xml(runner.cfg.SITE.log.logDir, 

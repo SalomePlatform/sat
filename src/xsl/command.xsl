@@ -44,10 +44,10 @@
 			</tr>
 		</table>
 		
-		<h1>command's interne traces :</h1>
+		<h1>command's internal traces</h1>
 		<PRE><xsl:value-of select="SATcommand/Log"/></PRE>
 		
-		<h1>Called commands traces :</h1>
+		<h1>output</h1>
 		<xsl:variable name="txtLog">
 			<xsl:value-of select="SATcommand/OutLog"/>
 		</xsl:variable>
