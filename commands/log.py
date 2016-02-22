@@ -143,6 +143,18 @@ def run(args, runner, logger):
     if options.full:
         notShownCommands = []
 
+    # If the last option is invoked, just, show the last log file
+    if options.last:
+        lastLogFilePath = get_last_log_file(logDir, notShownCommands)        
+        if options.terminal:
+            # Show the log corresponding to the selected command call
+            print_log_command_in_terminal(lastLogFilePath, logger)
+        else:
+            # open the log xml file in the user editor
+            src.system.show_in_editor(runner.cfg.USER.browser, 
+                                      lastLogFilePath, logger)
+        return 0
+
     # If the user asks for a terminal display
     if options.terminal:
         # Parse the log directory in order to find 
@@ -189,14 +201,6 @@ def run(args, runner, logger):
     shutil.copy2(xslCommand, logDir)
     shutil.copy2(xslHat, logDir)
     shutil.copy2(imgLogo, logDir)
-
-    # If the last option is invoked, just, show the last log file
-    if options.last:
-        lastLogFilePath = get_last_log_file(logDir, notShownCommands)
-        # open the log xml file in the user editor
-        src.system.show_in_editor(runner.cfg.USER.browser, 
-                                  lastLogFilePath, logger)
-        return 0
 
     # Create or update the hat xml that gives access to all the commands log files
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')

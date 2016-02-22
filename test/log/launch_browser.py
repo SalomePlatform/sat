@@ -223,6 +223,24 @@ class TestLog(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
+    def test_option_terminal7(self):
+        '''Test the terminal option and option last
+        '''
+
+        OK = "KO"
+        
+        # launch the command that will write a log
+        sat = Sat()
+        
+        try:
+            sat.log('--terminal --last')
+            OK = "OK"
+        finally:
+            sys.stdin = sys.__stdin__
+        
+        # pyunit method to compare 2 str
+        self.assertEqual(OK, "OK")
+
     def test_option_last(self):
         '''Test the option --last
         '''

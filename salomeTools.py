@@ -219,7 +219,7 @@ class Sat(object):
             return
 
         # The hooks must be defined in the application pyconf in the
-        # APPLICATION section, hooks : { command : 'script_path.py'}
+        # APPLICATION section, hook : { command : 'script_path.py'}
         if "hook" not in self.cfg.APPLICATION \
                     or cmd_name not in self.cfg.APPLICATION.hook:
             return
