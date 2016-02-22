@@ -49,6 +49,11 @@ def get_last_log_file(logDir, notShownCommands):
     return os.path.join(logDir, last[0])
 
 def remove_log_file(filePath, logger):
+    '''if it exists, print a warning and remove the input file
+    
+    :param filePath: the path of the file to delete
+    :param logger Logger: the logger instance to use for the print 
+    '''
     if os.path.exists(filePath):
         logger.write(src.printcolors.printcWarning("Removing ")
                      + filePath + "\n", 5)

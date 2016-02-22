@@ -864,7 +864,7 @@ class Sequence(Container):
         data = object.__getattribute__(self, 'data')
         comments = object.__getattribute__(self, 'comments')
         indstr = indent * '  '
-        for i in xrange(0, len(data)):
+        for i in range(0, len(data)):
             value = data[i]
             comment = comments[i]
             if comment:

@@ -21,6 +21,7 @@ import platform
 import datetime
 import shutil
 import gettext
+import sys
 
 import src
 
@@ -31,15 +32,19 @@ gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
 # Define all possible option for config command :  sat config <options>
 parser = src.options.Options()
 parser.add_option('v', 'value', 'string', 'value',
-                   _("print the value of CONFIG_VARIABLE."))
+    _("print the value of CONFIG_VARIABLE."))
 parser.add_option('e', 'edit', 'boolean', 'edit',
-                   _("edit the product configuration file."))
+    _("edit the product configuration file."))
 parser.add_option('l', 'list', 'boolean', 'list',
-                  _("list all available applications."))
+    _("list all available applications."))
 parser.add_option('c', 'copy', 'boolean', 'copy',
     _("""copy a config file to the personnal config files directory.
 \tWARNING the included files are not copied.
 \tIf a name is given the new config file takes the given name."""))
+parser.add_option('n', 'no_label', 'boolean', 'no_label',
+    _("do not print labels, Works only with --value and --list."))
+parser.add_option('s', 'schema', 'boolean', 'schema',
+    _("Internal use."))
 
 class ConfigOpener:
     '''Class that helps to find an application pyconf 
@@ -409,6 +414,10 @@ def print_value(config, path, show_label, logger, level=0, show_full_path=False)
     :param show_full_path :
     '''            
     
+    # Make sure that the path does not ends with a point
+    if path.endswith('.'):
+        path = path[:-1]
+    
     # display all the path or not
     if show_full_path:
         vname = path
@@ -449,6 +458,40 @@ def print_value(config, path, show_label, logger, level=0, show_full_path=False)
     else: # case where val is just a str
         logger.write("%s\n" % val)
 
+def get_config_children(config, args):
+    '''Gets the names of the children of the given parameter.
+    
+    :param config Config: The configuration where to read the values
+    :param args: The path in the config from which get the keys
+    '''
+    vals = []
+    rootkeys = config.keys()
+    
+    if len(args) == 0:
+        # no parameter returns list of root keys
+        vals = rootkeys
+    else:
+        parent = args[0]
+        pos = parent.rfind('.')
+        if pos < 0:
+            # Case where there is only on key as parameter.
+            # For example VARS
+            vals = [m for m in rootkeys if m.startswith(parent)]
+        else:
+            # Case where there is a part from a key
+            # for example VARS.us  (for VARS.user)
+            head = parent[0:pos]
+            tail = parent[pos+1:]
+            try:
+                a = config.getByPath(head)
+                if dir(a).__contains__('keys'):
+                    vals = map(lambda x: head + '.' + x, [m for m in a.keys() if m.startswith(tail)])
+            except:
+                pass
+
+    for v in sorted(vals):
+        sys.stdout.write("%s\n" % v)
+
 def description():
     '''method that is called when salomeTools is called with --help option.
     
@@ -464,15 +507,20 @@ def run(args, runner, logger):
     '''
     # Parse the options
     (options, args) = parser.parse_args(args)
+
+    # Only useful for completion mechanism : print the keys of the config
+    if options.schema:
+        get_config_children(runner.cfg, args)
+        return
     
     # case : print a value of the config
     if options.value:
         if options.value == ".":
             # if argument is ".", print all the config
             for val in sorted(runner.cfg.keys()):
-                print_value(runner.cfg, val, True, logger)
+                print_value(runner.cfg, val, not options.no_label, logger)
         else:
-            print_value(runner.cfg, options.value, True, logger, 
+            print_value(runner.cfg, options.value, not options.no_label, logger, 
                         level=0, show_full_path=False)
     
     # case : edit user pyconf file or application file
@@ -542,7 +590,8 @@ def run(args, runner, logger):
         # search in all directories that can have pyconf applications
         for path in runner.cfg.SITE.config.config_path:
             # print a header
-            logger.write("------ %s\n" % src.printcolors.printcHeader(path))
+            if not options.no_label:
+                logger.write("------ %s\n" % src.printcolors.printcHeader(path))
 
             if not os.path.exists(path):
                 logger.write(src.printcolors.printcError(_(
@@ -556,7 +605,8 @@ def run(args, runner, logger):
                     appliname = f[:-len('.pyconf')]
                     if appliname not in lproduct:
                         lproduct.append(appliname)
-                        if path.startswith(runner.cfg.VARS.personalDir):
+                        if path.startswith(runner.cfg.VARS.personalDir) \
+                                    and not options.no_label:
                             logger.write("%s*\n" % appliname)
                         else:
                             logger.write("%s\n" % appliname)
