@@ -120,7 +120,7 @@ def run(args, runner, logger):
     # get the log directory. 
     # If there is an application, it is in cfg.APPLICATION.out_dir, 
     # else in user directory
-    logDir = runner.cfg.SITE.log.logDir
+    logDir = runner.cfg.SITE.log.log_dir
 
     # If the clean options is invoked, 
     # do nothing but deleting the concerned files.
@@ -155,7 +155,7 @@ def run(args, runner, logger):
         return 0 
 
     # determine the commands to show in the hat log
-    notShownCommands = runner.cfg.INTERNAL.log.notShownCommands
+    notShownCommands = runner.cfg.INTERNAL.log.not_shown_commands
     if options.full:
         notShownCommands = []
 
@@ -219,7 +219,7 @@ def run(args, runner, logger):
                     
     # Create or update the hat xml that gives access to all the commands log files
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
-    src.logger.update_hat_xml(runner.cfg.SITE.log.logDir, 
+    src.logger.update_hat_xml(runner.cfg.SITE.log.log_dir, 
                               application = runner.cfg.VARS.application, 
                               notShownCommands = notShownCommands)
     

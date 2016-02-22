@@ -73,7 +73,7 @@ class TestLog(unittest.TestCase):
         sat.config('appli-test -v USER.browser')
         
         # get log file path
-        logDir = sat.cfg.SITE.log.logDir
+        logDir = sat.cfg.SITE.log.log_dir
         logPath = os.path.join(logDir, sat.cfg.VARS.datehour + "_" + sat.cfg.VARS.command + ".xml")
         
         if os.path.exists(logPath):
@@ -163,7 +163,7 @@ class TestLog(unittest.TestCase):
               
         sat.config('appli-test -v VARS.python')
         
-        nb_logs = len(os.listdir(sat.cfg.SITE.log.logDir))
+        nb_logs = len(os.listdir(sat.cfg.SITE.log.log_dir))
         
         nb_logs_u = unicode(str(nb_logs) + "\n1")
         sys.stdin = io.StringIO(nb_logs_u)
@@ -277,11 +277,11 @@ class TestLog(unittest.TestCase):
                
         sat.config('-v VARS.user')
         
-        nb_logs_t0 = len(os.listdir(sat.cfg.SITE.log.logDir))
+        nb_logs_t0 = len(os.listdir(sat.cfg.SITE.log.log_dir))
 
         sat.log('--clean 1')
         
-        nb_logs_t1 = len(os.listdir(sat.cfg.SITE.log.logDir))
+        nb_logs_t1 = len(os.listdir(sat.cfg.SITE.log.log_dir))
         
         if nb_logs_t1-nb_logs_t0 == 0:
             OK = "OK"
@@ -300,18 +300,18 @@ class TestLog(unittest.TestCase):
                
         sat.config('-v VARS.user')
         
-        nb_logs_t0 = len(os.listdir(sat.cfg.SITE.log.logDir))
+        nb_logs_t0 = len(os.listdir(sat.cfg.SITE.log.log_dir))
         
-        if os.path.exists(sat.cfg.SITE.log.logDir + "_save"):
-            shutil.rmtree(sat.cfg.SITE.log.logDir + "_save")
-        shutil.copytree(sat.cfg.SITE.log.logDir,sat.cfg.SITE.log.logDir + "_save")
+        if os.path.exists(sat.cfg.SITE.log.log_dir + "_save"):
+            shutil.rmtree(sat.cfg.SITE.log.log_dir + "_save")
+        shutil.copytree(sat.cfg.SITE.log.log_dir,sat.cfg.SITE.log.log_dir + "_save")
         
         sat.log('--clean ' + str(nb_logs_t0))
         
-        nb_logs_t1 = len(os.listdir(sat.cfg.SITE.log.logDir))
+        nb_logs_t1 = len(os.listdir(sat.cfg.SITE.log.log_dir))
         
-        shutil.rmtree(sat.cfg.SITE.log.logDir)
-        shutil.move(sat.cfg.SITE.log.logDir + "_save", sat.cfg.SITE.log.logDir)
+        shutil.rmtree(sat.cfg.SITE.log.log_dir)
+        shutil.move(sat.cfg.SITE.log.log_dir + "_save", sat.cfg.SITE.log.log_dir)
                 
         if nb_logs_t0-nb_logs_t1 > 10:
             OK = "OK"
@@ -335,7 +335,7 @@ class TestLog(unittest.TestCase):
         check_proc_existence_and_kill(browser + ".*" + "xml")
         
         # Read and check the hat.xml file contains at least one log file corresponding to log
-        hatFilePath = os.path.join(sat.cfg.SITE.log.logDir, "hat.xml")
+        hatFilePath = os.path.join(sat.cfg.SITE.log.log_dir, "hat.xml")
         xmlHatFile = src.xmlManager.ReadXmlFile(hatFilePath)
         for field in xmlHatFile.xmlroot:
             if field.attrib[b'cmd'] == b'log':

@@ -48,6 +48,7 @@
 		<PRE><xsl:value-of select="SATcommand/Log"/></PRE>
 		
 		<h1>output</h1>
+		PENSER A METTRE UN LIEN POUR OUVRIR LE FICHIER AVEC UN EDITEUR DE TEXTE
 		<xsl:variable name="txtLog">
 			<xsl:value-of select="SATcommand/OutLog"/>
 		</xsl:variable>

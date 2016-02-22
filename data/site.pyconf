@@ -5,7 +5,7 @@ SITE :
 {   
     config : 
     {
-        configPath : ["/home/salome/SPN_PRIVATE/sat5dev_Applications"]
+        config_path : ["/home/salome/SPN_PRIVATE/sat5dev_Applications"]
     	copy_prefix : "LOCAL_"
     }
     prepare :
@@ -18,7 +18,7 @@ SITE :
     }
     log :
     {
-        logDir : $USER.workDir + "/LOGS"
+        log_dir : $USER.workDir + "/LOGS"
     }
 }
 

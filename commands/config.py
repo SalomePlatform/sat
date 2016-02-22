@@ -235,7 +235,7 @@ class ConfigManager:
             raise src.SatException( e );
         
         # add user local path for configPath
-        site_cfg.SITE.config.configPath.append(
+        site_cfg.SITE.config.config_path.append(
                         os.path.join(cfg.VARS.personalDir, 'Applications'), 
                         "User applications path")
         
@@ -250,7 +250,7 @@ class ConfigManager:
         # Load APPLICATION config file
         if application is not None:
             # search APPLICATION file in all directories in configPath
-            cp = cfg.SITE.config.configPath
+            cp = cfg.SITE.config.config_path
             src.pyconf.streamOpener = ConfigOpener(cp)
             try:
                 application_cfg = src.pyconf.Config(application + '.pyconf')
@@ -484,7 +484,7 @@ def run(args, runner, logger):
             src.system.show_in_editor(editor, usercfg, logger)
         else:
             # search for file <application>.pyconf and open it
-            for path in runner.cfg.SITE.config.configPath:
+            for path in runner.cfg.SITE.config.config_path:
                 pyconf_path = os.path.join(path, 
                                     runner.cfg.VARS.application + ".pyconf")
                 if os.path.exists(pyconf_path):
@@ -500,7 +500,7 @@ def run(args, runner, logger):
         # get application file path 
         source = runner.cfg.VARS.application + '.pyconf'
         source_full_path = ""
-        for path in runner.cfg.SITE.config.configPath:
+        for path in runner.cfg.SITE.config.config_path:
             # ignore personal directory
             if path == runner.cfg.VARS.personalDir:
                 continue
@@ -540,7 +540,7 @@ def run(args, runner, logger):
     elif options.list:
         lproduct = list()
         # search in all directories that can have pyconf applications
-        for path in runner.cfg.SITE.config.configPath:
+        for path in runner.cfg.SITE.config.config_path:
             # print a header
             logger.write("------ %s\n" % src.printcolors.printcHeader(path))
 
