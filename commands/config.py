@@ -460,6 +460,7 @@ def print_value(config, path, show_label, logger, level=0, show_full_path=False)
 
 def get_config_children(config, args):
     '''Gets the names of the children of the given parameter.
+       Useful only for completion mechanism
     
     :param config Config: The configuration where to read the values
     :param args: The path in the config from which get the keys
