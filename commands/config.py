@@ -276,19 +276,19 @@ class ConfigManager:
                 exec('cfg.' + rule) 
         
         # =====================================================================
-        # Load softwares config files in SOFTWARE section
+        # Load modules config files in MODULES section
        
         # The directory containing the softwares definition
-        softsDir = os.path.join(cfg.VARS.dataDir, 'softwares')
+        modules_dir = os.path.join(cfg.VARS.dataDir, 'modules')
         
-        # Loop on all files that are in softsDir directory 
+        # Loop on all files that are in softsDir directory
         # and read their config
-        for fName in os.listdir(softsDir):
+        for fName in os.listdir(modules_dir):
             if fName.endswith(".pyconf"):
-                src.pyconf.streamOpener = ConfigOpener([softsDir])
+                src.pyconf.streamOpener = ConfigOpener([modules_dir])
                 try:
-                    soft_cfg = src.pyconf.Config(open(
-                                                os.path.join(softsDir, fName)))
+                    mod_cfg = src.pyconf.Config(open(
+                                                os.path.join(modules_dir, fName)))
                 except src.pyconf.ConfigError as e:
                     raise src.SatException(_(
                         "Error in configuration file: %(soft)s\n  %(error)s") % \
@@ -297,10 +297,10 @@ class ConfigManager:
                     e = str(error)
                     raise src.SatException( e );
                 
-                merger.merge(cfg, soft_cfg)
+                merger.merge(cfg, mod_cfg)
 
         # apply overwrite from command line if needed
-        for rule in self.get_command_line_overrides(options, ["SOFTWARE"]):
+        for rule in self.get_command_line_overrides(options, ["MODULES"]):
             exec('cfg.' + rule) # this cannot be factorized because of the exec
 
         

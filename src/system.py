@@ -22,6 +22,8 @@ like open a browser or an editor, or call a git command
 '''
 
 import subprocess
+import os
+import tarfile
 
 from . import printcolors
 
@@ -47,4 +49,35 @@ def show_in_editor(editor, filePath, logger):
     except:
         logger.write(printcolors.printcError(_("Unable to edit file %s\n") 
                                              % filePath), 1)
-    
+
+##
+# Extracts sources from a git repository.
+def git_extract(from_what, tag, where, logger):
+    if not where.exists():
+        where.make()
+    if tag == "master" or tag == "HEAD":
+        command = "git clone %(remote)s %(where)s" % \
+                    { 'remote': from_what, 'tag': tag, 'where': str(where) }
+    else:
+        # NOTICE: this command only works with recent version of git
+        #         because --work-tree does not work with an absolute path
+        where_git = os.path.join( str(where), ".git" )
+        command = "rmdir %(where)s && git clone %(remote)s %(where)s && " + \
+                  "git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s"
+        command = command % { 'remote': from_what, 'tag': tag, 'where': str(where), 'where_git': where_git }
+
+    logger.write(command + "\n", 5)
+
+    res = subprocess.call(command, cwd=str(where.dir()), shell=True,
+                          stdout=logger.logTxtFile, stderr=subprocess.STDOUT)
+    return (res == 0)
+
+def archive_extract(from_what, where, logger):
+    try:
+        archive = tarfile.open(from_what)
+        for i in archive.getmembers():
+            archive.extract(i, path=str(where))
+        return True, os.path.commonprefix(archive.getnames())
+    except Exception as exc:
+        logger.write("archive_extract: %s\n" % exc)
+        return False, None
