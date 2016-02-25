@@ -27,9 +27,11 @@ parser.add_option('m', 'module', 'list2', 'modules',
     _('modules to get the sources. This option can be'
     ' passed several time to get the sources of several modules.'))
 parser.add_option('', 'no_sample', 'boolean', 'no_sample', 
-    _("do not prepare sample modules."))
+    _("do not get sources from sample modules."))
+parser.add_option('f', 'force', 'boolean', 'force', 
+    _("force to get the sources of the modules in development mode."))
 
-def prepare_for_dev(config, module_info, source_dir, logger, pad):
+def prepare_for_dev(config, module_info, source_dir, force, logger, pad):
     '''The method called if the module is in development mode
     
     :param config Config: The global configuration
@@ -37,6 +39,7 @@ def prepare_for_dev(config, module_info, source_dir, logger, pad):
                                the module to be prepared
     :param source_dir Path: The Path instance corresponding to the 
                             directory where to put the sources
+    :param force boolean: True if the --force option was invoked
     :param logger Logger: The logger instance to use for the display and logging
     :param pad int: The gap to apply for the terminal display
     :return: True if it succeed, else False
@@ -45,19 +48,21 @@ def prepare_for_dev(config, module_info, source_dir, logger, pad):
     retcode = 'N\A'
     # if the module source directory does not exist,
     # get it in checkout mode, else, do not do anything
-    if not os.path.exists(module_info.source_dir):
+    # unless the force option is invoked
+    if not os.path.exists(module_info.source_dir) or force:
         # Call the function corresponding to get the sources with True checkout
         retcode = get_module_sources(config, 
                                      module_info, 
                                      True, 
-                                     source_dir, 
+                                     source_dir,
+                                     force, 
                                      logger, 
                                      pad, 
                                      checkout=True)
         logger.write("\n", 3, False)
         # +2 because module name is followed by ': '
         logger.write(" " * (pad+2), 3, False) 
-
+    
     logger.write('dev: %s ... ' % 
                  src.printcolors.printcInfo(module_info.source_dir), 3, False)
     logger.flush()
@@ -273,7 +278,8 @@ def get_sources_from_dir(module_info, source_dir, logger):
 def get_module_sources(config, 
                        module_info, 
                        is_dev, 
-                       source_dir, 
+                       source_dir,
+                       force,
                        logger, 
                        pad, 
                        checkout=False):
@@ -285,6 +291,7 @@ def get_module_sources(config,
     :param is_dev boolean: True if the module is in development mode
     :param source_dir Path: The Path instance corresponding to the 
                             directory where to put the sources
+    :param force boolean: True if the --force option was invoked
     :param logger Logger: The logger instance to use for the display and logging
     :param pad int: The gap to apply for the terminal display
     :param checkout boolean: If True, get the source in checkout mode
@@ -292,7 +299,7 @@ def get_module_sources(config,
     :rtype: boolean
     '''
     if not checkout and is_dev:
-        return prepare_for_dev(config, module_info, source_dir, logger, pad)
+        return prepare_for_dev(config, module_info, source_dir, force, logger, pad)
 
     if module_info.get_method == "git":
         return get_sources_from_git(module_info, source_dir, logger, pad, 
@@ -331,11 +338,12 @@ def get_module_sources(config,
     logger.flush()
     return False
 
-def get_all_module_sources(config, modules, logger):
+def get_all_module_sources(config, modules, force, logger):
     '''Get all the module sources.
     
     :param config Config: The global configuration
     :param modules List: The list of tuples (module name, module informations)
+    :param force boolean: True if the --force option was invoked
     :param logger Logger: The logger instance to be used for the logging
     :return: the tuple (number of success, dictionary module_name/success_fail)
     :rtype: (int,dict)
@@ -376,7 +384,8 @@ def get_all_module_sources(config, modules, logger):
         retcode = get_module_sources(config, 
                                      module_info, 
                                      is_dev, 
-                                     source_dir, 
+                                     source_dir,
+                                     force, 
                                      logger, 
                                      max_module_name_len, 
                                      checkout=False)
@@ -424,7 +433,14 @@ def run(args, runner, logger):
     src.printcolors.print_value(logger, 'out_dir', 
                                 runner.cfg.APPLICATION.out_dir, 2)
     logger.write("\n", 2, False)
-
+    
+    # Get the force option if it was passed
+    force = options.force
+    if force:
+        msg = _("Warning: the --force option has effect only "
+                "on modules in development mode\n\n")
+        logger.write(src.printcolors.printcWarning(msg))
+    
     # Get the modules to be prepared, regarding the options
     if options.modules is None:
         # No options, get all modules sources
@@ -451,7 +467,8 @@ def run(args, runner, logger):
     
     # Call to the function that gets all the sources
     good_result, results = get_all_module_sources(runner.cfg, 
-                                                  modules_infos, 
+                                                  modules_infos,
+                                                  force,
                                                   logger)
 
     # Display the results (how much passed, how much failed, etc...)
