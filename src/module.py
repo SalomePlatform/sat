@@ -15,19 +15,32 @@
 #  You should have received a copy of the GNU Lesser General Public
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+'''In this file are implemented the classes and method 
+   relative to the module notion of salomeTools
+'''
 
 import src
 
 def get_module_config(config, module_name, version):
+    '''Get the specific configuration of a module from the global configuration
+    
+    :param config Config: The global configuration
+    :param module_name str: The name of the module
+    :param version str: The version of the module
+    :return: the specific configuration of the module
+    :rtype: Config
+    '''
     vv = version
-    for c in ".-": vv = vv.replace(c, "_") # substitute some character with _
+    # substitute some character with _
+    for c in ".-": vv = vv.replace(c, "_")
     full_module_name = module_name + '_' + vv
 
     mod_info = None
+    # If it exists, get the information of the module_version
     if full_module_name in config.MODULES:
         # returns specific information for the given version
         mod_info = config.MODULES[full_module_name]    
-
+    # Get the standard informations
     elif module_name in config.MODULES:
         # returns the generic information (given version not found)
         mod_info = config.MODULES[module_name]
@@ -40,9 +53,20 @@ def get_module_config(config, module_name, version):
     return mod_info
 
 def get_modules_infos(lmodules, config):
+    '''Get the specific configuration of a list of modules
+    
+    :param lmodules List: The list of module names
+    :param config Config: The global configuration
+    :return: the list of tuples 
+             (module name, specific configuration of the module)
+    :rtype: [(str, Config)]
+    '''
     modules_infos = []
+    # Loop on module names
     for mod in lmodules:
+        # Get the version of the module from the application definition
         version_mod = config.APPLICATION.modules[mod][0]
+        # Get the specific configuration of the module
         mod_info = get_module_config(config, mod, version_mod)
         if mod_info is not None:
             modules_infos.append((mod, mod_info))
@@ -52,6 +76,13 @@ def get_modules_infos(lmodules, config):
     return modules_infos
 
 
-def module_is_sample(module_info): 
+def module_is_sample(module_info):
+    '''Know if a module has the sample type
+    
+    :param module_info Config: The configuration specific to 
+                               the module to be prepared
+    :return: True if the module has the sample type, else False
+    :rtype: boolean
+    '''
     mtype = module_info.module_type
     return mtype.lower() == 'sample'

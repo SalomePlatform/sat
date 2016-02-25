@@ -1,0 +1,28 @@
+MODULES :
+{
+	KERNEL_7_7_1 :
+	{
+		name : "KERNEL"
+	    has_gui : "no"
+	    compile_method : "cmake"
+	    get_method : "git"
+	    git_info:
+	    {
+	        repo : "http://git.salome-platform.org/gitpub/modules/kernel.git"
+	        repo_dev : $SITE.prepare.default_git_server_dev + $VARS.sep + $name
+	        tag : 'V7_7_1'
+	    }
+	    environ :
+	    {
+	        "_LD_LIBRARY_PATH" : "${SOFT_ROOT_DIR}" + $VARS.sep + "lib"
+	        "_PYTHONPATH" : ["${SOFT_ROOT_DIR}" + $VARS.sep + "lib"
+	            "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR0}"
+	            "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR1}"]
+	    }
+	    depend : []
+	    opt_depend : []
+	    module_type : "sample"
+	    source_dir : $APPLICATION.out_dir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
+	    build_dir : $APPLICATION.out_dir + $VARS.sep + 'BUILD' + $VARS.sep + $name
+	}
+}

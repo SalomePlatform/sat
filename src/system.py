@@ -81,3 +81,63 @@ def archive_extract(from_what, where, logger):
     except Exception as exc:
         logger.write("archive_extract: %s\n" % exc)
         return False, None
+
+def cvs_extract(protocol, user, server, base, tag, module, where,
+                logger, checkout=False):
+
+    opttag = ''
+    if tag is not None and len(tag) > 0:
+        opttag = '-r ' + tag
+
+    cmd = 'export'
+    if checkout:
+        cmd = 'checkout'
+    elif len(opttag) == 0:
+        opttag = '-DNOW'
+    
+    if len(protocol) > 0:
+        root = "%s@%s:%s" % (user, server, base)
+        command = "cvs -d :%(protocol)s:%(root)s %(command)s -d %(where)s %(tag)s %(module)s" % \
+            { 'protocol': protocol, 'root': root, 'where': str(where.base()),
+              'tag': opttag, 'module': module, 'command': cmd }
+    else:
+        command = "cvs -d %(root)s %(command)s -d %(where)s %(tag)s %(base)s/%(module)s" % \
+            { 'root': server, 'base': base, 'where': str(where.base()),
+              'tag': opttag, 'module': module, 'command': cmd }
+
+    logger.logTxtFile.write(command + "\n")
+    logger.write(command + "\n", 5)
+
+    if not where.dir().exists():
+        where.dir().make()
+        
+    res = subprocess.call(command, cwd=str(where.dir()), shell=True,
+                          stdout=logger.logTxtFile, stderr=subprocess.STDOUT)
+    return (res == 0)
+
+def svn_extract(user, from_what, tag, where, logger, checkout=False):
+    if not where.exists():
+        where.make()
+
+    if checkout:
+        command = "svn checkout --username %(user)s %(remote)s %(where)s" % \
+            { 'remote': from_what, 'user' : user, 'where': str(where) }
+    else:
+        command = ""
+        if os.path.exists(str(where)):
+            command = "/bin/rm -rf %(where)s && " % \
+                { 'remote': from_what, 'where': str(where) }
+        
+        if tag == "master":
+            command += "svn export --username %(user)s %(remote)s %(where)s" % \
+                { 'remote': from_what, 'user' : user, 'where': str(where) }       
+        else:
+            command += "svn export -r %(tag)s --username %(user)s %(remote)s %(where)s" % \
+                { 'tag' : tag, 'remote': from_what, 'user' : user, 'where': str(where) }
+    
+    logger.logTxtFile.write(command + "\n")
+    
+    logger.write(command + "\n", 5)
+    res = subprocess.call(command, cwd=str(where.dir()), shell=True,
+                          stdout=logger.logTxtFile, stderr=subprocess.STDOUT)
+    return (res == 0)
