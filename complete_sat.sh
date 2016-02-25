@@ -26,7 +26,7 @@ _show_applications()
             echo ${x}
         done)
 
-    # additional options for command working without products
+    # additional options for command working without applications
     case "${command}" in
         config)
             opts2=$(echo --list --value --edit --info $opts2)
@@ -37,6 +37,17 @@ _show_applications()
     esac
 
     COMPREPLY=( $(compgen -W "${opts2}" -- ${cur}) )
+}
+
+_show_modules()
+{
+    if [[ $appli != $prev ]]
+    then
+        opts=$(for x in `$SAT_PATH/sat -s config $appli -nv APPLICATION.modules`
+            do echo ${x}; done)
+
+        COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+   fi
 }
 
 _salomeTools_complete()
@@ -69,7 +80,7 @@ _salomeTools_complete()
     # first argument => show available commands
     if [[ ${argc} == 1 ]]
     then
-        opts="config log testcommand --help"
+        opts="config log testcommand source patch --help"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     fi
@@ -101,19 +112,19 @@ _salomeTools_complete()
         
         return 0
     fi
-
-    # show list of softwares
+      
+    # show list of modules
     if [[ ${prev} == "--module" || ${prev} == "-m" ]]
     then
-        prod="${COMP_WORDS[2]}"
-        if [[ ${command} != "test" ]]
+        appli="${COMP_WORDS[2]}"
+        if [[ ${command} != "source" ]]
         then
-            opts=$(for x in `$SAT_PATH/sat config $prod -nv PRODUCT.softwares`
+            opts=$(for x in `$SAT_PATH/sat config $appli -nv APPLICATION.modules`
                 do echo ${x}; done)
 
                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
-           fi
+        fi
     fi
 
     # show argument for each command
@@ -125,6 +136,11 @@ _salomeTools_complete()
             ;;
         log)
             opts="--clean --last --terminal --last"
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        source)
+            opts="--modules --no_sample --force"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;

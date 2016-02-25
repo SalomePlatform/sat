@@ -24,7 +24,7 @@ import src
 # Define all possible option for log command :  sat log <options>
 parser = src.options.Options()
 parser.add_option('m', 'module', 'list2', 'modules',
-    _('modules to get the sources. This option can be'
+    _('modules from which to get the sources. This option can be'
     ' passed several time to get the sources of several modules.'))
 parser.add_option('', 'no_sample', 'boolean', 'no_sample', 
     _("do not get sources from sample modules."))
@@ -418,6 +418,15 @@ def get_all_module_sources(config, modules, force, logger):
 
     return good_result, results
 
+def description():
+    '''method that is called when salomeTools is called with --help option.
+    
+    :return: The text to display for the source command description.
+    :rtype: str
+    '''
+    return _("The source command gets the sources of the application modules "
+             "from cvs, git, an archive or a directory..")
+  
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with source parameter.
     '''
