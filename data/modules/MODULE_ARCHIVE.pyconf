@@ -28,5 +28,6 @@ MODULES :
 	    module_type : "sample"
 	    source_dir : $APPLICATION.out_dir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
 	    build_dir : $APPLICATION.out_dir + $VARS.sep + 'BUILD' + $VARS.sep + $name
+	    patches : ['/home/salome/salomeTools-4.3.7/data/compil_scripts/patches/scipy.patch', '/export/home/serioja/MODULE_ARCHIVE.patch']
 	}
 }

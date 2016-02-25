@@ -359,11 +359,9 @@ def get_all_module_sources(config, modules, force, logger):
         max_module_name_len = max(map(lambda l: len(l), modules[0])) + 4
     
     # The loop on all the modules from which to get the sources
-    for module in modules:
+    for module_name, module_info in modules:
         # get module name, module informations and the directory where to put
         # the sources
-        module_name = module[0]
-        module_info = module[1]
         source_dir = src.Path(module_info.source_dir)
 
         # display and log
@@ -437,7 +435,7 @@ def run(args, runner, logger):
     src.check_config_has_application( runner.cfg )
 
     # Print some informations
-    logger.write(_('Preparing sources of application %s\n') % 
+    logger.write(_('Preparing sources of the application %s\n') % 
                 src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
     src.printcolors.print_value(logger, 'out_dir', 
                                 runner.cfg.APPLICATION.out_dir, 2)
@@ -468,7 +466,7 @@ def run(args, runner, logger):
     # the modules name and their definition
     modules_infos = src.module.get_modules_infos(modules, runner.cfg)
 
-    # if the --no_sample option is invoked, supress the sample modules from 
+    # if the --no_sample option is invoked, suppress the sample modules from 
     # the list
     if options.no_sample:
         modules_infos = filter(lambda l: not src.module.module_is_sample(l[1]),
@@ -498,7 +496,7 @@ def run(args, runner, logger):
     result = len(modules) - good_result
 
     # write results
-    logger.write(_("Getting sources of application:"), 1)
+    logger.write(_("Getting sources of the application:"), 1)
     logger.write(" " + src.printcolors.printc(status), 1, False)
     logger.write(" (%s)\n" % res_count, 1, False)
 
