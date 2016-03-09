@@ -31,7 +31,7 @@ parser.add_option('', 'no_sample', 'boolean', 'no_sample',
 parser.add_option('f', 'force', 'boolean', 'force', 
     _("force to get the sources of the modules in development mode."))
 
-def prepare_for_dev(config, module_info, source_dir, force, logger, pad):
+def get_sources_for_dev(config, module_info, source_dir, force, logger, pad):
     '''The method called if the module is in development mode
     
     :param config Config: The global configuration
@@ -299,7 +299,12 @@ def get_module_sources(config,
     :rtype: boolean
     '''
     if not checkout and is_dev:
-        return prepare_for_dev(config, module_info, source_dir, force, logger, pad)
+        return get_sources_for_dev(config, 
+                                   module_info, 
+                                   source_dir, 
+                                   force, 
+                                   logger, 
+                                   pad)
 
     if module_info.get_method == "git":
         return get_sources_from_git(module_info, source_dir, logger, pad, 
@@ -435,7 +440,7 @@ def run(args, runner, logger):
     src.check_config_has_application( runner.cfg )
 
     # Print some informations
-    logger.write(_('Preparing sources of the application %s\n') % 
+    logger.write(_('Getting sources of the application %s\n') % 
                 src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
     src.printcolors.print_value(logger, 'out_dir', 
                                 runner.cfg.APPLICATION.out_dir, 2)
@@ -459,7 +464,7 @@ def run(args, runner, logger):
         for m in modules:
             if m not in runner.cfg.APPLICATION.modules:
                 raise src.SatException(_("Module %(module)s "
-                            "not defined in appplication %(application)s") %
+                            "not defined in application %(application)s") %
                 { 'module': m, 'application': runner.cfg.VARS.application} )
     
     # Construct the list of tuple containing 
@@ -469,9 +474,20 @@ def run(args, runner, logger):
     # if the --no_sample option is invoked, suppress the sample modules from 
     # the list
     if options.no_sample:
-        modules_infos = filter(lambda l: not src.module.module_is_sample(l[1]),
-                         modules_infos)
-    
+        
+        lmodules_sample = [m for m in modules_infos if src.module.module_is_sample(m[1])]
+        
+        modules_infos = [m for m in modules_infos if m not in lmodules_sample]
+
+        if len(lmodules_sample) > 0:
+            logger.write(src.printcolors.printcWarning(_("Ignoring the following sample modules:\n")), 1)
+        for i, module in enumerate(lmodules_sample):
+            end_text = ', '
+            if i+1 == len(lmodules_sample):
+                end_text = '\n'
+                
+            logger.write(module[0] + end_text, 1)
+
     # Call to the function that gets all the sources
     good_result, results = get_all_module_sources(runner.cfg, 
                                                   modules_infos,
@@ -483,7 +499,7 @@ def run(args, runner, logger):
     details = []
 
     logger.write("\n", 2, False)
-    if good_result == len(modules):
+    if good_result == len(modules_infos):
         res_count = "%d / %d" % (good_result, good_result)
     else:
         status = src.KO_STATUS
@@ -493,7 +509,7 @@ def run(args, runner, logger):
             if results[module] == 0 or results[module] is None:
                 details.append(module)
 
-    result = len(modules) - good_result
+    result = len(modules_infos) - good_result
 
     # write results
     logger.write(_("Getting sources of the application:"), 1)

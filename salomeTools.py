@@ -146,6 +146,7 @@ class Sat(object):
                 :param args str: The directory path containing the commands 
                 '''
                 argv = args.split(" ")
+                while "" in argv: argv.remove("")
                 
                 # if it is provided by the command line, get the application
                 appliToLoad = None

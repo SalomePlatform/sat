@@ -30,6 +30,16 @@ parser.add_option('', 'no_sample', 'boolean', 'no_sample',
     _("do not get sources from sample modules."))
 
 def apply_patch(config, module_info, logger):
+    '''The method called to apply patches on a module
+
+    :param config Config: The global configuration
+    :param module_info Config: The configuration specific to 
+                               the module to be prepared
+    :param logger Logger: The logger instance to use for the display and logging
+    :return: (True if it succeed, else False, message to display)
+    :rtype: (boolean, str)
+    '''
+    
     if not "patches" in module_info or len(module_info.patches) == 0:
         msg = _("No patch for the %s module") % module_info.name
         logger.write(msg, 3)
@@ -41,12 +51,15 @@ def apply_patch(config, module_info, logger):
         logger.write(src.printcolors.printcWarning(msg), 1)
         return False, ""
 
+    # At this point, there one or more patches and the source directory exists
     retcode = []
     res = []
+    # Loop on all the patches of the module
     for patch in module_info.patches:
         details = []
-
-        if os.path.isfile(patch) and patch.endswith(".patch"):
+        
+        # Check the existence and apply the patch
+        if os.path.isfile(patch):
             #patch_exe = "patch" # old patch command (now replace by patch.py)
             patch_exe = os.path.join(config.VARS.srcDir, "patching.py")
             patch_cmd = "python %s -p1 -- < %s" % (patch_exe, patch)
@@ -120,7 +133,7 @@ def run(args, runner, logger):
         for m in modules:
             if m not in runner.cfg.APPLICATION.modules:
                 raise src.SatException(_("Module %(module)s "
-                            "not defined in appplication %(application)s") %
+                            "not defined in application %(application)s") %
                 { 'module': m, 'application': runner.cfg.VARS.application} )
     
     # Construct the list of tuple containing 
