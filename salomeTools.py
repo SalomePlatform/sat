@@ -145,8 +145,12 @@ class Sat(object):
                 
                 :param args str: The directory path containing the commands 
                 '''
+                # Make sure the internationalization is available
+                gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
+                
                 argv = args.split(" ")
-                while "" in argv: argv.remove("")
+                if argv != ['']:
+                    while "" in argv: argv.remove("")
                 
                 # if it is provided by the command line, get the application
                 appliToLoad = None
