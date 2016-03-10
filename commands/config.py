@@ -297,7 +297,7 @@ class ConfigManager:
                     e = str(error)
                     raise src.SatException( e );
                 
-                merger.merge(cfg, mod_cfg)
+                merger.merge(cfg.MODULES, mod_cfg)
 
         # apply overwrite from command line if needed
         for rule in self.get_command_line_overrides(options, ["MODULES"]):
