@@ -20,6 +20,7 @@ import os
 import subprocess
 
 import src
+import prepare
 
 # Define all possible option for log command :  sat log <options>
 parser = src.options.Options()
@@ -122,29 +123,8 @@ def run(args, runner, logger):
                                 runner.cfg.APPLICATION.out_dir, 2)
     logger.write("\n", 2, False)
 
-    # Get the modules to be prepared, regarding the options
-    if options.modules is None:
-        # No options, get all modules sources
-        modules = runner.cfg.APPLICATION.modules
-    else:
-        # if option --modules, check that all modules of the command line
-        # are present in the application.
-        modules = options.modules
-        for m in modules:
-            if m not in runner.cfg.APPLICATION.modules:
-                raise src.SatException(_("Module %(module)s "
-                            "not defined in application %(application)s") %
-                { 'module': m, 'application': runner.cfg.VARS.application} )
-    
-    # Construct the list of tuple containing 
-    # the modules name and their definition
-    modules_infos = src.module.get_modules_infos(modules, runner.cfg)
-
-    # if the --no_sample option is invoked, suppress the sample modules from 
-    # the list
-    if options.no_sample:
-        modules_infos = filter(lambda l: not src.module.module_is_sample(l[1]),
-                         modules_infos)
+    # Get the modules list with modules informations reagrding the options
+    modules_infos = prepare.get_modules_list(options, runner.cfg, logger)
     
     # Get the maximum name length in order to format the terminal display
     max_module_name_len = 1
@@ -171,7 +151,7 @@ def run(args, runner, logger):
         res_count = "%d / %d" % (good_result, good_result)
     else:
         status = src.KO_STATUS
-        res_count = "%d / %d" % (good_result, len(modules))
+        res_count = "%d / %d" % (good_result, len(modules_infos))
     
     # write results
     logger.write("Patching sources of the application:", 1)

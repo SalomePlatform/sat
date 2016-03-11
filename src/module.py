@@ -15,11 +15,13 @@
 #  You should have received a copy of the GNU Lesser General Public
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-'''In this file are implemented the classes and method 
+'''In this file are implemented the classes and methods 
    relative to the module notion of salomeTools
 '''
 
 import src
+
+AVAILABLE_VCS = ['git', 'svn', 'cvs']
 
 def get_module_config(config, module_name, version):
     '''Get the specific configuration of a module from the global configuration
@@ -50,6 +52,26 @@ def get_module_config(config, module_name, version):
         for depend in mod_info.opt_depend:
             if depend in config.MODULES:
                 mod_info.depend.append(depend,'')
+                
+    # Check if the module is defined as native in the application
+    pass # to be done
+    
+    # In case of a module get with a vcs, put the tag (equal to the version)
+    if mod_info is not None and mod_info.get_sources in AVAILABLE_VCS:
+        
+        if mod_info.get_sources == 'git':
+            mod_info.git_info.tag = version
+        
+        if mod_info.get_sources == 'svn':
+            mod_info.svn_info.tag = version
+        
+        if mod_info.get_sources == 'cvs':
+            mod_info.cvs_info.tag = version
+    
+    # In case of a fixed module, define the install_dir (equal to the version)
+    if mod_info is not None and mod_info.get_sources=="fixed":
+        mod_info.install_dir = version
+    
     return mod_info
 
 def get_modules_infos(lmodules, config):
@@ -65,7 +87,11 @@ def get_modules_infos(lmodules, config):
     # Loop on module names
     for mod in lmodules:
         # Get the version of the module from the application definition
-        version_mod = config.APPLICATION.modules[mod][0]
+        version_mod = config.APPLICATION.modules[mod]
+        # if no version, then take the default one defined in the application
+        if isinstance(version_mod, bool): 
+            version_mod = config.APPLICATION.tag
+        
         # Get the specific configuration of the module
         mod_info = get_module_config(config, mod, version_mod)
         if mod_info is not None:
@@ -80,9 +106,20 @@ def module_is_sample(module_info):
     '''Know if a module has the sample type
     
     :param module_info Config: The configuration specific to 
-                               the module to be prepared
+                               the module
     :return: True if the module has the sample type, else False
     :rtype: boolean
     '''
-    mtype = module_info.module_type
+    mtype = module_info.type
     return mtype.lower() == 'sample'
+
+def module_is_fixed(module_info):
+    '''Know if a module is fixed
+    
+    :param module_info Config: The configuration specific to 
+                               the module
+    :return: True if the module is fixed, else False
+    :rtype: boolean
+    '''
+    get_src = module_info.get_sources
+    return get_src.lower() == 'fixed'

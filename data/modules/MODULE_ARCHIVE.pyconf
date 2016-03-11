@@ -1,14 +1,12 @@
 MODULE_ARCHIVE :
 {
 	name : "MODULE_ARCHIVE"
-    has_gui : "no"
     compile_method : "cmake"
-    get_method : "archive"
+    get_sources : "archive"
     git_info:
     {
         repo : "http://git.salome-platform.org/gitpub/modules/kernel.git"
         repo_dev : $SITE.prepare.default_git_server_dev + $VARS.sep + $name
-        tag : 'V7_7_1'
     }
     archive_info:
     {
@@ -23,7 +21,7 @@ MODULE_ARCHIVE :
     }
     depend : []
     opt_depend : []
-    module_type : "sample"
+    type : "sample"
     source_dir : $APPLICATION.out_dir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
     build_dir : $APPLICATION.out_dir + $VARS.sep + 'BUILD' + $VARS.sep + $name
     patches : ['/home/salome/salomeTools-4.3.7/data/compil_scripts/patches/scipy.patch', '/export/home/serioja/MODULE_ARCHIVE.patch']

@@ -20,6 +20,7 @@ import os
 import shutil
 
 import src
+import prepare
 
 # Define all possible option for log command :  sat log <options>
 parser = src.options.Options()
@@ -240,41 +241,6 @@ def get_sources_from_svn(user, module_info, source_dir, checkout, logger):
                                      checkout)
     return retcode
 
-def get_sources_from_dir(module_info, source_dir, logger):
-    '''The method called if the module is to be get in dir mode
-    
-    :param module_info Config: The configuration specific to 
-                               the module to be prepared
-    :param source_dir Path: The Path instance corresponding to the 
-                            directory where to put the sources
-    :param logger Logger: The logger instance to use for the display and logging
-    :return: True if it succeed, else False
-    :rtype: boolean
-    '''
-    # Check if it is a symlink?
-    use_link = ('symlink' in module_info.dir_info and 
-                module_info.dir_info.symlink)
-    dirflag = 'dir'
-    if use_link: dirflag = 'lnk'
-
-    # check that source exists if it is not a symlink
-    if (not use_link) and (not os.path.exists(module_info.dir_info.dir)):
-        raise src.SatException(_("Source directory not found: '%s'") % 
-                               module_info.dir_info.dir)
-
-    logger.write('%s:%s ... ' % 
-                 (dirflag, src.printcolors.printcInfo(module_info.dir_info.dir)),
-                 3, 
-                 False)
-    logger.flush()
-
-    if use_link:
-        retcode = src.Path(source_dir).symlink(module_info.dir_info.dir)
-    else:
-        retcode = src.Path(module_info.dir_info.dir).copy(source_dir)
-
-    return retcode
-
 def get_module_sources(config, 
                        module_info, 
                        is_dev, 
@@ -306,14 +272,14 @@ def get_module_sources(config,
                                    logger, 
                                    pad)
 
-    if module_info.get_method == "git":
+    if module_info.get_sources == "git":
         return get_sources_from_git(module_info, source_dir, logger, pad, 
                                     is_dev)
 
-    if module_info.get_method == "archive":
+    if module_info.get_sources == "archive":
         return get_sources_from_archive(module_info, source_dir, logger)
     
-    if module_info.get_method == "cvs":
+    if module_info.get_sources == "cvs":
         cvs_user = config.USER.cvs_user
         return get_sources_from_cvs(cvs_user, 
                                     module_info, 
@@ -322,23 +288,30 @@ def get_module_sources(config,
                                     logger,
                                     pad)
 
-    if module_info.get_method == "svn":
+    if module_info.get_sources == "svn":
         svn_user = config.USER.svn_user
         return get_sources_from_svn(svn_user, module_info, source_dir, 
                                     checkout,
                                     logger)
-   
-    if module_info.get_method == "dir":
-        return get_sources_from_dir(module_info, source_dir, logger)
+
+    if module_info.get_sources == "native":
+        # skip
+        logger.write('%s ...' % _("native (ignored)"), 3, False)
+        return True        
+
+    if module_info.get_sources == "fixed":
+        # skip
+        logger.write('%s ...' % _("fixed (ignored)"), 3, False)
+        return True  
     
-    if len(module_info.get_method) == 0:
+    if len(module_info.get_sources) == 0:
         # skip
         logger.write('%s ...' % _("ignored"), 3, False)
         return True
 
-    # if the get_method is not in [git, archive, cvs, svn, dir]
+    # if the get_sources is not in [git, archive, cvs, svn, dir]
     logger.write(_("Unknown get_mehtod %(get)s for module %(module)s") % \
-        { 'get': module_info.get_method, 'module': module_info.name }, 3, False)
+        { 'get': module_info.get_sources, 'module': module_info.name }, 3, False)
     logger.write(" ... ", 3, False)
     logger.flush()
     return False
@@ -367,7 +340,10 @@ def get_all_module_sources(config, modules, force, logger):
     for module_name, module_info in modules:
         # get module name, module informations and the directory where to put
         # the sources
-        source_dir = src.Path(module_info.source_dir)
+        if not src.module.module_is_fixed(module_info):
+            source_dir = src.Path(module_info.source_dir)
+        else:
+            source_dir = src.Path('')
 
         # display and log
         logger.write('%s: ' % src.printcolors.printcLabel(module_name), 3)
@@ -453,41 +429,9 @@ def run(args, runner, logger):
                 "on modules in development mode\n\n")
         logger.write(src.printcolors.printcWarning(msg))
     
-    # Get the modules to be prepared, regarding the options
-    if options.modules is None:
-        # No options, get all modules sources
-        modules = runner.cfg.APPLICATION.modules
-    else:
-        # if option --modules, check that all modules of the command line
-        # are present in the application.
-        modules = options.modules
-        for m in modules:
-            if m not in runner.cfg.APPLICATION.modules:
-                raise src.SatException(_("Module %(module)s "
-                            "not defined in application %(application)s") %
-                { 'module': m, 'application': runner.cfg.VARS.application} )
+    # Get the modules list with modules informations reagrding the options
+    modules_infos = prepare.get_modules_list(options, runner.cfg, logger)
     
-    # Construct the list of tuple containing 
-    # the modules name and their definition
-    modules_infos = src.module.get_modules_infos(modules, runner.cfg)
-
-    # if the --no_sample option is invoked, suppress the sample modules from 
-    # the list
-    if options.no_sample:
-        
-        lmodules_sample = [m for m in modules_infos if src.module.module_is_sample(m[1])]
-        
-        modules_infos = [m for m in modules_infos if m not in lmodules_sample]
-
-        if len(lmodules_sample) > 0:
-            logger.write(src.printcolors.printcWarning(_("Ignoring the following sample modules:\n")), 1)
-        for i, module in enumerate(lmodules_sample):
-            end_text = ', '
-            if i+1 == len(lmodules_sample):
-                end_text = '\n'
-                
-            logger.write(module[0] + end_text, 1)
-
     # Call to the function that gets all the sources
     good_result, results = get_all_module_sources(runner.cfg, 
                                                   modules_infos,

@@ -1,12 +1,20 @@
-KERNEL_V7_7_1 :
+MODULE_NATIVE :
 {
-	name : "KERNEL"
-    build_sources : "cmake"
-    get_sources : "git"
+	name : "MODULE_NATIVE"
+    compile_method : "cmake"
+    get_sources : "native"
     git_info:
     {
         repo : "http://git.salome-platform.org/gitpub/modules/kernel.git"
         repo_dev : $SITE.prepare.default_git_server_dev + $VARS.sep + $name
+    }
+    archive_info:
+    {
+		archive_name : '/data/tmpsalome/salome/prerequis/archives/tclx8.4.tar.bz2'
+    }
+    svn_info:
+    {
+		repo: 'https://www-svn-corpus.cea.fr/corpus/CORPUS'
     }
     environ :
     {

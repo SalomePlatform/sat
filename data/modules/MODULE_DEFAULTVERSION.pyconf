@@ -1,12 +1,22 @@
-KERNEL_V7_7_1 :
+MODULE_DEFAULTVERSION :
 {
-	name : "KERNEL"
+	name : "MODULE_DEFAULTVERSION"
     build_sources : "cmake"
     get_sources : "git"
     git_info:
     {
         repo : "http://git.salome-platform.org/gitpub/modules/kernel.git"
         repo_dev : $SITE.prepare.default_git_server_dev + $VARS.sep + $name
+    }
+    archive_info:
+    {
+		archive_name : ''
+    }
+    cvs_info:
+    {
+        server : "cvs.opencascade.com"
+        module_base : "/home/server/cvs/KERNEL"
+        source : 'KERNEL_SRC'
     }
     environ :
     {

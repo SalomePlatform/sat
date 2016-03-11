@@ -1,21 +1,18 @@
 softB :
 {
 	name : "softB"
-    has_gui : "no"
-    compile_method : "cmake" # ou autotools, ou script
+    get_sources : "cmake" # ou autotools, ou script
     get_method : "git" # "archive", embedded", "native" "fixed"
     cvs_info:
     {
         server : $SITE.prepare.default_cvs_server
         module_base : $SITE.prepare.cvs_dir + $name
         source : 'softB_SRC'
-        tag : ''
     }
     git_info:
     {
         repo : $SITE.prepare.default_git_server + $VARS.sep + $name
         repo_dev : $SITE.prepare.default_git_server_dev + $VARS.sep + $name
-        tag : $APPLICATION.default_version_to_download
     }
     archive_info:
     {

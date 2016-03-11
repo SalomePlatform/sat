@@ -36,7 +36,7 @@ from tools import outRedirection
 import HTMLTestRunner
 import src.xmlManager
 
-sleep_time = 3
+sleep_time = 2
 
 class TestLog(unittest.TestCase):
     '''Test of log command: launch of browser
@@ -49,6 +49,7 @@ class TestLog(unittest.TestCase):
         OK = "KO"
 
         sat = Sat("-oUSER.browser='konqueror'")
+        time.sleep(sleep_time)
         cmd_log = threading.Thread(target=sat.log, args=('',))
         cmd_log.start()
 
@@ -100,7 +101,7 @@ class TestLog(unittest.TestCase):
             OK = "OK"
             sys.stdin = sys.__stdin__
         except:
-            pass
+            sys.stdin = sys.__stdin__
         
         # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
@@ -120,7 +121,7 @@ class TestLog(unittest.TestCase):
         sys.stdin = io.StringIO(one)
         
         try:
-            sat.log('appli-test --last')
+            sat.log('appli-test -t --last')
             OK = "OK"
             sys.stdin = sys.__stdin__
         except:
@@ -252,6 +253,8 @@ class TestLog(unittest.TestCase):
               
         sat.config('appli-test -v VARS.python')
         
+        
+        time.sleep(sleep_time)
         cmd_log = threading.Thread(target=sat.log, args=('appli-test --last',))
         cmd_log.start()
         
@@ -326,6 +329,7 @@ class TestLog(unittest.TestCase):
         OK = "KO"
 
         sat = Sat("-oUSER.browser='konqueror'")
+        time.sleep(sleep_time)
         cmd_log = threading.Thread(target=sat.log, args=('--full',))
         cmd_log.start()
 

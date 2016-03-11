@@ -1,14 +1,12 @@
-MODULE_CVS_6_7_0 :
+MODULE_CVS_V6_7_0 :
 {
 	name : "MODULE_CVS"
-    has_gui : "no"
-    compile_method : "cmake"
-    get_method : "cvs"
+    build_sources : "cmake"
+    get_sources : "cvs"
     git_info:
     {
         repo : "http://git.salome-platform.org/gitpub/modules/kernel.git"
         repo_dev : $SITE.prepare.default_git_server_dev + $VARS.sep + $name
-        tag : 'V7_7_1'
     }
     archive_info:
     {
@@ -19,7 +17,6 @@ MODULE_CVS_6_7_0 :
         server : "cvs.opencascade.com"
         module_base : "/home/server/cvs/KERNEL"
         source : 'KERNEL_SRC'
-        tag : "V6_7_0"
     }
     environ :
     {
@@ -30,7 +27,7 @@ MODULE_CVS_6_7_0 :
     }
     depend : []
     opt_depend : []
-    module_type : "sample"
+    type : "sample"
     source_dir : $APPLICATION.out_dir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
     build_dir : $APPLICATION.out_dir + $VARS.sep + 'BUILD' + $VARS.sep + $name
 }

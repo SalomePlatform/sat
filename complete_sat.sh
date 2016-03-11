@@ -140,7 +140,12 @@ _salomeTools_complete()
             return 0
             ;;
         source)
-            opts="--modules --no_sample --force"
+            opts="--module --no_sample --force"
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        patch)
+            opts="--module --no_sample"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
