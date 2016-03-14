@@ -95,6 +95,8 @@ def run(args, runner, logger):
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
 
+    modules_infos = get_modules_list(options, runner.cfg, logger)
+
     # Construct the option to pass to the source command
     args_source = runner.cfg.VARS.application + ' '
     
@@ -115,6 +117,20 @@ def run(args, runner, logger):
     
     # Construct the option to pass to the patch command
     args_patch = args_source.replace(' --force', '')
+    
+    if ("dev_modules" in runner.cfg.APPLICATION and 
+                                runner.cfg.APPLICATION.dev_modules is not []):
+        
+        dev_modules = runner.cfg.APPLICATION.dev_modules
+        ldev_modules = [m for m in modules_infos if m[0] in dev_modules]
+        
+        if len(ldev_modules) > 0:
+            msg = _("The patches are not applied on "
+                    "the module in development mode\n")
+            
+            logger.write()
+            
+            modules_infos = [m for m in modules_infos if m[0] not in ldev_modules]
     
     # Call the source command that gets the source
     msg = src.printcolors.printcHeader(
