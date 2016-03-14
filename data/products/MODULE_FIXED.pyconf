@@ -1,7 +1,7 @@
 MODULE_FIXED :
 {
 	name : "MODULE_FIXED"
-	get_sources : "fixed"
+	get_source : "fixed"
     environ :
     {
         "_LD_LIBRARY_PATH" : "${SOFT_ROOT_DIR}" + $VARS.sep + "lib"

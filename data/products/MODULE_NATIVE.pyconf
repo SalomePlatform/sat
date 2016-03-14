@@ -1,8 +1,8 @@
-MODULE_DEFAULTVERSION :
+MODULE_NATIVE :
 {
-	name : "MODULE_DEFAULTVERSION"
-    build_sources : "cmake"
-    get_sources : "git"
+	name : "MODULE_NATIVE"
+    build_source : "cmake"
+    get_source : "native"
     git_info:
     {
         repo : "http://git.salome-platform.org/gitpub/modules/kernel.git"
@@ -10,13 +10,11 @@ MODULE_DEFAULTVERSION :
     }
     archive_info:
     {
-		archive_name : ''
+		archive_name : '/data/tmpsalome/salome/prerequis/archives/tclx8.4.tar.bz2'
     }
-    cvs_info:
+    svn_info:
     {
-        server : "cvs.opencascade.com"
-        module_base : "/home/server/cvs/KERNEL"
-        source : 'KERNEL_SRC'
+		repo: 'https://www-svn-corpus.cea.fr/corpus/CORPUS'
     }
     environ :
     {

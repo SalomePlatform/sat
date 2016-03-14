@@ -1,8 +1,8 @@
 softA :
 {
 	name : "softA"
-    get_sources : "cmake" # ou autotools, ou script
-    get_method : "git" # "archive", embedded", "native" "fixed"
+    build_source : "cmake" # ou autotools, ou script
+    get_source : "git" # "archive", embedded", "native" "fixed"
     cvs_info:
     {
         server : $SITE.prepare.default_cvs_server

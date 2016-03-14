@@ -24,20 +24,20 @@ import prepare
 
 # Define all possible option for log command :  sat log <options>
 parser = src.options.Options()
-parser.add_option('m', 'module', 'list2', 'modules',
-    _('modules from which to get the sources. This option can be'
-    ' passed several time to get the sources of several modules.'))
+parser.add_option('p', 'product', 'list2', 'products',
+    _('products from which to get the sources. This option can be'
+    ' passed several time to get the sources of several products.'))
 parser.add_option('', 'no_sample', 'boolean', 'no_sample', 
-    _("do not get sources from sample modules."))
+    _("do not get sources from sample products."))
 parser.add_option('f', 'force', 'boolean', 'force', 
-    _("force to get the sources of the modules in development mode."))
+    _("force to get the sources of the products in development mode."))
 
-def get_sources_for_dev(config, module_info, source_dir, force, logger, pad):
-    '''The method called if the module is in development mode
+def get_source_for_dev(config, product_info, source_dir, force, logger, pad):
+    '''The method called if the product is in development mode
     
     :param config Config: The global configuration
-    :param module_info Config: The configuration specific to 
-                               the module to be prepared
+    :param product_info Config: The configuration specific to 
+                               the product to be prepared
     :param source_dir Path: The Path instance corresponding to the 
                             directory where to put the sources
     :param force boolean: True if the --force option was invoked
@@ -47,13 +47,13 @@ def get_sources_for_dev(config, module_info, source_dir, force, logger, pad):
     :rtype: boolean
     '''
     retcode = 'N\A'
-    # if the module source directory does not exist,
+    # if the product source directory does not exist,
     # get it in checkout mode, else, do not do anything
     # unless the force option is invoked
-    if not os.path.exists(module_info.source_dir) or force:
+    if not os.path.exists(product_info.source_dir) or force:
         # Call the function corresponding to get the sources with True checkout
-        retcode = get_module_sources(config, 
-                                     module_info, 
+        retcode = get_product_sources(config, 
+                                     product_info, 
                                      True, 
                                      source_dir,
                                      force, 
@@ -61,62 +61,62 @@ def get_sources_for_dev(config, module_info, source_dir, force, logger, pad):
                                      pad, 
                                      checkout=True)
         logger.write("\n", 3, False)
-        # +2 because module name is followed by ': '
+        # +2 because product name is followed by ': '
         logger.write(" " * (pad+2), 3, False) 
     
     logger.write('dev: %s ... ' % 
-                 src.printcolors.printcInfo(module_info.source_dir), 3, False)
+                 src.printcolors.printcInfo(product_info.source_dir), 3, False)
     logger.flush()
     
     return retcode
 
-def get_sources_from_git(module_info, source_dir, logger, pad, is_dev=False):
-    '''The method called if the module is to be get in git mode
+def get_source_from_git(product_info, source_dir, logger, pad, is_dev=False):
+    '''The method called if the product is to be get in git mode
     
-    :param module_info Config: The configuration specific to 
-                               the module to be prepared
+    :param product_info Config: The configuration specific to 
+                               the product to be prepared
     :param source_dir Path: The Path instance corresponding to the 
                             directory where to put the sources
     :param logger Logger: The logger instance to use for the display and logging
     :param pad int: The gap to apply for the terminal display
-    :param is_dev boolean: True if the module is in development mode
+    :param is_dev boolean: True if the product is in development mode
     :return: True if it succeed, else False
     :rtype: boolean
     '''
     # The str to display
     coflag = 'git'
 
-    # Get the repository address. (from repo_dev key if the module is 
+    # Get the repository address. (from repo_dev key if the product is 
     # in dev mode.
-    if is_dev and 'repo_dev' in module_info.git_info:
+    if is_dev and 'repo_dev' in product_info.git_info:
         coflag = src.printcolors.printcHighlight(coflag.upper())
-        repo_git = module_info.git_info.repo_dev    
+        repo_git = product_info.git_info.repo_dev    
     else:
-        repo_git = module_info.git_info.repo    
+        repo_git = product_info.git_info.repo    
         
     # Display informations
     logger.write('%s:%s' % (coflag, src.printcolors.printcInfo(repo_git)), 3, 
                  False)
     logger.write(' ' * (pad + 50 - len(repo_git)), 3, False)
     logger.write(' tag:%s' % src.printcolors.printcInfo(
-                                                    module_info.git_info.tag), 
+                                                    product_info.git_info.tag), 
                  3,
                  False)
-    logger.write(' %s. ' % ('.' * (10 - len(module_info.git_info.tag))), 3, 
+    logger.write(' %s. ' % ('.' * (10 - len(product_info.git_info.tag))), 3, 
                  False)
     logger.flush()
     logger.write('\n', 5, False)
     # Call the system function that do the extraction in git mode
     retcode = src.system.git_extract(repo_git,
-                                 module_info.git_info.tag,
+                                 product_info.git_info.tag,
                                  source_dir, logger)
     return retcode
 
-def get_sources_from_archive(module_info, source_dir, logger):
-    '''The method called if the module is to be get in archive mode
+def get_source_from_archive(product_info, source_dir, logger):
+    '''The method called if the product is to be get in archive mode
     
-    :param module_info Config: The configuration specific to 
-                               the module to be prepared
+    :param product_info Config: The configuration specific to 
+                               the product to be prepared
     :param source_dir Path: The Path instance corresponding to the 
                             directory where to put the sources
     :param logger Logger: The logger instance to use for the display and logging
@@ -124,36 +124,36 @@ def get_sources_from_archive(module_info, source_dir, logger):
     :rtype: boolean
     '''
     # check archive exists
-    if not os.path.exists(module_info.archive_info.archive_name):
+    if not os.path.exists(product_info.archive_info.archive_name):
         raise src.SatException(_("Archive not found: '%s'") % 
-                               module_info.archive_info.archive_name)
+                               product_info.archive_info.archive_name)
 
     logger.write('arc:%s ... ' % 
-                 src.printcolors.printcInfo(module_info.archive_info.archive_name),
+                 src.printcolors.printcInfo(product_info.archive_info.archive_name),
                  3, 
                  False)
     logger.flush()
     # Call the system function that do the extraction in archive mode
     retcode, NameExtractedDirectory = src.system.archive_extract(
-                                    module_info.archive_info.archive_name,
+                                    product_info.archive_info.archive_name,
                                     source_dir.dir(), logger)
     
     # Rename the source directory if 
-    # it does not match with module_info.source_dir
+    # it does not match with product_info.source_dir
     if (NameExtractedDirectory.replace('/', '') != 
-            os.path.basename(module_info.source_dir)):
-        shutil.move(os.path.join(os.path.dirname(module_info.source_dir), 
+            os.path.basename(product_info.source_dir)):
+        shutil.move(os.path.join(os.path.dirname(product_info.source_dir), 
                                  NameExtractedDirectory), 
-                    module_info.source_dir)
+                    product_info.source_dir)
     
     return retcode
 
-def get_sources_from_cvs(user, module_info, source_dir, checkout, logger, pad):
-    '''The method called if the module is to be get in cvs mode
+def get_source_from_cvs(user, product_info, source_dir, checkout, logger, pad):
+    '''The method called if the product is to be get in cvs mode
     
     :param user str: The user to use in for the cvs command
-    :param module_info Config: The configuration specific to 
-                               the module to be prepared
+    :param product_info Config: The configuration specific to 
+                               the product to be prepared
     :param source_dir Path: The Path instance corresponding to the 
                             directory where to put the sources
     :param checkout boolean: If True, get the source in checkout mode
@@ -163,19 +163,19 @@ def get_sources_from_cvs(user, module_info, source_dir, checkout, logger, pad):
     :rtype: boolean
     '''
     # Get the protocol to use in the command
-    if "protocol" in module_info.cvs_info:
-        protocol = module_info.cvs_info.protocol
+    if "protocol" in product_info.cvs_info:
+        protocol = product_info.cvs_info.protocol
     else:
         protocol = "pserver"
     
     # Construct the line to display
-    if "protocol" in module_info.cvs_info:
+    if "protocol" in product_info.cvs_info:
         cvs_line = "%s:%s@%s:%s" % \
-            (protocol, user, module_info.cvs_info.server, 
-             module_info.cvs_info.module_base)
+            (protocol, user, product_info.cvs_info.server, 
+             product_info.cvs_info.product_base)
     else:
-        cvs_line = "%s / %s" % (module_info.cvs_info.server, 
-                                module_info.cvs_info.module_base)
+        cvs_line = "%s / %s" % (product_info.cvs_info.server, 
+                                product_info.cvs_info.product_base)
 
     coflag = 'cvs'
     if checkout: coflag = src.printcolors.printcHighlight(coflag.upper())
@@ -185,16 +185,16 @@ def get_sources_from_cvs(user, module_info, source_dir, checkout, logger, pad):
                  False)
     logger.write(' ' * (pad + 50 - len(cvs_line)), 3, False)
     logger.write(' src:%s' % 
-                 src.printcolors.printcInfo(module_info.cvs_info.source), 
+                 src.printcolors.printcInfo(product_info.cvs_info.source), 
                  3, 
                  False)
-    logger.write(' ' * (pad + 1 - len(module_info.cvs_info.source)), 3, False)
+    logger.write(' ' * (pad + 1 - len(product_info.cvs_info.source)), 3, False)
     logger.write(' tag:%s' % 
-                    src.printcolors.printcInfo(module_info.cvs_info.tag), 
+                    src.printcolors.printcInfo(product_info.cvs_info.tag), 
                  3, 
                  False)
     # at least one '.' is visible
-    logger.write(' %s. ' % ('.' * (10 - len(module_info.cvs_info.tag))), 
+    logger.write(' %s. ' % ('.' * (10 - len(product_info.cvs_info.tag))), 
                  3, 
                  False) 
     logger.flush()
@@ -202,19 +202,19 @@ def get_sources_from_cvs(user, module_info, source_dir, checkout, logger, pad):
 
     # Call the system function that do the extraction in cvs mode
     retcode = src.system.cvs_extract(protocol, user,
-                                 module_info.cvs_info.server,
-                                 module_info.cvs_info.module_base,
-                                 module_info.cvs_info.tag,
-                                 module_info.cvs_info.source,
+                                 product_info.cvs_info.server,
+                                 product_info.cvs_info.product_base,
+                                 product_info.cvs_info.tag,
+                                 product_info.cvs_info.source,
                                  source_dir, logger, checkout)
     return retcode
 
-def get_sources_from_svn(user, module_info, source_dir, checkout, logger):
-    '''The method called if the module is to be get in svn mode
+def get_source_from_svn(user, product_info, source_dir, checkout, logger):
+    '''The method called if the product is to be get in svn mode
     
     :param user str: The user to use in for the svn command
-    :param module_info Config: The configuration specific to 
-                               the module to be prepared
+    :param product_info Config: The configuration specific to 
+                               the product to be prepared
     :param source_dir Path: The Path instance corresponding to the 
                             directory where to put the sources
     :param checkout boolean: If True, get the source in checkout mode
@@ -227,34 +227,34 @@ def get_sources_from_svn(user, module_info, source_dir, checkout, logger):
 
     logger.write('%s:%s ... ' % (coflag, 
                                  src.printcolors.printcInfo(
-                                            module_info.svn_info.repo)), 
+                                            product_info.svn_info.repo)), 
                  3, 
                  False)
     logger.flush()
     logger.write('\n', 5, False)
     # Call the system function that do the extraction in svn mode
     retcode = src.system.svn_extract(user, 
-                                     module_info.svn_info.repo, 
-                                     module_info.svn_info.tag,
+                                     product_info.svn_info.repo, 
+                                     product_info.svn_info.tag,
                                      source_dir, 
                                      logger, 
                                      checkout)
     return retcode
 
-def get_module_sources(config, 
-                       module_info, 
+def get_product_sources(config, 
+                       product_info, 
                        is_dev, 
                        source_dir,
                        force,
                        logger, 
                        pad, 
                        checkout=False):
-    '''Get the module sources.
+    '''Get the product sources.
     
     :param config Config: The global configuration
-    :param module_info Config: The configuration specific to 
-                               the module to be prepared
-    :param is_dev boolean: True if the module is in development mode
+    :param product_info Config: The configuration specific to 
+                               the product to be prepared
+    :param is_dev boolean: True if the product is in development mode
     :param source_dir Path: The Path instance corresponding to the 
                             directory where to put the sources
     :param force boolean: True if the --force option was invoked
@@ -265,65 +265,65 @@ def get_module_sources(config,
     :rtype: boolean
     '''
     if not checkout and is_dev:
-        return get_sources_for_dev(config, 
-                                   module_info, 
+        return get_source_for_dev(config, 
+                                   product_info, 
                                    source_dir, 
                                    force, 
                                    logger, 
                                    pad)
 
-    if module_info.get_sources == "git":
-        return get_sources_from_git(module_info, source_dir, logger, pad, 
+    if product_info.get_source == "git":
+        return get_source_from_git(product_info, source_dir, logger, pad, 
                                     is_dev)
 
-    if module_info.get_sources == "archive":
-        return get_sources_from_archive(module_info, source_dir, logger)
+    if product_info.get_source == "archive":
+        return get_source_from_archive(product_info, source_dir, logger)
     
-    if module_info.get_sources == "cvs":
+    if product_info.get_source == "cvs":
         cvs_user = config.USER.cvs_user
-        return get_sources_from_cvs(cvs_user, 
-                                    module_info, 
+        return get_source_from_cvs(cvs_user, 
+                                    product_info, 
                                     source_dir, 
                                     checkout, 
                                     logger,
                                     pad)
 
-    if module_info.get_sources == "svn":
+    if product_info.get_source == "svn":
         svn_user = config.USER.svn_user
-        return get_sources_from_svn(svn_user, module_info, source_dir, 
+        return get_source_from_svn(svn_user, product_info, source_dir, 
                                     checkout,
                                     logger)
 
-    if module_info.get_sources == "native":
+    if product_info.get_source == "native":
         # skip
         logger.write('%s ...' % _("native (ignored)"), 3, False)
         return True        
 
-    if module_info.get_sources == "fixed":
+    if product_info.get_source == "fixed":
         # skip
         logger.write('%s ...' % _("fixed (ignored)"), 3, False)
         return True  
     
-    if len(module_info.get_sources) == 0:
+    if len(product_info.get_source) == 0:
         # skip
         logger.write('%s ...' % _("ignored"), 3, False)
         return True
 
-    # if the get_sources is not in [git, archive, cvs, svn, dir]
-    logger.write(_("Unknown get_mehtod %(get)s for module %(module)s") % \
-        { 'get': module_info.get_sources, 'module': module_info.name }, 3, False)
+    # if the get_source is not in [git, archive, cvs, svn, dir]
+    logger.write(_("Unknown get_mehtod %(get)s for product %(product)s") % \
+        { 'get': product_info.get_source, 'product': product_info.name }, 3, False)
     logger.write(" ... ", 3, False)
     logger.flush()
     return False
 
-def get_all_module_sources(config, modules, force, logger):
-    '''Get all the module sources.
+def get_all_product_sources(config, products, force, logger):
+    '''Get all the product sources.
     
     :param config Config: The global configuration
-    :param modules List: The list of tuples (module name, module informations)
+    :param products List: The list of tuples (product name, product informations)
     :param force boolean: True if the --force option was invoked
     :param logger Logger: The logger instance to be used for the logging
-    :return: the tuple (number of success, dictionary module_name/success_fail)
+    :return: the tuple (number of success, dictionary product_name/success_fail)
     :rtype: (int,dict)
     '''
 
@@ -332,53 +332,53 @@ def get_all_module_sources(config, modules, force, logger):
     good_result = 0
 
     # Get the maximum name length in order to format the terminal display
-    max_module_name_len = 1
-    if len(modules) > 0:
-        max_module_name_len = max(map(lambda l: len(l), modules[0])) + 4
+    max_product_name_len = 1
+    if len(products) > 0:
+        max_product_name_len = max(map(lambda l: len(l), products[0])) + 4
     
-    # The loop on all the modules from which to get the sources
-    for module_name, module_info in modules:
-        # get module name, module informations and the directory where to put
+    # The loop on all the products from which to get the sources
+    for product_name, product_info in products:
+        # get product name, product informations and the directory where to put
         # the sources
-        if not src.module.module_is_fixed(module_info):
-            source_dir = src.Path(module_info.source_dir)
+        if not src.product.product_is_fixed(product_info):
+            source_dir = src.Path(product_info.source_dir)
         else:
             source_dir = src.Path('')
 
         # display and log
-        logger.write('%s: ' % src.printcolors.printcLabel(module_name), 3)
-        logger.write(' ' * (max_module_name_len - len(module_name)), 3, False)
+        logger.write('%s: ' % src.printcolors.printcLabel(product_name), 3)
+        logger.write(' ' * (max_product_name_len - len(product_name)), 3, False)
         logger.write("\n", 4, False)
         
         # Remove the existing source directory if 
-        # the module is not in development mode 
-        is_dev = ("dev_modules" in config.APPLICATION and 
-                  module_name in config.APPLICATION.dev_modules)
+        # the product is not in development mode
+        is_dev = ("dev_products" in config.APPLICATION and 
+                  product_name in config.APPLICATION.dev_products)
         if source_dir.exists() and not is_dev:
             logger.write("  " + _('remove %s') % source_dir, 4)
             logger.write("\n  ", 4, False)
             source_dir.rm()
 
-        # Call to the function that get the sources for one module
-        retcode = get_module_sources(config, 
-                                     module_info, 
+        # Call to the function that get the sources for one product
+        retcode = get_product_sources(config, 
+                                     product_info, 
                                      is_dev, 
                                      source_dir,
                                      force, 
                                      logger, 
-                                     max_module_name_len, 
+                                     max_product_name_len, 
                                      checkout=False)
         
         '''
-        if 'no_rpath' in module_info.keys():
-            if module_info.no_rpath:
-                hack_no_rpath(config, module_info, logger)
+        if 'no_rpath' in product_info.keys():
+            if product_info.no_rpath:
+                hack_no_rpath(config, product_info, logger)
         '''
 
         # show results
-        results[module_name] = retcode
+        results[product_name] = retcode
         if retcode == 'N\A':
-            # The case where the module was not prepared because it is 
+            # The case where the product was not prepared because it is 
             # in development mode
             res =(src.printcolors.printc(src.OK_STATUS) + 
                     src.printcolors.printcWarning(_(
@@ -403,7 +403,7 @@ def description():
     :return: The text to display for the source command description.
     :rtype: str
     '''
-    return _("The source command gets the sources of the application modules "
+    return _("The source command gets the sources of the application products "
              "from cvs, git, an archive or a directory..")
   
 def run(args, runner, logger):
@@ -426,15 +426,15 @@ def run(args, runner, logger):
     force = options.force
     if force:
         msg = _("Warning: the --force option has effect only "
-                "on modules in development mode\n\n")
+                "on products in development mode\n\n")
         logger.write(src.printcolors.printcWarning(msg))
     
-    # Get the modules list with modules informations reagrding the options
-    modules_infos = prepare.get_modules_list(options, runner.cfg, logger)
+    # Get the products list with products informations regarding the options
+    products_infos = prepare.get_products_list(options, runner.cfg, logger)
     
     # Call to the function that gets all the sources
-    good_result, results = get_all_module_sources(runner.cfg, 
-                                                  modules_infos,
+    good_result, results = get_all_product_sources(runner.cfg, 
+                                                  products_infos,
                                                   force,
                                                   logger)
 
@@ -443,17 +443,17 @@ def run(args, runner, logger):
     details = []
 
     logger.write("\n", 2, False)
-    if good_result == len(modules_infos):
+    if good_result == len(products_infos):
         res_count = "%d / %d" % (good_result, good_result)
     else:
         status = src.KO_STATUS
-        res_count = "%d / %d" % (good_result, len(modules))
+        res_count = "%d / %d" % (good_result, len(products_infos))
 
-        for module in results:
-            if results[module] == 0 or results[module] is None:
-                details.append(module)
+        for product in results:
+            if results[product] == 0 or results[product] is None:
+                details.append(product)
 
-    result = len(modules_infos) - good_result
+    result = len(products_infos) - good_result
 
     # write results
     logger.write(_("Getting sources of the application:"), 1)

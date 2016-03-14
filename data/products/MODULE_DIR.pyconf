@@ -1,8 +1,8 @@
-MODULE_SVN :
+MODULE_DIR :
 {
-	name : "MODULE_SVN"
-    build_sources : "cmake"
-    get_sources : "svn"
+	name : "MODULE_DIR"
+    build_source : "cmake"
+    get_source : "dir"
     git_info:
     {
         repo : "http://git.salome-platform.org/gitpub/modules/kernel.git"
@@ -11,6 +11,10 @@ MODULE_SVN :
     archive_info:
     {
 		archive_name : '/data/tmpsalome/salome/prerequis/archives/tclx8.4.tar.bz2'
+    }
+    dir_info:
+    {
+		dir : '/data/tmpsalome/salome/prerequis/tmp/hdf5-1.8.8debug'
     }
     svn_info:
     {

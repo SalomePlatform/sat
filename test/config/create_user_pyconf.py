@@ -119,16 +119,16 @@ class TestConfig(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
 
-    def test_override_MODULES(self):
-        '''override MODULES
+    def test_override_PRODUCTS(self):
+        '''override PRODUCTS
         '''
         OK = "KO"
         
         # The command to test
-        sat = Sat("-oMODULES.softA.compile_method='test'")
+        sat = Sat("-oPRODUCTS.softA.name='test'")
         sat.config('')
 
-        if sat.cfg.MODULES.softA.compile_method == 'test':
+        if sat.cfg.PRODUCTS.softA.name == 'test':
             OK = "OK"
 
         # pyunit method to compare 2 str

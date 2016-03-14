@@ -24,39 +24,39 @@ import prepare
 
 # Define all possible option for log command :  sat log <options>
 parser = src.options.Options()
-parser.add_option('m', 'module', 'list2', 'modules',
-    _('modules to get the sources. This option can be'
-    ' passed several time to get the sources of several modules.'))
+parser.add_option('p', 'product', 'list2', 'products',
+    _('products to get the sources. This option can be'
+    ' passed several time to get the sources of several products.'))
 parser.add_option('', 'no_sample', 'boolean', 'no_sample', 
-    _("do not get sources from sample modules."))
+    _("do not get sources from sample products."))
 
-def apply_patch(config, module_info, logger):
-    '''The method called to apply patches on a module
+def apply_patch(config, product_info, logger):
+    '''The method called to apply patches on a product
 
     :param config Config: The global configuration
-    :param module_info Config: The configuration specific to 
-                               the module to be prepared
+    :param product_info Config: The configuration specific to 
+                               the product to be patched
     :param logger Logger: The logger instance to use for the display and logging
     :return: (True if it succeed, else False, message to display)
     :rtype: (boolean, str)
     '''
     
-    if not "patches" in module_info or len(module_info.patches) == 0:
-        msg = _("No patch for the %s module") % module_info.name
+    if not "patches" in product_info or len(product_info.patches) == 0:
+        msg = _("No patch for the %s product") % product_info.name
         logger.write(msg, 3)
         logger.write("\n", 1)
         return True, ""
 
-    if not os.path.exists(module_info.source_dir):
-        msg = _("No sources found for the %s module\n") % module_info.name
+    if not os.path.exists(product_info.source_dir):
+        msg = _("No sources found for the %s product\n") % product_info.name
         logger.write(src.printcolors.printcWarning(msg), 1)
         return False, ""
 
     # At this point, there one or more patches and the source directory exists
     retcode = []
     res = []
-    # Loop on all the patches of the module
-    for patch in module_info.patches:
+    # Loop on all the patches of the product
+    for patch in product_info.patches:
         details = []
         
         # Check the existence and apply the patch
@@ -68,7 +68,7 @@ def apply_patch(config, module_info, logger):
             logger.write(("    >%s\n" % patch_cmd),5)
             res_cmd = (subprocess.call(patch_cmd, 
                                    shell=True, 
-                                   cwd=module_info.source_dir,
+                                   cwd=product_info.source_dir,
                                    stdout=logger.logTxtFile, 
                                    stderr=subprocess.STDOUT) == 0)        
         else:
@@ -88,7 +88,7 @@ def apply_patch(config, module_info, logger):
         if config.USER.output_level >= 3:
             retcode.append("  %s" % message)
         else:
-            retcode.append("%s: %s" % (module_info.name, message))
+            retcode.append("%s: %s" % (product_info.name, message))
         
         if len(details) > 0:
             retcode.extend(details)
@@ -104,7 +104,7 @@ def description():
     :rtype: str
     '''
     return _("The patch command apply the patches on the sources of "
-             "the application modules if there is any")
+             "the application products if there is any")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with patch parameter.
@@ -123,22 +123,22 @@ def run(args, runner, logger):
                                 runner.cfg.APPLICATION.out_dir, 2)
     logger.write("\n", 2, False)
 
-    # Get the modules list with modules informations reagrding the options
-    modules_infos = prepare.get_modules_list(options, runner.cfg, logger)
+    # Get the products list with products informations reagrding the options
+    products_infos = prepare.get_products_list(options, runner.cfg, logger)
     
     # Get the maximum name length in order to format the terminal display
-    max_module_name_len = 1
-    if len(modules_infos) > 0:
-        max_module_name_len = max(map(lambda l: len(l), modules_infos[0])) + 4
+    max_product_name_len = 1
+    if len(products_infos) > 0:
+        max_product_name_len = max(map(lambda l: len(l), products_infos[0])) + 4
     
-    # The loop on all the modules on which to apply the patches
+    # The loop on all the products on which to apply the patches
     good_result = 0
-    for module_name, module_info in modules_infos:
+    for product_name, product_info in products_infos:
         # display and log
-        logger.write('%s: ' % src.printcolors.printcLabel(module_name), 3)
-        logger.write(' ' * (max_module_name_len - len(module_name)), 3, False)
+        logger.write('%s: ' % src.printcolors.printcLabel(product_name), 3)
+        logger.write(' ' * (max_product_name_len - len(product_name)), 3, False)
         logger.write("\n", 4, False)
-        return_code, patch_res = apply_patch(runner.cfg, module_info, logger)
+        return_code, patch_res = apply_patch(runner.cfg, product_info, logger)
         logger.write(patch_res, 1, False)
         if return_code:
             good_result += 1
@@ -146,16 +146,16 @@ def run(args, runner, logger):
     # Display the results (how much passed, how much failed, etc...)
 
     logger.write("\n", 2, False)
-    if good_result == len(modules_infos):
+    if good_result == len(products_infos):
         status = src.OK_STATUS
         res_count = "%d / %d" % (good_result, good_result)
     else:
         status = src.KO_STATUS
-        res_count = "%d / %d" % (good_result, len(modules_infos))
+        res_count = "%d / %d" % (good_result, len(products_infos))
     
     # write results
     logger.write("Patching sources of the application:", 1)
     logger.write(" " + src.printcolors.printc(status), 1, False)
     logger.write(" (%s)\n" % res_count, 1, False)
     
-    return len(modules_infos) - good_result
+    return len(products_infos) - good_result

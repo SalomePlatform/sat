@@ -1,8 +1,8 @@
-MODULE_CVS_V6_7_0 :
+MODULE_ARCHIVE :
 {
-	name : "MODULE_CVS"
-    build_sources : "cmake"
-    get_sources : "cvs"
+	name : "MODULE_ARCHIVE"
+    build_source : "cmake"
+    get_source : "archive"
     git_info:
     {
         repo : "http://git.salome-platform.org/gitpub/modules/kernel.git"
@@ -10,13 +10,7 @@ MODULE_CVS_V6_7_0 :
     }
     archive_info:
     {
-		archive_name : ''
-    }
-    cvs_info:
-    {
-        server : "cvs.opencascade.com"
-        module_base : "/home/server/cvs/KERNEL"
-        source : 'KERNEL_SRC'
+		archive_name : '/data/tmpsalome/salome/prerequis/archives/tclx8.4.tar.bz2'
     }
     environ :
     {
@@ -30,4 +24,5 @@ MODULE_CVS_V6_7_0 :
     type : "sample"
     source_dir : $APPLICATION.out_dir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
     build_dir : $APPLICATION.out_dir + $VARS.sep + 'BUILD' + $VARS.sep + $name
+    patches : ['/home/salome/salomeTools-4.3.7/data/compil_scripts/patches/scipy.patch', '/export/home/serioja/MODULE_ARCHIVE.patch']
 }

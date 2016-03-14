@@ -20,61 +20,62 @@ import src
 
 # Define all possible option for log command :  sat log <options>
 parser = src.options.Options()
-parser.add_option('m', 'module', 'list2', 'modules',
-    _('modules to prepare. This option can be'
-    ' passed several time to prepare several modules.'))
+parser.add_option('p', 'product', 'list2', 'products',
+    _('products to prepare. This option can be'
+    ' passed several time to prepare several products.'))
 parser.add_option('', 'no_sample', 'boolean', 'no_sample', 
-    _("do not prepare sample modules."))
+    _("do not prepare sample products."))
 parser.add_option('f', 'force', 'boolean', 'force', 
-    _("force to prepare the modules in development mode."))
+    _("force to prepare the products in development mode."))
 
-def get_modules_list(options, cfg, logger):
-    '''method that gives the module list with their informations from 
+def get_products_list(options, cfg, logger):
+    '''method that gives the product list with their informations from 
        configuration regarding the passed options.
     
     :param options Options: The Options instance that stores the commands 
                             arguments
     :param config Config: The global configuration
     :param logger Logger: The logger instance to use for the display and logging
-    :return: The list of (module name, module_infomrmations).
+    :return: The list of (product name, product_informations).
     :rtype: List
     '''
-    # Get the modules to be prepared, regarding the options
-    if options.modules is None:
-        # No options, get all modules sources
-        modules = cfg.APPLICATION.modules
+    # Get the products to be prepared, regarding the options
+    if options.products is None:
+        # No options, get all products sources
+        products = cfg.APPLICATION.products
     else:
-        # if option --modules, check that all modules of the command line
+        # if option --products, check that all products of the command line
         # are present in the application.
-        modules = options.modules
-        for m in modules:
-            if m not in cfg.APPLICATION.modules:
-                raise src.SatException(_("Module %(module)s "
+        products = options.products
+        for p in products:
+            if p not in cfg.APPLICATION.products:
+                raise src.SatException(_("Product %(product)s "
                             "not defined in application %(application)s") %
-                { 'module': m, 'application': cfg.VARS.application} )
+                { 'product': p, 'application': cfg.VARS.application} )
     
     # Construct the list of tuple containing 
-    # the modules name and their definition
-    modules_infos = src.module.get_modules_infos(modules, cfg)
+    # the products name and their definition
+    products_infos = src.product.get_products_infos(products, cfg)
 
-    # if the --no_sample option is invoked, suppress the sample modules from 
+    # if the --no_sample option is invoked, suppress the sample products from 
     # the list
     if options.no_sample:
         
-        lmodules_sample = [m for m in modules_infos if src.module.module_is_sample(m[1])]
+        lproducts_sample = [p for p in products_infos if src.product.product_is_sample(p[1])]
         
-        modules_infos = [m for m in modules_infos if m not in lmodules_sample]
+        products_infos = [p for p in products_infos if p not in lproducts_sample]
 
-        if len(lmodules_sample) > 0:
-            logger.write(src.printcolors.printcWarning(_("Ignoring the following sample modules:\n")), 1)
-        for i, module in enumerate(lmodules_sample):
+        if len(lproducts_sample) > 0:
+            msg = "Ignoring the following sample products:\n"
+            logger.write(src.printcolors.printcWarning(_(msg)), 1)
+        for i, product in enumerate(lproducts_sample):
             end_text = ', '
-            if i+1 == len(lmodules_sample):
+            if i+1 == len(lproducts_sample):
                 end_text = '\n'
                 
-            logger.write(module[0] + end_text, 1)
+            logger.write(product[0] + end_text, 1)
     
-    return modules_infos
+    return products_infos
 
 def description():
     '''method that is called when salomeTools is called with --help option.
@@ -83,7 +84,7 @@ def description():
     :rtype: str
     '''
     return _("The prepare command apply the patches on the sources of "
-             "the application modules if there is any")
+             "the application products if there is any")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with prepare parameter.
@@ -95,47 +96,73 @@ def run(args, runner, logger):
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
 
-    modules_infos = get_modules_list(options, runner.cfg, logger)
+    products_infos = get_products_list(options, runner.cfg, logger)
+
+    ##################################
+    ## Source command
 
     # Construct the option to pass to the source command
-    args_source = runner.cfg.VARS.application + ' '
+    args_appli = runner.cfg.VARS.application + ' '
+
+    args_product_opt = '--product '
+    if options.products:
+        for p_name in options.products:
+            args_product_opt += ',' + p_name
+    else:
+        for p_name, __ in products_infos:
+            args_product_opt += ',' + p_name
     
-    if options.modules:
-        args_source += '--module ' + ','.join(options.modules)
+    if args_product_opt == '--product ':
+        args_product_opt = ''
     
+    args_sample = ''
     if options.no_sample:
-        args_source += ' --no_sample'
+        args_sample = ' --no_sample'
+    
+    args_source = args_appli + args_product_opt + args_sample
         
     if options.force:
         args_source += ' --force'
     
     # Call the source command that gets the source
     msg = src.printcolors.printcHeader(
-                                _('Get the sources of the desired modules\n'))
+                                _('Get the sources of the desired products\n'))
     logger.write(msg)
     res_source = runner.source(args_source)
     
-    # Construct the option to pass to the patch command
-    args_patch = args_source.replace(' --force', '')
     
-    if ("dev_modules" in runner.cfg.APPLICATION and 
-                                runner.cfg.APPLICATION.dev_modules is not []):
+    ##################################
+    ## Patch command
+    msg = src.printcolors.printcHeader(
+                    _('\nApply the patches to the sources of the products\n'))
+    logger.write(msg)
+
+    # Construct the option to pass to the patch command    
+    if ("dev_products" in runner.cfg.APPLICATION and 
+                                runner.cfg.APPLICATION.dev_products is not []):
         
-        dev_modules = runner.cfg.APPLICATION.dev_modules
-        ldev_modules = [m for m in modules_infos if m[0] in dev_modules]
+        dev_products = runner.cfg.APPLICATION.dev_products
+        ldev_products = [p for p in products_infos if p[0] in dev_products]
         
-        if len(ldev_modules) > 0:
-            msg = _("The patches are not applied on "
-                    "the module in development mode\n")
+        if len(ldev_products) > 0:
+            msg = _("Ignoring the following products "
+                    "in development mode\n")
+            logger.write(src.printcolors.printcWarning(msg), 1)
+            for i, (product_name, __) in enumerate(ldev_products):
+                args_product_opt.replace(',' + product_name, '')
+                end_text = ', '
+                if i+1 == len(ldev_products):
+                    end_text = '\n'
+                    
+                logger.write(product_name + end_text, 1)
             
-            logger.write()
+            msg = _("Use the --force_patch option to apply the patches anyway\n")
+            logger.write(src.printcolors.printcWarning(msg), 1)
             
-            modules_infos = [m for m in modules_infos if m[0] not in ldev_modules]
+    
+    args_patch = args_appli + args_product_opt + args_sample
     
     # Call the source command that gets the source
-    msg = src.printcolors.printcHeader(
-                    _('\nApply the patches to the sources of the modules\n'))
-    logger.write(msg)
     res_patch = runner.patch(args_patch)
     
     return res_source + res_patch

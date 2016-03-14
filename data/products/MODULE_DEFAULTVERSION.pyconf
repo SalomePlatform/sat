@@ -1,8 +1,8 @@
-MODULE_DIR :
+MODULE_DEFAULTVERSION :
 {
-	name : "MODULE_DIR"
-    compile_method : "cmake"
-    get_sources : "dir"
+	name : "MODULE_DEFAULTVERSION"
+    build_source : "cmake"
+    get_source : "git"
     git_info:
     {
         repo : "http://git.salome-platform.org/gitpub/modules/kernel.git"
@@ -10,15 +10,13 @@ MODULE_DIR :
     }
     archive_info:
     {
-		archive_name : '/data/tmpsalome/salome/prerequis/archives/tclx8.4.tar.bz2'
+		archive_name : ''
     }
-    dir_info:
+    cvs_info:
     {
-		dir : '/data/tmpsalome/salome/prerequis/tmp/hdf5-1.8.8debug'
-    }
-    svn_info:
-    {
-		repo: 'https://www-svn-corpus.cea.fr/corpus/CORPUS'
+        server : "cvs.opencascade.com"
+        module_base : "/home/server/cvs/KERNEL"
+        source : 'KERNEL_SRC'
     }
     environ :
     {

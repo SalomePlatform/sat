@@ -22,5 +22,5 @@ coverage run --source=../commands/config.py -a config/create_user_pyconf.py >> t
 coverage run --source=../commands/config.py -a config/option_copy.py >> test_res.html
 coverage run --source=../commands/config.py -a config/option_edit.py >> test_res.html
 coverage run --source=../commands/config.py,../commands/log.py,../src/xmlManager.py,../src/logger.py -a log/launch_browser.py >> test_res.html
-coverage run --source=../commands/config.py,../commands/source.py,../commands/patch.py,../commands/prepare.py,../src/module.py -a prepare/test_prepare.py >> test_res.html
+coverage run --source=../commands/config.py,../commands/source.py,../commands/patch.py,../commands/prepare.py,../src/product.py -a prepare/test_prepare.py >> test_res.html
 coverage html

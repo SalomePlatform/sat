@@ -82,7 +82,7 @@ def archive_extract(from_what, where, logger):
         logger.write("archive_extract: %s\n" % exc)
         return False, None
 
-def cvs_extract(protocol, user, server, base, tag, module, where,
+def cvs_extract(protocol, user, server, base, tag, product, where,
                 logger, checkout=False):
 
     opttag = ''
@@ -97,13 +97,13 @@ def cvs_extract(protocol, user, server, base, tag, module, where,
     
     if len(protocol) > 0:
         root = "%s@%s:%s" % (user, server, base)
-        command = "cvs -d :%(protocol)s:%(root)s %(command)s -d %(where)s %(tag)s %(module)s" % \
+        command = "cvs -d :%(protocol)s:%(root)s %(command)s -d %(where)s %(tag)s %(product)s" % \
             { 'protocol': protocol, 'root': root, 'where': str(where.base()),
-              'tag': opttag, 'module': module, 'command': cmd }
+              'tag': opttag, 'product': product, 'command': cmd }
     else:
-        command = "cvs -d %(root)s %(command)s -d %(where)s %(tag)s %(base)s/%(module)s" % \
+        command = "cvs -d %(root)s %(command)s -d %(where)s %(tag)s %(base)s/%(product)s" % \
             { 'root': server, 'base': base, 'where': str(where.base()),
-              'tag': opttag, 'module': module, 'command': cmd }
+              'tag': opttag, 'product': product, 'command': cmd }
 
     logger.logTxtFile.write(command + "\n")
     logger.write(command + "\n", 5)

@@ -28,7 +28,7 @@ from . import options
 from . import system
 from . import ElementTree
 from . import logger
-from . import module
+from . import product
 
 OK_STATUS = "OK"
 KO_STATUS = "KO"

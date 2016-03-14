@@ -1,12 +1,22 @@
-KERNEL_V7_7_1 :
+MODULE_CVS_V6_7_0 :
 {
-	name : "KERNEL"
-    build_sources : "cmake"
-    get_sources : "git"
+	name : "MODULE_CVS"
+    build_source : "cmake"
+    get_source : "cvs"
     git_info:
     {
         repo : "http://git.salome-platform.org/gitpub/modules/kernel.git"
         repo_dev : $SITE.prepare.default_git_server_dev + $VARS.sep + $name
+    }
+    archive_info:
+    {
+		archive_name : ''
+    }
+    cvs_info:
+    {
+        server : "cvs.opencascade.com"
+        product_base : "/home/server/cvs/KERNEL"
+        source : 'KERNEL_SRC'
     }
     environ :
     {

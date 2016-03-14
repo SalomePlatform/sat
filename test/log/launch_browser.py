@@ -330,6 +330,7 @@ class TestLog(unittest.TestCase):
 
         sat = Sat("-oUSER.browser='konqueror'")
         time.sleep(sleep_time)
+        time.sleep(5)
         cmd_log = threading.Thread(target=sat.log, args=('--full',))
         cmd_log.start()
 

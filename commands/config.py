@@ -276,31 +276,31 @@ class ConfigManager:
                 exec('cfg.' + rule) 
         
         # =====================================================================
-        # Load modules config files in MODULES section
+        # Load product config files in PRODUCTS section
        
         # The directory containing the softwares definition
-        modules_dir = os.path.join(cfg.VARS.dataDir, 'modules')
+        products_dir = os.path.join(cfg.VARS.dataDir, 'products')
         
         # Loop on all files that are in softsDir directory
         # and read their config
-        for fName in os.listdir(modules_dir):
+        for fName in os.listdir(products_dir):
             if fName.endswith(".pyconf"):
-                src.pyconf.streamOpener = ConfigOpener([modules_dir])
+                src.pyconf.streamOpener = ConfigOpener([products_dir])
                 try:
-                    mod_cfg = src.pyconf.Config(open(
-                                                os.path.join(modules_dir, fName)))
+                    prod_cfg = src.pyconf.Config(open(
+                                                os.path.join(products_dir, fName)))
                 except src.pyconf.ConfigError as e:
                     raise src.SatException(_(
-                        "Error in configuration file: %(soft)s\n  %(error)s") % \
-                        {'soft' :  fName, 'error': str(e) })
+                        "Error in configuration file: %(prod)s\n  %(error)s") % \
+                        {'prod' :  fName, 'error': str(e) })
                 except IOError as error:
                     e = str(error)
                     raise src.SatException( e );
                 
-                merger.merge(cfg.MODULES, mod_cfg)
+                merger.merge(cfg.PRODUCTS, prod_cfg)
 
         # apply overwrite from command line if needed
-        for rule in self.get_command_line_overrides(options, ["MODULES"]):
+        for rule in self.get_command_line_overrides(options, ["PRODUCTS"]):
             exec('cfg.' + rule) # this cannot be factorized because of the exec
 
         
