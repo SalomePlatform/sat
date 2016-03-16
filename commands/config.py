@@ -77,16 +77,16 @@ class ConfigOpener:
 class ConfigManager:
     '''Class that manages the read of all the configuration files of salomeTools
     '''
-    def __init__(self, dataDir=None):
+    def __init__(self, datadir=None):
         pass
 
-    def _create_vars(self, application=None, command=None, dataDir=None):
+    def _create_vars(self, application=None, command=None, datadir=None):
         '''Create a dictionary that stores all information about machine,
            user, date, repositories, etc...
         
         :param application str: The application for which salomeTools is called.
         :param command str: The command that is called.
-        :param dataDir str: The repository that contain external data 
+        :param datadir str: The repository that contain external data 
                             for salomeTools.
         :return: The dictionary that stores all information.
         :rtype: dict
@@ -98,10 +98,10 @@ class ConfigManager:
         var['srcDir'] = os.path.join(var['salometoolsway'], 'src')
         var['sep']= os.path.sep
         
-        # dataDir has a default location
-        var['dataDir'] = os.path.join(var['salometoolsway'], 'data')
-        if dataDir is not None:
-            var['dataDir'] = dataDir
+        # datadir has a default location
+        var['datadir'] = os.path.join(var['salometoolsway'], 'data')
+        if datadir is not None:
+            var['datadir'] = datadir
 
         var['personalDir'] = os.path.join(os.path.expanduser('~'),
                                            '.salomeTools')
@@ -167,14 +167,14 @@ class ConfigManager:
         return over
 
     def get_config(self, application=None, options=None, command=None,
-                    dataDir=None):
+                    datadir=None):
         '''get the config from all the configuration files.
         
         :param application str: The application for which salomeTools is called.
         :param options class Options: The general salomeToos
                                       options (--overwrite or -l5, for example)
         :param command str: The command that is called.
-        :param dataDir str: The repository that contain 
+        :param datadir str: The repository that contain 
                             external data for salomeTools.
         :return: The final config.
         :rtype: class 'src.pyconf.Config'
@@ -189,7 +189,7 @@ class ConfigManager:
         # =====================================================================
         # create VARS section
         var = self._create_vars(application=application, command=command, 
-                                dataDir=dataDir)
+                                datadir=datadir)
         # add VARS to config
         cfg.VARS = src.pyconf.Mapping(cfg)
         for variable in var:
@@ -221,9 +221,9 @@ class ConfigManager:
         # =====================================================================
         # Load SITE config file
         # search only in the data directory
-        src.pyconf.streamOpener = ConfigOpener([cfg.VARS.dataDir])
+        src.pyconf.streamOpener = ConfigOpener([cfg.VARS.datadir])
         try:
-            site_cfg = src.pyconf.Config(open(os.path.join(cfg.VARS.dataDir, 
+            site_cfg = src.pyconf.Config(open(os.path.join(cfg.VARS.datadir, 
                                                            'site.pyconf')))
         except src.pyconf.ConfigError as e:
             raise src.SatException(_("Error in configuration file: "
@@ -279,7 +279,7 @@ class ConfigManager:
         # Load product config files in PRODUCTS section
        
         # The directory containing the softwares definition
-        products_dir = os.path.join(cfg.VARS.dataDir, 'products')
+        products_dir = os.path.join(cfg.VARS.datadir, 'products')
         
         # Loop on all files that are in softsDir directory
         # and read their config
@@ -349,7 +349,7 @@ class ConfigManager:
         user_cfg.addMapping('USER', src.pyconf.Mapping(user_cfg), "")
 
         #
-        user_cfg.USER.addMapping('workDir', os.path.expanduser('~'),
+        user_cfg.USER.addMapping('workdir', os.path.expanduser('~'),
             "This is where salomeTools will work. "
             "You may (and probably do) change it.\n")
         user_cfg.USER.addMapping('cvs_user', config.VARS.user,

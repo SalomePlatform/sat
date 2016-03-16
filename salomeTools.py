@@ -83,11 +83,11 @@ parser.add_option('s', 'silent', 'boolean', 'silent',
 class Sat(object):
     '''The main class that stores all the commands of salomeTools
     '''
-    def __init__(self, opt='', dataDir=None):
+    def __init__(self, opt='', datadir=None):
         '''Initialization
         
         :param opt str: The sat options 
-        :param: dataDir str : the directory that contain all the external 
+        :param: datadir str : the directory that contain all the external 
                               data (like software pyconf and software scripts)
         '''
         # Read the salomeTools options (the list of possible options is 
@@ -103,7 +103,7 @@ class Sat(object):
         self.cfg = None # the config that will be read using pyconf module
         self.arguments = opt
         self.options = options # the options passed to salomeTools
-        self.dataDir = dataDir # default value will be <salomeTools root>/data
+        self.datadir = datadir # default value will be <salomeTools root>/data
         # set the commands by calling the dedicated function
         self._setCommands(cmdsdir)
         
@@ -161,7 +161,7 @@ class Sat(object):
                 
                 # read the configuration from all the pyconf files    
                 cfgManager = config.ConfigManager()
-                self.cfg = cfgManager.get_config(dataDir=self.dataDir, 
+                self.cfg = cfgManager.get_config(datadir=self.datadir, 
                                                  application=appliToLoad, 
                                                  options=self.options, 
                                                  command=__nameCmd__)
@@ -273,7 +273,7 @@ class Sat(object):
         command = opt[0]
         # read the configuration from all the pyconf files    
         cfgManager = config.ConfigManager()
-        self.cfg = cfgManager.get_config(dataDir=self.dataDir)
+        self.cfg = cfgManager.get_config(datadir=self.datadir)
 
         # Check if this command exists
         if not hasattr(self, command):

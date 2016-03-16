@@ -28,10 +28,7 @@ sys.path.append(os.path.join(testdir, '..', '_testTools'))
 sys.path.append(os.path.join(testdir, '..', '..','commands'))
 
 from salomeTools import Sat
-from tools import check_proc_existence_and_kill
-from tools import outRedirection
 import HTMLTestRunner
-import src.xmlManager
 
 sleep_time = 3
 

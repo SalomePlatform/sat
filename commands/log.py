@@ -138,8 +138,6 @@ def run(args, runner, logger):
     (options, args) = parser.parse_args(args)
 
     # get the log directory. 
-    # If there is an application, it is in cfg.APPLICATION.out_dir, 
-    # else in user directory
     logDir = runner.cfg.SITE.log.log_dir
 
     # If the clean options is invoked, 
