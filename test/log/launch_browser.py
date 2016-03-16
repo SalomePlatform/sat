@@ -56,7 +56,7 @@ class TestLog(unittest.TestCase):
         time.sleep(sleep_time)
 
         browser = sat.cfg.USER.browser
-        pid = check_proc_existence_and_kill(browser + ".*" + "xml")
+        pid = check_proc_existence_and_kill(browser + ".*" + "hat\.xml")
 
         if pid:
             OK = "OK"
@@ -330,14 +330,13 @@ class TestLog(unittest.TestCase):
 
         sat = Sat("-oUSER.browser='konqueror'")
         time.sleep(sleep_time)
-        time.sleep(5)
         cmd_log = threading.Thread(target=sat.log, args=('--full',))
         cmd_log.start()
 
         time.sleep(sleep_time)
 
         browser = sat.cfg.USER.browser
-        check_proc_existence_and_kill(browser + ".*" + "xml")
+        check_proc_existence_and_kill(browser + ".*" + "hat\.xml")
         
         # Read and check the hat.xml file contains at least one log file corresponding to log
         hatFilePath = os.path.join(sat.cfg.SITE.log.log_dir, "hat.xml")

@@ -148,6 +148,7 @@ class Sat(object):
                 # Make sure the internationalization is available
                 gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
                 
+                # Get the arguments in a list and remove the empty elements
                 argv = args.split(" ")
                 if argv != ['']:
                     while "" in argv: argv.remove("")
@@ -190,7 +191,7 @@ class Sat(object):
                     launchedCommand = ' '.join([self.cfg.VARS.salometoolsway +
                                                 os.path.sep +
                                                 'sat',
-                                                self.arguments.split(' ')[0], 
+                                                __nameCmd__, 
                                                 args])
                     logger_command.end_write({"launchedCommand" : launchedCommand})
                 

@@ -340,7 +340,8 @@ def get_all_product_sources(config, products, force, logger):
     for product_name, product_info in products:
         # get product name, product informations and the directory where to put
         # the sources
-        if not src.product.product_is_fixed(product_info):
+        if (not (src.product.product_is_fixed(product_info) or 
+                 src.product.product_is_native(product_info))):
             source_dir = src.Path(product_info.source_dir)
         else:
             source_dir = src.Path('')
@@ -352,8 +353,7 @@ def get_all_product_sources(config, products, force, logger):
         
         # Remove the existing source directory if 
         # the product is not in development mode
-        is_dev = ("dev_products" in config.APPLICATION and 
-                  product_name in config.APPLICATION.dev_products)
+        is_dev = src.product.product_is_dev(product_info)
         if source_dir.exists() and not is_dev:
             logger.write("  " + _('remove %s') % source_dir, 4)
             logger.write("\n  ", 4, False)

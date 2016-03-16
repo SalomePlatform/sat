@@ -137,27 +137,22 @@ def run(args, runner, logger):
                     _('\nApply the patches to the sources of the products\n'))
     logger.write(msg)
 
-    # Construct the option to pass to the patch command    
-    if ("dev_products" in runner.cfg.APPLICATION and 
-                                runner.cfg.APPLICATION.dev_products is not []):
+    # Construct the option to pass to the patch command
+    ldev_products = [p for p in products_infos if src.product.product_is_dev(p[1])]
+    if len(ldev_products) > 0:
+        msg = _("Ignoring the following products "
+                "in development mode\n")
+        logger.write(src.printcolors.printcWarning(msg), 1)
+        for i, (product_name, __) in enumerate(ldev_products):
+            args_product_opt.replace(',' + product_name, '')
+            end_text = ', '
+            if i+1 == len(ldev_products):
+                end_text = '\n'
+                
+            logger.write(product_name + end_text, 1)
         
-        dev_products = runner.cfg.APPLICATION.dev_products
-        ldev_products = [p for p in products_infos if p[0] in dev_products]
-        
-        if len(ldev_products) > 0:
-            msg = _("Ignoring the following products "
-                    "in development mode\n")
-            logger.write(src.printcolors.printcWarning(msg), 1)
-            for i, (product_name, __) in enumerate(ldev_products):
-                args_product_opt.replace(',' + product_name, '')
-                end_text = ', '
-                if i+1 == len(ldev_products):
-                    end_text = '\n'
-                    
-                logger.write(product_name + end_text, 1)
-            
-            msg = _("Use the --force_patch option to apply the patches anyway\n")
-            logger.write(src.printcolors.printcWarning(msg), 1)
+        msg = _("Use the --force_patch option to apply the patches anyway\n\n")
+        logger.write(src.printcolors.printcWarning(msg), 1)
             
     
     args_patch = args_appli + args_product_opt + args_sample

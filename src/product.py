@@ -23,17 +23,46 @@ import src
 
 AVAILABLE_VCS = ['git', 'svn', 'cvs']
 
-def get_product_config(config, product_name, version):
+def get_product_config(config, product_name):
     '''Get the specific configuration of a product from the global configuration
     
     :param config Config: The global configuration
     :param product_name str: The name of the product
-    :param version str: The version of the product
     :return: the specific configuration of the product
     :rtype: Config
     '''
+    
+    # Get the version of the product from the application definition
+    version = config.APPLICATION.products[product_name]
+    # if no version, then take the default one defined in the application
+    if isinstance(version, bool): 
+        version = config.APPLICATION.tag      
+    
+    # Define debug and dev modes
+    # Get the tag if a dictionary is given in APPLICATION.products for the
+    # current product 
+    debug = 'no'
+    dev = 'no'
+    if isinstance(version, src.pyconf.Mapping):
+        dic_version = version
+        # Get the version/tag
+        if not 'tag' in dic_version:
+            version = config.APPLICATION.tag
+        else:
+            version = dic_version.tag
+        
+        # Get the debug if any
+        if 'debug' in dic_version:
+            debug = dic_version.debug
+        
+        # Get the dev if any
+        if 'dev' in dic_version:
+            dev = dic_version.dev
+    
     vv = version
-    # substitute some character with _
+    # substitute some character with _ in order to get the correct definition
+    # in config.PRODUCTS. This is done because the pyconf tool does not handle
+    # the . and - characters 
     for c in ".-": vv = vv.replace(c, "_")
     full_product_name = product_name + '_' + vv
 
@@ -52,9 +81,6 @@ def get_product_config(config, product_name, version):
         for depend in prod_info.opt_depend:
             if depend in config.PRODUCTS:
                 prod_info.depend.append(depend,'')
-                
-    # Check if the product is defined as native in the application
-    pass # to be done
     
     # In case of a product get with a vcs, put the tag (equal to the version)
     if prod_info is not None and prod_info.get_source in AVAILABLE_VCS:
@@ -72,6 +98,28 @@ def get_product_config(config, product_name, version):
     if prod_info is not None and prod_info.get_source=="fixed":
         prod_info.install_dir = version
     
+    # Check if the product is defined as native in the application
+    if prod_info is not None:
+        if version == "native":
+            prod_info.get_source = "native"
+        elif prod_info.get_source == "native":
+            msg = _("The product %(prod)s has version %(ver)s but is declared"
+                    " as native in its definition" %
+                { 'prod': prod_info.name, 'ver': version})
+            raise src.SatException(msg)
+
+    # If there is no definition but the product is declared as native,
+    # construct a new defifnition containing only the get_source key
+    if prod_info is None and version == "native":
+        prod_info = src.pyconf.Config()
+        prod_info.name = product_name
+        prod_info.get_source = "native"
+    
+    # Set the debug and dev keys
+    if prod_info is not None:
+        prod_info.debug = debug
+        prod_info.dev = dev
+        
     return prod_info
 
 def get_products_infos(lproducts, config):
@@ -85,15 +133,9 @@ def get_products_infos(lproducts, config):
     '''
     products_infos = []
     # Loop on product names
-    for prod in lproducts:
-        # Get the version of the product from the application definition
-        version_prod = config.APPLICATION.products[prod]
-        # if no version, then take the default one defined in the application
-        if isinstance(version_prod, bool): 
-            version_prod = config.APPLICATION.tag
-        
+    for prod in lproducts:       
         # Get the specific configuration of the product
-        prod_info = get_product_config(config, prod, version_prod)
+        prod_info = get_product_config(config, prod)
         if prod_info is not None:
             products_infos.append((prod, prod_info))
         else:
@@ -110,8 +152,8 @@ def product_is_sample(product_info):
     :return: True if the product has the sample type, else False
     :rtype: boolean
     '''
-    mtype = product_info.type
-    return mtype.lower() == 'sample'
+    ptype = product_info.type
+    return ptype.lower() == 'sample'
 
 def product_is_fixed(product_info):
     '''Know if a product is fixed
@@ -123,3 +165,36 @@ def product_is_fixed(product_info):
     '''
     get_src = product_info.get_source
     return get_src.lower() == 'fixed'
+
+def product_is_native(product_info):
+    '''Know if a product is native
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is native, else False
+    :rtype: boolean
+    '''
+    get_src = product_info.get_source
+    return get_src.lower() == 'native'
+
+def product_is_dev(product_info):
+    '''Know if a product is in dev mode
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is in dev mode, else False
+    :rtype: boolean
+    '''
+    dev = product_info.dev
+    return dev.lower() == 'yes'
+
+def product_is_debug(product_info):
+    '''Know if a product is in debug mode
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is in debug mode, else False
+    :rtype: boolean
+    '''
+    debug = product_info.debug
+    return debug.lower() == 'yes'
