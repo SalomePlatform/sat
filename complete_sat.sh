@@ -39,11 +39,11 @@ _show_applications()
     COMPREPLY=( $(compgen -W "${opts2}" -- ${cur}) )
 }
 
-_show_modules()
+_show_products()
 {
     if [[ $appli != $prev ]]
     then
-        opts=$(for x in `$SAT_PATH/sat -s config $appli -nv APPLICATION.modules`
+        opts=$(for x in `$SAT_PATH/sat -s config $appli -nv APPLICATION.products`
             do echo ${x}; done)
 
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
@@ -80,7 +80,7 @@ _salomeTools_complete()
     # first argument => show available commands
     if [[ ${argc} == 1 ]]
     then
-        opts="config log testcommand source patch --help"
+        opts="config log testcommand source patch prepare --help"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     fi
@@ -113,13 +113,13 @@ _salomeTools_complete()
         return 0
     fi
       
-    # show list of modules
-    if [[ ${prev} == "--module" || ${prev} == "-m" ]]
+    # show list of products
+    if [[ ${prev} == "--product" || ${prev} == "-p" ]]
     then
         appli="${COMP_WORDS[2]}"
         if [[ ${command} != "source" ]]
         then
-            opts=$(for x in `$SAT_PATH/sat config $appli -nv APPLICATION.modules`
+            opts=$(for x in `$SAT_PATH/sat config $appli -nv APPLICATION.products`
                 do echo ${x}; done)
 
                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
@@ -140,12 +140,17 @@ _salomeTools_complete()
             return 0
             ;;
         source)
-            opts="--module --no_sample --force"
+            opts="--product --no_sample --force"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
         patch)
-            opts="--module --no_sample"
+            opts="--product --no_sample"
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        prepare)
+            opts="--product --no_sample --force"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
@@ -154,7 +159,7 @@ _salomeTools_complete()
     
 }
 
-# activation de l'auto-completion pour la commande sat
+# activation of auto-completion for the sat command
 complete -F _salomeTools_complete sat
 complete -F _salomeTools_complete ./sat
 
