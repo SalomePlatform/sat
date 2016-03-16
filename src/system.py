@@ -50,9 +50,17 @@ def show_in_editor(editor, filePath, logger):
         logger.write(printcolors.printcError(_("Unable to edit file %s\n") 
                                              % filePath), 1)
 
-##
-# Extracts sources from a git repository.
+
 def git_extract(from_what, tag, where, logger):
+    '''Extracts sources from a git repository.
+    
+    :param from_what str: The remote git repository.
+    :param tag str: The tag.
+    :param where str: The path where to extract.
+    :param logger Logger: The logger instance to use.
+    :return: True if the extraction is successful
+    :rtype: boolean
+    '''
     if not where.exists():
         where.make()
     if tag == "master" or tag == "HEAD":
@@ -75,6 +83,14 @@ def git_extract(from_what, tag, where, logger):
     return (res == 0)
 
 def archive_extract(from_what, where, logger):
+    '''Extracts sources from an archive.
+    
+    :param from_what str: The path to the archive.
+    :param where str: The path where to extract.
+    :param logger Logger: The logger instance to use.
+    :return: True if the extraction is successful
+    :rtype: boolean
+    '''
     try:
         archive = tarfile.open(from_what)
         for i in archive.getmembers():
@@ -86,6 +102,20 @@ def archive_extract(from_what, where, logger):
 
 def cvs_extract(protocol, user, server, base, tag, product, where,
                 logger, checkout=False):
+    '''Extracts sources from a cvs repository.
+    
+    :param protocol str: The cvs protocol.
+    :param user str: The user to be used.
+    :param server str: The remote cvs server.
+    :param base str: .
+    :param tag str: The tag.
+    :param product str: The product.
+    :param where str: The path where to extract.
+    :param logger Logger: The logger instance to use.
+    :param checkout boolean: If true use checkout cvs.
+    :return: True if the extraction is successful
+    :rtype: boolean
+    '''
 
     opttag = ''
     if tag is not None and len(tag) > 0:
@@ -119,6 +149,17 @@ def cvs_extract(protocol, user, server, base, tag, product, where,
     return (res == 0)
 
 def svn_extract(user, from_what, tag, where, logger, checkout=False):
+    '''Extracts sources from a svn repository.
+    
+    :param user str: The user to be used.
+    :param from_what str: The remote git repository.
+    :param tag str: The tag.
+    :param where str: The path where to extract.
+    :param logger Logger: The logger instance to use.
+    :param checkout boolean: If true use checkout svn.
+    :return: True if the extraction is successful
+    :rtype: boolean
+    '''
     if not where.exists():
         where.make()
 
