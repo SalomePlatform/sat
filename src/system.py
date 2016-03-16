@@ -68,6 +68,8 @@ def git_extract(from_what, tag, where, logger):
 
     logger.write(command + "\n", 5)
 
+    logger.logTxtFile.write("\n" + command + "\n")
+    logger.logTxtFile.flush()
     res = subprocess.call(command, cwd=str(where.dir()), shell=True,
                           stdout=logger.logTxtFile, stderr=subprocess.STDOUT)
     return (res == 0)
@@ -105,12 +107,13 @@ def cvs_extract(protocol, user, server, base, tag, product, where,
             { 'root': server, 'base': base, 'where': str(where.base()),
               'tag': opttag, 'product': product, 'command': cmd }
 
-    logger.logTxtFile.write(command + "\n")
     logger.write(command + "\n", 5)
 
     if not where.dir().exists():
         where.dir().make()
-        
+
+    logger.logTxtFile.write("\n" + command + "\n")
+    logger.logTxtFile.flush()        
     res = subprocess.call(command, cwd=str(where.dir()), shell=True,
                           stdout=logger.logTxtFile, stderr=subprocess.STDOUT)
     return (res == 0)
@@ -138,6 +141,8 @@ def svn_extract(user, from_what, tag, where, logger, checkout=False):
     logger.logTxtFile.write(command + "\n")
     
     logger.write(command + "\n", 5)
+    logger.logTxtFile.write("\n" + command + "\n")
+    logger.logTxtFile.flush()
     res = subprocess.call(command, cwd=str(where.dir()), shell=True,
                           stdout=logger.logTxtFile, stderr=subprocess.STDOUT)
     return (res == 0)

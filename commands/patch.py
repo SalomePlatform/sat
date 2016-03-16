@@ -66,6 +66,9 @@ def apply_patch(config, product_info, logger):
             patch_cmd = "python %s -p1 -- < %s" % (patch_exe, patch)
 
             logger.write(("    >%s\n" % patch_cmd),5)
+            
+            logger.logTxtFile.write("\n    >%s\n" % patch_cmd)
+            logger.logTxtFile.flush()
             res_cmd = (subprocess.call(patch_cmd, 
                                    shell=True, 
                                    cwd=product_info.source_dir,
