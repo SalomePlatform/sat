@@ -150,7 +150,7 @@ _salomeTools_complete()
             return 0
             ;;
         prepare)
-            opts="--product --no_sample --force"
+            opts="--product --no_sample --force --force_patch"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;

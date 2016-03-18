@@ -1,16 +1,11 @@
-MODULE_ARCHIVE :
+PRODUCT_ARCHIVE :
 {
-	name : "MODULE_ARCHIVE"
+	name : "PRODUCT_ARCHIVE"
     build_source : "cmake"
-    get_source : "archive"
-    git_info:
-    {
-        repo : "http://git.salome-platform.org/gitpub/modules/kernel.git"
-        repo_dev : $SITE.prepare.default_git_server_dev + $VARS.sep + $name
-    }
+    get_source : "native"
     archive_info:
     {
-		archive_name : '/data/tmpsalome/salome/prerequis/archives/tclx8.4.tar.bz2'
+		archive_name : $VARS.salometoolsway + $VARS.sep + '..' + $VARS.sep + 'RESOURCES' + $VARS.sep + 'test-product-4.4.2.tar.gz'
     }
     environ :
     {
@@ -25,4 +20,28 @@ MODULE_ARCHIVE :
     source_dir : $APPLICATION.out_dir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
     build_dir : $APPLICATION.out_dir + $VARS.sep + 'BUILD' + $VARS.sep + $name
     patches : ['/home/salome/salomeTools-4.3.7/data/compil_scripts/patches/scipy.patch', '/export/home/serioja/MODULE_ARCHIVE.patch']
+}
+
+PRODUCT_ARCHIVE_4_4_2 :
+{
+	name : "PRODUCT_ARCHIVE"
+    build_source : "cmake"
+    get_source : "archive"
+    archive_info:
+    {
+		archive_name : $VARS.salometoolsway + $VARS.sep + '..' + $VARS.sep + 'RESOURCES' + $VARS.sep + 'test-product-4.4.2.tar.gz'
+    }
+    environ :
+    {
+        "_LD_LIBRARY_PATH" : "${SOFT_ROOT_DIR}" + $VARS.sep + "lib"
+        "_PYTHONPATH" : ["${SOFT_ROOT_DIR}" + $VARS.sep + "lib"
+            "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR0}"
+            "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR1}"]
+    }
+    depend : []
+    opt_depend : []
+    type : "sample"
+    source_dir : $APPLICATION.out_dir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
+    build_dir : $APPLICATION.out_dir + $VARS.sep + 'BUILD' + $VARS.sep + $name
+    patches : []
 }

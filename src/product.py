@@ -152,8 +152,11 @@ def product_is_sample(product_info):
     :return: True if the product has the sample type, else False
     :rtype: boolean
     '''
-    ptype = product_info.type
-    return ptype.lower() == 'sample'
+    if 'type' in product_info:
+        ptype = product_info.type
+        return ptype.lower() == 'sample'
+    else:
+        return False
 
 def product_is_fixed(product_info):
     '''Know if a product is fixed

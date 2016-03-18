@@ -27,6 +27,8 @@ parser.add_option('', 'no_sample', 'boolean', 'no_sample',
     _("do not prepare sample products."))
 parser.add_option('f', 'force', 'boolean', 'force', 
     _("force to prepare the products in development mode."))
+parser.add_option('f', 'force_patch', 'boolean', 'force_patch', 
+    _("force to apply patch to the products in development mode."))
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
@@ -83,8 +85,8 @@ def description():
     :return: The text to display for the prepare command description.
     :rtype: str
     '''
-    return _("The prepare command apply the patches on the sources of "
-             "the application products if there is any")
+    return _("The prepare command gets the sources of "
+             "the application products and apply the patches if there is any.")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with prepare parameter.
@@ -112,9 +114,6 @@ def run(args, runner, logger):
         for p_name, __ in products_infos:
             args_product_opt += ',' + p_name
     
-    if args_product_opt == '--product ':
-        args_product_opt = ''
-    
     args_sample = ''
     if options.no_sample:
         args_sample = ' --no_sample'
@@ -139,12 +138,12 @@ def run(args, runner, logger):
 
     # Construct the option to pass to the patch command
     ldev_products = [p for p in products_infos if src.product.product_is_dev(p[1])]
-    if len(ldev_products) > 0:
+    if len(ldev_products) > 0 and not options.force_patch:
         msg = _("Ignoring the following products "
                 "in development mode\n")
         logger.write(src.printcolors.printcWarning(msg), 1)
         for i, (product_name, __) in enumerate(ldev_products):
-            args_product_opt.replace(',' + product_name, '')
+            args_product_opt = args_product_opt.replace(',' + product_name, '')
             end_text = ', '
             if i+1 == len(ldev_products):
                 end_text = '\n'
@@ -154,10 +153,14 @@ def run(args, runner, logger):
         msg = _("Use the --force_patch option to apply the patches anyway\n\n")
         logger.write(src.printcolors.printcWarning(msg), 1)
             
-    
-    args_patch = args_appli + args_product_opt + args_sample
-    
-    # Call the source command that gets the source
-    res_patch = runner.patch(args_patch)
+    if args_product_opt == '--product ':
+        msg = _("Nothing to patch\n")
+        logger.write(msg)
+        res_patch = 0
+    else:
+        args_patch = args_appli + args_product_opt + args_sample
+        
+        # Call the source command that gets the source
+        res_patch = runner.patch(args_patch)
     
     return res_source + res_patch

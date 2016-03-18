@@ -51,6 +51,11 @@ def get_source_for_dev(config, product_info, source_dir, force, logger, pad):
     # get it in checkout mode, else, do not do anything
     # unless the force option is invoked
     if not os.path.exists(product_info.source_dir) or force:
+        # If the source path exists (it means that force option is invoked)
+        # remove the source path
+        if source_dir.exists():
+            source_dir.rm()
+            
         # Call the function corresponding to get the sources with True checkout
         retcode = get_product_sources(config, 
                                      product_info, 
@@ -303,14 +308,9 @@ def get_product_sources(config,
         # skip
         logger.write('%s ...' % _("fixed (ignored)"), 3, False)
         return True  
-    
-    if len(product_info.get_source) == 0:
-        # skip
-        logger.write('%s ...' % _("ignored"), 3, False)
-        return True
 
-    # if the get_source is not in [git, archive, cvs, svn, dir]
-    logger.write(_("Unknown get_mehtod %(get)s for product %(product)s") % \
+    # if the get_source is not in [git, archive, cvs, svn, fixed, native]
+    logger.write(_("Unknown get source method \"%(get)s\" for product %(product)s") % \
         { 'get': product_info.get_source, 'product': product_info.name }, 3, False)
     logger.write(" ... ", 3, False)
     logger.flush()

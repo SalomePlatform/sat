@@ -41,28 +41,7 @@ sleep_time = 2
 class TestLog(unittest.TestCase):
     '''Test of log command: launch of browser
     '''
-    
-    def test_launch_browser(self):
-        '''Test the launch of browser when invoking the log command
-        '''
-
-        OK = "KO"
-
-        sat = Sat("-oUSER.browser='konqueror'")
-        time.sleep(sleep_time)
-        cmd_log = threading.Thread(target=sat.log, args=('',))
-        cmd_log.start()
-
-        time.sleep(sleep_time)
-
-        browser = sat.cfg.USER.browser
-        pid = check_proc_existence_and_kill(browser + ".*" + "hat\.xml")
-
-        if pid:
-            OK = "OK"
-        # pyunit method to compare 2 str
-        self.assertEqual(OK, "OK")
-        
+           
     def test_write_xmllog(self):
         '''Test the write of xml log when invoking a command
         '''
@@ -241,7 +220,7 @@ class TestLog(unittest.TestCase):
         
         # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
-
+    
     def test_option_last(self):
         '''Test the option --last
         '''
@@ -268,7 +247,7 @@ class TestLog(unittest.TestCase):
         
         # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
-
+    
     def test_option_clean(self):
         '''Test the option --clean
         '''
@@ -321,7 +300,8 @@ class TestLog(unittest.TestCase):
         
         # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
-
+    
+    """
     def test_option_full(self):
         '''Test the option --full
         '''
@@ -348,7 +328,7 @@ class TestLog(unittest.TestCase):
 
         # pyunit method to compare 2 str
         self.assertEqual(OK, "OK")
-
+    """
     def test_description(self):
         '''Test the sat -h log
         '''        
