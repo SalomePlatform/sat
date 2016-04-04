@@ -72,7 +72,10 @@ def git_extract(from_what, tag, where, logger):
         where_git = os.path.join( str(where), ".git" )
         command = "rmdir %(where)s && git clone %(remote)s %(where)s && " + \
                   "git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s"
-        command = command % { 'remote': from_what, 'tag': tag, 'where': str(where), 'where_git': where_git }
+        command = command % {'remote': from_what, 
+                             'tag': tag, 
+                             'where': str(where), 
+                             'where_git': where_git }
 
     logger.write(command + "\n", 5)
 

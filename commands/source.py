@@ -30,7 +30,7 @@ parser.add_option('p', 'product', 'list2', 'products',
 parser.add_option('', 'no_sample', 'boolean', 'no_sample', 
     _("do not get sources from sample products."))
 parser.add_option('f', 'force', 'boolean', 'force', 
-    _("force to get the sources of the products in development mode."))
+    _("force to remove the sources before getting them (in development mode only)."))
 
 def get_source_for_dev(config, product_info, source_dir, force, logger, pad):
     '''The method called if the product is in development mode
