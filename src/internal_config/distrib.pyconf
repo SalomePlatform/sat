@@ -13,7 +13,8 @@ DISTRIBUTIONS :
     "LinuxMint": "MN"
     "Mageia": "MG"
     "MandrivaLinux": "MD"
-    "RedHatEnterpriseServer": "RH"
+    "RedHatEnterpriseServer": "CO"
+    "RedHatEnterpriseWorkstation" : "CO"
     "Ubuntu": "UB"
     "openSUSE project":"OS"
 }
