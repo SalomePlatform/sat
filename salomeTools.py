@@ -75,10 +75,8 @@ parser.add_option('o', 'overwrite', 'list', "overwrite",
                   _("overwrites a configuration parameters."))
 parser.add_option('g', 'debug', 'boolean', 'debug_mode', 
                   _("run salomeTools in debug mode."))
-parser.add_option('l', 'level', 'int', "output_level", 
-                  _("change output level (default is 3)."))
-parser.add_option('s', 'silent', 'boolean', 'silent', 
-                  _("do not write log or show errors."))
+parser.add_option('v', 'verbose', 'int', "output_verbose_level", 
+                  _("change output verbose level (default is 3)."))
 
 class Sat(object):
     '''The main class that stores all the commands of salomeTools
@@ -167,15 +165,16 @@ class Sat(object):
                                                  command=__nameCmd__)
                     
                 # set output level
-                if self.options.output_level:
-                    self.cfg.USER.output_level = self.options.output_level
-                if self.cfg.USER.output_level < 1:
-                    self.cfg.USER.output_level = 1
-
+                if self.options.output_verbose_level is not None:
+                    self.cfg.USER.output_verbose_level = self.options.output_verbose_level
+                if self.cfg.USER.output_verbose_level < 1:
+                    self.cfg.USER.output_verbose_level = 0
+                silent = (self.cfg.USER.output_verbose_level == 0)
+                               
                 # create log file, unless the command is called 
                 # with a logger as parameter
                 logger_command = src.logger.Logger(self.cfg, 
-                                                   silent_sysstd=self.options.silent)
+                                                   silent_sysstd=silent)
                 if logger:
                     logger_command = logger
                 

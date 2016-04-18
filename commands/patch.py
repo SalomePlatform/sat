@@ -61,14 +61,18 @@ def apply_patch(config, product_info, logger):
         
         # Check the existence and apply the patch
         if os.path.isfile(patch):
-            #patch_exe = "patch" # old patch command (now replace by patch.py)
+            #patch_exe = "patch" # old patch command (now replace by patching.py)
             patch_exe = os.path.join(config.VARS.srcDir, "patching.py")
             patch_cmd = "python %s -p1 -- < %s" % (patch_exe, patch)
 
+            # Write the command in the terminal if verbose level is at 5
             logger.write(("    >%s\n" % patch_cmd),5)
             
+            # Write the command in the log file (can be seen using 'sat log')
             logger.logTxtFile.write("\n    >%s\n" % patch_cmd)
             logger.logTxtFile.flush()
+            
+            # Call the command
             res_cmd = (subprocess.call(patch_cmd, 
                                    shell=True, 
                                    cwd=product_info.source_dir,
@@ -88,7 +92,7 @@ def apply_patch(config, product_info, logger):
             message = src.printcolors.printcWarning(
                                         _("Failed to apply patch %s") % patch)
 
-        if config.USER.output_level >= 3:
+        if config.USER.output_verbose_level >= 3:
             retcode.append("  %s" % message)
         else:
             retcode.append("%s: %s" % (product_info.name, message))
@@ -126,7 +130,7 @@ def run(args, runner, logger):
                                 runner.cfg.APPLICATION.out_dir, 2)
     logger.write("\n", 2, False)
 
-    # Get the products list with products informations reagrding the options
+    # Get the products list with products informations regarding the options
     products_infos = prepare.get_products_list(options, runner.cfg, logger)
     
     # Get the maximum name length in order to format the terminal display
@@ -141,6 +145,7 @@ def run(args, runner, logger):
         logger.write('%s: ' % src.printcolors.printcLabel(product_name), 3)
         logger.write(' ' * (max_product_name_len - len(product_name)), 3, False)
         logger.write("\n", 4, False)
+        # Apply the patch
         return_code, patch_res = apply_patch(runner.cfg, product_info, logger)
         logger.write(patch_res, 1, False)
         if return_code:

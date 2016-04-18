@@ -356,8 +356,8 @@ class ConfigManager:
             "This is the user name used to access salome cvs base.\n")
         user_cfg.USER.addMapping('svn_user', config.VARS.user,
             "This is the user name used to access salome svn base.\n")
-        user_cfg.USER.addMapping('output_level', 3,
-            "This is the default output_level you want."
+        user_cfg.USER.addMapping('output_verbose_level', 3,
+            "This is the default output_verbose_level you want."
             " 0=>no output, 5=>debug.\n")
         user_cfg.USER.addMapping('publish_dir', 
                                  os.path.join(os.path.expanduser('~'),

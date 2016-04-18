@@ -114,7 +114,7 @@ class Logger(object):
                                           printcolors.cleancolor(message))
 
         # get user or option output level
-        current_output_level = self.config.USER.output_level
+        current_output_verbose_level = self.config.USER.output_verbose_level
         if not ('isatty' in dir(sys.stdout) and sys.stdout.isatty()):
             # clean the message color if the terminal is redirected by user
             # ex: sat compile appli > log.txt
@@ -122,10 +122,10 @@ class Logger(object):
         
         # Print message regarding the output level value
         if level:
-            if level <= current_output_level and not self.silentSysStd:
+            if level <= current_output_verbose_level and not self.silentSysStd:
                 sys.stdout.write(message)
         else:
-            if self.default_level <= current_output_level and not self.silentSysStd:
+            if self.default_level <= current_output_verbose_level and not self.silentSysStd:
                 sys.stdout.write(message)
 
     def error(self, message):
