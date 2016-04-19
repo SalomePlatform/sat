@@ -19,6 +19,8 @@
    relative to the product notion of salomeTools
 '''
 
+import os
+
 import src
 
 AVAILABLE_VCS = ['git', 'svn', 'cvs']
@@ -119,7 +121,14 @@ def get_product_config(config, product_name):
     if prod_info is not None:
         prod_info.debug = debug
         prod_info.dev = dev
-        
+     
+    # Set the install_dir key
+    if "install_dir" not in prod_info:
+        # Set it to the default value (in application directory)
+        prod_info.install_dir = os.path.join(config.APPLICATION.workdir,
+                                            "INSTALL",
+                                            prod_info.name)
+       
     return prod_info
 
 def get_products_infos(lproducts, config):

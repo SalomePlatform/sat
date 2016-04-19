@@ -18,13 +18,11 @@
 
 import src
 
-# Define all possible option for log command :  sat log <options>
+# Define all possible option for prepare command :  sat prepare <options>
 parser = src.options.Options()
 parser.add_option('p', 'product', 'list2', 'products',
     _('products to prepare. This option can be'
     ' passed several time to prepare several products.'))
-parser.add_option('', 'no_sample', 'boolean', 'no_sample', 
-    _("do not prepare sample products."))
 parser.add_option('f', 'force', 'boolean', 'force', 
     _("force to prepare the products in development mode."))
 parser.add_option('f', 'force_patch', 'boolean', 'force_patch', 
@@ -58,24 +56,6 @@ def get_products_list(options, cfg, logger):
     # Construct the list of tuple containing 
     # the products name and their definition
     products_infos = src.product.get_products_infos(products, cfg)
-
-    # if the --no_sample option is invoked, suppress the sample products from 
-    # the list
-    if options.no_sample:
-        
-        lproducts_sample = [p for p in products_infos if src.product.product_is_sample(p[1])]
-        
-        products_infos = [p for p in products_infos if p not in lproducts_sample]
-
-        if len(lproducts_sample) > 0:
-            msg = "Ignoring the following sample products:\n"
-            logger.write(src.printcolors.printcWarning(_(msg)), 1)
-        for i, product in enumerate(lproducts_sample):
-            end_text = ', '
-            if i+1 == len(lproducts_sample):
-                end_text = '\n'
-                
-            logger.write(product[0] + end_text, 1)
     
     return products_infos
 
@@ -113,12 +93,8 @@ def run(args, runner, logger):
     else:
         for p_name, __ in products_infos:
             args_product_opt += ',' + p_name
-    
-    args_sample = ''
-    if options.no_sample:
-        args_sample = ' --no_sample'
-    
-    args_source = args_appli + args_product_opt + args_sample
+      
+    args_source = args_appli + args_product_opt
         
     if options.force:
         args_source += ' --force'
@@ -158,7 +134,7 @@ def run(args, runner, logger):
         logger.write(msg)
         res_patch = 0
     else:
-        args_patch = args_appli + args_product_opt + args_sample
+        args_patch = args_appli + args_product_opt
         
         # Call the source command that gets the source
         res_patch = runner.patch(args_patch)

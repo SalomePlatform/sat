@@ -77,6 +77,8 @@ parser.add_option('g', 'debug', 'boolean', 'debug_mode',
                   _("run salomeTools in debug mode."))
 parser.add_option('v', 'verbose', 'int', "output_verbose_level", 
                   _("change output verbose level (default is 3)."))
+parser.add_option('b', 'batch', 'boolean', "batch", 
+                  _("batch mode (no question)."))
 
 class Sat(object):
     '''The main class that stores all the commands of salomeTools

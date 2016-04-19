@@ -22,13 +22,11 @@ import subprocess
 import src
 import prepare
 
-# Define all possible option for log command :  sat log <options>
+# Define all possible option for patch command :  sat patch <options>
 parser = src.options.Options()
 parser.add_option('p', 'product', 'list2', 'products',
     _('products to get the sources. This option can be'
     ' passed several time to get the sources of several products.'))
-parser.add_option('', 'no_sample', 'boolean', 'no_sample', 
-    _("do not get sources from sample products."))
 
 def apply_patch(config, product_info, logger):
     '''The method called to apply patches on a product
@@ -126,8 +124,8 @@ def run(args, runner, logger):
     logger.write('Patching sources of the application %s\n' % 
                 src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
 
-    src.printcolors.print_value(logger, 'out_dir', 
-                                runner.cfg.APPLICATION.out_dir, 2)
+    src.printcolors.print_value(logger, 'workdir', 
+                                runner.cfg.APPLICATION.workdir, 2)
     logger.write("\n", 2, False)
 
     # Get the products list with products informations regarding the options
