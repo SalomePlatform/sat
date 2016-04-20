@@ -28,7 +28,7 @@ parser.add_option('p', 'product', 'list2', 'products',
     _('products to get the sources. This option can be'
     ' passed several time to get the sources of several products.'))
 
-def apply_patch(config, product_info, logger):
+def apply_patch(config, product_info, max_product_name_len, logger):
     '''The method called to apply patches on a product
 
     :param config Config: The global configuration
@@ -38,12 +38,21 @@ def apply_patch(config, product_info, logger):
     :return: (True if it succeed, else False, message to display)
     :rtype: (boolean, str)
     '''
-    
+
     if not "patches" in product_info or len(product_info.patches) == 0:
+        # display and log
+        logger.write('%s: ' % src.printcolors.printcLabel(product_info.name), 4)
+        logger.write(' ' * (max_product_name_len - len(product_info.name)), 4, False)
+        logger.write("\n", 4, False)
         msg = _("No patch for the %s product") % product_info.name
-        logger.write(msg, 3)
-        logger.write("\n", 1)
+        logger.write(msg, 4)
+        logger.write("\n", 4)
         return True, ""
+    else:
+        # display and log
+        logger.write('%s: ' % src.printcolors.printcLabel(product_info.name), 3)
+        logger.write(' ' * (max_product_name_len - len(product_info.name)), 3, False)
+        logger.write("\n", 4, False)
 
     if not os.path.exists(product_info.source_dir):
         msg = _("No sources found for the %s product\n") % product_info.name
@@ -138,13 +147,9 @@ def run(args, runner, logger):
     
     # The loop on all the products on which to apply the patches
     good_result = 0
-    for product_name, product_info in products_infos:
-        # display and log
-        logger.write('%s: ' % src.printcolors.printcLabel(product_name), 3)
-        logger.write(' ' * (max_product_name_len - len(product_name)), 3, False)
-        logger.write("\n", 4, False)
+    for __, product_info in products_infos:
         # Apply the patch
-        return_code, patch_res = apply_patch(runner.cfg, product_info, logger)
+        return_code, patch_res = apply_patch(runner.cfg, product_info, max_product_name_len, logger)
         logger.write(patch_res, 1, False)
         if return_code:
             good_result += 1

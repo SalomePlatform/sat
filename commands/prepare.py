@@ -51,13 +51,32 @@ def get_products_list(options, cfg, logger):
             if p not in cfg.APPLICATION.products:
                 raise src.SatException(_("Product %(product)s "
                             "not defined in application %(application)s") %
-                { 'product': p, 'application': cfg.VARS.application} )
+                        { 'product': p, 'application': cfg.VARS.application} )
     
     # Construct the list of tuple containing 
     # the products name and their definition
     products_infos = src.product.get_products_infos(products, cfg)
     
     return products_infos
+
+def remove_products(arguments, l_products_info, logger):
+    '''method that removes the products in l_products_info from arguments list.
+    
+    :param arguments str: The arguments from which to remove products
+    :param l_products_info list: List of 
+                                 (str, Config) => (product_name, product_info)
+    :param logger Logger: The logger instance to use for the display and logging
+    :return: The updated arguments.
+    :rtype: str
+    '''
+    args = arguments
+    for i, (product_name, __) in enumerate(l_products_info):
+        args = args.replace(',' + product_name, '')
+        end_text = ', '
+        if i+1 == len(l_products_info):
+            end_text = '\n'            
+        logger.write(product_name + end_text, 1)
+    return args
 
 def description():
     '''method that is called when salomeTools is called with --help option.
@@ -80,12 +99,8 @@ def run(args, runner, logger):
 
     products_infos = get_products_list(options, runner.cfg, logger)
 
-    ##################################
-    ## Source command
-
-    # Construct the option to pass to the source command
+    # Construct the arguments to pass to the clean, source and patch commands
     args_appli = runner.cfg.VARS.application + ' '
-
     args_product_opt = '--product '
     if options.products:
         for p_name in options.products:
@@ -93,50 +108,43 @@ def run(args, runner, logger):
     else:
         for p_name, __ in products_infos:
             args_product_opt += ',' + p_name
-      
-    args_source = args_appli + args_product_opt
-        
-    if options.force:
-        args_source += ' --force'
-    
-    # Call the source command that gets the source
-    msg = src.printcolors.printcHeader(
-                                _('Get the sources of the desired products\n'))
-    logger.write(msg)
-    res_source = runner.source(args_source)
-    
-    
-    ##################################
-    ## Patch command
-    msg = src.printcolors.printcHeader(
-                    _('\nApply the patches to the sources of the products\n'))
-    logger.write(msg)
 
-    # Construct the option to pass to the patch command
     ldev_products = [p for p in products_infos if src.product.product_is_dev(p[1])]
-    if len(ldev_products) > 0 and not options.force_patch:
-        msg = _("Ignoring the following products "
-                "in development mode\n")
+    args_product_opt_clean = args_product_opt
+    if not options.force and len(ldev_products) > 0:
+        msg = _("Do not get the source of the following products "
+                "in development mode\nUse the --force option to"
+                " overwrite it.\n")
         logger.write(src.printcolors.printcWarning(msg), 1)
-        for i, (product_name, __) in enumerate(ldev_products):
-            args_product_opt = args_product_opt.replace(',' + product_name, '')
-            end_text = ', '
-            if i+1 == len(ldev_products):
-                end_text = '\n'
-                
-            logger.write(product_name + end_text, 1)
-        
-        msg = _("Use the --force_patch option to apply the patches anyway\n\n")
-        logger.write(src.printcolors.printcWarning(msg), 1)
-            
-    if args_product_opt == '--product ':
-        msg = _("Nothing to patch\n")
-        logger.write(msg)
-        res_patch = 0
-    else:
-        args_patch = args_appli + args_product_opt
-        
-        # Call the source command that gets the source
-        res_patch = runner.patch(args_patch)
+        args_product_opt_clean = remove_products(args_product_opt_clean,
+                                                 ldev_products,
+                                                 logger)
+        logger.write("\n", 1)
+
     
-    return res_source + res_patch
+    args_product_opt_patch = args_product_opt
+    if not options.force_patch and len(ldev_products) > 0:
+        msg = _("do not patch the following products "
+                "in development mode\nUse the --force_patch option to"
+                " overwrite it.\n")
+        logger.write(src.printcolors.printcWarning(msg), 1)
+        args_product_opt_patch = remove_products(args_product_opt_patch,
+                                                 ldev_products,
+                                                 logger)
+        logger.write("\n", 1)
+    
+    # Construct the final commands arguments
+    args_clean = args_appli + args_product_opt_clean + " --source"
+    args_source = args_appli + args_product_opt  
+    args_patch = args_appli + args_product_opt_patch
+    
+    # Call the commands using the API
+    msg = _("Clean the source directories ...")
+    logger.write(msg, 3)
+    res_clean = runner.clean(args_clean, batch=True, verbose = 0)
+    if res_clean == 0:
+        logger.write('%s\n' % src.printcolors.printc(src.OK_STATUS), 3)
+    res_source = runner.source(args_source)
+    res_patch = runner.patch(args_patch)
+    
+    return res_clean + res_source + res_patch

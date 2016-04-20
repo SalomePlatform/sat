@@ -175,4 +175,4 @@ def run(args, runner, logger):
     # Suppress the list of paths
     suppress_directories(l_dir_to_suppress, logger)
     
-    return 
+    return 0

@@ -139,7 +139,7 @@ class Sat(object):
             (file_, pathname, description) = imp.find_module(nameCmd, [dirPath])
             module = imp.load_module(nameCmd, file_, pathname, description)
             
-            def run_command(args='', logger=None):
+            def run_command(args='', logger=None, batch = False, verbose = -1):
                 '''The function that will load the configuration (all pyconf)
                 and return the function run of the command corresponding to module
                 
@@ -152,7 +152,7 @@ class Sat(object):
                 argv = args.split(" ")
                 if argv != ['']:
                     while "" in argv: argv.remove("")
-                
+                               
                 # if it is provided by the command line, get the application
                 appliToLoad = None
                 if argv != [''] and argv[0][0] != "-":
@@ -165,14 +165,24 @@ class Sat(object):
                                                  application=appliToLoad, 
                                                  options=self.options, 
                                                  command=__nameCmd__)
-                    
+                
+                # Set the verbose mode if called
+                if verbose > -1:
+                    verbose_save = self.options.output_verbose_level
+                    self.options.__setattr__("output_verbose_level", verbose)    
+
+                # Set batch mode if called
+                if batch:
+                    batch_save = self.options.batch
+                    self.options.__setattr__("batch", True)
+
                 # set output level
                 if self.options.output_verbose_level is not None:
                     self.cfg.USER.output_verbose_level = self.options.output_verbose_level
                 if self.cfg.USER.output_verbose_level < 1:
                     self.cfg.USER.output_verbose_level = 0
                 silent = (self.cfg.USER.output_verbose_level == 0)
-                               
+
                 # create log file, unless the command is called 
                 # with a logger as parameter
                 logger_command = src.logger.Logger(self.cfg, 
@@ -186,6 +196,18 @@ class Sat(object):
                     self.run_hook(__nameCmd__, C_PRE_HOOK, logger_command)
                     res = __module__.run(argv, self, logger_command)
                     self.run_hook(__nameCmd__, C_POST_HOOK, logger_command)
+                    
+                    # come back in the original batch mode if 
+                    # batch argument was called
+                    if batch:
+                        self.options.__setattr__("batch", batch_save)
+
+                    # come back in the original verbose mode if 
+                    # verbose argument was called                        
+                    if verbose > -1:
+                        self.options.__setattr__("output_verbose_level", 
+                                                 verbose_save)
+                        
                 finally:
                     # put final attributes in xml log file 
                     # (end time, total time, ...) and write it
