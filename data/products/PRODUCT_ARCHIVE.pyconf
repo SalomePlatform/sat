@@ -38,6 +38,11 @@ PRODUCT_ARCHIVE_4_4_2 :
             "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR0}"
             "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR1}"]
     }
+	present_files :
+	{
+	   source : ['my_test_file.txt', 'my_test_file.txt~']
+	   install : ['', '', '']
+	}
     depend : []
     opt_depend : []
     type : "sample"

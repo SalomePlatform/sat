@@ -370,18 +370,23 @@ def get_all_product_sources(config, products, logger):
             if product_info.no_rpath:
                 hack_no_rpath(config, product_info, logger)
         '''
+        
+        # Check that the sources are correctly get using the files to be tested
+        # in product information
+        if retcode:
+            check_OK, wrong_path = check_sources(product_info, logger)
+            if not check_OK:
+                # Print the missing file path
+                msg = _("The required file %s does not exists. " % wrong_path)
+                logger.write(src.printcolors.printcError("\nERROR: ") + msg, 3)
+                retcode = False
 
         # show results
         results[product_name] = retcode
-        if retcode == 'N\A':
-            # The case where the product was not prepared because it is 
-            # in development mode
-            res =(src.printcolors.printc(src.OK_STATUS) + 
-                    src.printcolors.printcWarning(_(
-                                    ' source directory already exists')))
-            good_result = good_result + 1
-        elif retcode:
+        if retcode:
             # The case where it succeed
+            
+            
             res = src.OK_STATUS
             good_result = good_result + 1
         else:
@@ -394,6 +399,30 @@ def get_all_product_sources(config, products, logger):
             logger.write('%s\n' % src.printcolors.printc(res), 3, False)
 
     return good_result, results
+
+def check_sources(product_info, logger):
+    '''Check that the sources are correctly get, using the files to be tested
+       in product information
+    
+    :param product_info Config: The configuration specific to 
+                                the product to be prepared
+    :return: True if the files exists (or no files to test is provided).
+    :rtype: boolean
+    '''
+    # Get the files to test if there is any
+    if ("present_files" in product_info and 
+        "source" in product_info.present_files):
+        l_files_to_be_tested = product_info.present_files.source
+        for file_path in l_files_to_be_tested:
+            # The path to test is the source directory 
+            # of the product joined the file path provided
+            path_to_test = os.path.join(product_info.source_dir, file_path)
+            logger.write(_("\nTesting existence of file: \n"), 5)
+            logger.write(path_to_test, 5)
+            if not os.path.exists(path_to_test):
+                return False, path_to_test
+            logger.write(src.printcolors.printcSuccess(" OK\n"), 5)
+    return True, ""
 
 def description():
     '''method that is called when salomeTools is called with --help option.
