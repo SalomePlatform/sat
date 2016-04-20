@@ -149,7 +149,7 @@ def run(args, runner, logger):
     l_dir_to_suppress = []
     if options.all:
         l_dir_to_suppress += (get_source_directories(products_infos, 
-                                                options.sources_without_dev) +
+                                            options.sources_without_dev) +
                              get_build_directories(products_infos) + 
                              get_install_directories(products_infos))
     else:

@@ -111,7 +111,7 @@ def get_product_config(config, product_name):
             raise src.SatException(msg)
 
     # If there is no definition but the product is declared as native,
-    # construct a new defifnition containing only the get_source key
+    # construct a new definition containing only the get_source key
     if prod_info is None and version == "native":
         prod_info = src.pyconf.Config()
         prod_info.name = product_name
@@ -127,6 +127,12 @@ def get_product_config(config, product_name):
         # Set it to the default value (in application directory)
         prod_info.install_dir = os.path.join(config.APPLICATION.workdir,
                                             "INSTALL",
+                                            prod_info.name)
+    else:
+        if prod_info.install_dir == "base":
+            # Get the product base of the application
+            base_path = src.get_base_path(config) 
+            prod_info.install_dir = os.path.join(base_path,
                                             prod_info.name)
        
     return prod_info

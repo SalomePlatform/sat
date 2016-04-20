@@ -27,10 +27,8 @@ parser = src.options.Options()
 parser.add_option('p', 'product', 'list2', 'products',
     _('products from which to get the sources. This option can be'
     ' passed several time to get the sources of several products.'))
-parser.add_option('f', 'force', 'boolean', 'force', 
-    _("force to remove the sources before getting them (in development mode only)."))
 
-def get_source_for_dev(config, product_info, source_dir, force, logger, pad):
+def get_source_for_dev(config, product_info, source_dir, logger, pad):
     '''The method called if the product is in development mode
     
     :param config Config: The global configuration
@@ -38,34 +36,23 @@ def get_source_for_dev(config, product_info, source_dir, force, logger, pad):
                                the product to be prepared
     :param source_dir Path: The Path instance corresponding to the 
                             directory where to put the sources
-    :param force boolean: True if the --force option was invoked
     :param logger Logger: The logger instance to use for the display and logging
     :param pad int: The gap to apply for the terminal display
     :return: True if it succeed, else False
     :rtype: boolean
     '''
-    retcode = 'N\A'
-    # if the product source directory does not exist,
-    # get it in checkout mode, else, do not do anything
-    # unless the force option is invoked
-    if not os.path.exists(product_info.source_dir) or force:
-        # If the source path exists (it means that force option is invoked)
-        # remove the source path
-        if source_dir.exists():
-            source_dir.rm()
-            
-        # Call the function corresponding to get the sources with True checkout
-        retcode = get_product_sources(config, 
-                                     product_info, 
-                                     True, 
-                                     source_dir,
-                                     force, 
-                                     logger, 
-                                     pad, 
-                                     checkout=True)
-        logger.write("\n", 3, False)
-        # +2 because product name is followed by ': '
-        logger.write(" " * (pad+2), 3, False) 
+       
+    # Call the function corresponding to get the sources with True checkout
+    retcode = get_product_sources(config, 
+                                 product_info, 
+                                 True, 
+                                 source_dir,
+                                 logger, 
+                                 pad, 
+                                 checkout=True)
+    logger.write("\n", 3, False)
+    # +2 because product name is followed by ': '
+    logger.write(" " * (pad+2), 3, False) 
     
     logger.write('dev: %s ... ' % 
                  src.printcolors.printcInfo(product_info.source_dir), 3, False)
@@ -248,7 +235,6 @@ def get_product_sources(config,
                        product_info, 
                        is_dev, 
                        source_dir,
-                       force,
                        logger, 
                        pad, 
                        checkout=False):
@@ -260,7 +246,6 @@ def get_product_sources(config,
     :param is_dev boolean: True if the product is in development mode
     :param source_dir Path: The Path instance corresponding to the 
                             directory where to put the sources
-    :param force boolean: True if the --force option was invoked
     :param logger Logger: The logger instance to use for the display and logging
     :param pad int: The gap to apply for the terminal display
     :param checkout boolean: If True, get the source in checkout mode
@@ -271,7 +256,6 @@ def get_product_sources(config,
         return get_source_for_dev(config, 
                                    product_info, 
                                    source_dir, 
-                                   force, 
                                    logger, 
                                    pad)
 
@@ -299,12 +283,22 @@ def get_product_sources(config,
 
     if product_info.get_source == "native":
         # skip
-        logger.write('%s ...' % _("native (ignored)"), 3, False)
+        logger.write('%s  ' % src.printcolors.printc(src.OK_STATUS),
+                     3,
+                     False)
+        msg = _('INFORMATION : Not doing anything because the product'
+                ' is of type "native".\n')
+        logger.write(msg, 3)
         return True        
 
     if product_info.get_source == "fixed":
         # skip
-        logger.write('%s ...' % _("fixed (ignored)"), 3, False)
+        logger.write('%s  ' % src.printcolors.printc(src.OK_STATUS),
+                     3,
+                     False)
+        msg = _('INFORMATION : Not doing anything because the product'
+                ' is of type "fixed".\n')
+        logger.write(msg, 3)
         return True  
 
     # if the get_source is not in [git, archive, cvs, svn, fixed, native]
@@ -314,12 +308,11 @@ def get_product_sources(config,
     logger.flush()
     return False
 
-def get_all_product_sources(config, products, force, logger):
+def get_all_product_sources(config, products, logger):
     '''Get all the product sources.
     
     :param config Config: The global configuration
     :param products List: The list of tuples (product name, product informations)
-    :param force boolean: True if the --force option was invoked
     :param logger Logger: The logger instance to be used for the logging
     :return: the tuple (number of success, dictionary product_name/success_fail)
     :rtype: (int,dict)
@@ -352,17 +345,22 @@ def get_all_product_sources(config, products, force, logger):
         # Remove the existing source directory if 
         # the product is not in development mode
         is_dev = src.product.product_is_dev(product_info)
-        if source_dir.exists() and not is_dev:
-            logger.write("  " + _('remove %s') % source_dir, 4)
-            logger.write("\n  ", 4, False)
-            source_dir.rm()
+        if source_dir.exists():
+            logger.write('%s  ' % src.printcolors.printc(src.OK_STATUS),
+                         3,
+                         False)
+            msg = _("INFORMATION : Not doing anything because the source"
+                    " directory already exists.\n")
+            logger.write(msg, 3)
+            good_result = good_result + 1
+            # Do not get the sources and go to next product
+            continue
 
         # Call to the function that get the sources for one product
         retcode = get_product_sources(config, 
                                      product_info, 
                                      is_dev, 
                                      source_dir,
-                                     force, 
                                      logger, 
                                      max_product_name_len, 
                                      checkout=False)
@@ -391,7 +389,9 @@ def get_all_product_sources(config, products, force, logger):
             res = src.KO_STATUS
         
         # print the result
-        logger.write('%s\n' % src.printcolors.printc(res), 3, False)
+        if not(src.product.product_is_fixed(product_info) or 
+               src.product.product_is_native(product_info)):
+            logger.write('%s\n' % src.printcolors.printc(res), 3, False)
 
     return good_result, results
 
@@ -419,21 +419,13 @@ def run(args, runner, logger):
     src.printcolors.print_value(logger, 'workdir', 
                                 runner.cfg.APPLICATION.workdir, 2)
     logger.write("\n", 2, False)
-    
-    # Get the force option if it was passed
-    force = options.force
-    if force:
-        msg = _("Warning: the --force option has effect only "
-                "on products in development mode\n\n")
-        logger.write(src.printcolors.printcWarning(msg))
-    
+       
     # Get the products list with products informations regarding the options
     products_infos = prepare.get_products_list(options, runner.cfg, logger)
     
     # Call to the function that gets all the sources
     good_result, results = get_all_product_sources(runner.cfg, 
                                                   products_infos,
-                                                  force,
                                                   logger)
 
     # Display the results (how much passed, how much failed, etc...)

@@ -76,6 +76,21 @@ def print_info(logger, info):
         printcolors.print_value(logger, sp + i[0], i[1], 2)
     logger.write("\n", 2)
 
+def get_base_path(config):
+    '''Returns the path of the product base.
+    
+    :param config Config: The global Config instance.
+    :return: The path of the product base.
+    :rtype: str
+    '''
+    if "base" in config.APPLICATION:
+        base_name = config.APPLICATION.base
+        base_path = config.USER.bases[base_name]
+    else:
+        # default base
+        base_path = config.USER.bases.base
+    return base_path
+
 ##
 # Utils class to simplify path manipulations.
 class Path:
