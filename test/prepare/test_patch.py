@@ -122,7 +122,7 @@ class TestPatch(unittest.TestCase):
         appli = 'appli-test'
         product_name = 'PRODUCT_ARCHIVE'
 
-        sat = Sat()
+        sat = Sat('-v4')
                       
         sat.source(appli + ' --product ' + product_name)
                

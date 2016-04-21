@@ -16,6 +16,8 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+import re
+
 import src
 
 # Define all possible option for prepare command :  sat prepare <options>
@@ -132,19 +134,35 @@ def run(args, runner, logger):
                                                  ldev_products,
                                                  logger)
         logger.write("\n", 1)
-    
+
     # Construct the final commands arguments
     args_clean = args_appli + args_product_opt_clean + " --source"
     args_source = args_appli + args_product_opt  
     args_patch = args_appli + args_product_opt_patch
+
+    # If there is no more any product in the command arguments,
+    # do not call the concerned command 
+    oExpr = re.compile("^--product *$")
+    do_clean = not(oExpr.search(args_product_opt_clean))
+    do_source = not(oExpr.search(args_product_opt))
+    do_patch = not(oExpr.search(args_product_opt_patch))
+    
+    
+    # Initialize the results to a failing status
+    res_clean = 1
+    res_source = 1
+    res_patch = 1
     
     # Call the commands using the API
-    msg = _("Clean the source directories ...")
-    logger.write(msg, 3)
-    res_clean = runner.clean(args_clean, batch=True, verbose = 0)
-    if res_clean == 0:
-        logger.write('%s\n' % src.printcolors.printc(src.OK_STATUS), 3)
-    res_source = runner.source(args_source)
-    res_patch = runner.patch(args_patch)
+    if do_clean:
+        msg = _("Clean the source directories ...")
+        logger.write(msg, 3)
+        res_clean = runner.clean(args_clean, batch=True, verbose = 0)
+        if res_clean == 0:
+            logger.write('%s\n\n' % src.printcolors.printc(src.OK_STATUS), 3)
+    if do_source:
+        res_source = runner.source(args_source)
+    if do_patch:
+        res_patch = runner.patch(args_patch)
     
     return res_clean + res_source + res_patch

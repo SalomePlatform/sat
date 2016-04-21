@@ -29,8 +29,6 @@ sys.path.append(os.path.join(testdir, '..', '..','commands'))
 
 import src
 
-from tools import outRedirection
-
 from salomeTools import Sat
 import HTMLTestRunner
 
@@ -106,7 +104,7 @@ class TestPrepare(unittest.TestCase):
         sat.config(appli)
        
         try:
-            sat.prepare(appli + " --no_sample --force")
+            sat.prepare(appli + " --force --force_patch")
             OK = 'OK'
         except:
             pass

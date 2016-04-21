@@ -20,7 +20,6 @@ import unittest
 import os
 import sys
 import platform
-import shutil
 
 # get execution path
 testdir = os.path.dirname(os.path.realpath(__file__))
@@ -28,7 +27,6 @@ sys.path.append(os.path.join(testdir, '..', '..'))
 sys.path.append(os.path.join(testdir, '..', '_testTools'))
 
 from salomeTools import Sat
-import src
 from tools import outRedirection
 import HTMLTestRunner
 

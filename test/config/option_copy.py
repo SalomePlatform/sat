@@ -19,7 +19,6 @@
 import unittest
 import os
 import sys
-import shutil
 
 # get execution path
 testdir = os.path.dirname(os.path.realpath(__file__))

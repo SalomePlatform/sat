@@ -19,7 +19,6 @@
 import unittest
 import os
 import sys
-import shutil
 
 # get execution path
 testdir = os.path.dirname(os.path.realpath(__file__))
@@ -132,7 +131,7 @@ class TestSource(unittest.TestCase):
         sat = Sat()
         sat.source(appli + ' --product ' + product_name)
 
-        expected_src_dir = os.path.join(sat.cfg.APPLICATION.out_dir, 'SOURCES', product_name)
+        expected_src_dir = os.path.join(sat.cfg.APPLICATION.workdir, 'SOURCES', product_name)
         if not os.path.exists(expected_src_dir):
             OK = 'OK'
 
@@ -184,68 +183,6 @@ class TestSource(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_source_dev(self):
-        '''Test the source command with a product in dev mode
-        '''
-        OK = 'KO'
-
-        appli = 'appli-test'
-        product_name = 'PRODUCT_DEV'
-
-        sat = Sat()
-               
-        sat.config(appli)
-        
-        expected_src_dir = src.product.get_product_config(sat.cfg, product_name).source_dir
-        expected_file_path = os.path.join(expected_src_dir, 'my_test_file.txt')
-        expected_text = 'HELLO WORLD\n'
-        
-        if os.path.exists(expected_src_dir):
-            shutil.rmtree(expected_src_dir)
-        
-        sat.source(appli + ' --product ' + product_name)
-        
-        f = open(expected_file_path, 'r')
-        text = f.readlines()[0]
-        OK1 = 'KO'
-        if text == expected_text:
-            OK1 = 'OK'
-
-        # output redirection
-        my_out = outRedirection()
-        
-        sat.source(appli + ' --product ' + product_name)
-        
-        # stop output redirection
-        my_out.end_redirection()
-
-        # get results
-        res = my_out.read_results()
-
-        OK2 = 'KO'
-        if "source directory already exists" in res:
-            OK2 = 'OK'        
-
-        # output redirection
-        my_out = outRedirection()
-        
-        sat.source(appli + ' --product ' + product_name + ' --force')
-        
-        # stop output redirection
-        my_out.end_redirection()
-
-        # get results
-        res = my_out.read_results()
-
-        OK3 = 'KO'
-        if "source directory already exists" not in res:
-            OK3 = 'OK'         
-
-        if (OK1, OK2, OK3)==('OK', 'OK', 'OK'):
-            OK = 'OK'
-
-        # pyunit method to compare 2 str
-        self.assertEqual(OK, 'OK')
 
     def test_description(self):
         '''Test the sat -h source

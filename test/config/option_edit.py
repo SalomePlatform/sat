@@ -28,8 +28,6 @@ sys.path.append(os.path.join(testdir, '..', '..'))
 sys.path.append(os.path.join(testdir, '..', '_testTools'))
 
 from salomeTools import Sat
-import src
-from tools import outRedirection
 from tools import check_proc_existence_and_kill
 import HTMLTestRunner
 
