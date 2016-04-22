@@ -74,7 +74,7 @@ class Options:
                                   "long", "list", "list2"]
 
     def add_option(self, shortName, longName,
-                    optionType, destName, helpString=""):
+                    optionType, destName, helpString="", default = None):
         '''Method to add an option to a command. It gets all attributes
            of an option and append it in the options field
         
@@ -100,7 +100,7 @@ class Options:
         option['optionType'] = optionType
         option['destName'] = destName
         option['helpString'] = helpString
-        option['result'] = None
+        option['result'] = default
         self.options.append(option)
 
     def print_help(self):

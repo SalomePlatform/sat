@@ -486,7 +486,8 @@ def get_config_children(config, args):
             try:
                 a = config.getByPath(head)
                 if dir(a).__contains__('keys'):
-                    vals = map(lambda x: head + '.' + x, [m for m in a.keys() if m.startswith(tail)])
+                    vals = map(lambda x: head + '.' + x,
+                               [m for m in a.keys() if m.startswith(tail)])
             except:
                 pass
 

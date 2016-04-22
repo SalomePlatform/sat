@@ -29,6 +29,8 @@ from . import system
 from . import ElementTree
 from . import logger
 from . import product
+from . import environment
+from . import fileEnviron
 
 OK_STATUS = "OK"
 KO_STATUS = "KO"
@@ -61,7 +63,22 @@ def check_config_has_application( config, details = None ):
 
 def config_has_application( config ):
     return 'APPLICATION' in config
-    
+
+def get_cfg_param(config, param_name, default):
+    '''Search for param_name value in config.
+       If param_name is not in config, then return default,
+       else, return the found value
+       
+    :param config class 'common.pyconf.Config': The config.
+    :param param_name str: the name of the parameter to get the value
+    :param default str: The value to return if param_name is not in config
+    :return: see initial description of the function
+    :rtype: str
+    '''
+    if param_name in config:
+        return config[param_name]
+    return default
+
 def print_info(logger, info):
     '''Prints the tuples that are in info variable in a formatted way.
     
