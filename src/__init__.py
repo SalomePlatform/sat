@@ -31,6 +31,7 @@ from . import logger
 from . import product
 from . import environment
 from . import fileEnviron
+from . import compilation
 
 OK_STATUS = "OK"
 KO_STATUS = "KO"

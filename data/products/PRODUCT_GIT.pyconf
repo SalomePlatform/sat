@@ -15,7 +15,7 @@ PRODUCT_GIT :
             "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR0}"
             "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR1}"]
     }
-    depend : []
+    depend : [PRODUCT_ARCHIVE, PRODUCT_NATIVE]
     opt_depend : []
     type : "sample"
     source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name

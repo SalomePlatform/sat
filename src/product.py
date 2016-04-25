@@ -117,10 +117,11 @@ def get_product_config(config, product_name):
         prod_info.name = product_name
         prod_info.get_source = "native"
     
-    # Set the debug and dev keys
+    # Set the debug, dev and version keys
     if prod_info is not None:
         prod_info.debug = debug
         prod_info.dev = dev
+        prod_info.version = version
      
     # Set the install_dir key
     if "install_dir" not in prod_info:
@@ -158,6 +159,28 @@ def get_products_infos(lproducts, config):
             raise src.SatException(msg)
     return products_infos
 
+def get_product_dependencies(config, product_info):
+    '''Get recursively the list of products that are 
+       in the product_info dependencies
+    
+    :param config Config: The global configuration
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: the list of products in dependence
+    :rtype: list
+    '''
+    if "depend" not in product_info or product_info.depend == []:
+        return []
+    res = []
+    for prod in product_info.depend:
+        if prod not in res:
+            res.append(prod)
+        prod_info = get_product_config(config, prod)
+        dep_prod = get_product_dependencies(config, prod_info)
+        for prod_in_dep in dep_prod:
+            if prod_in_dep not in res:
+                res.append(prod_in_dep)
+    return res
 
 def product_is_sample(product_info):
     '''Know if a product has the sample type

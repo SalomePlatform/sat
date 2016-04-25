@@ -140,7 +140,8 @@ class FileEnviron:
             self.prepend_value(key, value, sep)
 
     def is_defined(self, key):
-        return self.environ.has_key(key)
+        return (key in self.environ)
+
 
     def set(self, key, value):
         raise NotImplementedError("set is not implement for this shell!")
