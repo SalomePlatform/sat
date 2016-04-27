@@ -196,6 +196,20 @@ def product_is_sample(product_info):
     else:
         return False
 
+def product_is_salome(product_info):
+    '''Know if a product is of type salome
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is salome, else False
+    :rtype: boolean
+    '''
+    if 'type' in product_info:
+        ptype = product_info.type
+        return ptype.lower() == 'salome'
+    else:
+        return False
+
 def product_is_fixed(product_info):
     '''Know if a product is fixed
     

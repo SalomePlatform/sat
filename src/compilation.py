@@ -95,21 +95,22 @@ class Builder:
         self.product_info = product_info
         self.build_dir = src.Path(self.product_info.build_dir)
         self.source_dir = src.Path(self.product_info.source_dir)
-        self.source_dir = src.Path(self.product_info.install_dir)
+        self.install_dir = src.Path(self.product_info.install_dir)
         self.header = ""
         self.debug_mode = debug_mode
 
         if not self.source_dir.exists() and check_src:
             raise src.SatException(_("No sources found for product %(product)s in %(source_dir)s" % \
-                { "product": self.product, "source_dir": self.source_dir } ))
+                { "product": self.product_info.name, "source_dir": self.source_dir } ))
 
+        """
         # check that required modules exist
         for dep in self.product_info.depend:
             assert dep in self.config.TOOLS.src.product_info, "UNDEFINED product: %s" % dep
             dep_info = self.config.TOOLS.src.product_info[dep]
             if 'install_dir' in dep_info and not os.path.exists(dep_info.install_dir):
                 raise src.SatException(_("Module %s is required") % dep)
-
+        """
         self.results = CompilationResult()
 
     ##
@@ -132,7 +133,7 @@ class Builder:
     ##
     # Logs a compilation step (configure, make ...)
     def log_step(self, step):
-        if self.config.USER.output_level == 3:
+        if self.config.USER.output_verbose_level == 3:
             self.logger.write("\r%s%s" % (self.header, " " * 20), 3)
             self.logger.write("\r%s%s" % (self.header, step), 3)
         self.log("==== %s \n" % src.printcolors.printcInfo(step), 4)
@@ -170,7 +171,7 @@ class Builder:
 
         # create build environment
         self.build_environ = src.environment.SalomeEnviron(self.config, src.environment.Environ(dict(os.environ)), True)
-        self.build_environ.silent = (self.config.USER.output_level < 5)
+        self.build_environ.silent = (self.config.USER.output_verbose_level < 5)
         self.build_environ.set_full_environ(self.logger, environ_info)
 
         # create runtime environment
@@ -196,31 +197,17 @@ class Builder:
         if not self.build_dir.exists():
             # create build dir
             self.build_dir.make()
-        elif self.options.clean_all:
-            self.log('  %s\n' % src.printcolors.printcWarning("CLEAN ALL"), 4)
-            # clean build dir if clean_all option given
-            self.log('  clean previous build = %s\n' % str(self.build_dir), 4)
-            self.build_dir.rm()
-            self.build_dir.make()
-
-        if self.options.clean_all or self.options.clean_install:
-            if os.path.exists(str(self.install_dir)) and not self.single_dir:
-                self.log('  clean previous install = %s\n' % str(self.install_dir), 4)
-                self.install_dir.rm()
 
         self.log('  build_dir   = %s\n' % str(self.build_dir), 4)
         self.log('  install_dir = %s\n' % str(self.install_dir), 4)
         self.log('\n', 4)
 
-        # set the environment
-        environ_info = {}
-
         # add products in depend and opt_depend list recursively
-        environ_info['products'] = src.product.get_product_dependencies(self.config, self.product_info)
+        environ_info = src.product.get_product_dependencies(self.config, self.product_info)
 
         # create build environment
         self.build_environ = src.environment.SalomeEnviron(self.config, src.environment.Environ(dict(os.environ)), True)
-        self.build_environ.silent = (self.config.USER.output_level < 5)
+        self.build_environ.silent = (self.config.USER.output_verbose_level < 5)
         self.build_environ.set_full_environ(self.logger, environ_info)
 
         # create runtime environment
@@ -360,18 +347,18 @@ CC=\\"hack_libtool\\"%g" libtool'''
                         stdout=self.logger.logTxtFile,
                         stderr=subprocess.STDOUT)
 
-    def get_nb_proc(self):
+    def get_nb_proc(self, opt_nb_proc=None):
         nbproc = -1
         if "nb_proc" in self.product_info:
             # nb proc is specified in module definition
             nbproc = self.product_info.nb_proc
-            if self.options.nb_proc and self.options.nb_proc < self.product_info.nb_proc:
+            if opt_nb_proc and opt_nb_proc < self.product_info.nb_proc:
                 # use command line value only if it is lower than module definition
-                nbproc = self.options.nb_proc
+                nbproc = opt_nb_proc
         else:
             # nb proc is not specified in module definition
-            if self.options.nb_proc:
-                nbproc = self.options.nb_proc
+            if opt_nb_proc:
+                nbproc = opt_nb_proc
             else:
                 nbproc = self.config.VARS.nb_proc
         
@@ -380,8 +367,8 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
     ##
     # Runs make to build the module.
-    def make(self):
-        nbproc = self.get_nb_proc()
+    def make(self, opt_nb_proc = None):
+        nbproc = self.get_nb_proc(opt_nb_proc)
 
         hh = 'MAKE -j%s' % str(nbproc)
         if self.debug_mode:
@@ -408,8 +395,8 @@ CC=\\"hack_libtool\\"%g" libtool'''
     
     ##
     # Runs msbuild to build the module.
-    def wmake(self):
-        nbproc = self.get_nb_proc()
+    def wmake(self, opt_nb_proc = None):
+        nbproc = self.get_nb_proc(opt_nb_proc)
 
         hh = 'MSBUILD /m:%s' % str(nbproc)
         if self.debug_mode:
@@ -490,24 +477,6 @@ CC=\\"hack_libtool\\"%g" libtool'''
         self.results.check = (res == 0)
         self.log_result(res)
         return self.results.check
-
-    ##
-    # Cleans the build.
-    def clean(self):
-        self.log_step('CLEAN')
-
-        if src.get_cfg_param(self.config.PRODUCT, 'clean_build_dir', 'no') == "yes":
-            if self.results.buildconfigure and self.results.configure \
-                and self.results.make and self.results.install and self.results.check:
-                self.log(_('Clean BUILD directory\n'), 4)
-                self.build_dir.rm()
-            else:
-                self.log(_('No clean: some error during compilation\n'), 5)
-        else:
-            self.log(_('No clean: not specified in the config\n'), 5)
-
-    def get_result(self):
-        return self.results
       
     ##
     # Performs a default build for this module.

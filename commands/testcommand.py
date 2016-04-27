@@ -1,15 +1,17 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-import subprocess
-
 import src
 
-# Define all possible option for config command :  sat config <options>
+# Define all possible option for testcommand command :  sat testcommand <options>
 parser = src.options.Options()
-parser.add_option('u', 'unique', 'boolean', 'unique', "TEST d'option.")
-parser.add_option('v', 'value', 'string', 'value', "Appelle la commande config avec l'option value.")
-parser.add_option('m', 'make', 'boolean', 'test_make', "Test d'une commande exterieure : make.")
+parser.add_option('p', 'product', 'list2', 'nb_proc',
+    _('products to get the sources. This option can be'
+    ' passed several time to get the sources of several products.'))
+
+parser.add_option('', 'dd', 'list2', 'makeflags',
+    _('products to get the sources. This option can be'
+    ' passed several time to get the sources of several products.'))
 
 def description():
     return _("Test d'une commande supplémentaire.")
@@ -17,15 +19,16 @@ def description():
 
 def run(args, runner, logger):
     (options, args) = parser.parse_args(args)
-    if options.unique:
-        logger.write('unique\n')
-    elif options.value:
-        runner.cfg.VARS.user = 'TEST'
-        runner.config('-v ' + options.value, logger)
-    elif options.test_make:
-        command = "make"
-        logger.write("Execution of make\n", 3)
-        res = subprocess.call(command, cwd=str('/tmp'), shell=True,
-                      stdout=logger.logTxtFile, stderr=logger.logTxtFile)
-        
-        print(res)
+
+    # check that the command has been called with an application
+    src.check_config_has_application( runner.cfg )
+    
+    pi = src.product.get_product_config(runner.cfg, 'PRODUCT_GIT')
+    
+    builder = src.compilation.Builder(runner.cfg, logger, options, pi)
+    
+    builder.prepare()
+    
+    builder.cmake()
+    
+    builder.make()

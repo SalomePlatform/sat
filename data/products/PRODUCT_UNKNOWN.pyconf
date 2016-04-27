@@ -5,10 +5,7 @@ PRODUCT_UNKNOWN :
     get_source : "unknown"
     environ :
     {
-        "_LD_LIBRARY_PATH" : "${SOFT_ROOT_DIR}" + $VARS.sep + "lib"
-        "_PYTHONPATH" : ["${SOFT_ROOT_DIR}" + $VARS.sep + "lib"
-            "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR0}"
-            "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR1}"]
+
     }
     depend : []
     opt_depend : []

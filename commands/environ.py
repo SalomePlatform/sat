@@ -38,7 +38,7 @@ C_ALL_SHELL = [ "bash", "batch" ]
 ##
 # Writes all the environment files
 def write_all_source_files(config, logger, out_dir=None, src_root=None,
-                           single_dir=None, silent=False, shells=["bash"], prefix="env", env_info=None):
+                           silent=False, shells=["bash"], prefix="env", env_info=None):
     if not out_dir:
         out_dir = config.APPLICATION.workdir
 
@@ -63,7 +63,7 @@ def write_all_source_files(config, logger, out_dir=None, src_root=None,
         else:
             shells_list.append(src.environment.Shell(shell, C_SHELLS[shell]))
     
-    writer = src.environment.FileEnvWriter(config, logger, out_dir, src_root, single_dir, env_info)
+    writer = src.environment.FileEnvWriter(config, logger, out_dir, src_root, env_info)
     writer.silent = silent
     files = []
     for_build = True
@@ -93,10 +93,8 @@ def run(args, runner, logger):
     if options.products is None:
         environ_info = None
     else:
-        environ_info = {}
-
         # add products specified by user (only products included in the application)
-        environ_info['products'] = filter(lambda l: l in runner.cfg.APPLICATION.products.keys(), options.products)
+        environ_info = filter(lambda l: l in runner.cfg.APPLICATION.products.keys(), options.products)
     
     if options.shell == []:
         shell = ["bash"]

@@ -10,14 +10,12 @@ PRODUCT_GIT :
     }
     environ :
     {
-        "_LD_LIBRARY_PATH" : "${SOFT_ROOT_DIR}" + $VARS.sep + "lib"
-        "_PYTHONPATH" : ["${SOFT_ROOT_DIR}" + $VARS.sep + "lib"
-            "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR0}"
-            "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR1}"]
+	   build : {"ONLY_FOR_BUILD" : "HELLO"}
     }
     depend : [PRODUCT_ARCHIVE, PRODUCT_NATIVE]
     opt_depend : []
-    type : "sample"
+    type : "salome"
+    has_gui : "yes"
     source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
     build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
     install_dir : "base"

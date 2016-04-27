@@ -23,32 +23,6 @@ import sys
 
 import src
 
-# create bash product file
-_bash_content = """PRODUCT_DIR=%s
-if [[ "${ENV_FOR_LAUNCH}x" == "x" ]]
-then
-    export ENV_FOR_LAUNCH=1
-fi
-
-if [[ "${ENV_FOR_LAUNCH}" == "1" ]]
-then
-    source $PRODUCT_DIR/env_launch.sh
-else
-    source $PRODUCT_DIR/env_build.sh
-fi
-"""
-
-# create batch product file
-_batch_content = """set PRODUCT_DIR=%s
-IF NOT DEFINED ENV_FOR_LAUNCH set ENV_FOR_LAUNCH=1
-
-if "%%ENV_FOR_LAUNCH%%"=="1" (
-    %%PRODUCT_DIR%%\\env_launch.bat
-) else (
-    %%PRODUCT_DIR%%\\env_build.bat
-)
-"""
-
 class Environ:
     '''Class to manage the environment context
     '''
@@ -194,6 +168,14 @@ class SalomeEnviron:
     """
 
     def __init__(self, cfg, environ, forBuild=False):
+        '''Initialization.
+
+        :param cfg Config: the global config
+        :param environ Environ: the Environ instance where 
+                                to store the environment variables
+        :param forBuild bool: If true, it is a launch environment, 
+                              else a build one
+        '''
         self.environ = environ
         self.cfg = cfg
         self.forBuild = forBuild
@@ -207,27 +189,57 @@ class SalomeEnviron:
         return self.__class__.__name__ + str(res)[0:-1] + " ...etc...}"
 
     def append(self, key, value, sep=os.pathsep):
+        '''append value to key using sep
+        
+        :param key str: the environment variable to append
+        :param value str: the value to append to key
+        :param sep str: the separator string
+        '''
         return self.environ.append(key, value, sep)
 
     def prepend(self, key, value, sep=os.pathsep):
+        '''prepend value to key using sep
+        
+        :param key str: the environment variable to prepend
+        :param value str: the value to prepend to key
+        :param sep str: the separator string
+        '''
         return self.environ.prepend(key, value, sep)
 
     def is_defined(self, key):
+        '''Check if the key exists in the environment
+        
+        :param key str: the environment variable to check
+        '''
         return self.environ.is_defined(key)
 
     def get(self, key):
+        '''Get the value of the environment variable "key"
+        
+        :param key str: the environment variable
+        '''
         return self.environ.get(key)
 
     def set(self, key, value):
+        '''Set the environment variable "key" to value "value"
+        
+        :param key str: the environment variable to set
+        :param value str: the value
+        '''
         # check if value needs to be evaluated
         if value is not None and value.startswith("`") and value.endswith("`"):
-            res = subprocess.Popen("echo %s" % value, shell=True, stdout=subprocess.PIPE).communicate()
+            res = subprocess.Popen("echo %s" % value,
+                                   shell=True,
+                                   stdout=subprocess.PIPE).communicate()
             value = res[0].strip()
 
         return self.environ.set(key, value)
 
     def dump(self, out):
-        """Write the environment to out"""
+        """Write the environment to out
+        
+        :param out file: the stream where to write the environment
+        """
         for k in self.environ.environ.keys():
             try:
                 value = self.get(k)
@@ -236,59 +248,64 @@ class SalomeEnviron:
             out.write("%s=%s\n" % (k, value))
 
     def add_line(self, nb_line):
+        """Add empty lines to the out stream (in case of file generation)
+        
+        :param nb_line int: the number of empty lines to add
+        """
         if 'add_line' in dir(self.environ):
             self.environ.add_line(nb_line)
 
     def add_comment(self, comment):
+        """Add a commentary to the out stream (in case of file generation)
+        
+        :param comment str: the commentary to add
+        """
         if 'add_comment' in dir(self.environ):
             self.environ.add_comment(comment)
 
     def add_warning(self, warning):
+        """Add a warning to the out stream (in case of file generation)
+        
+        :param warning str: the warning to add
+        """
         if 'add_warning' in dir(self.environ):
             self.environ.add_warning(warning)
 
     def finish(self, required):
+        """Add a final instruction in the out file (in case of file generation)
+        
+        :param required bool: Do nothing if required is False
+        """
         if 'finish' in dir(self.environ):
             self.environ.add_line(1)
             self.environ.add_comment("clean all the path")
             self.environ.finish(required)
 
-    def list_version_4_prereq(self, prerequisite, logger):
-        alist = []
-        for path in self.cfg.TOOLS.environ.prereq_install_dir:
-            if not os.path.exists(path):
-                continue
-            prereqlist = os.listdir(path)
-            for prereq in prereqlist:
-                if prereq.split("-")[0] == prerequisite:
-                    #logger.error(str(prereq) + "\n")
-                    alist.append(str(prereq))
-
-        if len(alist) > 0:
-            logger.write(_("Available prerequisites are:") + "\n\t%s\n" % '\n\t'.join(alist), 2)
-
     def set_python_libdirs(self):
-        if src.architecture.is_windows():
-            # sysconfig.get_python_lib() does not return appropriate path on Windows
-            # clearly decide here once for windows
-            ver = self.get('PYTHON_VERSION')
-            self.set('PYTHON_LIBDIR0', os.path.join('lib', 'python' + ver, 'site-packages'))
-            self.set('PYTHON_LIBDIR1', os.path.join('lib64', 'python' + ver, 'site-packages'))
-
-        else:
-            ver = self.get('PYTHON_VERSION')
-            self.set('PYTHON_LIBDIR0', os.path.join('lib', 'python' + ver, 'site-packages'))
-            self.set('PYTHON_LIBDIR1', os.path.join('lib64', 'python' + ver, 'site-packages'))
+        """Set some generic variables for python library paths
+        """
+        ver = self.get('PYTHON_VERSION')
+        self.set('PYTHON_LIBDIR0', os.path.join('lib',
+                                                'python' + ver,
+                                                'site-packages'))
+        self.set('PYTHON_LIBDIR1', os.path.join('lib64',
+                                                'python' + ver,
+                                                'site-packages'))
           
         self.python_lib0 = self.get('PYTHON_LIBDIR0')
         self.python_lib1 = self.get('PYTHON_LIBDIR1')
 
-    ##
-    # Get the products name to add in SALOME_MODULES environment variable
-    # It is the name of the product, except in the case where the is a component name.
-    # And it has to be in SALOME_MODULES variable only if has_gui = "yes"
-    def getNames(self, lProducts):
-        lProdHasGui = [p for p in lProducts if 'has_gui' in src.product.get_product_config(self.cfg, p) and src.product.get_product_config(self.cfg, p).has_gui=='yes']
+    def get_names(self, lProducts):
+        """Get the products name to add in SALOME_MODULES environment variable
+           It is the name of the product, except in the case where the is a 
+           component name. And it has to be in SALOME_MODULES variable only 
+           if has_gui = "yes"
+        
+        :param lProducts list: List of products to potentially add
+        """
+        lProdHasGui = [p for p in lProducts if 'has_gui' in 
+                    src.product.get_product_config(self.cfg, p) and 
+                    src.product.get_product_config(self.cfg, p).has_gui=='yes']
         lProdName = []
         for ProdName in lProdHasGui:
             pi = src.product.get_product_config(self.cfg, ProdName)
@@ -298,57 +315,78 @@ class SalomeEnviron:
                 lProdName.append(ProdName)
         return lProdName
 
-    ##
-    # Sets the environment defined in the PRODUCT file.
     def set_application_env(self, logger):
+        """Sets the environment defined in the APPLICATION file.
+        
+        :param logger Logger: The logger instance to display messages
+        """
+        
+        # Set the variables defined in the "environ" section
         if 'environ' in self.cfg.APPLICATION:
             self.add_comment("APPLICATION environment")
             for p in self.cfg.APPLICATION.environ:
                 self.set(p, self.cfg.APPLICATION.environ[p])
             self.add_line(1)
 
+        # If there is an "environ_script" section, load the scripts
         if 'environ_script' in self.cfg.APPLICATION:
             for pscript in self.cfg.APPLICATION.environ_script:
                 self.add_comment("script %s" % pscript)
                 sname = pscript.replace(" ", "_")
-                self.run_env_script("APPLICATION_%s" % sname, self.cfg.APPLICATION.environ_script[pscript], logger)
+                self.run_env_script("APPLICATION_%s" % sname,
+                                self.cfg.APPLICATION.environ_script[pscript],
+                                logger)
                 self.add_line(1)
         
+        # If there is profile (SALOME), then define additional variables
         if 'profile' in self.cfg.APPLICATION:
             profile_product = self.cfg.APPLICATION.profile.product
-            product_info_profile = src.product.get_product_config(self.cfg, profile_product)
-            profile_share_salome = os.path.join( product_info_profile.install_dir, "share", "salome" )
+            product_info_profile = src.product.get_product_config(self.cfg,
+                                                            profile_product)
+            profile_share_salome = os.path.join(product_info_profile.install_dir,
+                                                "share",
+                                                "salome" )
             self.set( "SUITRoot", profile_share_salome )
-            self.set( "SalomeAppConfig", os.path.join( profile_share_salome, "resources", profile_product.lower() ) )
+            self.set( "SalomeAppConfig",
+                      os.path.join(profile_share_salome,
+                                   "resources",
+                                   profile_product.lower() ) )
         
         # The list of products to launch
-        lProductsName = self.getNames(self.cfg.APPLICATION.products.keys())
+        lProductsName = self.get_names(self.cfg.APPLICATION.products.keys())
         
         self.set( "SALOME_MODULES",    ','.join(lProductsName))
 
-    ##
-    # Set xxx_ROOT_DIR and xxx_SRC_DIR.
-    def set_salome_minimal_product_env(self, product_info, logger, single_dir, cfgdic=None):
+    def set_salome_minimal_product_env(self, product_info, logger):
+        """Sets the minimal environment for a SALOME product.
+           xxx_ROOT_DIR and xxx_SRC_DIR
+        
+        :param product_info Config: The product description
+        :param logger Logger: The logger instance to display messages        
+        """
         # set root dir
         root_dir = product_info.name + "_ROOT_DIR"
-        indic = cfgdic is not None and root_dir in cfgdic
-        if not self.is_defined(root_dir) and not indic:
-            if single_dir:
-                self.set(root_dir, os.path.join(self.get('INSTALL_ROOT'), 'SALOME'))
-            elif 'install_dir' in product_info and product_info.install_dir:
+        if not self.is_defined(root_dir):
+            if 'install_dir' in product_info and product_info.install_dir:
                 self.set(root_dir, product_info.install_dir)
             elif not self.silent:
-                logger.write("  " + _("No install_dir for product %s\n") % product_info.name, 5)
+                logger.write("  " + _("No install_dir for product %s\n") %
+                              product_info.name, 5)
 
-        # set source dir, unless the product is fixed (no source dir)
+        # set source dir, unless no source dir
         if not src.product.product_is_fixed(product_info):
             src_dir = product_info.name + "_SRC_DIR"
-            indic = cfgdic is not None and src_dir in cfgdic
-            if not self.is_defined(src_dir) and not indic:
+            if not self.is_defined(src_dir):
                 self.set(src_dir, product_info.source_dir)
 
     def set_salome_generic_product_env(self, product):
+        """Sets the generic environment for a SALOME product.
+        
+        :param product str: The product name    
+        """
+        # get the product descritption
         pi = src.product.get_product_config(self.cfg, product)
+        # Construct XXX_ROOT_DIR
         env_root_dir = self.get(pi.name + "_ROOT_DIR")
         l_binpath_libpath = []
 
@@ -357,16 +395,20 @@ class SalomeEnviron:
             compo_name = pi.component_name
             if compo_name + "CPP" == product:
                 compo_root_dir = compo_name + "_ROOT_DIR"
-                envcompo_root_dir = os.path.join( self.cfg.TOOLS.common.install_root, compo_name )
+                envcompo_root_dir = os.path.join(
+                            self.cfg.TOOLS.common.install_root, compo_name )
                 self.set(compo_root_dir ,  envcompo_root_dir)
                 bin_path = os.path.join(envcompo_root_dir, 'bin', 'salome')
                 lib_path = os.path.join(envcompo_root_dir, 'lib', 'salome')
                 l_binpath_libpath.append( (bin_path, lib_path) )
 
         appliname = 'salome'
-        if src.get_cfg_param(pi, 'product_type', 'SALOME').upper() not in [ "SALOME", "SMESH_PLUGIN", "SAMPLE" ]:
+        if (src.get_cfg_param(pi, 'product_type', 'SALOME').upper() 
+                            not in [ "SALOME", "SMESH_PLUGIN", "SAMPLE" ]):
             appliname = ''
 
+        # Construct the paths to prepend to PATH and LD_LIBRARY_PATH and 
+        # PYTHONPATH
         bin_path = os.path.join(env_root_dir, 'bin', appliname)
         lib_path = os.path.join(env_root_dir, 'lib', appliname)
         l_binpath_libpath.append( (bin_path, lib_path) )
@@ -385,14 +427,19 @@ class SalomeEnviron:
                 ]
             self.prepend('PYTHONPATH', l)
 
-    ##
-    # Loads environment define in the configuration.
     def load_cfg_environment(self, cfg_env):
+        """Loads environment defined in cfg_env 
+        
+        :param cfg_env Config: A config containing an environment    
+        """
+        # Loop on cfg_env values
         for env_def in cfg_env:
             val = cfg_env[env_def]
+            # if it is a dict, do not do anything
             if isinstance(val, src.pyconf.Mapping):
                 continue
 
+            # if it is a list, loop on its values
             if isinstance(val, src.pyconf.Sequence):
                 # transform into list of strings
                 l_val = []
@@ -400,6 +447,7 @@ class SalomeEnviron:
                     l_val.append(item)
                 val = l_val
 
+            # "_" means that the value must be prepended
             if env_def.startswith("_"):
                 # separator exception for PV_PLUGIN_PATH
                 if env_def[1:] == 'PV_PLUGIN_PATH':
@@ -409,62 +457,73 @@ class SalomeEnviron:
             elif env_def.endswith("_"):
                 # separator exception for PV_PLUGIN_PATH
                 if env_def[:-1] == 'PV_PLUGIN_PATH':
-                    self.prepend(env_def[:-1], val, ';')
+                    self.append(env_def[:-1], val, ';')
                 else:
-                    self.prepend(env_def[:-1], val)
+                    self.append(env_def[:-1], val)
             else:
                 self.set(env_def, val)
 
-    ##
-    # Sets the environment of a product.
-    def set_a_product(self, product, logger, single_dir):
-               
+    def set_a_product(self, product, logger):
+        """Sets the environment of a product. 
+        
+        :param product str: The product name
+        :param logger Logger: The logger instance to display messages
+        """
+        
+        # Get the informations corresponding to the product
+        pi = src.product.get_product_config(self.cfg, product)
+        
+        # Do not define environment if the product is native
+        if src.product.product_is_native(pi):
+            return
+        
         if not self.silent:
             logger.write(_("Setting environment for %s\n") % product, 4)
 
         self.add_line(1)
         self.add_comment('setting environ for ' + product)
-        
-        pi = src.product.get_product_config(self.cfg, product)
 
-        # Do not define environment if the product is native or fixed
-        if src.product.product_is_native(pi):
-            return
-
+        # Put the environment define in the configuration of the product
         if "environ" in pi:
-            # set environment using definition of the product
-            self.set_salome_minimal_product_env(pi, logger, single_dir, pi.environ)
-            self.set_salome_generic_product_env(product)
             self.load_cfg_environment(pi.environ)
             if self.forBuild and "build" in pi.environ:
                 self.load_cfg_environment(pi.environ.build)
             if not self.forBuild and "launch" in pi.environ:
                 self.load_cfg_environment(pi.environ.launch)
-        else:
-            # no environment defined in config
-            self.set_salome_minimal_product_env(pi, logger, single_dir)
-            if 'install_dir' in pi :
-                self.set_salome_generic_product_env(product)
 
-        # if product_info defines a env_scripts load it
+        # Set an additional environment for SALOME products
+        if src.product.product_is_salome(pi):
+            # set environment using definition of the product
+            self.set_salome_minimal_product_env(pi, logger)
+            self.set_salome_generic_product_env(product)
+
+        # if product_info defines a env_scripts, load it
         if 'env_script' in pi:
             self.run_env_script(pi, logger)
             
 
-    ##
-    # Runs an environment script.
     def run_env_script(self, product_info, logger=None):
+        """Runs an environment script. 
+        
+        :param product_info Config: The product description
+        :param logger Logger: The logger instance to display messages
+        """
         env_script = product_info.env_script
+        # Check that the script exists
         if not os.path.exists(product_info.env_script):
-            raise src.SatException(_("Environment script not found: %s") % env_script)
+            raise src.SatException(_("Environment script not found: %s") % 
+                                   env_script)
 
         if not self.silent and logger is not None:
             logger.write("  ** load %s\n" % product_info.env_script, 4)
 
+        # import the script and run the set_env function
         try:
             import imp
-            pyproduct = imp.load_source(product_info.name + "_env_script", env_script)
-            pyproduct.set_env(self, product_info.install_dir, product_info.version)
+            pyproduct = imp.load_source(product_info.name + "_env_script",
+                                        env_script)
+            pyproduct.set_env(self, product_info.install_dir,
+                              product_info.version)
         except:
             __, exceptionValue, exceptionTraceback = sys.exc_info()
             print(exceptionValue)
@@ -472,38 +531,41 @@ class SalomeEnviron:
             traceback.print_tb(exceptionTraceback)
             traceback.print_exc()
 
-    ##
-    # Sets the environment for all the products.
-    def set_products(self, logger, src_root=None, single_dir=False):
+    def set_products(self, logger, src_root=None):
+        """Sets the environment for all the products. 
+        
+        :param logger Logger: The logger instance to display messages
+        :param src_root src: the application working directory
+        """
         self.add_line(1)
         self.add_comment('setting environ for all products')
 
         self.set_python_libdirs()
 
+        # Set the application working directory
         if src_root is None:
             src_root = self.cfg.APPLICATION.workdir
         self.set('SRC_ROOT', src_root)
 
+        # SALOME variables
         appli_name = "APPLI"
         if "APPLI" in self.cfg and "application_name" in self.cfg.APPLI:
             appli_name = self.cfg.APPLI.application_name
-        self.set("SALOME_APPLI_ROOT", os.path.join(self.cfg.APPLICATION.workdir, appli_name))
+        self.set("SALOME_APPLI_ROOT",
+                 os.path.join(self.cfg.APPLICATION.workdir, appli_name))
 
-        if not single_dir:
-            single_dir = src.get_cfg_param(self.cfg.APPLICATION, "compil_in_single_dir", "no") == 'yes'
-
-        for product in src.get_cfg_param(self.cfg.APPLICATION, "imported_products", []):
-            self.set_a_product(product, logger, single_dir=single_dir)
-            self.finish(False)
-
+        # The loop on the products
         for product in self.cfg.APPLICATION.products.keys():
-            self.set_a_product(product, logger, single_dir=single_dir)
+            self.set_a_product(product, logger)
             self.finish(False)
-
-   
-    ##
-    # Sets the full environment for prerequisites and products specified in env_info dictionary.
+ 
     def set_full_environ(self, logger, env_info):
+        """Sets the full environment for products 
+           specified in env_info dictionary. 
+        
+        :param logger Logger: The logger instance to display messages
+        :param env_info list: the list of products
+        """
         # set product environ
         self.set_application_env(logger)
 
@@ -513,77 +575,86 @@ class SalomeEnviron:
         self.set('INSTALL_ROOT', install_root)
         self.set('SRC_ROOT', source_root)
         self.set_python_libdirs()
+        
+        for product in env_info:
+            self.set_a_product(product, logger)
 
-        single_dir = src.get_cfg_param(self.cfg.APPLICATION, "compil_in_single_dir", "no") == 'yes'
-        for product in env_info['products']:
-            self.set_a_product(product, logger, single_dir=single_dir)
-
-##
-# Class to dump the environment to a file.
 class FileEnvWriter:
-    def __init__(self, config, logger, out_dir, src_root, single_dir, env_info=None):
+    """Class to dump the environment to a file.
+    """
+    def __init__(self, config, logger, out_dir, src_root, env_info=None):
+        '''Initialization.
+
+        :param cfg Config: the global config
+        :param logger Logger: The logger instance to display messages
+        :param out_dir str: The directory path where t put the output files
+        :param src_root str: The application working directory
+        :param env_info str: 
+        '''
         self.config = config
         self.logger = logger
         self.out_dir = out_dir
         self.src_root= src_root
-        self.single_dir = single_dir
         self.silent = True
         self.env_info = env_info
 
     def write_env_file(self, filename, forBuild, shell):
-        """Create an environment file."""
+        """Create an environment file.
+        
+        :param filename str: the file path
+        :param forBuild bool: if true, the build environment
+        :param shell str: the type of file wanted (.sh, .bat)
+        :return: The path to the generated file
+        :rtype: str
+        """
         if not self.silent:
-            self.logger.write(_("Create environment file %s\n") % src.printcolors.printcLabel(filename), 3)
+            self.logger.write(_("Create environment file %s\n") % 
+                              src.printcolors.printcLabel(filename), 3)
 
         # create then env object
         env_file = open(os.path.join(self.out_dir, filename), "w")
-        tmp = src.fileEnviron.get_file_environ(env_file, shell, {}, self.config )
+        tmp = src.fileEnviron.get_file_environ(env_file,
+                                               shell,
+                                               {},
+                                               self.config )
         env = SalomeEnviron(self.config, tmp, forBuild)
         env.silent = self.silent
 
+        # Set the environment
         if self.env_info is not None:
             env.set_full_environ(self.logger, self.env_info)
         else:
-            # set env from PRODUCT
+            # set env from the APPLICATION
             env.set_application_env(self.logger)
             # set the products
             env.set_products(self.logger,
-                            src_root=self.src_root, single_dir=self.single_dir)
+                            src_root=self.src_root)
 
         # add cleanup and close
         env.finish(True)
         env_file.close()
 
         return env_file.name
-
-    def write_product_file(self, filename, shell):
-        """Create a product file."""
-        if not self.silent:
-            self.logger.write(_("Create product file %s\n") % src.printcolors.printcLabel(filename), 3)
-
-        prod_file = open(os.path.join(self.out_dir, filename), "w")
-        if shell == "bash":
-            content = _bash_content % self.out_dir
-        elif shell == "batch":
-            content = _batch_content % self.out_dir
-        else:
-            raise src.SatException(_("Unknown shell: %s") % shell)
-
-        prod_file.write(content)
-        prod_file.close()
-       
-        return prod_file.name
    
-    def write_cfgForPy_file(self, aFile, additional_env = {}):
-        """append to current opened aFile a cfgForPy environment (python syntax)."""
+    def write_cfgForPy_file(self, filename, additional_env = {}):
+        """Append to current opened aFile a cfgForPy 
+           environment (SALOME python launcher).
+           
+        :param filename str: the file path
+        :param additional_env dict: a dictionary of additional variables 
+                                    to add to the environment
+        """
         if not self.silent:
-            self.logger.write(_("Create configuration file %s\n") % src.printcolors.printcLabel(aFile.name), 3)
+            self.logger.write(_("Create configuration file %s\n") % 
+                              src.printcolors.printcLabel(aFile.name), 3)
 
         # create then env object
-        tmp = src.fileEnviron.get_file_environ(aFile, "cfgForPy", {}, self.config)
-        forBuild = True
-        forLaunch = False
-        env = SalomeEnviron(self.config, tmp, forLaunch)
+        tmp = src.fileEnviron.get_file_environ(filename, 
+                                               "cfgForPy", 
+                                               {}, 
+                                               self.config)
+        # environment for launch
+        env = SalomeEnviron(self.config, tmp, forBuild=False)
         env.silent = self.silent
 
         if self.env_info is not None:
@@ -595,8 +666,9 @@ class FileEnvWriter:
             env.set_prerequisites(self.logger)
             # set the products
             env.set_products(self.logger,
-                            src_root=self.src_root, single_dir=self.single_dir)
+                            src_root=self.src_root)
 
+        # Add the additional environment if it is not empty
         if len(additional_env) != 0:
             for variable in additional_env:
                 env.set(variable, additional_env[variable])
@@ -604,16 +676,25 @@ class FileEnvWriter:
         # add cleanup and close
         env.finish(True)
 
-##
-# Definition of a Shell.
 class Shell:
+    """Definition of a Shell.
+    """
     def __init__(self, name, extension):
+        '''Initialization.
+
+        :param name str: the shell name
+        :param extension str: the shell extension
+        '''
         self.name = name
         self.extension = extension
 
-##
-# Loads the environment (used to run the tests).
 def load_environment(config, build, logger):
+    """Loads the environment (used to run the tests, for example).
+    
+    :param config Config: the global config
+    :param build bool: build environement if True
+    :param logger Logger: The logger instance to display messages
+    """
     environ = SalomeEnviron(config, Environ(os.environ), build)
     environ.set_application_env(logger)
     environ.set_products(logger)

@@ -9,10 +9,6 @@ PRODUCT_ARCHIVE :
     }
     environ :
     {
-        "_LD_LIBRARY_PATH" : "${SOFT_ROOT_DIR}" + $VARS.sep + "lib"
-        "_PYTHONPATH" : ["${SOFT_ROOT_DIR}" + $VARS.sep + "lib"
-            "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR0}"
-            "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR1}"]
     }
     depend : []
     opt_depend : []
@@ -36,9 +32,9 @@ PRODUCT_ARCHIVE_4_4_2 :
 		build: 
 		{   
 		    "_LD_LIBRARY_PATH" : "COUCOU"
-		    "_PYTHONPATH" : ["${SOFT_ROOT_DIR}" + $VARS.sep + "lib"
-		        "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR0}"
-		        "${SOFT_ROOT_DIR}" + $VARS.sep + "${PYTHON_LIBDIR1}"]
+		    "_PYTHONPATH" : ["TEST" + $VARS.sep + "lib"
+		        "TEST" + $VARS.sep + "${PYTHON_LIBDIR0}"
+		        "TEST" + $VARS.sep + "${PYTHON_LIBDIR1}"]
 		}
     }
     env_script : "/home/sr755891/SAT-ETENDU/00-DEV/RESOURCES/env_scripts/pytz.py"
@@ -50,6 +46,7 @@ PRODUCT_ARCHIVE_4_4_2 :
     depend : ['PRODUCT_NATIVE', 'PRODUCT_CVS']
     opt_depend : []
     type : "sample"
+    has_gui : "yes"
     source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
     build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
     patches : []
