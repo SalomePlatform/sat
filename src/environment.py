@@ -615,8 +615,7 @@ class FileEnvWriter:
         env_file = open(os.path.join(self.out_dir, filename), "w")
         tmp = src.fileEnviron.get_file_environ(env_file,
                                                shell,
-                                               {},
-                                               self.config )
+                                               {})
         env = SalomeEnviron(self.config, tmp, forBuild)
         env.silent = self.silent
 
@@ -651,8 +650,7 @@ class FileEnvWriter:
         # create then env object
         tmp = src.fileEnviron.get_file_environ(filename, 
                                                "cfgForPy", 
-                                               {}, 
-                                               self.config)
+                                               {})
         # environment for launch
         env = SalomeEnviron(self.config, tmp, forBuild=False)
         env.silent = self.silent
