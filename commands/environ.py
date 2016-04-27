@@ -25,7 +25,7 @@ parser.add_option('', 'shell', 'list2', 'shell',
     _("Generates the environment files for the given format: bash (default), batch or all."), [])
 parser.add_option('p', 'products', 'list2', 'products',
     _("Includes only the specified products."))
-parser.add_option('p', 'prefix', 'string', 'prefix',
+parser.add_option('', 'prefix', 'string', 'prefix',
     _("Specifies the prefix for the environment files."), "env")
 parser.add_option('t', 'target', 'string', 'out_dir',
     _("Specifies the directory path where to put the environment files."), None)
@@ -39,6 +39,7 @@ C_ALL_SHELL = [ "bash", "batch" ]
 # Writes all the environment files
 def write_all_source_files(config, logger, out_dir=None, src_root=None,
                            silent=False, shells=["bash"], prefix="env", env_info=None):
+    
     if not out_dir:
         out_dir = config.APPLICATION.workdir
 
@@ -89,7 +90,7 @@ def run(args, runner, logger):
 
     # check that the command was called with an application
     src.check_config_has_application( runner.cfg )
-   
+    
     if options.products is None:
         environ_info = None
     else:
@@ -103,6 +104,10 @@ def run(args, runner, logger):
     else:
         shell = options.shell
     
-    write_all_source_files(runner.cfg, logger, out_dir=options.out_dir, shells=shell,
+    out_dir = options.out_dir
+    if out_dir:
+        out_dir = os.path.abspath(out_dir)
+    
+    write_all_source_files(runner.cfg, logger, out_dir=out_dir, shells=shell,
                            prefix=options.prefix, env_info=environ_info)
     logger.write("\n", 3, False)

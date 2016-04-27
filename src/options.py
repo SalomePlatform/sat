@@ -72,6 +72,7 @@ class Options:
         # The list of available option type
         self.availableOptions = ["boolean", "string", "int", "float",
                                   "long", "list", "list2"]
+        self.default = None
 
     def add_option(self, shortName, longName,
                     optionType, destName, helpString="", default = None):
