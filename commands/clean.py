@@ -143,6 +143,7 @@ def run(args, runner, logger):
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
 
+    # Get the list of products to threat
     products_infos = prepare.get_products_list(options, runner.cfg, logger)
 
     # Construct the list of directories to suppress
@@ -159,9 +160,13 @@ def run(args, runner, logger):
         if options.build:
             l_dir_to_suppress += get_build_directories(products_infos)
             
-        if options.source:
+        if options.source or options.sources_without_dev:
             l_dir_to_suppress += get_source_directories(products_infos, 
                                                 options.sources_without_dev)
+    
+    if len(l_dir_to_suppress) == 0:
+        logger.write(src.printcolors.printcWarning(_("Nothing to suppress\n")))
+        return
     
     # Check with the user if he really wants to suppress the directories
     if not runner.options.batch:

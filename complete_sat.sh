@@ -80,7 +80,7 @@ _salomeTools_complete()
     # first argument => show available commands
     if [[ ${argc} == 1 ]]
     then
-        opts="config log testcommand source patch prepare --help"
+        opts="config log testcommand source patch prepare environ --help"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     fi
@@ -151,6 +151,11 @@ _salomeTools_complete()
             ;;
         prepare)
             opts="--product --no_sample --force --force_patch"
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        environ)
+            opts="--products --shell --prefix --target"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
