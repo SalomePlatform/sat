@@ -22,7 +22,7 @@ import src
 
 # Define all possible option for prepare command :  sat prepare <options>
 parser = src.options.Options()
-parser.add_option('p', 'product', 'list2', 'products',
+parser.add_option('p', 'products', 'list2', 'products',
     _('products to prepare. This option can be'
     ' passed several time to prepare several products.'))
 parser.add_option('f', 'force', 'boolean', 'force', 
@@ -103,7 +103,7 @@ def run(args, runner, logger):
 
     # Construct the arguments to pass to the clean, source and patch commands
     args_appli = runner.cfg.VARS.application + ' '
-    args_product_opt = '--product '
+    args_product_opt = '--products '
     if options.products:
         for p_name in options.products:
             args_product_opt += ',' + p_name
@@ -136,13 +136,13 @@ def run(args, runner, logger):
         logger.write("\n", 1)
 
     # Construct the final commands arguments
-    args_clean = args_appli + args_product_opt_clean + " --source"
+    args_clean = args_appli + args_product_opt_clean + " --sources"
     args_source = args_appli + args_product_opt  
     args_patch = args_appli + args_product_opt_patch
 
     # If there is no more any product in the command arguments,
     # do not call the concerned command 
-    oExpr = re.compile("^--product *$")
+    oExpr = re.compile("^--products *$")
     do_clean = not(oExpr.search(args_product_opt_clean))
     do_source = not(oExpr.search(args_product_opt))
     do_patch = not(oExpr.search(args_product_opt_patch))

@@ -24,7 +24,7 @@ import prepare
 
 # Define all possible option for patch command :  sat patch <options>
 parser = src.options.Options()
-parser.add_option('p', 'product', 'list2', 'products',
+parser.add_option('p', 'products', 'list2', 'products',
     _('products from which to get the sources. This option can be'
     ' passed several time to get the sources of several products.'))
 

@@ -32,7 +32,7 @@ parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
     _('products to clean. This option can be'
     ' passed several time to clean several products.'))
-parser.add_option('s', 'source', 'boolean', 'source', 
+parser.add_option('s', 'sources', 'boolean', 'sources', 
     _("Clean the product source directories."))
 parser.add_option('b', 'build', 'boolean', 'build', 
     _("Clean the product build directories."))
@@ -160,7 +160,7 @@ def run(args, runner, logger):
         if options.build:
             l_dir_to_suppress += get_build_directories(products_infos)
             
-        if options.source or options.sources_without_dev:
+        if options.sources or options.sources_without_dev:
             l_dir_to_suppress += get_source_directories(products_infos, 
                                                 options.sources_without_dev)
     
