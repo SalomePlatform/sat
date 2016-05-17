@@ -29,7 +29,7 @@ parser.add_option('p', 'products', 'list2', 'products',
 parser.add_option('', 'prefix', 'string', 'prefix',
     _("Specifies the prefix for the environment files."), "env")
 parser.add_option('t', 'target', 'string', 'out_dir',
-    _("Specifies the directory path where to put the environment files."), 
+    _("Specifies the directory path where to put the environment files."),
     None)
 
 # list of available shells with extensions
@@ -39,8 +39,14 @@ C_ALL_SHELL = [ "bash", "bat" ]
 
 ##
 # Writes all the environment files
-def write_all_source_files(config, logger, out_dir=None, src_root=None,
-                           silent=False, shells=["bash"], prefix="env", env_info=None):
+def write_all_source_files(config,
+                           logger,
+                           out_dir=None,
+                           src_root=None,
+                           silent=False,
+                           shells=["bash"],
+                           prefix="env",
+                           env_info=None):
     
     if not out_dir:
         out_dir = config.APPLICATION.workdir
@@ -49,8 +55,11 @@ def write_all_source_files(config, logger, out_dir=None, src_root=None,
         raise src.SatException(_("Target directory not found: %s") % out_dir)
 
     if not silent:
-        logger.write(_("Creating environment files for %s\n") % src.printcolors.printcLabel(config.APPLICATION.name), 2)
-        src.printcolors.print_value(logger, _("Target"), src.printcolors.printcInfo(out_dir), 3)
+        logger.write(_("Creating environment files for %s\n") % 
+                     src.printcolors.printcLabel(config.APPLICATION.name), 2)
+        src.printcolors.print_value(logger,
+                                    _("Target"),
+                                    src.printcolors.printcInfo(out_dir), 3)
         logger.write("\n", 3, False)
     
     shells_list = []
@@ -66,14 +75,24 @@ def write_all_source_files(config, logger, out_dir=None, src_root=None,
         else:
             shells_list.append(src.environment.Shell(shell, C_SHELLS[shell]))
     
-    writer = src.environment.FileEnvWriter(config, logger, out_dir, src_root, env_info)
+    writer = src.environment.FileEnvWriter(config,
+                                           logger,
+                                           out_dir,
+                                           src_root,
+                                           env_info)
     writer.silent = silent
     files = []
     for_build = True
     for_launch = False
     for shell in shells_list:
-        files.append(writer.write_env_file("%s_launch.%s" % (prefix, shell.extension), for_launch, shell.name))
-        files.append(writer.write_env_file("%s_build.%s" % (prefix, shell.extension),  for_build,  shell.name))
+        files.append(writer.write_env_file("%s_launch.%s" %
+                                           (prefix, shell.extension),
+                                           for_launch,
+                                           shell.name))
+        files.append(writer.write_env_file("%s_build.%s" %
+                                           (prefix, shell.extension),
+                                           for_build,
+                                           shell.name))
 
     return files
 
@@ -96,8 +115,11 @@ def run(args, runner, logger):
     if options.products is None:
         environ_info = None
     else:
-        # add products specified by user (only products included in the application)
-        environ_info = filter(lambda l: l in runner.cfg.APPLICATION.products.keys(), options.products)
+        # add products specified by user (only products 
+        # included in the application)
+        environ_info = filter(lambda l:
+                              l in runner.cfg.APPLICATION.products.keys(),
+                              options.products)
     
     if options.shell == []:
         shell = ["bash"]
