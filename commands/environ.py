@@ -22,17 +22,19 @@ import src
 
 parser = src.options.Options()
 parser.add_option('', 'shell', 'list2', 'shell',
-    _("Generates the environment files for the given format: bash (default), batch or all."), [])
+    _("Generates the environment files for the given format: "
+      "bash (default), bat (for windows) or all."), [])
 parser.add_option('p', 'products', 'list2', 'products',
     _("Includes only the specified products."))
 parser.add_option('', 'prefix', 'string', 'prefix',
     _("Specifies the prefix for the environment files."), "env")
 parser.add_option('t', 'target', 'string', 'out_dir',
-    _("Specifies the directory path where to put the environment files."), None)
+    _("Specifies the directory path where to put the environment files."), 
+    None)
 
 # list of available shells with extensions
-C_SHELLS = { "bash": "sh", "batch": "bat" }
-C_ALL_SHELL = [ "bash", "batch" ]
+C_SHELLS = { "bash": "sh", "bat": "bat" }
+C_ALL_SHELL = [ "bash", "bat" ]
 
 
 ##
@@ -80,8 +82,8 @@ def write_all_source_files(config, logger, out_dir=None, src_root=None,
 ##
 # Describes the command
 def description():
-    return _("""The environ command generates the "
-                "environment files of your application.""")
+    return _("The environ command generates the "
+                "environment files of your application.")
 
 ##
 # Runs the command.
@@ -100,7 +102,7 @@ def run(args, runner, logger):
     if options.shell == []:
         shell = ["bash"]
         if src.architecture.is_windows():
-            shell = ["batch"]
+            shell = ["bat"]
     else:
         shell = options.shell
     

@@ -18,7 +18,7 @@
 
 import os
 
-batch_header="""@echo off
+bat_header="""@echo off
 
 rem The following variables are used only in case of a sat package
 set out_dir_Path=%~dp0
@@ -89,8 +89,8 @@ def get_file_environ(output, shell, environ=None):
     """
     if shell == "bash":
         return BashFileEnviron(output, environ)
-    if shell == "batch":
-        return BatchFileEnviron(output, environ)
+    if shell == "bat":
+        return BatFileEnviron(output, environ)
     if shell == "cfgForPy":
         return LauncherFileEnviron(output, environ)
     raise Exception("FileEnviron: Unknown shell = %s" % shell)
@@ -277,7 +277,7 @@ class BashFileEnviron(FileEnviron):
             return
         FileEnviron.finish(self, required)
         
-class BatchFileEnviron(FileEnviron):
+class BatFileEnviron(FileEnviron):
     """for Windows batch shell.
     """
     def __init__(self, output, environ=None):
@@ -287,7 +287,7 @@ class BatchFileEnviron(FileEnviron):
         :param environ dict: a potential additional environment.
         """
         self._do_init(output, environ)
-        self.output.write(batch_header)
+        self.output.write(bat_header)
 
     def add_comment(self, comment):
         """Add a comment in the shell file
