@@ -253,3 +253,25 @@ def product_is_debug(product_info):
     '''
     debug = product_info.debug
     return debug.lower() == 'yes'
+
+def product_is_autotools(product_info):
+    '''Know if a product is compiled using the autotools
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is autotools, else False
+    :rtype: boolean
+    '''
+    build_src = product_info.build_source
+    return build_src.lower() == 'autotools'
+
+def product_is_cmake(product_info):
+    '''Know if a product is compiled using the cmake
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is cmake, else False
+    :rtype: boolean
+    '''
+    build_src = product_info.build_source
+    return build_src.lower() == 'cmake'

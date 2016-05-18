@@ -147,6 +147,7 @@ class Logger(object):
         '''Flush terminal
         '''
         sys.stdout.flush()
+        self.logTxtFile.flush()
         
     def end_write(self, attribute):
         '''Method called just after command end : Put all fields 

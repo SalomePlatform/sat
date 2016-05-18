@@ -1,7 +1,7 @@
 PRODUCT_CVS_V6_7_0 :
 {
-	name : "MODULE_CVS"
-    build_source : "cmake"
+	name : "PRODUCT_CVS"
+    build_source : "autotools"
     get_source : "cvs"
     git_info:
     {
