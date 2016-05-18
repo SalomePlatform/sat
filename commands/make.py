@@ -17,16 +17,17 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
+import re
 
 import src
 
-# Define all possible option for configure command :  sat configure <options>
+# Define all possible option for the make command :  sat make <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
     _('products to configure. This option can be'
     ' passed several time to configure several products.'))
 parser.add_option('o', 'option', 'string', 'option',
-    _('Option to add to the configure or cmake command.'), "")
+    _('Option to add to the make command.'), "")
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
@@ -75,31 +76,31 @@ def log_res_step(logger, res):
         logger.write("%s \n" % src.printcolors.printcError("KO"), 4)
         logger.flush()
 
-def configure_all_products(config, products_infos, conf_option, logger):
+def make_all_products(config, products_infos, make_option, logger):
     '''Execute the proper configuration commands 
        in each product build directory.
 
     :param config Config: The global configuration
     :param products_info list: List of 
                                  (str, Config) => (product_name, product_info)
-    :param conf_option str: The options to add to the command
+    :param make_option str: The options to add to the command
     :param logger Logger: The logger instance to use for the display and logging
     :return: the number of failing commands.
     :rtype: int
     '''
     res = 0
     for p_name_info in products_infos:
-        res_prod = configure_product(p_name_info, conf_option, config, logger)
+        res_prod = make_product(p_name_info, make_option, config, logger)
         if res_prod != 0:
             res += 1 
     return res
 
-def configure_product(p_name_info, conf_option, config, logger):
+def make_product(p_name_info, make_option, config, logger):
     '''Execute the proper configuration command(s) 
        in the product build directory.
     
     :param p_name_info tuple: (str, Config) => (product_name, product_info)
-    :param conf_option str: The options to add to the command
+    :param make_option str: The options to add to the command
     :param config Config: The global configuration
     :param logger Logger: The logger instance to use for the display 
                           and logging
@@ -112,7 +113,7 @@ def configure_product(p_name_info, conf_option, config, logger):
     # Logging
     logger.write("\n", 4, False)
     logger.write("################ ", 4)
-    header = _("Configuration of %s") % src.printcolors.printcLabel(p_name)
+    header = _("Make of %s") % src.printcolors.printcLabel(p_name)
     header += " %s " % ("." * (20 - len(p_name)))
     logger.write(header, 3)
     logger.write("\n", 4, False)
@@ -130,51 +131,66 @@ def configure_product(p_name_info, conf_option, config, logger):
     # Execute buildconfigure, configure if the product is autotools
     # Execute cmake if the product is cmake
     res = 0
-    if src.product.product_is_autotools(p_info):
-        log_step(logger, header, "BUILDCONFIGURE")
-        res_bc = builder.build_configure()
-        log_res_step(logger, res_bc)
-        res += res_bc
-        log_step(logger, header, "CONFIGURE")
-        res_c = builder.configure(conf_option)
-        log_res_step(logger, res_c)
-        res += res_c
-    if src.product.product_is_cmake(p_info):
-        log_step(logger, header, "CMAKE")
-        res_cm = builder.cmake(conf_option)
-        log_res_step(logger, res_cm)
-        res += res_cm
+    if not src.product.product_has_script(p_info):
+        nb_proc, make_opt_without_j = get_nb_proc(p_info, config, make_option)
+        log_step(logger, header, "MAKE -j" + str(nb_proc))
+        res_m = builder.make(nb_proc, make_opt_without_j)
+        log_res_step(logger, res_m)
+        res += res_m
     
     # Log the result
     if res > 0:
         logger.write("\r%s%s" % (header, " " * 20), 3)
         logger.write("\r" + header + src.printcolors.printcError("KO"))
-        logger.write("==== %(KO)s in configuration of %(name)s \n" %
+        logger.write("==== %(KO)s in make of %(name)s \n" %
             { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
         logger.flush()
     else:
         logger.write("\r%s%s" % (header, " " * 20), 3)
         logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
         logger.write("==== %s \n" % src.printcolors.printcInfo("OK"), 4)
-        logger.write("==== Configuration of %(name)s %(OK)s \n" %
+        logger.write("==== Make of %(name)s %(OK)s \n" %
             { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
         logger.flush()
     logger.write("\n", 3, False)
 
     return res
 
+def get_nb_proc(product_info, config, make_option):
+    
+    opt_nb_proc = None
+    new_make_option = make_option
+    if "-j" in make_option:
+        oExpr = re.compile("-j[0-9]+")
+        found = oExpr.search(make_option)
+        opt_nb_proc = int(re.findall('\d+', found.group())[0])
+        new_make_option = make_option.replace(found.group(), "")
+    
+    nbproc = -1
+    if "nb_proc" in product_info:
+        # nb proc is specified in module definition
+        nbproc = product_info.nb_proc
+        if opt_nb_proc and opt_nb_proc < product_info.nb_proc:
+            # use command line value only if it is lower than module definition
+            nbproc = opt_nb_proc
+    else:
+        # nb proc is not specified in module definition
+        if opt_nb_proc:
+            nbproc = opt_nb_proc
+        else:
+            nbproc = config.VARS.nb_proc
+    
+    assert nbproc > 0
+    return nbproc, new_make_option
+
 def description():
     '''method that is called when salomeTools is called with --help option.
     
-    :return: The text to display for the configure command description.
+    :return: The text to display for the make command description.
     :rtype: str
     '''
-    return _("The configure command executes in the build directory"
-             " the configure commands corresponding to the compilation mode"
-             " of the application products.\nThe possible compilation modes"
-             " are \"cmake\", \"autotools\", or a script.\n\nHere are the "
-             "commands to be run :\nautotools: build_configure and configure\n"
-             "cmake: cmake\nscript: N\A")
+    return _("The make command executes the \"make\" command in"
+             " the build directory")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with make parameter.
@@ -190,7 +206,7 @@ def run(args, runner, logger):
     products_infos = get_products_list(options, runner.cfg, logger)
     
     # Print some informations
-    logger.write(_('Configuring the sources of the application %s\n') % 
+    logger.write(_('Executing the make command in the build directories of the application %s\n') % 
                 src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
     
     info = [(_("BUILD directory"),
@@ -199,7 +215,7 @@ def run(args, runner, logger):
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
-    res = configure_all_products(runner.cfg, products_infos, options.option, logger)
+    res = make_all_products(runner.cfg, products_infos, options.option, logger)
     
     # Print the final state
     nb_products = len(products_infos)
@@ -208,7 +224,7 @@ def run(args, runner, logger):
     else:
         final_status = "KO"
    
-    logger.write(_("\nConfiguration: %(status)s (%(valid_result)d/%(nb_products)d)\n") % \
+    logger.write(_("\nMake: %(status)s (%(valid_result)d/%(nb_products)d)\n") % \
         { 'status': src.printcolors.printc(final_status), 
           'valid_result': nb_products - res,
           'nb_products': nb_products }, 1)    

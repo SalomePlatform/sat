@@ -275,3 +275,14 @@ def product_is_cmake(product_info):
     '''
     build_src = product_info.build_source
     return build_src.lower() == 'cmake'
+
+def product_has_script(product_info):
+    '''Know if a product has a compilation script
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product it has a compilation script, else False
+    :rtype: boolean
+    '''
+    build_src = product_info.build_source
+    return build_src.lower() == 'script'

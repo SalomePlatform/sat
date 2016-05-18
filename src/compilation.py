@@ -229,20 +229,12 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
     ##
     # Runs make to build the module.
-    def make(self, opt_nb_proc = None):
-        nbproc = self.get_nb_proc(opt_nb_proc)
-
-        hh = 'MAKE -j%s' % str(nbproc)
-        if self.debug_mode:
-            hh += " " + src.printcolors.printcWarning("DEBUG")
-        self.log_step(hh)
+    def make(self, nb_proc, make_opt):
 
         # make
         command = 'make'
-        if self.options.makeflags:
-            command = command + " " + self.options.makeflags
-        command = command + " -j" + str(nbproc)
-
+        command = command + " -j" + str(nb_proc)
+        command = command + " " + make_opt
         self.log_command(command)
         res = subprocess.call(command,
                               shell=True,
