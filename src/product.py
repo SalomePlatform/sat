@@ -117,12 +117,18 @@ def get_product_config(config, product_name):
         prod_info.name = product_name
         prod_info.get_source = "native"
     
+    # If prod_info is still None, it means that there is no product definition
+    # in the config. The user has to provide it.
+    if prod_info is None:
+        msg = _("No definition found for the product %s\n"
+            "Please create a %s.pyconf file." % (product_name, product_name))
+        raise src.SatException(msg)
+    
     # Set the debug, dev and version keys
-    if prod_info is not None:
-        prod_info.debug = debug
-        prod_info.dev = dev
-        prod_info.version = version
-     
+    prod_info.debug = debug
+    prod_info.dev = dev
+    prod_info.version = version
+    
     # Set the install_dir key
     if "install_dir" not in prod_info:
         # Set it to the default value (in application directory)
@@ -134,8 +140,38 @@ def get_product_config(config, product_name):
             # Get the product base of the application
             base_path = src.get_base_path(config) 
             prod_info.install_dir = os.path.join(base_path,
-                                            prod_info.name)
-       
+                                            prod_info.name + version)
+    
+    # If the product compiles with a script, check the script existence
+    # and if it is executable
+    if product_has_script(prod_info):
+        # Check the compil_script key existence
+        if "compil_script" not in prod_info:
+            msg = _("No compilation script found for the product %s\n"
+                "Please provide a \"compil_script\" key in its definition." 
+                % (product_name))
+            raise src.SatException(msg)
+        
+        # Get the path of the script
+        script = prod_info.compil_script
+        script_name = os.path.basename(script)
+        if script == script_name:
+            # Only a name is given. Search in the default directory
+            script_path = os.path.join(
+                    config.INTERNAL.compile.default_script_dir, script_name)
+            prod_info.compil_script = script_path
+
+        # Check script existence
+        if not os.path.exists(prod_info.compil_script):
+            raise src.SatException(_("Compilation script not found: %s") % 
+                                   prod_info.compil_script)
+        
+        # Check that the script is executable
+        if not os.access(prod_info.compil_script, os.X_OK):
+            raise src.SatException(
+                    _("Compilation script cannot be executed: %s") % 
+                    prod_info.compil_script)
+        
     return prod_info
 
 def get_products_infos(lproducts, config):
@@ -284,5 +320,8 @@ def product_has_script(product_info):
     :return: True if the product it has a compilation script, else False
     :rtype: boolean
     '''
+    if "build_source" not in product_info:
+        # Native case
+        return False
     build_src = product_info.build_source
     return build_src.lower() == 'script'

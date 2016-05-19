@@ -58,7 +58,7 @@ class Builder:
         """
 
     ##
-    # Shortcut method to log in both log files.
+    # Shortcut method to log in log file.
     def log(self, text, level, showInfo=True):
         self.logger.write(text, level, showInfo)
         self.logger.logTxtFile.write(src.printcolors.cleancolor(text))
@@ -209,23 +209,6 @@ CC=\\"hack_libtool\\"%g" libtool'''
                         stdout=self.logger.logTxtFile,
                         stderr=subprocess.STDOUT)
 
-    def get_nb_proc(self, opt_nb_proc=None):
-        nbproc = -1
-        if "nb_proc" in self.product_info:
-            # nb proc is specified in module definition
-            nbproc = self.product_info.nb_proc
-            if opt_nb_proc and opt_nb_proc < self.product_info.nb_proc:
-                # use command line value only if it is lower than module definition
-                nbproc = opt_nb_proc
-        else:
-            # nb proc is not specified in module definition
-            if opt_nb_proc:
-                nbproc = opt_nb_proc
-            else:
-                nbproc = self.config.VARS.nb_proc
-        
-        assert nbproc > 0
-        return nbproc
 
     ##
     # Runs make to build the module.
@@ -392,13 +375,13 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
     ##
     # Performs a build with a script.
-    def do_script_build(self, script):
+    def do_python_script_build(self, script):
         # script found
         self.logger.write(_("Compile %(module)s using script %(script)s\n") % \
             { 'module': self.module, 'script': src.printcolors.printcLabel(script) }, 4)
         try:
             import imp
-            pymodule = imp.load_source(self.module + "_compile_script", script)
+            pymodule = imp.load_source(self.product + "_compile_script", script)
             retcode = pymodule.compil(self.config, self, self.logger)
         except:
             __, exceptionValue, exceptionTraceback = sys.exc_info()
@@ -409,3 +392,50 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
         return retcode
 
+    def complete_environment(self, make_options):
+        assert self.build_environ is not None
+        # pass additional variables to environment (may be used by the build script)
+        self.build_environ.set("SOURCE_DIR", str(self.source_dir))
+        self.build_environ.set("INSTALL_DIR", str(self.install_dir))
+        self.build_environ.set("PRODUCT_INSTALL", str(self.install_dir))
+        self.build_environ.set("BUILD_DIR", str(self.build_dir))
+        self.build_environ.set("PRODUCT_BUILD", str(self.build_dir))
+        self.build_environ.set("MAKE_OPTIONS", make_options)
+        self.build_environ.set("DIST_NAME", self.config.VARS.dist_name)
+        self.build_environ.set("DIST_VERSION", self.config.VARS.dist_version)
+        self.build_environ.set("DIST", self.config.VARS.dist)
+
+    def do_batch_script_build(self, script):
+        # define make options (may not be used by the script)
+        nb_proc = src.get_cfg_param(self.product_info,"nb_proc", 0)
+        if nb_proc == 0: 
+            nb_proc = self.config.VARS.nb_proc
+
+        if src.architecture.is_windows():
+            make_options = "/maxcpucount:%s" % nb_proc
+        else :
+            make_options = "-j%s" % nb_proc
+
+        self.log_command("  " + _("Run build script %s\n") % script)
+        self.complete_environment(make_options)
+        res = subprocess.call(script, 
+                              shell=True,
+                              stdout=self.logger.logTxtFile,
+                              stderr=subprocess.STDOUT,
+                              cwd=str(self.build_dir), 
+                              env=self.build_environ.environ.environ)
+
+        if res == 0:
+            return res
+        else:
+            return 1
+    
+    def do_script_build(self, script):
+        extension = script.split('.')[-1]
+        if extension in ["bat","sh"]:
+            return self.do_batch_script_build(script)
+        if extension == "py":
+            return self.do_python_script_build(script)
+        
+        msg = _("The script %s must have .sh, .bat or .py extension." % script)
+        raise src.SatException(msg)

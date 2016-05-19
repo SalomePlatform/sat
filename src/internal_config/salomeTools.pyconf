@@ -8,6 +8,10 @@ INTERNAL :
     {
     	not_shown_commands : ["log"]
     }
+    compile :
+    {
+        default_script_dir : $VARS.datadir + $VARS.sep + "compil_scripts"
+    }
 }
 PRODUCTS :
 {

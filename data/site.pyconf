@@ -12,7 +12,7 @@ SITE :
     {
     	default_git_server : "http://default.git"
     	default_git_server_dev : "http://default_dev.git"
-    	archive_dir : "/home/salome/ETC"
+    	archive_dir : "/data/tmpsalome/salome/prerequis/archives/"
     	cvs_dir : "/test"
     	default_cvs_server : "http://default.cvs"
     }

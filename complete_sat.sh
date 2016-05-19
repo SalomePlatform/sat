@@ -80,7 +80,7 @@ _salomeTools_complete()
     # first argument => show available commands
     if [[ ${argc} == 1 ]]
     then
-        opts="config log testcommand source patch prepare environ clean configure make --help"
+        opts="config log testcommand source patch prepare environ clean configure make makeinstall --help"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     fi
@@ -171,6 +171,11 @@ _salomeTools_complete()
             ;;
         make)
             opts="--products --option"
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        makeinstall)
+            opts="--products"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
