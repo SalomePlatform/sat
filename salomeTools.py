@@ -79,6 +79,8 @@ parser.add_option('v', 'verbose', 'int', "output_verbose_level",
                   _("change output verbose level (default is 3)."))
 parser.add_option('b', 'batch', 'boolean', "batch", 
                   _("batch mode (no question)."))
+parser.add_option('t', 'all_in_terminal', 'boolean', "all_in_terminal", 
+                  _("All traces in the terminal (for example compilation logs)."))
 
 class Sat(object):
     '''The main class that stores all the commands of salomeTools
@@ -186,7 +188,8 @@ class Sat(object):
                 # create log file, unless the command is called 
                 # with a logger as parameter
                 logger_command = src.logger.Logger(self.cfg, 
-                                                   silent_sysstd=silent)
+                                                   silent_sysstd=silent,
+                                                   all_in_terminal=options.all_in_terminal)
                 if logger:
                     logger_command = logger
                 

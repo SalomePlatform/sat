@@ -32,7 +32,7 @@ logCommandFileExpression = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
 class Logger(object):
     '''Class to handle log mechanism.
     '''
-    def __init__(self, config, silent_sysstd=False):
+    def __init__(self, config, silent_sysstd=False, all_in_terminal=False):
         '''Initialization
         
         :param config pyconf.Config: The global configuration.
@@ -65,6 +65,8 @@ class Logger(object):
         self.put_initial_xml_fields()
         # Initialize the txt file for reading
         self.logTxtFile = open(str(self.txtFilePath), 'w')
+        if all_in_terminal:
+            self.logTxtFile = sys.__stdout__
         
     def put_initial_xml_fields(self):
         '''Method called at class initialization : Put all fields 
