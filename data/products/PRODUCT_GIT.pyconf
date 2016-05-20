@@ -12,7 +12,7 @@ PRODUCT_GIT :
     {
 	   build : {"ONLY_FOR_BUILD" : "HELLO"}
     }
-    depend : [PRODUCT_ARCHIVE, PRODUCT_NATIVE]
+    depend : ["PRODUCT_ARCHIVE", "PRODUCT_NATIVE"]
     opt_depend : []
     type : "salome"
     has_gui : "yes"

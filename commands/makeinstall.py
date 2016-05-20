@@ -169,7 +169,7 @@ def run(args, runner, logger):
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
 
-    # Get the list of products to threat
+    # Get the list of products to treat
     products_infos = get_products_list(options, runner.cfg, logger)
 
     # Print some informations
