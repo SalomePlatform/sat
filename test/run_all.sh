@@ -28,6 +28,7 @@ coverage run --source=../commands/config.py,../commands/log.py,../src/xmlManager
 coverage run --source=../commands/config.py,../commands/source.py,../commands/patch.py,../commands/prepare.py,../src/product.py -a prepare/test_source.py >> test_res.html
 coverage run --source=../commands/config.py,../commands/source.py,../commands/patch.py,../commands/prepare.py,../src/product.py -a prepare/test_patch.py >> test_res.html
 coverage run --source=../commands/config.py,../commands/source.py,../commands/patch.py,../commands/prepare.py,../src/product.py -a prepare/test_prepare.py >> test_res.html
+coverage run --source=../commands/config.py,../commands/source.py,../commands/patch.py,../commands/prepare.py,../commands/clean.py,../src/product.py -a prepare/test_clean.py >> test_res.html
 coverage run --source=../commands/config.py,../commands/environ.py,../src/environment.py,../src/fileEnviron.py -a environ/test_environ.py >> test_res.html
 coverage html
 

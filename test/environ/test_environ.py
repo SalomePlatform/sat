@@ -145,7 +145,7 @@ class TestSource(unittest.TestCase):
         OK = 'KO'
         
         appli = 'appli-test'
-        shell = 'batch'
+        shell = 'bat'
         file_env_name = 'env_launch.bat'
         
         sat = Sat()
