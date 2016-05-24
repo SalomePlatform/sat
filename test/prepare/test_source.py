@@ -156,7 +156,7 @@ class TestSource(unittest.TestCase):
 
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
-        
+    """    
     def test_source_unknown(self):
         '''Test the source command with unknown product
         '''
@@ -182,7 +182,7 @@ class TestSource(unittest.TestCase):
 
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
-
+    """
 
     def test_description(self):
         '''Test the sat -h source

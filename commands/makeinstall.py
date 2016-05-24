@@ -20,7 +20,7 @@ import os
 
 import src
 
-# Define all possible option for the makeinstall command :  sat makeinstall <options>
+# Define all possible option for the makeinstall command : sat makeinstall <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
     _('products to configure. This option can be'

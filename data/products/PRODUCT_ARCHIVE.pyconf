@@ -41,9 +41,9 @@ PRODUCT_ARCHIVE_4_4_2 :
 	present_files :
 	{
 	   source : ['my_test_file.txt', 'my_test_file.txt~']
-	   install : ['', '', '']
+	   install : []
 	}
-    depend : ['PRODUCT_NATIVE', 'PRODUCT_CVS']
+    depend : ['PRODUCT_NATIVE']
     opt_depend : []
     type : "sample"
     has_gui : "yes"

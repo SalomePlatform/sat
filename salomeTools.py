@@ -141,7 +141,7 @@ class Sat(object):
             (file_, pathname, description) = imp.find_module(nameCmd, [dirPath])
             module = imp.load_module(nameCmd, file_, pathname, description)
             
-            def run_command(args='', logger=None, batch = False, verbose = -1):
+            def run_command(args='', batch = False, verbose = -1):
                 '''The function that will load the configuration (all pyconf)
                 and return the function run of the command corresponding to module
                 
@@ -160,7 +160,7 @@ class Sat(object):
                 if argv != [''] and argv[0][0] != "-":
                     appliToLoad = argv[0].rstrip('*')
                     argv = argv[1:]
-                
+                               
                 # read the configuration from all the pyconf files    
                 cfgManager = config.ConfigManager()
                 self.cfg = cfgManager.get_config(datadir=self.datadir, 
@@ -189,9 +189,7 @@ class Sat(object):
                 # with a logger as parameter
                 logger_command = src.logger.Logger(self.cfg, 
                                                    silent_sysstd=silent,
-                                                   all_in_terminal=options.all_in_terminal)
-                if logger:
-                    logger_command = logger
+                                                   all_in_terminal=self.options.all_in_terminal)
                 
                 try:
                     # Execute the hooks (if there is any) 

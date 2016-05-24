@@ -175,7 +175,7 @@ def run(args, runner, logger):
             logger.write("  %s\n" % directory, 1)
         rep = input(_("Are you sure you want to continue? [Yes/No] "))
         if rep.upper() != _("YES"):
-            return
+            return 0
     
     # Suppress the list of paths
     suppress_directories(l_dir_to_suppress, logger)

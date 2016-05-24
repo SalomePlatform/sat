@@ -20,27 +20,34 @@ import os
 
 import src
 
+# Compatibility python 2/3 for input function
+# input stays input for python 3 and input = raw_input for python 2
+try: 
+    input = raw_input
+except NameError: 
+    pass
+
 # Define all possible option for the compile command :  sat compile <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
     _('products to configure. This option can be'
     ' passed several time to configure several products.'))
 parser.add_option('', 'with_fathers', 'boolean', 'fathers',
-    _("build all necessary modules to the given module (KERNEL is build before"
+    _("build all necessary products to the given product (KERNEL is build before"
       " building GUI)."), False)
 parser.add_option('', 'with_children', 'boolean', 'children',
-    _("build all modules using the given module (all SMESH plugins are build "
+    _("build all products using the given product (all SMESH plugins are build "
       "after SMESH)."), False)
 parser.add_option('', 'clean_all', 'boolean', 'clean_all',
-    _("clean BUILD dir and INSTALL dir before building module."), False)
+    _("clean BUILD dir and INSTALL dir before building product."), False)
 parser.add_option('', 'clean_install', 'boolean', 'clean_install',
-    _("clean INSTALL dir before building module."), False)
+    _("clean INSTALL dir before building product."), False)
 parser.add_option('', 'make_flags', 'string', 'makeflags',
     _("add extra options to the 'make' command."))
 parser.add_option('', 'show', 'boolean', 'no_compile',
-    _("DO NOT COMPILE just show if modules are installed or not."), False)
+    _("DO NOT COMPILE just show if products are installed or not."), False)
 parser.add_option('', 'stop_first_fail', 'boolean', 'stop_first_fail', _("Stop"
-                    "s the command at first module compilation fail."), False)
+                    "s the command at first product compilation fail."), False)
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
@@ -78,6 +85,68 @@ def get_products_list(options, cfg, logger):
     
     return products_infos
 
+def get_children(config, p_name_p_info):
+    l_res = []
+    p_name, __ = p_name_p_info
+    # Get all products of the application
+    products = config.APPLICATION.products
+    products_infos = src.product.get_products_infos(products, config)
+    for p_name_potential_child, p_info_potential_child in products_infos:
+        if ("depend" in p_info_potential_child and 
+                p_name in p_info_potential_child.depend):
+            l_res.append(p_name_potential_child)
+    return l_res
+
+def get_recursive_children(config, p_name_p_info, without_native_fixed=False):
+    """ Get the recursive list of the product that depend on 
+        the product defined by prod_info
+    
+    :param config Config: The global configuration
+    :param prod_info Config: The specific config of the product
+    :param without_native_fixed boolean: If true, do not include the fixed
+                                         or native products in the result
+    :return: The list of product_informations.
+    :rtype: List
+    """
+    p_name, __ = p_name_p_info
+    # Initialization of the resulting list
+    l_children = []
+    
+    # Get the direct children (not recursive)
+    l_direct_children = get_children(config, p_name_p_info)
+    # Minimal case : no child
+    if l_direct_children == []:
+        return []
+    # Add the children and call the function to get the children of the
+    # children
+    for child_name in l_direct_children:
+        l_children_name = [pn_pi[0] for pn_pi in l_children]
+        if child_name not in l_children_name:
+            if child_name not in config.APPLICATION.products:
+                msg = _("The product %(child_name)s that is in %(product_nam"
+                        "e)s children is not present in application "
+                        "%(appli_name)s" % {"child_name" : child_name, 
+                                    "product_name" : p_name.name, 
+                                    "appli_name" : config.VARS.application})
+                raise src.SatException(msg)
+            prod_info_child = src.product.get_product_config(config,
+                                                              child_name)
+            pname_pinfo_child = (prod_info_child.name, prod_info_child)
+            # Do not append the child if it is native or fixed and 
+            # the corresponding parameter is called
+            if without_native_fixed:
+                if not(src.product.product_is_native(prod_info_child) or 
+                       src.product.product_is_fixed(prod_info_child)):
+                    l_children.append(pname_pinfo_child)
+            else:
+                l_children.append(pname_pinfo_child)
+            # Get the children of the children
+            l_grand_children = get_recursive_children(config,
+                                pname_pinfo_child,
+                                without_native_fixed = without_native_fixed)
+            l_children += l_grand_children
+    return l_children
+
 def get_recursive_fathers(config, p_name_p_info, without_native_fixed=False):
     """ Get the recursive list of the dependencies of the product defined by
         prod_info
@@ -110,7 +179,7 @@ def get_recursive_fathers(config, p_name_p_info, without_native_fixed=False):
             prod_info_father = src.product.get_product_config(config,
                                                               father_name)
             pname_pinfo_father = (prod_info_father.name, prod_info_father)
-            # Do not append the father if the it is native or fixed and 
+            # Do not append the father if it is native or fixed and 
             # the corresponding parameter is called
             if without_native_fixed:
                 if not(src.product.product_is_native(prod_info_father) or 
@@ -133,7 +202,9 @@ def sort_products(config, p_infos):
     """
     l_prod_sorted = deepcopy_list(p_infos)
     for prod in p_infos:
-        l_fathers = get_recursive_fathers(config, prod, without_native_fixed=True)
+        l_fathers = get_recursive_fathers(config,
+                                          prod,
+                                          without_native_fixed=True)
         l_fathers = [father for father in l_fathers if father in p_infos]
         if l_fathers == []:
             continue
@@ -148,13 +219,41 @@ def sort_products(config, p_infos):
     return l_prod_sorted
        
 def deepcopy_list(input_list):
+    """ Do a deep copy of a list
+    
+    :param input_list List: The list to copy
+    :return: The copy of the list
+    :rtype: List
+    """
     res = []
     for elem in input_list:
         res.append(elem)
     return res
 
+def extend_with_fathers(config, p_infos):
+    p_infos_res = deepcopy_list(p_infos)
+    for p_name_p_info in p_infos:
+        fathers = get_recursive_fathers(config,
+                                        p_name_p_info,
+                                        without_native_fixed=True)
+        for p_name_p_info_father in fathers:
+            if p_name_p_info_father not in p_infos_res:
+                p_infos_res.append(p_name_p_info_father)
+    return p_infos_res
+
+def extend_with_children(config, p_infos):
+    p_infos_res = deepcopy_list(p_infos)
+    for p_name_p_info in p_infos:
+        children = get_recursive_children(config,
+                                        p_name_p_info,
+                                        without_native_fixed=True)
+        for p_name_p_info_child in children:
+            if p_name_p_info_child not in p_infos_res:
+                p_infos_res.append(p_name_p_info_child)
+    return p_infos_res    
+
 def log_step(logger, header, step):
-    logger.write("\r%s%s" % (header, " " * 20), 3)
+    logger.write("\r%s%s" % (header, " " * 30), 3)
     logger.write("\r%s%s" % (header, step), 3)
     logger.write("\n==== %s \n" % src.printcolors.printcInfo(step), 4)
     logger.flush()
@@ -167,7 +266,7 @@ def log_res_step(logger, res):
         logger.write("%s \n" % src.printcolors.printcError("KO"), 4)
         logger.flush()
 
-def compile_all_products(sat, config, products_infos, logger):
+def compile_all_products(sat, config, options, products_infos, logger):
     '''Execute the proper configuration commands 
        in each product build directory.
 
@@ -180,12 +279,52 @@ def compile_all_products(sat, config, products_infos, logger):
     '''
     res = 0
     for p_name_info in products_infos:
-        res_prod = compile_product(sat, p_name_info, config, logger)
+        
+        p_name, p_info = p_name_info
+        
+        # Logging
+        logger.write("\n", 4, False)
+        logger.write("################ ", 4)
+        header = _("Compilation of %s") % src.printcolors.printcLabel(p_name)
+        header += " %s " % ("." * (30 - len(p_name)))
+        logger.write(header, 3)
+        logger.write("\n", 4, False)
+        logger.flush()
+        
+        # Clean the build and the install directories 
+        # if the corresponding options was called
+        if options.clean_all:
+            log_step(logger, header, "CLEAN BUILD AND INSTALL")
+            sat.clean(config.VARS.application + 
+                      " --products " + p_name + 
+                      " --build --install", batch=True, verbose=0)
+        
+        # Clean the the install directory 
+        # if the corresponding option was called
+        if options.clean_install and not options.clean_all:
+            log_step(logger, header, "CLEAN INSTALL")
+            sat.clean(config.VARS.application + 
+                      " --products " + p_name + 
+                      " --install", batch=True, verbose=0)
+        
+        # Check if it was already successfully installed
+        if src.product.check_installation(p_info):
+            logger.write(_("Already installed\n"))
+            continue
+        
+        if options.no_compile:
+            logger.write(_("Not installed\n"))
+            continue
+        
+        res_prod = compile_product(sat, p_name_info, config, options, logger, header)
         if res_prod != 0:
-            res += 1 
+            res += 1
+            if options.stop_first_fail:
+                break
+            
     return res
 
-def compile_product(sat, p_name_info, config, logger):
+def compile_product(sat, p_name_info, config, options, logger, header):
     '''Execute the proper configuration command(s) 
        in the product build directory.
     
@@ -197,33 +336,43 @@ def compile_product(sat, p_name_info, config, logger):
     :rtype: int
     '''
     
-    p_name, __ = p_name_info
-    
-    # Logging
-    logger.write("\n", 4, False)
-    logger.write("################ ", 4)
-    header = _("Compilation of %s") % src.printcolors.printcLabel(p_name)
-    header += " %s " % ("." * (20 - len(p_name)))
-    logger.write(header, 3)
-    logger.write("\n", 4, False)
-    logger.flush()
-    
+    p_name, p_info = p_name_info
+       
     # Execute "sat configure", "sat make" and "sat install"
-    len_end_line = 20
+    len_end_line = 30
     res = 0
-
+    
+    # Logging and sat command call for configure step 
     log_step(logger, header, "CONFIGURE")
-    res_c = sat.configure(config.VARS.application + " --products " + p_name, verbose = 0)
+    res_c = sat.configure(config.VARS.application + " --products " + p_name,
+                          verbose = 0)
     log_res_step(logger, res_c)
     res += res_c
     
-    log_step(logger, header, "MAKE")
-    res_c = sat.make(config.VARS.application + " --products " + p_name, verbose = 0)
+    # Logging and sat command call for make step
+    # Logging take account of the fact that the product has a compilation 
+    # script or not
+    if src.product.product_has_script(p_info):
+        # if the product has a compilation script, 
+        # it is executed during make step
+        scrit_path_display = src.printcolors.printcLabel(p_info.compil_script)
+        log_step(logger, header, "SCRIPT " + scrit_path_display)
+        len_end_line = len(scrit_path_display)
+    else:
+        log_step(logger, header, "MAKE")
+    make_arguments = config.VARS.application + " --products " + p_name
+    # Get the make_flags option if there is any
+    if options.makeflags:
+        make_arguments += " --option -j" + options.makeflags
+    res_c = sat.make(make_arguments,
+                     verbose = 0)
     log_res_step(logger, res_c)
     res += res_c
 
+    # Logging and sat command call for make install step
     log_step(logger, header, "MAKE INSTALL")
-    res_c = sat.makeinstall(config.VARS.application + " --products " + p_name, verbose = 0)
+    res_c = sat.makeinstall(config.VARS.application + " --products " + p_name,
+                            verbose = 0)
     log_res_step(logger, res_c)
     res += res_c
     
@@ -231,14 +380,16 @@ def compile_product(sat, p_name_info, config, logger):
     if res > 0:
         logger.write("\r%s%s" % (header, " " * len_end_line), 3)
         logger.write("\r" + header + src.printcolors.printcError("KO"))
-        logger.write("==== %(KO)s in compile of %(name)s \n" %
+        logger.write("\n==== %(KO)s in compile of %(name)s \n" %
             { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
         logger.flush()
     else:
         logger.write("\r%s%s" % (header, " " * len_end_line), 3)
         logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
-        logger.write("==== %s \n" % src.printcolors.printcInfo("OK"), 4)
-        logger.write("==== Make of %(name)s %(OK)s \n" %
+        logger.write(_("\nINSTALL directory = %s" % 
+                       src.printcolors.printcInfo(p_info.install_dir)), 3)
+        logger.write("\n==== %s \n" % src.printcolors.printcInfo("OK"), 4)
+        logger.write("\n==== Compilation of %(name)s %(OK)s \n" %
             { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
         logger.flush()
     logger.write("\n", 3, False)
@@ -251,7 +402,7 @@ def description():
     :return: The text to display for the compile command description.
     :rtype: str
     '''
-    return _("The compile command construct the products of the application")
+    return _("The compile command constructs the products of the application")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with compile parameter.
@@ -260,11 +411,29 @@ def run(args, runner, logger):
     # Parse the options
     (options, args) = parser.parse_args(args)
 
+    # Warn the user if he invoked the clean_all option 
+    # without --products option
+    if (options.clean_all and 
+        options.products is None and 
+        not runner.options.batch):
+        rep = raw_input(_("You used --clean_all without specifying a product"
+                          " are you sure you want to continue? [Yes/No] "))
+        if rep.upper() != _("YES").upper():
+            return 0
+        
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
 
     # Get the list of products to treat
     products_infos = get_products_list(options, runner.cfg, logger)
+
+    if options.fathers:
+        # Extend the list with all recursive dependencies of the given products
+        products_infos = extend_with_fathers(runner.cfg, products_infos)
+
+    if options.children:
+        # Extend the list with all products that use the given products
+        products_infos = extend_with_children(runner.cfg, products_infos)
 
     # Sort the list regarding the dependencies of the products
     products_infos = sort_products(runner.cfg, products_infos)
@@ -284,7 +453,7 @@ def run(args, runner, logger):
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
-    res = compile_all_products(runner, runner.cfg, products_infos, logger)
+    res = compile_all_products(runner, runner.cfg, options, products_infos, logger)
     
     # Print the final state
     nb_products = len(products_infos)
@@ -298,4 +467,4 @@ def run(args, runner, logger):
           'valid_result': nb_products - res,
           'nb_products': nb_products }, 1)    
     
-    return res 
+    return res

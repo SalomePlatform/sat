@@ -25,11 +25,15 @@ coverage run --source=../commands/config.py -a config/option_copy.py >> test_res
 coverage run --source=../commands/config.py -a config/option_edit.py >> test_res.html
 coverage run --source=../commands/config.py,../commands/log.py,../src/xmlManager.py,../src/logger.py -a log/launch_browser.py >> test_res.html
 coverage run --source=../commands/config.py,../commands/log.py,../src/xmlManager.py,../src/logger.py -a log/launch_browser2.py >> test_res.html
-coverage run --source=../commands/config.py,../commands/source.py,../commands/patch.py,../commands/prepare.py,../src/product.py -a prepare/test_source.py >> test_res.html
-coverage run --source=../commands/config.py,../commands/source.py,../commands/patch.py,../commands/prepare.py,../src/product.py -a prepare/test_patch.py >> test_res.html
-coverage run --source=../commands/config.py,../commands/source.py,../commands/patch.py,../commands/prepare.py,../src/product.py -a prepare/test_prepare.py >> test_res.html
-coverage run --source=../commands/config.py,../commands/source.py,../commands/patch.py,../commands/prepare.py,../commands/clean.py,../src/product.py -a prepare/test_clean.py >> test_res.html
-coverage run --source=../commands/config.py,../commands/environ.py,../src/environment.py,../src/fileEnviron.py -a environ/test_environ.py >> test_res.html
+coverage run --source=../commands/config.py,../commands/source.py,../commands/patch.py,../commands/prepare.py -a prepare/test_source.py >> test_res.html
+coverage run --source=../commands/config.py,../commands/source.py,../commands/patch.py,../commands/prepare.py -a prepare/test_patch.py >> test_res.html
+coverage run --source=../commands/config.py,../commands/source.py,../commands/patch.py,../commands/prepare.py -a prepare/test_prepare.py >> test_res.html
+coverage run --source=../commands/config.py,../commands/source.py,../commands/patch.py,../commands/prepare.py,../commands/clean.py -a prepare/test_clean.py >> test_res.html
+coverage run --source=../commands/config.py,../commands/environ.py -a environ/test_environ.py >> test_res.html
+coverage run --source=../commands/config.py,../commands/configure.py,../commands/environ.py -a compilation/test_configure.py >> test_res.html
+coverage run --source=../commands/config.py,../commands/make.py,../commands/environ.py -a compilation/test_make.py >> test_res.html
+coverage run --source=../commands/config.py,../commands/makeinstall.py,../commands/environ.py -a compilation/test_makeinstall.py >> test_res.html
+coverage run --source=../commands/config.py,../commands/compile.py,../commands/configure.py,../commands/make.py,../commands/makeinstall.py,../commands/environ.py -a compilation/test_compilation.py >> test_res.html
 coverage html
 
 #firefox test_res.html htmlcov/index.html

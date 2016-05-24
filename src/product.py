@@ -140,7 +140,7 @@ def get_product_config(config, product_name):
             # Get the product base of the application
             base_path = src.get_base_path(config) 
             prod_info.install_dir = os.path.join(base_path,
-                                            prod_info.name + version)
+                                            prod_info.name + "-" + version)
     
     # If the product compiles with a script, check the script existence
     # and if it is executable
@@ -191,7 +191,8 @@ def get_products_infos(lproducts, config):
         if prod_info is not None:
             products_infos.append((prod, prod_info))
         else:
-            msg = _("The %s product has no definition in the configuration.") % prod
+            msg = _("The %s product has no definition "
+                    "in the configuration.") % prod
             raise src.SatException(msg)
     return products_infos
 
@@ -217,6 +218,26 @@ def get_product_dependencies(config, product_info):
             if prod_in_dep not in res:
                 res.append(prod_in_dep)
     return res
+
+def check_installation(product_info):
+    '''Verify if a product is well installed. Checks install directory presence
+       and some additional files if it is defined in the config 
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if it is well installed
+    :rtype: boolean
+    '''
+    install_dir = product_info.install_dir
+    if not os.path.exists(install_dir):
+        return False
+    if ("present_files" in product_info and 
+        "install" in product_info.present_files):
+        for file_relative_path in product_info.present_files.install:
+            file_path = os.path.join(install_dir, file_relative_path)
+            if not os.path.exists(file_path):
+                return False
+    return True
 
 def product_is_sample(product_info):
     '''Know if a product has the sample type
