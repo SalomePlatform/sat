@@ -252,6 +252,14 @@ def extend_with_children(config, p_infos):
                 p_infos_res.append(p_name_p_info_child)
     return p_infos_res    
 
+def check_dependencies(config, p_name_p_info):
+    l_depends_not_installed = []
+    fathers = get_recursive_fathers(config, p_name_p_info, without_native_fixed=True)
+    for p_name_father, p_info_father in fathers:
+        if not(src.product.check_installation(p_info_father)):
+            l_depends_not_installed.append(p_name_father)
+    return l_depends_not_installed
+
 def log_step(logger, header, step):
     logger.write("\r%s%s" % (header, " " * 30), 3)
     logger.write("\r%s%s" % (header, step), 3)
@@ -312,10 +320,22 @@ def compile_all_products(sat, config, options, products_infos, logger):
             logger.write(_("Already installed\n"))
             continue
         
+        # If the show option was called, do not launch the compilation
         if options.no_compile:
             logger.write(_("Not installed\n"))
             continue
         
+        # Check if the dependencies are installed
+        l_depends_not_installed = check_dependencies(config, p_name_info)
+        if len(l_depends_not_installed) > 0:
+            logger.write(src.printcolors.printcError(
+                    _("ERROR : the following product(s) is(are) mandatory: ")))
+            for prod_name in l_depends_not_installed:
+                logger.write(src.printcolors.printcError(prod_name + " "))
+            logger.write("\n")
+            continue
+        
+        # Call the function to compile the product
         res_prod = compile_product(sat, p_name_info, config, options, logger, header)
         if res_prod != 0:
             res += 1
@@ -416,7 +436,7 @@ def run(args, runner, logger):
     if (options.clean_all and 
         options.products is None and 
         not runner.options.batch):
-        rep = raw_input(_("You used --clean_all without specifying a product"
+        rep = input(_("You used --clean_all without specifying a product"
                           " are you sure you want to continue? [Yes/No] "))
         if rep.upper() != _("YES").upper():
             return 0
