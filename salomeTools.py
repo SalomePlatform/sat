@@ -141,7 +141,7 @@ class Sat(object):
             (file_, pathname, description) = imp.find_module(nameCmd, [dirPath])
             module = imp.load_module(nameCmd, file_, pathname, description)
             
-            def run_command(args='', batch = False, verbose = -1):
+            def run_command(args='', batch = False, verbose = -1, logger_add_link = None):
                 '''The function that will load the configuration (all pyconf)
                 and return the function run of the command corresponding to module
                 
@@ -191,6 +191,9 @@ class Sat(object):
                                                    silent_sysstd=silent,
                                                    all_in_terminal=self.options.all_in_terminal)
                 
+                if logger_add_link is not None:
+                    logger_add_link.xmlFile.append_node_attrib("Links", attrib={__nameCmd__ : logger_command.logFilePath})
+                
                 try:
                     # Execute the hooks (if there is any) 
                     # and run method of the command
@@ -219,7 +222,7 @@ class Sat(object):
                                                 args])
                     logger_command.end_write({"launchedCommand" : launchedCommand})
                 
-                return res
+                return res, logger_command.logFilePath
 
             # Make sure that run_command will be redefined 
             # at each iteration of the loop
@@ -407,5 +410,5 @@ if __name__ == "__main__":
     
     # exit salomeTools with the right code (0 if no errors, else 1)
     if code is None: code = 0
-    sys.exit(code)
+    sys.exit(code[0])
         

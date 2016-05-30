@@ -173,7 +173,7 @@ def get_recursive_fathers(config, p_name_p_info, without_native_fixed=False):
                 msg = _("The product %(father_name)s that is in %(product_nam"
                         "e)s dependencies is not present in application "
                         "%(appli_name)s" % {"father_name" : father_name, 
-                                    "product_name" : p_name.name, 
+                                    "product_name" : p_name, 
                                     "appli_name" : config.VARS.application})
                 raise src.SatException(msg)
             prod_info_father = src.product.get_product_config(config,
@@ -191,7 +191,9 @@ def get_recursive_fathers(config, p_name_p_info, without_native_fixed=False):
             l_grand_fathers = get_recursive_fathers(config,
                                 pname_pinfo_father,
                                 without_native_fixed = without_native_fixed)
-            l_fathers += l_grand_fathers
+            for item in l_grand_fathers:
+                if item not in l_fathers:
+                    l_fathers.append(item)
     return l_fathers
 
 def sort_products(config, p_infos):
@@ -291,10 +293,11 @@ def compile_all_products(sat, config, options, products_infos, logger):
         p_name, p_info = p_name_info
         
         # Logging
+        len_end_line = 30
         logger.write("\n", 4, False)
         logger.write("################ ", 4)
         header = _("Compilation of %s") % src.printcolors.printcLabel(p_name)
-        header += " %s " % ("." * (30 - len(p_name)))
+        header += " %s " % ("." * (len_end_line - len(p_name)))
         logger.write(header, 3)
         logger.write("\n", 4, False)
         logger.flush()
@@ -336,15 +339,46 @@ def compile_all_products(sat, config, options, products_infos, logger):
             continue
         
         # Call the function to compile the product
-        res_prod = compile_product(sat, p_name_info, config, options, logger, header)
+        res_prod, len_end_line, error_step = compile_product(sat,
+                                                             p_name_info,
+                                                             config,
+                                                             options,
+                                                             logger,
+                                                             header,
+                                                             len_end_line)
+        
         if res_prod != 0:
+            # Clean the install directory if there is any
+            sat.clean(config.VARS.application + 
+                      " --products " + p_name + 
+                      " --install", batch=True, verbose=0)
             res += 1
-            if options.stop_first_fail:
-                break
             
+        # Log the result
+        if res > 0:
+            logger.write("\r%s%s" % (header, " " * len_end_line), 3)
+            logger.write("\r" + header + src.printcolors.printcError("KO ") + error_step)
+            logger.write("\n==== %(KO)s in compile of %(name)s \n" %
+                { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
+            logger.flush()
+        else:
+            logger.write("\r%s%s" % (header, " " * len_end_line), 3)
+            logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
+            logger.write(_("\nINSTALL directory = %s" % 
+                           src.printcolors.printcInfo(p_info.install_dir)), 3)
+            logger.write("\n==== %s \n" % src.printcolors.printcInfo("OK"), 4)
+            logger.write("\n==== Compilation of %(name)s %(OK)s \n" %
+                { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
+            logger.flush()
+        logger.write("\n", 3, False)
+        
+        
+        if res_prod != 0 and options.stop_first_fail:
+            break
+        
     return res
 
-def compile_product(sat, p_name_info, config, options, logger, header):
+def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     '''Execute the proper configuration command(s) 
        in the product build directory.
     
@@ -359,62 +393,61 @@ def compile_product(sat, p_name_info, config, options, logger, header):
     p_name, p_info = p_name_info
        
     # Execute "sat configure", "sat make" and "sat install"
-    len_end_line = 30
     res = 0
+    error_step = ""
     
-    # Logging and sat command call for configure step 
+    # Logging and sat command call for configure step
+    len_end_line = len_end
     log_step(logger, header, "CONFIGURE")
-    res_c = sat.configure(config.VARS.application + " --products " + p_name,
-                          verbose = 0)
+    res_c, __ = sat.configure(config.VARS.application + " --products " + p_name,
+                          verbose = 0,
+                          logger_add_link = logger)
     log_res_step(logger, res_c)
     res += res_c
     
-    # Logging and sat command call for make step
-    # Logging take account of the fact that the product has a compilation 
-    # script or not
-    if src.product.product_has_script(p_info):
-        # if the product has a compilation script, 
-        # it is executed during make step
-        scrit_path_display = src.printcolors.printcLabel(p_info.compil_script)
-        log_step(logger, header, "SCRIPT " + scrit_path_display)
-        len_end_line = len(scrit_path_display)
-    else:
-        log_step(logger, header, "MAKE")
-    make_arguments = config.VARS.application + " --products " + p_name
-    # Get the make_flags option if there is any
-    if options.makeflags:
-        make_arguments += " --option -j" + options.makeflags
-    res_c = sat.make(make_arguments,
-                     verbose = 0)
-    log_res_step(logger, res_c)
-    res += res_c
+    if res_c > 0:
+        error_step = "CONFIGURE"
+    else:    
+        # Logging and sat command call for make step
+        # Logging take account of the fact that the product has a compilation 
+        # script or not
+        if src.product.product_has_script(p_info):
+            # if the product has a compilation script, 
+            # it is executed during make step
+            scrit_path_display = src.printcolors.printcLabel(
+                                                        p_info.compil_script)
+            log_step(logger, header, "SCRIPT " + scrit_path_display)
+            len_end_line = len(scrit_path_display)
+        else:
+            log_step(logger, header, "MAKE")
+        make_arguments = config.VARS.application + " --products " + p_name
+        # Get the make_flags option if there is any
+        if options.makeflags:
+            make_arguments += " --option -j" + options.makeflags
+        res_m, __ = sat.make(make_arguments,
+                         verbose = 0,
+                         logger_add_link = logger)
+        log_res_step(logger, res_m)
+        res += res_m
+        
+        if res_m > 0:
+            error_step = "MAKE"
+        else: 
+            # Logging and sat command call for make install step
+            log_step(logger, header, "MAKE INSTALL")
+            res_mi, __ = sat.makeinstall(config.VARS.application + 
+                                     " --products " + 
+                                     p_name,
+                                    verbose = 0,
+                                    logger_add_link = logger)
 
-    # Logging and sat command call for make install step
-    log_step(logger, header, "MAKE INSTALL")
-    res_c = sat.makeinstall(config.VARS.application + " --products " + p_name,
-                            verbose = 0)
-    log_res_step(logger, res_c)
-    res += res_c
-    
-    # Log the result
-    if res > 0:
-        logger.write("\r%s%s" % (header, " " * len_end_line), 3)
-        logger.write("\r" + header + src.printcolors.printcError("KO"))
-        logger.write("\n==== %(KO)s in compile of %(name)s \n" %
-            { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
-        logger.flush()
-    else:
-        logger.write("\r%s%s" % (header, " " * len_end_line), 3)
-        logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
-        logger.write(_("\nINSTALL directory = %s" % 
-                       src.printcolors.printcInfo(p_info.install_dir)), 3)
-        logger.write("\n==== %s \n" % src.printcolors.printcInfo("OK"), 4)
-        logger.write("\n==== Compilation of %(name)s %(OK)s \n" %
-            { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
-        logger.flush()
-    logger.write("\n", 3, False)
+            log_res_step(logger, res_mi)
+            res += res_mi
+            
+            if res_m > 0:
+                error_step = "MAKE INSTALL"
 
-    return res
+    return res, len_end_line, error_step
 
 def description():
     '''method that is called when salomeTools is called with --help option.
