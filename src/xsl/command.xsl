@@ -47,6 +47,20 @@
 		<h1>command's internal traces</h1>
 		<PRE><xsl:value-of select="SATcommand/Log"/></PRE>
 		
+		<h1>Links</h1>
+		<table border="1">
+			<tr>
+				<xsl:for-each select="SATcommand/Links/@*">
+					<td bgcolor="LightBlue">
+						<a title="log">
+							<xsl:attribute name="href"><xsl:value-of select="."/></xsl:attribute>
+							<xsl:value-of select="name(.)"/>
+						</a>
+					</td>
+				</xsl:for-each>
+			</tr>
+		</table>
+		
 		<h1>output</h1>
 		PENSER A METTRE UN LIEN POUR OUVRIR LE FICHIER AVEC UN EDITEUR DE TEXTE
 		<xsl:variable name="txtLog">

@@ -20,5 +20,9 @@ SITE :
     {
         log_dir : $USER.workdir + "/LOGS"
     }
+    jobs :
+    {
+        config_path : $VARS.personalDir + '/Jobs'
+    }
 }
 

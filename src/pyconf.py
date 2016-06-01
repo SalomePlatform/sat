@@ -657,6 +657,11 @@ class Config(Mapping):
         in the configuration hierarchy.
         @type parent: a L{Container} instance.
         """
+        try: # Python 3 compatibility
+            if isinstance(streamOrFile, unicode):
+                streamOrFile = streamOrFile.encode()
+        except NameError:
+            pass
         Mapping.__init__(self, parent)
         object.__setattr__(self, 'reader', ConfigReader(self))
         object.__setattr__(self, 'namespaces', [Config.Namespace()])
@@ -1085,10 +1090,7 @@ class ConfigReader(object):
         else:
             c = self.stream.read(1)
             if isinstance(c,bytes):
-                try:
-                    c = c.decode()
-                except:
-                    import pdb;pdb.set_trace()
+                c = c.decode()
             self.colno += 1
             if c == '\n':
                 self.lineno += 1

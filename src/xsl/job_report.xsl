@@ -27,36 +27,23 @@
     </style>
 </head>
 	<body class="def" bgcolor="aliceblue">
-		<h1><img src="LOGO-SAT.png"/></h1>
-			<xsl:choose>
-			  <xsl:when test="not(LOGlist/@application='None')">
-				  <h1>Logs of application <xsl:value-of select="LOGlist/@application"/></h1>
-			  </xsl:when>
-			  <xsl:otherwise>
-				  <h1>
-					  General Logs
-				  </h1>
-			  </xsl:otherwise>
-			</xsl:choose>
-			<table border="0">
-				<tr>
-				<td width="100px">Command</td><td width="100px">date</td><td width="100px">time</td><td>application</td>
+		<table border="1">
+			<xsl:for-each select="JobsReport/hosts/@*">
+				<tr bgcolor="aliceblue" width="2">
+					<td><xsl:value-of select="concat('host ', name(), ' / port ', .)"/></td>
+					<xsl:for-each select="JobsReport/job">
+						<xsl:choose>
+						    <xsl:when test="host=concat(name(), ':', .)">
+							    <td>XXX</td>
+						    </xsl:when>
+						    <xsl:otherwise>
+							    <td>YYY</td>
+						    </xsl:otherwise>
+						</xsl:choose>
+					</xsl:for-each>
 				</tr>
-				<xsl:for-each select="LOGlist/LogCommand">
-					<xsl:sort select="." order="descending" />
-					<tr bgcolor="aliceblue" width="2">
-						<td>
-							<a title="log">
-								<xsl:attribute name="href"><xsl:value-of select="."/></xsl:attribute>
-								<xsl:value-of select="@cmd"/>
-							</a>
-						</td>
-						<td><xsl:value-of select="@date"/></td>
-						<td><xsl:value-of select="@hour"/></td>
-						<td><xsl:value-of select="@application"/></td>
-					</tr>
-				</xsl:for-each>
-			</table>
+			</xsl:for-each>
+		</table>
 	</body>
 </xsl:template>
 </xsl:stylesheet>

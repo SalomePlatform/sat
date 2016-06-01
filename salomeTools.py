@@ -201,6 +201,10 @@ class Sat(object):
                     res = __module__.run(argv, self, logger_command)
                     self.run_hook(__nameCmd__, C_POST_HOOK, logger_command)
                     
+                    # set res if it is not set in the command
+                    if res is None:
+                        res = 0
+                    
                     # come back in the original batch mode if 
                     # batch argument was called
                     if batch:
@@ -399,16 +403,16 @@ if __name__ == "__main__":
     if options.debug_mode:
         # call classically the command and if it fails, 
         # show exception and stack (usual python mode)
-        code = fun_command(' '.join(args[1:]))
+        code, __ = fun_command(' '.join(args[1:]))
     else:
         # catch exception in order to show less verbose but elegant message
         try:
-            code = fun_command(' '.join(args[1:]))
+            code, __ = fun_command(' '.join(args[1:]))
         except Exception as exc:
             code = 1
             write_exception(exc)
     
     # exit salomeTools with the right code (0 if no errors, else 1)
     if code is None: code = 0
-    sys.exit(code[0])
+    sys.exit(code)
         

@@ -98,8 +98,13 @@ class Logger(object):
                         attrib={"application" : self.config.VARS.application})
         # The initialization of the trace node
         self.xmlFile.add_simple_node("Log",text="")
+        # The system commands logs
         self.xmlFile.add_simple_node("OutLog",
                                     text=os.path.join("OUT", self.txtFileName))
+        # The initialization of the node where 
+        # to put the links to the other sat commands that can be called by any
+        # command 
+        self.xmlFile.add_simple_node("Links")
 
     def write(self, message, level=None, screenOnly=False):
         '''the function used in the commands 
