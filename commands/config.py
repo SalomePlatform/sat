@@ -273,7 +273,12 @@ class ConfigManager:
             for rule in self.get_command_line_overrides(options,
                                                          ["APPLICATION"]):
                 # this cannot be factorized because of the exec
-                exec('cfg.' + rule) 
+                exec('cfg.' + rule)
+                
+            # default launcher name ('salome')
+            if ('profile' in cfg.APPLICATION and 
+                'launcher_name' not in cfg.APPLICATION.profile):
+                cfg.APPLICATION.profile.launcher_name = 'salome'
         
         # =====================================================================
         # Load product config files in PRODUCTS section
@@ -296,6 +301,10 @@ class ConfigManager:
                 except IOError as error:
                     e = str(error)
                     raise src.SatException( e );
+                except Exception as e:
+                    raise src.SatException(_(
+                        "Error in configuration file: %(prod)s\n  %(error)s") % \
+                        {'prod' :  fName, 'error': str(e) })
                 
                 merger.merge(cfg.PRODUCTS, prod_cfg)
 
@@ -314,7 +323,7 @@ class ConfigManager:
         # apply overwrite from command line if needed
         for rule in self.get_command_line_overrides(options, ["USER"]):
             exec('cfg.' + rule) # this cannot be factorize because of the exec
-
+        
         return cfg
 
     def set_user_config_file(self, config):

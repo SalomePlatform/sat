@@ -62,6 +62,19 @@ def check_config_has_application( config, details = None ):
             details.append(message)
         raise SatException( message )
 
+def check_config_has_profile( config, details = None ):
+    '''check that the config has the key APPLICATION.profile.
+       Else, raise an exception.
+    
+    :param config class 'common.pyconf.Config': The config.
+    '''
+    check_config_has_application(config)
+    if 'profile' not in config.APPLICATION:
+        message = _("A profile section is required in your application.\n")
+        if details :
+            details.append(message)
+        raise SatException( message )
+
 def config_has_application( config ):
     return 'APPLICATION' in config
 
@@ -108,6 +121,23 @@ def get_base_path(config):
         # default base
         base_path = config.USER.bases.base
     return base_path
+
+def only_numbers(str_num):
+    return ''.join([nb for nb in str_num if nb in '0123456789'] or '0')
+
+def read_config_from_a_file(filePath):
+        try:
+            cfg_file = pyconf.Config(filePath)
+        except pyconf.ConfigError as e:
+            raise SatException(_("Error in configuration file: %(file)s\n  %(error)s") % \
+                { 'file': filePath, 'error': str(e) })
+        return cfg_file
+
+def get_tmp_filename(cfg, name):
+    if not os.path.exists(cfg.VARS.tmp_root):
+        os.makedirs(cfg.VARS.tmp_root)
+
+    return os.path.join(cfg.VARS.tmp_root, name)
 
 ##
 # Utils class to simplify path manipulations.

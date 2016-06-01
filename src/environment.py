@@ -303,9 +303,9 @@ class SalomeEnviron:
         
         :param lProducts list: List of products to potentially add
         """
-        lProdHasGui = [p for p in lProducts if 'has_gui' in 
+        lProdHasGui = [p for p in lProducts if 'type ' in 
                     src.product.get_product_config(self.cfg, p) and 
-                    src.product.get_product_config(self.cfg, p).has_gui=='yes']
+                    src.product.get_product_config(self.cfg, p).type=='salome']
         lProdName = []
         for ProdName in lProdHasGui:
             pi = src.product.get_product_config(self.cfg, ProdName)
@@ -435,6 +435,11 @@ class SalomeEnviron:
         # Loop on cfg_env values
         for env_def in cfg_env:
             val = cfg_env[env_def]
+            
+            # if it is env_script, do not do anything (reserved keyword)
+            if env_def == "env_script":
+                continue
+            
             # if it is a dict, do not do anything
             if isinstance(val, src.pyconf.Mapping):
                 continue
@@ -490,16 +495,15 @@ class SalomeEnviron:
                 self.load_cfg_environment(pi.environ.build)
             if not self.forBuild and "launch" in pi.environ:
                 self.load_cfg_environment(pi.environ.launch)
+            # if product_info defines a env_scripts, load it
+            if 'env_script' in pi.environ:
+                self.run_env_script(pi, logger)
 
         # Set an additional environment for SALOME products
         if src.product.product_is_salome(pi):
             # set environment using definition of the product
             self.set_salome_minimal_product_env(pi, logger)
             self.set_salome_generic_product_env(product)
-
-        # if product_info defines a env_scripts, load it
-        if 'env_script' in pi:
-            self.run_env_script(pi, logger)
             
 
     def run_env_script(self, product_info, logger=None):
@@ -508,14 +512,14 @@ class SalomeEnviron:
         :param product_info Config: The product description
         :param logger Logger: The logger instance to display messages
         """
-        env_script = product_info.env_script
+        env_script = product_info.environ.env_script
         # Check that the script exists
-        if not os.path.exists(product_info.env_script):
+        if not os.path.exists(env_script):
             raise src.SatException(_("Environment script not found: %s") % 
                                    env_script)
 
         if not self.silent and logger is not None:
-            logger.write("  ** load %s\n" % product_info.env_script, 4)
+            logger.write("  ** load %s\n" % env_script, 4)
 
         # import the script and run the set_env function
         try:
@@ -524,6 +528,38 @@ class SalomeEnviron:
                                         env_script)
             pyproduct.set_env(self, product_info.install_dir,
                               product_info.version)
+        except:
+            __, exceptionValue, exceptionTraceback = sys.exc_info()
+            print(exceptionValue)
+            import traceback
+            traceback.print_tb(exceptionTraceback)
+            traceback.print_exc()
+
+    def run_simple_env_script(self, script_path, logger=None):
+        """Runs an environment script. Same as run_env_script, but with a 
+           script path as parameter.
+        
+        :param script_path str: a path to an environment script
+        :param logger Logger: The logger instance to display messages
+        """
+        # Check that the script exists
+        if not os.path.exists(script_path):
+            raise src.SatException(_("Environment script not found: %s") % 
+                                   script_path)
+
+        if not self.silent and logger is not None:
+            logger.write("  ** load %s\n" % script_path, 4)
+
+        script_basename = os.path.basename(script_path)
+        if script_basename.endswith(".py"):
+            script_basename = script_basename[:-len(".py")]
+
+        # import the script and run the set_env function
+        try:
+            import imp
+            pyproduct = imp.load_source(script_basename + "_env_script",
+                                        script_path)
+            pyproduct.load_env(self)
         except:
             __, exceptionValue, exceptionTraceback = sys.exc_info()
             print(exceptionValue)
@@ -569,13 +605,9 @@ class SalomeEnviron:
         # set product environ
         self.set_application_env(logger)
 
-        # set products
-        install_root = os.path.join(self.cfg.APPLICATION.workdir, "INSTALL")
-        source_root = os.path.join(self.cfg.APPLICATION.workdir, "SOURCES")
-        self.set('INSTALL_ROOT', install_root)
-        self.set('SRC_ROOT', source_root)
         self.set_python_libdirs()
-        
+
+        # set products        
         for product in env_info:
             self.set_a_product(product, logger)
 
@@ -589,7 +621,7 @@ class FileEnvWriter:
         :param logger Logger: The logger instance to display messages
         :param out_dir str: The directory path where t put the output files
         :param src_root str: The application working directory
-        :param env_info str: 
+        :param env_info str: The list of products to add in the files.
         '''
         self.config = config
         self.logger = logger
@@ -660,8 +692,7 @@ class FileEnvWriter:
         else:
             # set env from PRODUCT
             env.set_application_env(self.logger)
-            # set the prerequisites
-            env.set_prerequisites(self.logger)
+
             # set the products
             env.set_products(self.logger,
                             src_root=self.src_root)

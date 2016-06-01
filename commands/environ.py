@@ -47,7 +47,21 @@ def write_all_source_files(config,
                            shells=["bash"],
                            prefix="env",
                            env_info=None):
+    '''Generates the environment files.
     
+    :param config Config: The global configuration
+    :param logger Logger: The logger instance to use for the display 
+                          and logging
+    :param out_dir str: The path to the directory where the files will be put
+    :param src_root str: The path to the directory where the sources are
+    :param silent boolean: If True, do not print anything in the terminal
+    :param shells list: The list of shells to generate
+    :param prefix str: The prefix to add to the file names.
+    :param env_info str: The list of products to add in the files.
+    :return: The list of the generated files.
+    :rtype: List
+    '''
+        
     if not out_dir:
         out_dir = config.APPLICATION.workdir
 
