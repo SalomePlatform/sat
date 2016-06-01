@@ -492,8 +492,9 @@ def run(args, runner, logger):
     products_infos = sort_products(runner.cfg, products_infos)
 
     # Print some informations
-    logger.write(_('Executing the compile command in the build '
-                                'directories of the application %s\n') % 
+    logger.write(_('Executing the compile commands in the build '
+                                'directories of the products of '
+                                'the application %s\n') % 
                 src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
     
     info = [

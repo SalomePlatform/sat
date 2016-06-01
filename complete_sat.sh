@@ -80,7 +80,7 @@ _salomeTools_complete()
     # first argument => show available commands
     if [[ ${argc} == 1 ]]
     then
-        opts="config log testcommand source patch prepare environ clean configure make makeinstall compile launcher --help"
+        opts="config log testcommand source patch prepare environ clean configure make makeinstall compile launcher jobs --help"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     fi
@@ -186,6 +186,11 @@ _salomeTools_complete()
             ;;
         launcher)
             opts="--name --catalog --gencat"
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        jobs)
+            opts="--jobs_config --only_jobs --list --no_label --test_connection --publish"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;

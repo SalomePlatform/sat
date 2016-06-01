@@ -1,18 +1,18 @@
-Python_2_7_10 :
+qwt_6_1_0 :
 {
-	name : "Python"
+	name : "qwt"
     build_source : "script"
-    compil_script : "Python.sh"
+    compil_script :  $name + "-6.1.0.sh"
     get_source : "archive"
     archive_info:
     {
-		archive_name : $SITE.prepare.archive_dir + "Python-2.7.10.tar.gz"
+		archive_name : $SITE.prepare.archive_dir + $name + "-6.1.0.tar.bz2"
     }
     environ :
     {
 	   env_script : $VARS.datadir + $VARS.sep + "env_scripts" + $VARS.sep + $name + ".py"
     }
-    depend : []
+    depend : ['qt']
     source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
     build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
     install_dir : 'base'

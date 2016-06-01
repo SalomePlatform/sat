@@ -1,18 +1,18 @@
-Python_2_7_10 :
+Cython_0_23_2 :
 {
-	name : "Python"
+	name : "Cython"
     build_source : "script"
-    compil_script : "Python.sh"
+    compil_script : "cython.sh"
     get_source : "archive"
     archive_info:
     {
-		archive_name : $SITE.prepare.archive_dir + "Python-2.7.10.tar.gz"
+		archive_name : $SITE.prepare.archive_dir + "Cython-0.23.2.tar.gz"
     }
     environ :
     {
 	   env_script : $VARS.datadir + $VARS.sep + "env_scripts" + $VARS.sep + $name + ".py"
     }
-    depend : []
+    depend : ['Python']
     source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
     build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
     install_dir : 'base'

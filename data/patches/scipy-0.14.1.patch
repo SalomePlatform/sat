@@ -1,0 +1,37 @@
+diff -rupN scipy-0.14.1_old/scipy/_build_utils/_fortran.py scipy-0.14.1_new/scipy/_build_utils/_fortran.py
+--- scipy-0.14.1_old/scipy/_build_utils/_fortran.py	2014-11-23 21:41:04.000000000 +0100
++++ scipy-0.14.1_new/scipy/_build_utils/_fortran.py	2015-04-02 10:04:31.334629000 +0200
+@@ -13,11 +13,11 @@ __all__ = ['needs_g77_abi_wrapper', 'spl
+ def uses_veclib(info):
+     if sys.platform != "darwin":
+         return False
+-    r_accelerate = re.compile("vecLib")
+-    extra_link_args = info.get('extra_link_args', '')
+-    for arg in extra_link_args:
+-        if r_accelerate.search(arg):
+-            return True
++    #r_accelerate = re.compile("vecLib")
++    #extra_link_args = info.get('extra_link_args', '')
++    #for arg in extra_link_args:
++    #    if r_accelerate.search(arg):
++    #        return True
+     return False
+ 
+ 
+@@ -33,11 +33,11 @@ def uses_accelerate(info):
+ 
+ 
+ def uses_mkl(info):
+-    r_mkl = re.compile("mkl_core")
+-    libraries = info.get('libraries', '')
+-    for library in libraries:
+-        if r_mkl.search(library):
+-            return True
++    #r_mkl = re.compile("mkl_core")
++    #libraries = info.get('libraries', '')
++    #for library in libraries:
++    #    if r_mkl.search(library):
++    #        return True
+ 
+     return False
+ 

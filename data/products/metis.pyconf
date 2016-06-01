@@ -1,12 +1,12 @@
-Python_2_7_10 :
+metis_5_1_0 :
 {
-	name : "Python"
+	name : "metis"
     build_source : "script"
-    compil_script : "Python.sh"
+	compil_script :  $name + ".sh"
     get_source : "archive"
     archive_info:
     {
-		archive_name : $SITE.prepare.archive_dir + "Python-2.7.10.tar.gz"
+		archive_name : $SITE.prepare.archive_dir + $name + "-5.1.0.tar.gz"
     }
     environ :
     {

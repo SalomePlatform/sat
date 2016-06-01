@@ -1,0 +1,12 @@
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+
+import os.path
+
+def set_env(env, prereq_dir, version):
+    env.set('PYPARSING_ROOT_DIR', env.get('PYTHON_ROOT_DIR'))
+    pyver = 'python' + env.get('PYTHON_VERSION')
+    env.prepend('PYTHONPATH', os.path.join(prereq_dir, 'lib', pyver, 'site-packages'))
+
+def set_nativ_env(env):
+    pass

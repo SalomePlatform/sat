@@ -1,0 +1,57 @@
+MEDCOUPLING :
+{
+	name : "MEDCOUPLING"
+    build_source : "cmake"
+    cmake_options : "-DMEDCOUPLING_PARTITIONER_METIS=OFF -DMEDCOUPLING_PARTITIONER_SCOTCH=OFF"
+    get_source : "git"
+    git_info:
+    {
+        repo : "http://git.salome-platform.org/gitpub/tools/medcoupling.git"
+        repo_dev : $SITE.prepare.default_git_server_dev + $VARS.sep + $name
+    }
+	environ :
+	{
+	  MEDCOUPLING_ROOT_DIR : $install_dir
+	  _LD_LIBRARY_PATH :
+	  [
+		'${MEDCOUPLING_ROOT_DIR}' + $VARS.sep + 'lib'
+	  ]
+	  _PYTHONPATH :
+	  [
+		'${MEDCOUPLING_ROOT_DIR}' + $VARS.sep + 'lib' + $VARS.sep + 'python2.7' + $VARS.sep + 'site-packages'
+		'${MEDCOUPLING_ROOT_DIR}' + $VARS.sep + 'bin' 
+	  ]
+	  _PATH :
+	  [
+		'${MEDCOUPLING_ROOT_DIR}' + $VARS.sep + 'bin'
+	  ]
+	}
+    depend : [
+			  "boost",
+			  "CAS",
+			  "Python",
+			  "swig",
+			  "hdf5",
+			  "med",
+			  "scotch",
+			  "omniORB",
+			  "qt",
+			  "ParaView",
+			  "doxygen",
+			  "graphviz",
+			  "metis",
+			  "docutils",
+			  "libxml2",
+			  "cppunit",
+			  "Sphinx",
+			  "setuptools",
+			  "six",
+			  "pytz",
+			  "numpy",
+			  "scipy",
+			  "lapack"
+			  ]
+    type : "salome"
+    source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
+    build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
+}

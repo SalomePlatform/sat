@@ -1,0 +1,12 @@
+diff -rupN freetype-2.4.11/include/freetype/config/ftoption.h freetype-2.4.11_new/include/freetype/config/ftoption.h
+--- freetype-2.4.11/include/freetype/config/ftoption.h	2014-07-28 10:56:26.000000000 +0200
++++ freetype-2.4.11_new/include/freetype/config/ftoption.h	2014-12-19 11:20:43.838835547 +0100
+@@ -253,7 +253,7 @@ FT_BEGIN_HEADER
+   /*   them for certain configurations only.                               */
+   /*                                                                       */
+ /* #define FT_EXPORT(x)      extern x */
+-#define FT_EXPORT(x)      __declspec(dllexport) x
++/* #define FT_EXPORT(x)      __declspec(dllexport) x */
+ /* #define FT_EXPORT_DEF(x)  x */
+ 
+ 

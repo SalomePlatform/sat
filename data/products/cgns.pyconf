@@ -1,18 +1,19 @@
-Python_2_7_10 :
+cgns_3_1_3_4 :
 {
-	name : "Python"
+	name : "cgns"
     build_source : "script"
-    compil_script : "Python.sh"
+	compil_script :  $name + ".sh"
     get_source : "archive"
     archive_info:
     {
-		archive_name : $SITE.prepare.archive_dir + "Python-2.7.10.tar.gz"
+		archive_name : $SITE.prepare.archive_dir + $name + "-3.1.3-4.tar.gz"
     }
     environ :
     {
 	   env_script : $VARS.datadir + $VARS.sep + "env_scripts" + $VARS.sep + $name + ".py"
     }
-    depend : []
+    depend : ["hdf5", "cmake"]
+    opt_depend : ["openmpi"]
     source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
     build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
     install_dir : 'base'

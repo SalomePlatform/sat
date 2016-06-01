@@ -1,0 +1,12 @@
+diff -rupN qt-4.8.4_old/configure qt-4.8.4_new/configure
+--- qt-4.8.4_old/configure	2012-11-23 11:11:23.000000000 +0100
++++ qt-4.8.4_new/configure	2015-07-02 10:04:54.286480668 +0200
+@@ -7666,7 +7666,7 @@ case "$XPLATFORM" in
+     *-g++*)
+ 	# Check gcc's version
+ 	case "$(${QMAKE_CONF_COMPILER} -dumpversion)" in
+-	    4*|3.4*)
++	    4*|3.4*|5*)
+ 		;;
+             3.3*)
+                 canBuildWebKit="no"

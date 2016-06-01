@@ -1,18 +1,19 @@
-Python_2_7_10 :
+scipy_0_15_1 :
 {
-	name : "Python"
+	name : "scipy"
     build_source : "script"
-    compil_script : "Python.sh"
+    compil_script : $name + ".sh"
     get_source : "archive"
     archive_info:
     {
-		archive_name : $SITE.prepare.archive_dir + "Python-2.7.10.tar.gz"
+		archive_name : $SITE.prepare.archive_dir + $name + "-0.15.1.tar.gz"
     }
     environ :
     {
 	   env_script : $VARS.datadir + $VARS.sep + "env_scripts" + $VARS.sep + $name + ".py"
     }
-    depend : []
+    depend : ['Python','numpy','lapack', 'cmake']
+    patches : [ $VARS.datadir + $VARS.sep + "patches" + $VARS.sep + "scipy-0.14.1.patch" ]
     source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
     build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
     install_dir : 'base'

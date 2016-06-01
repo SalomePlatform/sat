@@ -1,35 +1,45 @@
-KERNEL :
+SMESH :
 {
-	name : "KERNEL"
+	name : "SMESH"
     build_source : "cmake"
+    cmake_options : "-DSALOME_SMESH_USE_CGNS:BOOL=ON"
     get_source : "git"
     git_info:
     {
-        repo : "http://git.salome-platform.org/gitpub/modules/kernel.git"
+        repo : "http://git.salome-platform.org/gitpub/modules/smesh.git"
         repo_dev : $SITE.prepare.default_git_server_dev + $VARS.sep + $name
     }
     environ :
     {
     }
-    depend : ["Python",
+    depend : ["KERNEL",
+			  "GUI",
+			  "GEOM",
+			  "MEDCOUPLING",
+			  "Python",
+			  "qt",
+			  "PyQt",
 			  "boost",
 			  "swig",
-			  "numpy",
-			  "lapack",
+			  "CAS",
 			  "hdf5",
+			  "med",
+			  "qwt",
+			  "ParaView",
+			  "libxml2",
 			  "omniORB",
-			  "omniORBpy",
+			  "doxygen",
 			  "graphviz",
 			  "docutils",
-			  "doxygen",
-			  "libxml2",
 			  "Sphinx",
 			  "Jinja2",
 			  "setuptools",
 			  "Pygments",
 			  "cppunit",
-			  "pytz"]
-    opt_depend : ["LIBBATCH"]
+			  "cgns",
+			  "six",
+			  "pytz"
+			  ]
     type : "salome"
     source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
     build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name

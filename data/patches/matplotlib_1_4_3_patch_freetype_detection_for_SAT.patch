@@ -1,0 +1,48 @@
+diff -rupN matplotlib-1.4.3p1_old/setupext.py matplotlib-1.4.3p1_new/setupext.py
+--- matplotlib-1.4.3p1_old/setupext.py	2015-02-16 04:46:36.000000000 +0100
++++ matplotlib-1.4.3p1_new/setupext.py	2015-04-02 11:09:28.623280000 +0200
+@@ -446,8 +446,14 @@ class SetupPackage(object):
+                 raise CheckFailed(
+                     "Requires %s %s or later.  Found %s." %
+                     (package, min_version, version))
+-
+-        ext = self.get_extension()
++        # BEGIN SALOME patch
++        if package=='freetype2':
++            include_dirs_hack = [os.path.join(os.environ['FREETYPE_ROOT_DIR'], 'include'),  os.path.join(os.environ['FREETYPE_ROOT_DIR'], 'include', 'freetype2') ]
++            check_include_file(include_dirs_hack, include_file, package)
++            return 'version %s' % version
++        # END SALOME patch
++        
++        ext = self.get_extension()
+         if ext is None:
+             ext = make_extension('test', [])
+             pkg_config.setup_extension(ext, package)
+@@ -983,16 +989,22 @@ class FreeType(SetupPackage):
+                 return '.'.join([major, minor, patch])
+ 
+     def add_flags(self, ext):
++        ## BEGIN SALOME HACK
++        freetype_include_path = os.path.join(os.environ['FREETYPE_ROOT_DIR'], 'include')
++        freetype_include_freetype2_path = os.path.join(freetype_include_path, 'freetype2')
++        freetype_include_freetype2_freetype_path = os.path.join(freetype_include_path, 'freetype2', 'freetype')
++        freetype_lib_path = os.path.join(os.environ['FREETYPE_ROOT_DIR'], 'lib')
++
+         pkg_config.setup_extension(
+             ext, 'freetype2',
+-            default_include_dirs=[
+-                'include/freetype2', 'freetype2',
+-                'lib/freetype2/include',
+-                'lib/freetype2/include/freetype2'],
+-            default_library_dirs=[
++            default_include_dirs=[freetype_include_path, freetype_include_freetype2_path, freetype_include_freetype2_freetype_path,
++                 'freetype2', 'lib/freetype2/include',
++                 'lib/freetype2/include/freetype2'],
++            default_library_dirs=[ freetype_lib_path,
+                 'freetype2/lib'],
+             default_libraries=['freetype', 'z'])
+ 
++        ## END SALOME HACK
+ 
+ 
+ class FT2Font(SetupPackage):

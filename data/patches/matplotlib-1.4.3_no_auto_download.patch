@@ -1,0 +1,12 @@
+diff -pruN matplotlib-1.4.3_OLD/setup.py matplotlib-1.4.3/setup.py
+--- matplotlib-1.4.3_OLD/setup.py	2015-11-19 10:20:21.819496459 +0100
++++ matplotlib-1.4.3/setup.py	2015-11-19 10:21:19.792938308 +0100
+@@ -7,7 +7,7 @@ from __future__ import print_function, a
+ 
+ # This needs to be the very first thing to use distribute
+ from distribute_setup import use_setuptools
+-use_setuptools()
++#use_setuptools()
+ 
+ import sys
+ 

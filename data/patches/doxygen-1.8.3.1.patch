@@ -1,0 +1,65 @@
+diff -Naur doxygen-1.8.3.1_SRC_INIT/src/resize.js doxygen-1.8.3.1_SRC_MODIF/src/resize.js
+--- doxygen-1.8.3.1_SRC_INIT/src/resize.js	2013-01-05 19:17:43.000000000 +0400
++++ doxygen-1.8.3.1_SRC_MODIF/src/resize.js	2013-03-15 18:23:33.000000000 +0400
+@@ -1,5 +1,6 @@
+ var cookie_namespace = 'doxygen'; 
+ var sidenav,navtree,content,header;
++var navrows = new Array();
+ 
+ function readCookie(cookie) 
+ {
+@@ -39,24 +40,42 @@
+   var windowWidth = $(window).width() + "px";
+   var sidenavWidth = $(sidenav).outerWidth();
+   content.css({marginLeft:parseInt(sidenavWidth)+6+"px"}); //account for 6px-wide handle-bar
++  for(var i = 1; i <= 4;i++) {                                                                                                                                                                                                                                           
++    if(navrows[i] != null)                                                                                                                                                                                                                                              
++    navrows[i].css({marginLeft:parseInt(sidenavWidth)+6+"px"}); //account for 6px-wide handle-bar                                                                                                                                                                   
++    navrows[i].css({width:windowWidth-parseInt(sidenavWidth) - 6 + "px"});                                                                                                                                                                                          
++  }                                                                                                                                                                                                                                                                               
+   writeCookie('width',sidenavWidth, null);
+ }
+ 
+ function restoreWidth(navWidth)
+ {
+-  var windowWidth = $(window).width() + "px";
++  var windowWidth = $(window).width() + "px";  
+   content.css({marginLeft:parseInt(navWidth)+6+"px"});
+   sidenav.css({width:navWidth + "px"});
++  for(var i = 1; i <= 4;i++) {                                                                                                                                                                                                                                             
++   if(navrows[i] != null)                                                                                                                                                                                                                                                 
++     navrows[i].css({marginLeft:parseInt(navWidth)+6+"px"});                                                                                                                                                                                                             
++     navrows[i].css({width:windowWidth-parseInt(navWidth) - 6 + "px"});                                                                                                                                                                                                  
++  }     
+ }
+ 
+ function resizeHeight() 
+ {
+   var headerHeight = header.outerHeight();
+   var footerHeight = footer.outerHeight();
++  var navrowsH = 0;                                                                                                                                                                                                                                                        
++  for(var i = 1; i <= 4;i++) {                                                                                                                                                                                                                                             
++   if(navrows[i] != null)                                                                                                                                                                                                                                                 
++     navrowsH = navrowsH + navrows[i].height();                                                                                                                                                                                                                          
++  }
+   var windowHeight = $(window).height() - headerHeight - footerHeight;
++  var treeH = windowHeight + navrowsH;
+   content.css({height:windowHeight + "px"});
+   navtree.css({height:windowHeight + "px"});
+   sidenav.css({height:windowHeight + "px",top: headerHeight+"px"});
++  navtree.css({height:treeH +"px"});
++  sidenav.css({height:treeH +"px", top: headerHeight+"px"});
+ }
+ 
+ function initResizable()
+@@ -66,6 +85,10 @@
+   content = $("#doc-content");
+   navtree = $("#nav-tree");
+   footer  = $("#nav-path");
++  for(var i = 1; i <= 4;i++) {                                                                                                                                                                                                                                             
++    navrows[i] = $("#navrow"+i);                                                                                                                                                                                                                                           
++  }
++    
+   $(".side-nav-resizable").resizable({resize: function(e, ui) { resizeWidth(); } });
+   $(window).resize(function() { resizeHeight(); });
+   var width = readCookie('width');

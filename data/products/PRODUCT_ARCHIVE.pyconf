@@ -29,6 +29,7 @@ PRODUCT_ARCHIVE_4_4_2 :
     }
     environ :
     {
+	    env_script : "/home/sr755891/SAT-ETENDU/00-DEV/RESOURCES/env_scripts/pytz.py"
 		build: 
 		{   
 		    "_LD_LIBRARY_PATH" : "COUCOU"
@@ -37,7 +38,6 @@ PRODUCT_ARCHIVE_4_4_2 :
 		        "TEST" + $VARS.sep + "${PYTHON_LIBDIR1}"]
 		}
     }
-    env_script : "/home/sr755891/SAT-ETENDU/00-DEV/RESOURCES/env_scripts/pytz.py"
 	present_files :
 	{
 	   source : ['my_test_file.txt', 'my_test_file.txt~']

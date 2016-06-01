@@ -1,0 +1,19 @@
+CAS_6_9_1p1 :
+{
+	name : "CAS"
+    build_source : "autotools"
+	configure_options : "-without-tcl --without-tk --disable-draw --with-freetype=$FREETYPEDIR --enable-debug=no --enable-production=yes --with-gl2ps=$GL2PSDIR --with-freeimage=$FREEIMAGEDIR"
+    get_source : "archive"
+    archive_info:
+    {
+		archive_name : $SITE.prepare.archive_dir + $name + "-6.9.1p1.tar.gz"
+    }
+    environ :
+    {
+	   env_script : $VARS.datadir + $VARS.sep + "env_scripts" + $VARS.sep + $name + ".py"
+    }
+    depend : ['freetype', 'freeimage', 'gl2ps', 'tcl', 'tk']
+    source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
+    build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
+    install_dir : 'base'
+}

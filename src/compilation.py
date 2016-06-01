@@ -84,12 +84,13 @@ class Builder:
 
         # add products in depend and opt_depend list recursively
         environ_info = src.product.get_product_dependencies(self.config, self.product_info)
+        environ_info.append(self.product_info.name)
 
         # create build environment
         self.build_environ = src.environment.SalomeEnviron(self.config, src.environment.Environ(dict(os.environ)), True)
         self.build_environ.silent = (self.config.USER.output_verbose_level < 5)
         self.build_environ.set_full_environ(self.logger, environ_info)
-
+        
         # create runtime environment
         self.launch_environ = src.environment.SalomeEnviron(self.config, src.environment.Environ(dict(os.environ)), False)
         self.launch_environ.silent = True # no need to show here
