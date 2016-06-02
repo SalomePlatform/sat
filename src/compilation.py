@@ -84,7 +84,7 @@ class Builder:
 
         # add products in depend and opt_depend list recursively
         environ_info = src.product.get_product_dependencies(self.config, self.product_info)
-        environ_info.append(self.product_info.name)
+        #environ_info.append(self.product_info.name)
 
         # create build environment
         self.build_environ = src.environment.SalomeEnviron(self.config, src.environment.Environ(dict(os.environ)), True)
