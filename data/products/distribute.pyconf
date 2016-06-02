@@ -1,13 +1,9 @@
-distribute_0_6_28 :
+distribute :
 {
 	name : "distribute"
     build_source : "script"
     compil_script :  $name + ".sh"
     get_source : "archive"
-    archive_info:
-    {
-		archive_name : $SITE.prepare.archive_dir + $name + "-0.6.28.tar.gz"
-    }
     environ :
     {
 	   env_script : $VARS.datadir + $VARS.sep + "env_scripts" + $VARS.sep + $name + ".py"

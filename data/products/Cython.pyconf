@@ -1,13 +1,9 @@
-Cython_0_23_2 :
+Cython :
 {
 	name : "Cython"
     build_source : "script"
     compil_script : "cython.sh"
     get_source : "archive"
-    archive_info:
-    {
-		archive_name : $SITE.prepare.archive_dir + "Cython-0.23.2.tar.gz"
-    }
     environ :
     {
 	   env_script : $VARS.datadir + $VARS.sep + "env_scripts" + $VARS.sep + $name + ".py"

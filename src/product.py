@@ -129,6 +129,17 @@ def get_product_config(config, product_name):
     prod_info.dev = dev
     prod_info.version = version
     
+    # Set the archive_info if the product is get in archive mode
+    if prod_info.get_source == "archive":
+        if not "archive_info" in prod_info:
+            prod_info.addMapping("archive_info",
+                                 src.pyconf.Mapping(prod_info),
+                                 "")
+        if "archive_name" not in prod_info.archive_info:
+            arch_name = os.path.join(config.SITE.prepare.archive_dir,
+                                     product_name + "-" + version + ".tar.gz")
+            prod_info.archive_info.archive_name = arch_name
+    
     # Set the install_dir key
     if "install_dir" not in prod_info:
         # Set it to the default value (in application directory)

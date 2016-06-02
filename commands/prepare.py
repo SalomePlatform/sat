@@ -157,6 +157,7 @@ def run(args, runner, logger):
     if do_clean:
         msg = _("Clean the source directories ...")
         logger.write(msg, 3)
+        logger.flush()
         res_clean, __ = runner.clean(args_clean, batch=True, verbose = 0,
                                     logger_add_link = logger)
         if res_clean == 0:

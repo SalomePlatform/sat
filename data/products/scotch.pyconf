@@ -4,10 +4,6 @@ scotch_5_1_12b :
     build_source : "script"
 	compil_script :  $name + "-5.1.12.sh"
     get_source : "archive"
-    archive_info:
-    {
-		archive_name : $SITE.prepare.archive_dir + $name + "-5.1.12b.tar.gz"
-    }
     environ :
     {
 	   env_script : $VARS.datadir + $VARS.sep + "env_scripts" + $VARS.sep + $name + ".py"

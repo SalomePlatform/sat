@@ -4,10 +4,6 @@ ParMetis_3_1_1 :
     build_source : "script"
 	compil_script :  $name + "-3.sh"
     get_source : "archive"
-    archive_info:
-    {
-		archive_name : $SITE.prepare.archive_dir + $name + "-3.1.1.tar.gz"
-    }
     environ :
     {
 	   env_script : $VARS.datadir + $VARS.sep + "env_scripts" + $VARS.sep + $name + ".py"

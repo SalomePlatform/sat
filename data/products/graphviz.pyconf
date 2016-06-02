@@ -4,10 +4,6 @@ graphviz_2_38_0 :
     build_source : "script"
 	compil_script :  $name + "-2.38.0.sh"
     get_source : "archive"
-    archive_info:
-    {
-		archive_name : $SITE.prepare.archive_dir + $name + "-2.38.0.tar.gz"
-    }
     environ :
     {
 	   env_script : $VARS.datadir + $VARS.sep + "env_scripts" + $VARS.sep + $name + ".py"

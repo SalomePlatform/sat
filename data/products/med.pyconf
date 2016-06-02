@@ -1,13 +1,9 @@
-med_3_2_0 :
+med :
 {
 	name : "med"
     build_source : "script"
 	compil_script :  $name + "CMake.sh"
     get_source : "archive"
-    archive_info:
-    {
-		archive_name : $SITE.prepare.archive_dir + $name + "-3.2.0.tar.gz"
-    }
     environ :
     {
 	   env_script : $VARS.datadir + $VARS.sep + "env_scripts" + $VARS.sep + $name + ".py"

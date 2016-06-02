@@ -1,13 +1,9 @@
-swig_2_0_8 :
+swig :
 {
 	name : "swig"
     build_source : "script"
     compil_script :  $name + ".sh"
     get_source : "archive"
-    archive_info:
-    {
-		archive_name : $SITE.prepare.archive_dir + $name + "-2.0.8.tar.gz"
-    }
     environ :
     {
 	   env_script : $VARS.datadir + $VARS.sep + "env_scripts" + $VARS.sep + $name + ".py"

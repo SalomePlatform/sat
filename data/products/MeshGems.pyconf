@@ -1,13 +1,9 @@
-MeshGems_2_1_11 :
+MeshGems :
 {
 	name : "MeshGems"
     build_source : "script"
 	compil_script :  $name + ".sh"
     get_source : "archive"
-    archive_info:
-    {
-		archive_name : $SITE.prepare.archive_dir + $name + "-2.1-11.tar.gz"
-    }
     environ :
     {
 	   env_script : $VARS.datadir + $VARS.sep + "env_scripts" + $VARS.sep + $name + ".py"

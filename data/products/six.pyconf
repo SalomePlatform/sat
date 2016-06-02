@@ -1,13 +1,9 @@
-six_1_9_0 :
+six :
 {
 	name : "six"
     build_source : "script"
     compil_script :  $name + ".sh"
     get_source : "archive"
-    archive_info:
-    {
-		archive_name : $SITE.prepare.archive_dir + $name + "-1.9.0.tar.gz"
-    }
     environ :
     {
 	   env_script : $VARS.datadir + $VARS.sep + "env_scripts" + $VARS.sep + $name + ".py"

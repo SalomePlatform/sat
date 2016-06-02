@@ -6,7 +6,6 @@ libxml2_2_9_0 :
     get_source : "archive"
     archive_info:
     {
-		archive_name : $SITE.prepare.archive_dir + $name + "-2.9.0.tar.gz"
     }
     environ :
     {

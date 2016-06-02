@@ -1,13 +1,9 @@
-opencv_2_4_6_1 :
+opencv :
 {
 	name : "opencv"
     build_source : "script"
 	compil_script :  $name + ".sh"
     get_source : "archive"
-    archive_info:
-    {
-		archive_name : $SITE.prepare.archive_dir + $name + "-2.4.6.1.tar.gz"
-    }
     environ :
     {
 	   env_script : $VARS.datadir + $VARS.sep + "env_scripts" + $VARS.sep + $name + ".py"
