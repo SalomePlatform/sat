@@ -49,7 +49,8 @@ class TestLog(unittest.TestCase):
         cmd_log.start()
 
         time.sleep(sleep_time)
-
+        
+        sat.config("")
         browser = sat.cfg.USER.browser
         pid = check_proc_existence_and_kill_multi(browser + ".*" + "hat\.xml", 10)
 
