@@ -146,7 +146,6 @@ class machine(object):
         logger.write("host : " + self.host + "\n")
         logger.write("port : " + str(self.port) + "\n")
         logger.write("user : " + str(self.user) + "\n")
-        logger.write("password : " + str(self.password) + "\n")
         if self.successfully_connected(logger):
             status = src.OK_STATUS
         else:
@@ -157,18 +156,21 @@ class machine(object):
 class job(object):
     '''Class to manage one job
     '''
-    def __init__(self, name, machine, commands, timeout, logger, after=None):
+    def __init__(self, name, machine, application, distribution, commands, timeout, logger, after=None):
 
         self.name = name
         self.machine = machine
         self.after = after
         self.timeout = timeout
+        self.application = application
+        self.distribution = distribution
         self.logger = logger
         
         self._T0 = -1
         self._Tf = -1
         self._has_begun = False
         self._has_finished = False
+        self._has_timouted = False
         self._stdin = None # Store the command inputs field
         self._stdout = None # Store the command outputs field
         self._stderr = None # Store the command errors field
@@ -243,7 +245,15 @@ class job(object):
         :rtype: bool
         '''
         return self.has_begun() and not self.has_finished()
-    
+
+    def is_timeout(self):
+        '''Returns True if the job commands has finished with timeout 
+        
+        :return: True if the job has finished with timeout
+        :rtype: bool
+        '''
+        return self._has_timouted
+
     def time_elapsed(self):
         if not self.has_begun():
             return -1
@@ -255,6 +265,7 @@ class job(object):
             return
         if self.time_elapsed() > self.timeout:
             self._has_finished = True
+            self._has_timouted = True
             self._Tf = time.time()
             self.get_pids()
             (out_kill, _) = self.kill_remote_process()
@@ -317,7 +328,17 @@ class job(object):
         else:
             logger.write(self.err + "\n")
         
-        
+    def get_status(self):
+        if not self.machine.successfully_connected(self.logger):
+            return "SSH connection KO"
+        if not self.has_begun():
+            return "Not launched"
+        if self.is_running():
+            return "running since " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._T0))        
+        if self.has_finished():
+            if self.is_timeout():
+                return "Timeout since " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._Tf))
+            return "Finished since " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._Tf))
     
 class Jobs(object):
     '''Class to manage the jobs to be run
@@ -363,8 +384,14 @@ class Jobs(object):
         after = None
         if 'after' in job_def:
             after = job_def.after
+        application = None
+        if 'application' in job_def:
+            application = job_def.application
+        distribution = None
+        if 'distribution' in job_def:
+            distribution = job_def.distribution
             
-        return job(name, machine, cmmnds, timeout, self.logger, after = after)
+        return job(name, machine, application, distribution, cmmnds, timeout, self.logger, after = after)
     
     def determine_products_and_machines(self):
         '''Function that reads the pyconf jobs definition and instantiates all
@@ -469,8 +496,15 @@ class Jobs(object):
                 jb.check_time()
             if jb.has_finished():
                 jobs_finished_list.append(jb)
+        
+        nb_job_finished_before = len(self._l_jobs_finished)
         self._l_jobs_finished = jobs_finished_list
         self._l_jobs_running = jobs_running_list
+        
+        nb_job_finished_now = len(self._l_jobs_finished)
+        
+        return nb_job_finished_now > nb_job_finished_before
+            
     
     def findJobThatHasName(self, name):
         '''Returns the job by its name.
@@ -564,6 +598,7 @@ class Jobs(object):
         # The infinite loop that runs the jobs
         l_jobs_not_started = self.dic_job_machine.keys()
         while len(self._l_jobs_finished) != len(self.dic_job_machine.keys()):
+            new_job_start = False
             for host_port in self.lhosts:
                 
                 if self.is_occupied(host_port):
@@ -575,18 +610,22 @@ class Jobs(object):
                     if jb.after == None:
                         jb.run(self.logger)
                         l_jobs_not_started.remove(jb)
+                        new_job_start = True
                         break
                     else:
                         jb_before = self.findJobThatHasName(jb.after) 
                         if jb_before.has_finished():
                             jb.run(self.logger)
                             l_jobs_not_started.remove(jb)
+                            new_job_start = True
                             break
             
-            self.update_jobs_states_list()
+            new_job_finished = self.update_jobs_states_list()
             
-            # Display the current status     
-            self.display_status(self.len_columns)
+            if new_job_start or new_job_finished:
+                self.gui.update_xml_file(self.ljobs)            
+                # Display the current status     
+                self.display_status(self.len_columns)
             
             # Make sure that the proc is not entirely busy
             time.sleep(0.001)
@@ -594,6 +633,9 @@ class Jobs(object):
         self.logger.write("\n")    
         self.logger.write(tiret_line)                   
         self.logger.write("\n\n")
+        
+        self.gui.update_xml_file(self.ljobs)
+        self.gui.last_update()
 
     def write_all_results(self):
         '''Display all the jobs outputs.
@@ -612,39 +654,153 @@ class Gui(object):
     '''Class to manage the the xml data that can be displayed in a browser to
        see the jobs states
     '''
-    def __init__(self, xml_file_path, l_jobs):
+    
+    """
+    <?xml version='1.0' encoding='utf-8'?>
+    <?xml-stylesheet type='text/xsl' href='job_report.xsl'?>
+    <JobsReport>
+      <infos>
+        <info name="generated" value="2016-06-02 07:06:45"/>
+      </infos>
+      <hosts>
+          <host name=is221553 port=22 distribution=UB12.04/>
+          <host name=is221560 port=22/>
+          <host name=is221553 port=22 distribution=FD20/>
+      </hosts>
+      <applications>
+          <application name=SALOME-7.8.0/>
+          <application name=SALOME-master/>
+          <application name=MED-STANDALONE-master/>
+          <application name=CORPUS/>
+      </applications>
+      
+      <jobs>
+          <job name="7.8.0 FD22">
+                <host>is228809</host>
+                <port>2200</port>
+                <application>SALOME-7.8.0</application>
+                <user>adminuser</user>
+                <timeout>240</timeout>
+                <commands>
+                    export DISPLAY=is221560
+                    scp -p salome@is221560.intra.cea.fr:/export/home/salome/SALOME-7.7.1p1-src.tgz /local/adminuser         
+                    tar xf /local/adminuser/SALOME-7.7.1p1-src.tgz -C /local/adminuser
+                </commands>
+                <state>Not launched</state>
+          </job>
+
+          <job name="master MG05">
+                <host>is221560</host>
+                <port>22</port>
+                <application>SALOME-master</application>
+                <user>salome</user>
+                <timeout>240</timeout>
+                <commands>
+                    export DISPLAY=is221560
+                    scp -p salome@is221560.intra.cea.fr:/export/home/salome/SALOME-7.7.1p1-src.tgz /local/adminuser         
+                    sat prepare SALOME-master
+                    sat compile SALOME-master
+                    sat check SALOME-master
+                    sat launcher SALOME-master
+                    sat test SALOME-master
+                </commands>
+                <state>Running since 23 min</state>
+                <!-- <state>time out</state> -->
+                <!-- <state>OK</state> -->
+                <!-- <state>KO</state> -->
+                <begin>10/05/2016 20h32</begin>
+                <end>10/05/2016 22h59</end>
+          </job>
+
+      </jobs>
+    </JobsReport>
+    
+    """
+    
+    def __init__(self, xml_file_path, l_jobs, stylesheet):
         # The path of the xml file
         self.xml_file_path = xml_file_path
+        # The stylesheet
+        self.stylesheet = stylesheet
         # Open the file in a writing stream
         self.xml_file = src.xmlManager.XmlLogFile(xml_file_path, "JobsReport")
         # Create the lines and columns
         self.initialize_array(l_jobs)
         # Write the wml file
-        self.update_xml_file()
+        self.update_xml_file(l_jobs)
     
     def initialize_array(self, l_jobs):
-        l_hosts = []
-        l_job_names_status = []
+        l_dist = []
+        l_applications = []
         for job in l_jobs:
-            host = (job.machine.host, job.machine.port)
-            if host not in l_hosts:
-                l_hosts.append(host)
-            l_job_names_status.append((job.name, host, "Not launched"))
-        self.l_hosts = l_hosts
-        self.l_job_names_status = l_job_names_status
+            distrib = job.distribution
+            if distrib not in l_dist:
+                l_dist.append(distrib)
+            
+            application = job.application
+            if application not in l_applications:
+                l_applications.append(application)
+                    
+        self.l_dist = l_dist
+        self.l_applications = l_applications
         
-    def update_xml_file(self):
         # Update the hosts node
-        self.xml_file.add_simple_node("hosts")
-        for host_name, host_port in self.l_hosts:
-            self.xml_file.append_node_attrib("hosts", {host_name : host_port})
+        self.xmldists = self.xml_file.add_simple_node("distributions")
+        for dist_name in self.l_dist:
+            src.xmlManager.add_simple_node(self.xmldists, "dist", attrib={"name" : dist_name})
+            
+        # Update the applications node
+        self.xmlapplications = self.xml_file.add_simple_node("applications")
+        for application in self.l_applications:
+            src.xmlManager.add_simple_node(self.xmlapplications, "application", attrib={"name" : application})
+        
+        # Initialize the jobs node
+        self.xmljobs = self.xml_file.add_simple_node("jobs")
+        
+        # Initialize the info node (when generated)
+        self.xmlinfos = self.xml_file.add_simple_node("infos", attrib={"name" : "last update", "JobsCommandStatus" : "running"})
+        
+    def update_xml_file(self, l_jobs):      
         
         # Update the job names and status node
-        for jname, jhost, jstatus in self.l_job_names_status:
-            self.xml_file.add_simple_node("job", jstatus, {"name" : jname, "host" : jhost[0] + ":" + str(jhost[1])})
-        # Write the file
-        self.xml_file.write_tree("job_report.xsl")
+        for job in l_jobs:
+            # Find the node corresponding to the job and delete it
+            # in order to recreate it
+            for xmljob in self.xmljobs.findall('job'):
+                if xmljob.attrib['name'] == job.name:
+                    self.xmljobs.remove(xmljob)
+                
+            # recreate the job node
+            xmlj = src.xmlManager.add_simple_node(self.xmljobs, "job", attrib={"name" : job.name})
+            src.xmlManager.add_simple_node(xmlj, "host", job.machine.host)
+            src.xmlManager.add_simple_node(xmlj, "port", str(job.machine.port))
+            src.xmlManager.add_simple_node(xmlj, "user", job.machine.user)
+            src.xmlManager.add_simple_node(xmlj, "application", job.application)
+            src.xmlManager.add_simple_node(xmlj, "distribution", job.distribution)
+            src.xmlManager.add_simple_node(xmlj, "timeout", str(job.timeout))
+            src.xmlManager.add_simple_node(xmlj, "commands", job.commands)
+            src.xmlManager.add_simple_node(xmlj, "state", job.get_status())
+            src.xmlManager.add_simple_node(xmlj, "begin", str(job._T0))
+            src.xmlManager.add_simple_node(xmlj, "end", str(job._Tf))
+            src.xmlManager.add_simple_node(xmlj, "out", job.out)
+            src.xmlManager.add_simple_node(xmlj, "err", job.err)
         
+        # Update the date
+        src.xmlManager.append_node_attrib(self.xmlinfos,
+                    attrib={"value" : 
+                    datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+               
+        # Write the file
+        self.write_xml_file()
+    
+    def last_update(self):
+        src.xmlManager.append_node_attrib(self.xmlinfos,
+                    attrib={"JobsCommandStatus" : "finished"})
+        # Write the file
+        self.write_xml_file()
+    
+    def write_xml_file(self):
+        self.xml_file.write_tree(self.stylesheet)
         
 def print_info(logger, arch, JobsFilePath):
     '''Prints information header..
@@ -743,8 +899,11 @@ def run(args, runner, logger):
     if options.test_connection:
         return 0
     
+    gui = None
     if options.publish:
-        Gui("/export/home/serioja/LOGS/test.xml", today_jobs.ljobs)
+        gui = Gui("/export/home/serioja/LOGS/test.xml", today_jobs.ljobs, "job_report.xsl")
+    
+    today_jobs.gui = gui
     
     try:
         # Run all the jobs contained in config_jobs

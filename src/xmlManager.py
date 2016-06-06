@@ -137,3 +137,26 @@ class ReadXmlFile(object):
         :rtype: str
         '''
         return self.xmlroot.find(node).text
+
+def add_simple_node(root_node, node_name, text=None, attrib={}):
+    '''Add a node with some attibutes and text to the root node.
+
+    :param root_node etree.Element: the Etree element where to add the new node    
+    :param node_name str: the name of the node to add
+    :param text str: the text of the node
+    :param attrib dict: the dictionary containing the 
+                        attribute of the new node
+    '''
+    n = etree.Element(node_name, attrib=attrib)
+    n.text = text
+    root_node.append(n)
+    return n
+
+def append_node_attrib(root_node, attrib):
+    '''Append a new attributes to the node that has node_name as name
+    
+    :param root_node etree.Element: the Etree element 
+                                    where to append the new attibutes
+    :param attrib dixt: The attrib to append
+    '''
+    root_node.attrib.update(attrib)
