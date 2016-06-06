@@ -421,7 +421,8 @@ class ConfigManager:
 def check_path(path, ext=[]):
     # check if file exists
     if not os.path.exists(path):
-        return "'%s'" % path + " " + src.printcolors.printcError(_("** not found"))
+        return "'%s'" % path + " " + src.printcolors.printcError(_(
+                                                            "** not found"))
 
     # check extension
     if len(ext) > 0:
@@ -648,6 +649,7 @@ def run(args, runner, logger):
     
     # case : give information about the product in parameter
     elif options.info:
+        src.check_config_has_application(runner.cfg)
         if options.info in runner.cfg.APPLICATION.products:
             show_product_info(runner.cfg, options.info, logger)
             return
