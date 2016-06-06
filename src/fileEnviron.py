@@ -568,6 +568,58 @@ class LauncherFileEnviron:
         """
         return
 
+class ScreenEnviron(FileEnviron):
+    def __init__(self, output, environ=None):
+        self._do_init(output, environ)
+        self.defined = {}
+
+    def add_line(self, number):
+        pass
+
+    def add_comment(self, comment):
+        pass
+
+    def add_echo(self, text):
+        pass
+
+    def add_warning(self, warning):
+        pass
+
+    def write(self, command, name, value, sign="="):
+        import src
+        self.output.write("  %s%s %s %s %s\n" % \
+            (src.printcolors.printcLabel(command),
+             " " * (12 - len(command)),
+             src.printcolors.printcInfo(name), sign, value))
+
+    def is_defined(self, name):
+        return self.defined.has_key(name)
+
+    def get(self, name):
+        return "${%s}" % name
+
+    def set(self, name, value):
+        self.write("set", name, value)
+        self.defined[name] = value
+
+    def prepend(self, name, value, sep=":"):
+        if isinstance(value, list):
+            value = sep.join(value)
+        value = value + sep + self.get(name)
+        self.write("prepend", name, value)
+
+    def append(self, name, value, sep=":"):
+        if isinstance(value, list):
+            value = sep.join(value)
+        value = self.get(name) + sep + value
+        self.write("append", name, value)
+
+    def command_value(self, key, command):
+        pass
+
+    def run_env_script(self, module, script):
+        self.write("load", script, "", sign="")
+
 # The SALOME launcher template 
 withProfile =  """#! /usr/bin/env python
 
