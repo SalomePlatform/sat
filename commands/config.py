@@ -419,6 +419,15 @@ class ConfigManager:
         return self.user_config_file_path     
 
 def check_path(path, ext=[]):
+    '''Construct a text with the input path and "not found" if it does not
+       exist.
+    
+    :param path Str: the path to check.
+    :param ext List: An extension. Verify that the path extension 
+                     is in the list
+    :return: The string of the path with information
+    :rtype: Str
+    '''
     # check if file exists
     if not os.path.exists(path):
         return "'%s'" % path + " " + src.printcolors.printcError(_(
@@ -428,21 +437,34 @@ def check_path(path, ext=[]):
     if len(ext) > 0:
         fe = os.path.splitext(path)[1].lower()
         if fe not in ext:
-            return "'%s'" % path + " " + src.printcolors.printcError(_("** bad extension"))
+            return "'%s'" % path + " " + src.printcolors.printcError(_(
+                                                        "** bad extension"))
 
     return path
 
 def show_product_info(config, name, logger):
+    '''Display on the terminal and logger information about a product.
+    
+    :param config Config: the global configuration.
+    :param name Str: The name of the product
+    :param logger Logger: The logger instance to use for the display
+    '''
+    
     logger.write(_("%s is a product\n") % src.printcolors.printcLabel(name), 2)
     pinfo = src.product.get_product_config(config, name)
-
+    
+    # Type of the product
     ptype = src.get_cfg_param(pinfo, "type", "")
     src.printcolors.print_value(logger, "type", ptype, 2)
     if "opt_depend" in pinfo:
-        src.printcolors.print_value(logger, "depends on", ', '.join(pinfo.depend), 2)
+        src.printcolors.print_value(logger, 
+                                    "depends on", 
+                                    ', '.join(pinfo.depend), 2)
 
     if "opt_depend" in pinfo:
-        src.printcolors.print_value(logger, "optional", ', '.join(pinfo.opt_depend), 2)
+        src.printcolors.print_value(logger, 
+                                    "optional", 
+                                    ', '.join(pinfo.opt_depend), 2)
 
     # information on prepare
     logger.write("\n", 2)
@@ -456,7 +478,8 @@ def show_product_info(config, name, logger):
 
     if method == 'cvs':
         src.printcolors.print_value(logger, "server", pinfo.cvs_info.server, 2)
-        src.printcolors.print_value(logger, "base module", pinfo.cvs_info.module_base, 2)
+        src.printcolors.print_value(logger, "base module",
+                                    pinfo.cvs_info.module_base, 2)
         src.printcolors.print_value(logger, "source", pinfo.cvs_info.source, 2)
         src.printcolors.print_value(logger, "tag", pinfo.cvs_info.tag, 2)
 
@@ -468,14 +491,18 @@ def show_product_info(config, name, logger):
         src.printcolors.print_value(logger, "tag", pinfo.git_info.tag, 2)
 
     elif method == 'archive':
-        src.printcolors.print_value(logger, "get from", check_path(pinfo.archive_info.archive_name), 2)
+        src.printcolors.print_value(logger, 
+                                    "get from", 
+                                    check_path(pinfo.archive_info.archive_name), 
+                                    2)
 
     if 'patches' in pinfo:
         for patch in pinfo.patches:
             src.printcolors.print_value(logger, "patch", check_path(patch), 2)
 
     if src.product.product_is_fixed(pinfo):
-        src.printcolors.print_value(logger, "install_dir", check_path(pinfo.install_dir), 2)
+        src.printcolors.print_value(logger, "install_dir", 
+                                    check_path(pinfo.install_dir), 2)
 
     if src.product.product_is_native(pinfo) or src.product.product_is_fixed(pinfo):
         return
@@ -483,25 +510,50 @@ def show_product_info(config, name, logger):
     # information on compilation
     logger.write("\n", 2)
     logger.write(src.printcolors.printcLabel("compile:") + "\n", 2)
-    src.printcolors.print_value(logger, "compilation method", pinfo.build_source, 2)
-
+    src.printcolors.print_value(logger, 
+                                "compilation method", 
+                                pinfo.build_source, 
+                                2)
+    
+    if pinfo.build_source == "script" and "compil_script" in pinfo:
+        src.printcolors.print_value(logger, 
+                                    "Compilation script", 
+                                    pinfo.compil_script, 
+                                    2)
+    
     if 'nb_proc' in pinfo:
         src.printcolors.print_value(logger, "make -j", pinfo.nb_proc, 2)
 
-    src.printcolors.print_value(logger, "source dir", check_path(pinfo.source_dir), 2)
+    src.printcolors.print_value(logger, 
+                                "source dir", 
+                                check_path(pinfo.source_dir), 
+                                2)
     if 'install_dir' in pinfo:
-        src.printcolors.print_value(logger, "build dir", check_path(pinfo.build_dir), 2)
-        src.printcolors.print_value(logger, "install dir", check_path(pinfo.install_dir), 2)
+        src.printcolors.print_value(logger, 
+                                    "build dir", 
+                                    check_path(pinfo.build_dir), 
+                                    2)
+        src.printcolors.print_value(logger, 
+                                    "install dir", 
+                                    check_path(pinfo.install_dir), 
+                                    2)
     else:
-        logger.write("  " + src.printcolors.printcWarning(_("no install dir")) + "\n", 2)
+        logger.write("  " + 
+                     src.printcolors.printcWarning(_("no install dir")) + 
+                     "\n", 2)
 
     # information on environment
     logger.write("\n", 2)
     logger.write(src.printcolors.printcLabel("environ :") + "\n", 2)
     if "environ" in pinfo and "env_script" in pinfo.environ:
-        src.printcolors.print_value(logger, "script", check_path(pinfo.environ.env_script), 2)
+        src.printcolors.print_value(logger, 
+                                    "script", 
+                                    check_path(pinfo.environ.env_script), 
+                                    2)
 
-    zz = src.environment.SalomeEnviron(config, src.fileEnviron.ScreenEnviron(logger), False)
+    zz = src.environment.SalomeEnviron(config, 
+                                       src.fileEnviron.ScreenEnviron(logger), 
+                                       False)
     zz.set_python_libdirs()
     zz.set_a_product(name, logger)
         
@@ -653,7 +705,11 @@ def run(args, runner, logger):
         if options.info in runner.cfg.APPLICATION.products:
             show_product_info(runner.cfg, options.info, logger)
             return
-        raise src.SatException(_("%(product_name)s is not a product of %(application_name)s.") % {'product_name' : options.info, 'application_name' : runner.cfg.VARS.application})
+        raise src.SatException(_("%(product_name)s is not a product "
+                                 "of %(application_name)s.") % 
+                               {'product_name' : options.info,
+                                'application_name' : 
+                                runner.cfg.VARS.application})
     
     # case : copy an existing <application>.pyconf 
     # to ~/.salomeTools/Applications/LOCAL_<application>.pyconf
