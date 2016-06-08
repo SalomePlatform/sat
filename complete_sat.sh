@@ -34,6 +34,12 @@ _show_applications()
         log)
             opts2=$(echo --clean --full --last --terminal $opts2)
             ;;
+        jobs)
+            opts2=$(echo --jobs_config --only_jobs --list --no_label --test_connection --publish $opts2)
+            ;;
+        shell)
+            opts2=$(echo --command --sat $opts2)
+            ;;
     esac
 
     COMPREPLY=( $(compgen -W "${opts2}" -- ${cur}) )
