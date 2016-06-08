@@ -151,10 +151,21 @@ class Sat(object):
                 gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
                 
                 # Get the arguments in a list and remove the empty elements
-                argv = args.split(" ")
-                if argv != ['']:
-                    while "" in argv: argv.remove("")
-                               
+                argv_0 = args.split(" ")
+                if argv_0 != ['']:
+                    while "" in argv_0: argv_0.remove("")
+                
+                # Format the argv list in order to prevent strings 
+                # that contain a blank to be separated
+                argv = []
+                elem_old = ""
+                for elem in argv_0:
+                    if argv == [] or elem_old.startswith("-") or elem.startswith("-"):
+                        argv.append(elem)
+                    else:
+                        argv[-1] += " " + elem
+                    elem_old = elem
+                           
                 # if it is provided by the command line, get the application
                 appliToLoad = None
                 if argv != [''] and argv[0][0] != "-":
