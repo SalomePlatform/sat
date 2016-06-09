@@ -44,19 +44,6 @@ class Builder:
         self.header = ""
         self.debug_mode = debug_mode
 
-        if not self.source_dir.exists() and check_src:
-            raise src.SatException(_("No sources found for product %(product)s in %(source_dir)s" % \
-                { "product": self.product_info.name, "source_dir": self.source_dir } ))
-
-        """
-        # check that required modules exist
-        for dep in self.product_info.depend:
-            assert dep in self.config.TOOLS.src.product_info, "UNDEFINED product: %s" % dep
-            dep_info = self.config.TOOLS.src.product_info[dep]
-            if 'install_dir' in dep_info and not os.path.exists(dep_info.install_dir):
-                raise src.SatException(_("Module %s is required") % dep)
-        """
-
     ##
     # Shortcut method to log in log file.
     def log(self, text, level, showInfo=True):

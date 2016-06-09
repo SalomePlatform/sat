@@ -171,7 +171,7 @@ class Sat(object):
                 if argv != [''] and argv[0][0] != "-":
                     appliToLoad = argv[0].rstrip('*')
                     argv = argv[1:]
-                               
+   
                 # read the configuration from all the pyconf files    
                 cfgManager = config.ConfigManager()
                 self.cfg = cfgManager.get_config(datadir=self.datadir, 
@@ -196,15 +196,11 @@ class Sat(object):
                     self.cfg.USER.output_verbose_level = 0
                 silent = (self.cfg.USER.output_verbose_level == 0)
 
-                # create log file, unless the command is called 
-                # with a logger as parameter
+                # create log file
                 logger_command = src.logger.Logger(self.cfg, 
                                                    silent_sysstd=silent,
                                                    all_in_terminal=self.options.all_in_terminal)
-                
-                if logger_add_link is not None:
-                    logger_add_link.xmlFile.append_node_attrib("Links", attrib={__nameCmd__ : logger_command.logFilePath})
-                
+                               
                 try:
                     # Execute the hooks (if there is any) 
                     # and run method of the command
@@ -226,8 +222,6 @@ class Sat(object):
                     if verbose > -1:
                         self.options.__setattr__("output_verbose_level", 
                                                  verbose_save)
-                        
-                finally:
                     # put final attributes in xml log file 
                     # (end time, total time, ...) and write it
                     launchedCommand = ' '.join([self.cfg.VARS.salometoolsway +
@@ -235,9 +229,34 @@ class Sat(object):
                                                 'sat',
                                                 __nameCmd__, 
                                                 args])
-                    logger_command.end_write({"launchedCommand" : launchedCommand})
+                    launchedCommand = launchedCommand.replace('"', "'")
+                    
+                    # Add a link to the parent command      
+                    if logger_add_link is not None:
+                        xmlLinks = logger_add_link.xmlFile.xmlroot.find(
+                                                                    "Links")
+                        src.xmlManager.add_simple_node(xmlLinks, 
+                                                       "link", 
+                                            text = logger_command.logFileName,
+                                            attrib = {"command" : __nameCmd__,
+                                                      "passed" : res,
+                                        "launchedCommand" : launchedCommand})
+                        logger_add_link.l_logFiles +=    logger_command.l_logFiles
+
+                finally:
+                    launchedCommand = ' '.join([self.cfg.VARS.salometoolsway +
+                                                os.path.sep +
+                                                'sat',
+                                                __nameCmd__, 
+                                                args])
+                    launchedCommand = launchedCommand.replace('"', "'")
+                    
+                    # Put the final attributes corresponding to end time and
+                    # Write the file to the hard drive
+                    logger_command.end_write(
+                                        {"launchedCommand" : launchedCommand})
                 
-                return res, logger_command.logFilePath
+                return res
 
             # Make sure that run_command will be redefined 
             # at each iteration of the loop
@@ -414,11 +433,11 @@ if __name__ == "__main__":
     if options.debug_mode:
         # call classically the command and if it fails, 
         # show exception and stack (usual python mode)
-        code, __ = fun_command(' '.join(args[1:]))
+        code = fun_command(' '.join(args[1:]))
     else:
         # catch exception in order to show less verbose but elegant message
         try:
-            code, __ = fun_command(' '.join(args[1:]))
+            code = fun_command(' '.join(args[1:]))
         except Exception as exc:
             code = 1
             write_exception(exc)

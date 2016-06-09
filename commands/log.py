@@ -161,7 +161,8 @@ def run(args, runner, logger):
                             'OUT', 
                             os.path.basename(filePath)[:-len('.xml')] + '.txt')
             remove_log_file(txtFilePath, logger)
-            # remove also the corresponding pyconf file in OUT directory
+            # remove also the corresponding pyconf (do not exist 2016-06) 
+            # file in OUT directory
             pyconfFilePath = os.path.join(os.path.dirname(filePath), 
                             'OUT', 
                             os.path.basename(filePath)[:-len('.xml')] + '.pyconf')

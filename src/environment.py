@@ -129,7 +129,7 @@ class Environ:
         
         :param key str: the environment variable to check
         '''
-        return self.environ.has_key(key)
+        return key in self.environ.keys()
 
     def set(self, key, value):
         '''Set the environment variable "key" to value "value"

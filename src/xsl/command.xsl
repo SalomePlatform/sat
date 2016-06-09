@@ -24,6 +24,8 @@
                       overflow: auto;
                       max-height: 250px;
                     }
+        .OK2        { color:#00AA00; }
+	.KO2        { color:#FF0000; }
     </style>
        
 </head>
@@ -49,24 +51,47 @@
 		
 		<h1>Links</h1>
 		<table border="1">
-			<tr>
-				<xsl:for-each select="SATcommand/Links/@*">
+			<xsl:for-each select="SATcommand/Links/link">
+				<tr>
 					<td bgcolor="LightBlue">
-						<a title="log">
-							<xsl:attribute name="href"><xsl:value-of select="."/></xsl:attribute>
-							<xsl:value-of select="name(.)"/>
-						</a>
+						<xsl:value-of select="@launchedCommand"/>
 					</td>
-				</xsl:for-each>
-			</tr>
+					<td bgcolor="Beige">
+						<xsl:if test="@passed='0'">
+							<a>
+								<xsl:attribute name="title">Click for more information</xsl:attribute>
+								<xsl:attribute name="class">OK2</xsl:attribute>
+								<xsl:attribute name="href"><xsl:value-of select="."/></xsl:attribute>
+								<xsl:value-of select="@command"/>
+							</a>
+						</xsl:if>
+						<xsl:if test="@passed='1'">
+							<a>
+								<xsl:attribute name="title">Click for more information</xsl:attribute>
+								<xsl:attribute name="class">KO2</xsl:attribute>
+								<xsl:attribute name="href"><xsl:value-of select="."/></xsl:attribute>
+								<xsl:value-of select="@command"/>
+							</a>
+						</xsl:if>
+					</td>
+				</tr>
+			</xsl:for-each>
+			
 		</table>
 		
-		<h1>output</h1>
-		PENSER A METTRE UN LIEN POUR OUVRIR LE FICHIER AVEC UN EDITEUR DE TEXTE
+		<h1>output 
+		<a target="_blank">
+			<xsl:attribute name="title">Click to open in an editor</xsl:attribute>
+			<xsl:attribute name="href"><xsl:value-of select="SATcommand/OutLog"/></xsl:attribute>
+			<xsl:attribute name="download"><xsl:value-of select="SATcommand/OutLog"/></xsl:attribute>
+			log
+		</a>
+		</h1>
 		<xsl:variable name="txtLog">
 			<xsl:value-of select="SATcommand/OutLog"/>
 		</xsl:variable>
 		<iframe src="{$txtLog}" frameborder="0" class="center" width="100%" height="1500000" scrolling="no"></iframe>
 	</body>
 </xsl:template>
+
 </xsl:stylesheet>

@@ -399,7 +399,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     # Logging and sat command call for configure step
     len_end_line = len_end
     log_step(logger, header, "CONFIGURE")
-    res_c, __ = sat.configure(config.VARS.application + " --products " + p_name,
+    res_c = sat.configure(config.VARS.application + " --products " + p_name,
                           verbose = 0,
                           logger_add_link = logger)
     log_res_step(logger, res_c)
@@ -424,7 +424,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
         # Get the make_flags option if there is any
         if options.makeflags:
             make_arguments += " --option -j" + options.makeflags
-        res_m, __ = sat.make(make_arguments,
+        res_m = sat.make(make_arguments,
                          verbose = 0,
                          logger_add_link = logger)
         log_res_step(logger, res_m)
@@ -435,7 +435,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
         else: 
             # Logging and sat command call for make install step
             log_step(logger, header, "MAKE INSTALL")
-            res_mi, __ = sat.makeinstall(config.VARS.application + 
+            res_mi = sat.makeinstall(config.VARS.application + 
                                      " --products " + 
                                      p_name,
                                     verbose = 0,

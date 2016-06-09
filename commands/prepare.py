@@ -158,7 +158,7 @@ def run(args, runner, logger):
         msg = _("Clean the source directories ...")
         logger.write(msg, 3)
         logger.flush()
-        res_clean, __ = runner.clean(args_clean, batch=True, verbose = 0,
+        res_clean = runner.clean(args_clean, batch=True, verbose = 0,
                                     logger_add_link = logger)
         if res_clean == 0:
             logger.write('%s\n' % src.printcolors.printc(src.OK_STATUS), 3)
@@ -167,7 +167,7 @@ def run(args, runner, logger):
     if do_source:
         msg = _("Get the sources of the products ...")
         logger.write(msg, 5)
-        res_source, __ = runner.source(args_source,
+        res_source = runner.source(args_source,
                                     logger_add_link = logger)
         if res_source == 0:
             logger.write('%s\n' % src.printcolors.printc(src.OK_STATUS), 5)
@@ -176,7 +176,7 @@ def run(args, runner, logger):
     if do_patch:
         msg = _("Patch the product sources (if any) ...")
         logger.write(msg, 5)
-        res_patch, __ = runner.patch(args_patch,
+        res_patch = runner.patch(args_patch,
                                     logger_add_link = logger)
         if res_patch == 0:
             logger.write('%s\n' % src.printcolors.printc(src.OK_STATUS), 5)

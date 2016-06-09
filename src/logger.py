@@ -54,10 +54,17 @@ class Logger(object):
         src.ensure_path_exists(os.path.dirname(logFilePath))
         src.ensure_path_exists(os.path.dirname(txtFilePath))
         
+        # The path of the log files (one for sat traces, and the other for 
+        # the system commands traces)
         self.logFileName = logFileName
         self.logFilePath = logFilePath
         self.txtFileName = txtFileName
         self.txtFilePath = txtFilePath
+        
+        # The list of all log files corresponding to the current command and
+        # the commands called by the current command
+        self.l_logFiles = [logFilePath, txtFilePath]
+        
         # Initialize xml instance and put first fields 
         # like beginTime, user, command, etc... 
         self.xmlFile = xmlManager.XmlLogFile(logFilePath, "SATcommand", 
@@ -65,6 +72,8 @@ class Logger(object):
         self.put_initial_xml_fields()
         # Initialize the txt file for reading
         self.logTxtFile = open(str(self.txtFilePath), 'w')
+        # If the option all_in_terminal was called, all the system commands
+        # are redirected to the terminal
         if all_in_terminal:
             self.logTxtFile = sys.__stdout__
         
@@ -249,6 +258,7 @@ def show_command_log(logFilePath, cmd, application, notShownCommands):
  
     # Get the application of the log file
     logFileXml = src.xmlManager.ReadXmlFile(logFilePath)
+
     if 'application' in logFileXml.xmlroot.keys():
         appliLog = logFileXml.xmlroot.get('application')
         # if it corresponds, then the log has to be shown
@@ -282,10 +292,12 @@ def list_log_file(dirPath, expression):
             date_hour_cmd = fileName.split('_')
             date_not_formated = date_hour_cmd[0]
             date = "%s/%s/%s" % (date_not_formated[6:8], 
-                                 date_not_formated[4:6], date_not_formated[0:4] )
+                                 date_not_formated[4:6], 
+                                 date_not_formated[0:4])
             hour_not_formated = date_hour_cmd[1]
             hour = "%s:%s:%s" % (hour_not_formated[0:2], 
-                                 hour_not_formated[2:4], hour_not_formated[4:6])
+                                 hour_not_formated[2:4], 
+                                 hour_not_formated[4:6])
             cmd = date_hour_cmd[2][:-len('.xml')]
             lRes.append((os.path.join(dirPath, fileName), 
                          date_not_formated, date, hour_not_formated, hour, cmd))
