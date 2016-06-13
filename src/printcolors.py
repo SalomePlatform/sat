@@ -136,6 +136,9 @@ def cleancolor(message):
     :return: The cleaned text.
     :rtype: str
     '''
+    if message == None:
+        return message
+    
     message = message.replace('\033[0m', '')
     for i in __code_range__:
         message = message.replace('\033[%dm' % i, '')

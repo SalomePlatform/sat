@@ -403,8 +403,6 @@ class ConfigManager:
         f = open(cfg_name, 'w')
         user_cfg.__save__(f)
         f.close()
-        print(_("You can edit it to configure salomeTools "
-                "(use: sat config --edit).\n"))
 
         return user_cfg   
 

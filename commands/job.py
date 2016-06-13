@@ -19,7 +19,6 @@
 import os
 
 import src
-import jobs
 
 # Define all possible option for the make command :  sat make <options>
 parser = src.options.Options()
@@ -47,40 +46,40 @@ def run(args, runner, logger):
       
     jobs_cfg_files_dir = runner.cfg.SITE.jobs.config_path
     
+    l_cfg_dir = [jobs_cfg_files_dir, os.path.join(runner.cfg.VARS.datadir, "jobs")]
+    
     # Make sure the path to the jobs config files directory exists 
-    if not os.path.exists(jobs_cfg_files_dir):      
-        logger.write(_("Creating directory %s\n") % 
-                     src.printcolors.printcLabel(jobs_cfg_files_dir), 1)
-        os.mkdir(jobs_cfg_files_dir)
-
+    src.ensure_path_exists(jobs_cfg_files_dir)   
+    
     # Make sure the jobs_config option has been called
     if not options.jobs_cfg:
         message = _("The option --jobs_config is required\n")      
         raise src.SatException( message )
     
-    # Make sure the job option has been called
-    if not options.job:
-        message = _("The option --job is required\n")      
-        raise src.SatException( message )
-    
-    # Make sure the invoked file exists
-    file_jobs_cfg = os.path.join(jobs_cfg_files_dir, options.jobs_cfg)
-    if not file_jobs_cfg.endswith('.pyconf'):
-        file_jobs_cfg += '.pyconf'
+    # Find the file in the directories
+    found = False
+    for cfg_dir in l_cfg_dir:
+        file_jobs_cfg = os.path.join(cfg_dir, options.jobs_cfg)
+        if not file_jobs_cfg.endswith('.pyconf'):
+            file_jobs_cfg += '.pyconf'
         
-    if not os.path.exists(file_jobs_cfg):
-        message = _("The file %s does not exist.\n") % file_jobs_cfg
-        logger.write(src.printcolors.printcError(message), 1)
-        message = _("The possible files are :\n")
-        logger.write( src.printcolors.printcInfo(message), 1)
-        for f in sorted(os.listdir(jobs_cfg_files_dir)):
-            if not f.endswith('.pyconf'):
-                continue
-            jobscfgname = f[:-7]
-            logger.write("%s\n" % jobscfgname)
-        raise src.SatException( _("No corresponding file") )
+        if not os.path.exists(file_jobs_cfg):
+            continue
+        else:
+            found = True
+            break
     
-    jobs.print_info(logger, runner.cfg.VARS.dist, file_jobs_cfg)
+    if not found:
+        msg = _("The file configuration %(name_file)s was not found."
+                "\nUse the --list option to get the possible files.")
+        src.printcolors.printcError(msg)
+        return 1
+    
+    info = [
+    (_("Platform"), runner.cfg.VARS.dist),
+    (_("File containing the jobs configuration"), file_jobs_cfg)
+    ]
+    src.print_info(logger, info)
     
     # Read the config that is in the file
     config_jobs = src.read_config_from_a_file(file_jobs_cfg)

@@ -17,6 +17,12 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
+try: # For python2
+    import sys
+    reload(sys)  
+    sys.setdefaultencoding('utf8')
+except:
+    pass
 
 import src
 from . import ElementTree as etree

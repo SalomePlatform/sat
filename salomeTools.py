@@ -137,6 +137,14 @@ class Sat(object):
         '''
         # loop on the commands name
         for nameCmd in lCommand:
+            
+            # Exception for the jobs command that require the paramiko module
+            if nameCmd == "jobs":
+                try:
+                    import paramiko
+                except:
+                    continue
+
             # load the module that has name nameCmd in dirPath
             (file_, pathname, description) = imp.find_module(nameCmd, [dirPath])
             module = imp.load_module(nameCmd, file_, pathname, description)

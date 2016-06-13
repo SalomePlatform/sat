@@ -145,6 +145,13 @@
 		      <a href="#"><xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
 		      <xsl:value-of select="@name"/></a>&#160; : 
 		      <xsl:value-of select="state/." />
+		      <xsl:if test="not(remote_log_file_path/.='nothing')">
+			    <a>
+				<xsl:attribute name="title">remote log</xsl:attribute>
+				<xsl:attribute name="href"><xsl:value-of select="remote_log_file_path/."/></xsl:attribute>
+				remote log
+			    </a>
+		      </xsl:if> 
 		      <br/>
 		  </xsl:if> 
 		  
@@ -162,7 +169,7 @@
 	</xsl:when>
 	
 	<xsl:otherwise>
-	    Command status : finished
+	    Command status : <xsl:value-of select="//JobsReport/infos/@JobsCommandStatus/."/>
 	</xsl:otherwise>
     </xsl:choose>
     </h3>
@@ -189,9 +196,9 @@
 	  <br/>
 	  <h4>Commands : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/commands"/>
 	  <br/>
-	  <h4>Out : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/out"/>
+	  <h4>Out : </h4><PRE><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/out"/></PRE>
 	  <br/>
-	  <h4>Err : </h4><h_err><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/err"/></h_err>
+	  <h4>Err : </h4><h_err><PRE><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/err"/></PRE></h_err>
       </div>
     </xsl:for-each>
 
