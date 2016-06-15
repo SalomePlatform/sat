@@ -364,6 +364,15 @@ def run(args, runner, logger):
     # Verify that the APPLICATION section has a profile section
     src.check_config_has_profile( runner.cfg )
 
+    # Verify that the profile is installed
+    if not src.product.check_installation(
+                                src.product.get_product_config(
+                                    runner.cfg,
+                                    runner.cfg.APPLICATION.profile.product)):
+        msg = _("The profile of the application is not correctly installed.")
+        logger.write(src.printcolors.printcError(msg), 1)
+        return 1
+
     # Change the name of the file to create 
     # if the corresponding option was called
     if options.name:

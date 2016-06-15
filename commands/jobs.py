@@ -46,7 +46,7 @@ parser.add_option('p', 'publish', 'boolean', 'publish',
 class machine(object):
     '''Class to manage a ssh connection on a machine
     '''
-    def __init__(self, name, host, user, port=22, passwd=None, sat_path="./"):
+    def __init__(self, name, host, user, port=22, passwd=None, sat_path="salomeTools"):
         self.name = name
         self.host = host
         self.port = port
@@ -78,7 +78,8 @@ class machine(object):
             message = (src.KO_STATUS + 
                        _("The server's host key could not be verified"))
         except paramiko.SSHException:
-            message = ( _("SSHException error connecting or establishing an SSH session"))            
+            message = ( _("SSHException error connecting or "
+                          "establishing an SSH session"))            
         except:
             message = ( _("Error connecting or establishing an SSH session"))
         else:
@@ -110,7 +111,10 @@ class machine(object):
             self.mkdir(self.sat_path, ignore_existing=True)
             self.put_dir(sat_local_path, self.sat_path, filters = ['.git'])
             job_file_name = os.path.basename(job_file)
-            self.sftp.put(job_file, os.path.join(self.sat_path, "data", "jobs", job_file_name))
+            self.sftp.put(job_file, os.path.join(self.sat_path,
+                                                 "data",
+                                                 "jobs",
+                                                 job_file_name))
         except Exception as e:
             res = str(e)
             self._connection_successful = False
@@ -130,21 +134,24 @@ class machine(object):
             if os.path.islink(source_path):
                 linkto = os.readlink(source_path)
                 try:
-                    self.sftp.remove(destination_path)
                     self.sftp.symlink(linkto, destination_path)
-                    self.sftp.chmod(destination_path, os.stat(source_path).st_mode)
+                    self.sftp.chmod(destination_path,
+                                    os.stat(source_path).st_mode)
                 except IOError:
                     pass
             else:
                 if os.path.isfile(source_path):
                     self.sftp.put(source_path, destination_path)
-                    self.sftp.chmod(destination_path, os.stat(source_path).st_mode)
+                    self.sftp.chmod(destination_path,
+                                    os.stat(source_path).st_mode)
                 else:
                     self.mkdir(destination_path, ignore_existing=True)
                     self.put_dir(source_path, destination_path)
 
     def mkdir(self, path, mode=511, ignore_existing=False):
-        ''' Augments mkdir by adding an option to not fail if the folder exists  '''
+        ''' Augments mkdir by adding an option to not fail 
+            if the folder exists 
+        '''
         try:
             self.sftp.mkdir(path, mode)
         except IOError:
@@ -160,7 +167,7 @@ class machine(object):
         :param logger src.logger.Logger: The logger instance 
         :return: the stdin, stdout, and stderr of the executing command,
                  as a 3-tuple
-        :rtype: (paramiko.channel.ChannelFile, paramiko.channel.ChannelFile, 
+        :rtype: (paramiko.channel.ChannelFile, paramiko.channel.ChannelFile,
                 paramiko.channel.ChannelFile)
         '''
         try:        
@@ -215,7 +222,13 @@ class job(object):
         self.application = application
         self.distribution = distribution
         self.logger = logger
+        # The list of log files to download from the remote machine 
         self.remote_log_files = []
+        # The remote command status
+        # -1 means that it has not been launched, 
+        # 0 means success and 1 means fail
+        self.res_job = "-1"
+        self.cancelled = False
         
         self._T0 = -1
         self._Tf = -1
@@ -230,7 +243,11 @@ class job(object):
         self.err = None # Contains something only if the job is finished    
                
         self.commands = commands
-        self.command = os.path.join(self.machine.sat_path, "sat") + " -v1 job --jobs_config " + job_file + " --job " + self.name
+        self.command = (os.path.join(self.machine.sat_path, "sat") +
+                        " -v1 job --jobs_config " +
+                        job_file +
+                        " --job " +
+                        self.name)
     
     def get_pids(self):
         pids = []
@@ -265,7 +282,7 @@ class job(object):
     def has_finished(self):
         '''Returns True if the job has already finished 
            (i.e. all the commands have been executed)
-           If it is finished, the outputs are stored in the fields out and err.  
+           If it is finished, the outputs are stored in the fields out and err.
         
         :return: True if the job has already finished
         :rtype: bool
@@ -291,6 +308,35 @@ class job(object):
         
         return self._has_finished
     
+    def has_failed(self):
+        '''Returns True if the job has failed. 
+           A job is considered as failed if the machine could not be reached,
+           if the remote command failed, 
+           or if the job finished with a time out.
+        
+        :return: True if the job has failed
+        :rtype: bool
+        '''
+        if not self.has_finished():
+            return False
+        if not self.machine.successfully_connected(self.logger):
+            return True
+        if self.is_timeout():
+            return True
+        if self.res_job == "1":
+            return True
+        return False
+    
+    def cancel(self):
+        """In case of a failing job, one has to cancel every job that depend 
+           on it. This method put the job as failed and will not be executed.
+        """
+        self._has_begun = True
+        self._has_finished = True
+        self.cancelled = True
+        self.out = _("This job was not launched because its father has failed.")
+        self.err = _("This job was not launched because its father has failed.")
+    
     def get_log_files(self):
         if not self.has_finished():
             msg = _("Trying to get log files whereas the job is not finished.")
@@ -301,11 +347,18 @@ class job(object):
         self.res_job = out_lines[0]
         for job_path_remote in out_lines[1:]:
             if os.path.basename(os.path.dirname(job_path_remote)) != 'OUT':
-                local_path = os.path.join(os.path.dirname(self.logger.logFilePath), os.path.basename(job_path_remote))
-                self.machine.sftp.get(job_path_remote, local_path)
+                local_path = os.path.join(os.path.dirname(
+                                                    self.logger.logFilePath),
+                                          os.path.basename(job_path_remote))
+                if not os.path.exists(local_path):
+                    self.machine.sftp.get(job_path_remote, local_path)
             else:
-                local_path = os.path.join(os.path.dirname(self.logger.logFilePath), 'OUT', os.path.basename(job_path_remote))
-                self.machine.sftp.get(job_path_remote, local_path)
+                local_path = os.path.join(os.path.dirname(
+                                                    self.logger.logFilePath),
+                                          'OUT',
+                                          os.path.basename(job_path_remote))
+                if not os.path.exists(local_path):
+                    self.machine.sftp.get(job_path_remote, local_path)
             self.remote_log_files.append(local_path)
     
     def is_running(self):
@@ -384,7 +437,7 @@ class job(object):
         
         machine_head = "Informations about connection :\n"
         underline = (len(machine_head) - 2) * "-"
-        logger.write(src.printcolors.printcInfo(machine_head + underline + "\n"))
+        logger.write(src.printcolors.printcInfo(machine_head+underline+"\n"))
         self.machine.write_info(logger)
         
         logger.write(src.printcolors.printcInfo("out : \n"))
@@ -403,17 +456,28 @@ class job(object):
             return "SSH connection KO"
         if not self.has_begun():
             return "Not launched"
+        if self.cancelled:
+            return "Cancelled"
         if self.is_running():
-            return "running since " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._T0))        
+            return "running since " + time.strftime('%Y-%m-%d %H:%M:%S',
+                                                    time.localtime(self._T0))        
         if self.has_finished():
             if self.is_timeout():
-                return "Timeout since " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._Tf))
-            return "Finished since " + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self._Tf))
+                return "Timeout since " + time.strftime('%Y-%m-%d %H:%M:%S',
+                                                    time.localtime(self._Tf))
+            return "Finished since " + time.strftime('%Y-%m-%d %H:%M:%S',
+                                                     time.localtime(self._Tf))
     
 class Jobs(object):
     '''Class to manage the jobs to be run
     '''
-    def __init__(self, runner, logger, job_file, job_file_path, config_jobs, lenght_columns = 20):
+    def __init__(self,
+                 runner,
+                 logger,
+                 job_file,
+                 job_file_path,
+                 config_jobs,
+                 lenght_columns = 20):
         # The jobs configuration
         self.cfg_jobs = config_jobs
         self.job_file = job_file
@@ -442,7 +506,7 @@ class Jobs(object):
         self.determine_products_and_machines()
     
     def define_job(self, job_def, machine):
-        '''Takes a pyconf job definition and a machine (from class machine) 
+        '''Takes a pyconf job definition and a machine (from class machine)
            and returns the job instance corresponding to the definition.
         
         :param job_def src.config.Mapping: a job definition 
@@ -463,7 +527,15 @@ class Jobs(object):
         if 'distribution' in job_def:
             distribution = job_def.distribution
             
-        return job(name, machine, application, distribution, cmmnds, timeout, self.logger, self.job_file , after = after)
+        return job(name,
+                   machine,
+                   application,
+                   distribution,
+                   cmmnds,
+                   timeout,
+                   self.logger,
+                   self.job_file,
+                   after = after)
     
     def determine_products_and_machines(self):
         '''Function that reads the pyconf jobs definition and instantiates all
@@ -510,7 +582,7 @@ class Jobs(object):
                                 passwd = machine_def.password    
                                 
                             if 'sat_path' not in machine_def:
-                                sat_path = "./"
+                                sat_path = "salomeTools"
                             else:
                                 sat_path = machine_def.sat_path
                             
@@ -568,20 +640,35 @@ class Jobs(object):
             # Copy salomeTools to the remote machine
             if machine.successfully_connected(self.logger):
                 step = _("Copy SAT")
-                self.logger.write('\r%s%s%s' % (begin_line, endline, 20 * " "), 3)
+                self.logger.write('\r%s%s%s' % (begin_line, endline, 20 * " "),3)
                 self.logger.write('\r%s%s%s' % (begin_line, endline, step), 3)
                 self.logger.flush()
-                res_copy = machine.copy_sat(self.runner.cfg.VARS.salometoolsway, self.job_file_path)
+                res_copy = machine.copy_sat(self.runner.cfg.VARS.salometoolsway,
+                                            self.job_file_path)
                 # Print the status of the copy
                 if res_copy == 0:
-                    self.logger.write('\r%s' % ((len(begin_line)+len(endline)+20) * " "), 3)
-                    self.logger.write('\r%s%s%s' % (begin_line, endline, src.printcolors.printc(src.OK_STATUS)), 3)
+                    self.logger.write('\r%s' % 
+                                ((len(begin_line)+len(endline)+20) * " "), 3)
+                    self.logger.write('\r%s%s%s' % 
+                        (begin_line, 
+                         endline, 
+                         src.printcolors.printc(src.OK_STATUS)), 3)
                 else:
-                    self.logger.write('\r%s' % ((len(begin_line)+len(endline)+20) * " "), 3)
-                    self.logger.write('\r%s%s%s %s' % (begin_line, endline, src.printcolors.printc(src.OK_STATUS), _("Copy of SAT failed")), 3)
+                    self.logger.write('\r%s' % 
+                            ((len(begin_line)+len(endline)+20) * " "), 3)
+                    self.logger.write('\r%s%s%s %s' % 
+                        (begin_line,
+                         endline,
+                         src.printcolors.printc(src.OK_STATUS),
+                         _("Copy of SAT failed")), 3)
             else:
-                self.logger.write('\r%s' % ((len(begin_line)+len(endline)+20) * " "), 3)
-                self.logger.write('\r%s%s%s %s' % (begin_line, endline, src.printcolors.printc(src.KO_STATUS), msg), 3)
+                self.logger.write('\r%s' % 
+                                  ((len(begin_line)+len(endline)+20) * " "), 3)
+                self.logger.write('\r%s%s%s %s' % 
+                    (begin_line,
+                     endline,
+                     src.printcolors.printc(src.KO_STATUS),
+                     msg), 3)
             self.logger.write("\n", 3)
                 
         self.logger.write("\n")
@@ -627,9 +714,22 @@ class Jobs(object):
         nb_job_finished_now = len(self._l_jobs_finished)
         
         return nb_job_finished_now > nb_job_finished_before
-            
     
-    def findJobThatHasName(self, name):
+    def cancel_dependencies_of_failing_jobs(self):
+        '''Function that cancels all the jobs that depend on a failing one.
+        
+        :return: Nothing. 
+        :rtype: N\A
+        '''
+        
+        for job in self.ljobs:
+            if job.after is None:
+                continue
+            father_job = self.find_job_that_has_name(job.after)
+            if father_job.has_failed():
+                job.cancel()
+    
+    def find_job_that_has_name(self, name):
         '''Returns the job by its name.
         
         :param name str: a job name
@@ -736,13 +836,13 @@ class Jobs(object):
                         new_job_start = True
                         break
                     else:
-                        jb_before = self.findJobThatHasName(jb.after) 
+                        jb_before = self.find_job_that_has_name(jb.after) 
                         if jb_before.has_finished():
                             jb.run(self.logger)
                             l_jobs_not_started.remove(jb)
                             new_job_start = True
                             break
-            
+            self.cancel_dependencies_of_failing_jobs()
             new_job_finished = self.update_jobs_states_list()
             
             if new_job_start or new_job_finished:
@@ -892,25 +992,57 @@ class Gui(object):
             for xmljob in self.xmljobs.findall('job'):
                 if xmljob.attrib['name'] == job.name:
                     self.xmljobs.remove(xmljob)
-                
+            
+            T0 = str(job._T0)
+            if T0 != "-1":
+                T0 = time.strftime('%Y-%m-%d %H:%M:%S', 
+                                       time.localtime(job._T0))
+            Tf = str(job._Tf)
+            if Tf != "-1":
+                Tf = time.strftime('%Y-%m-%d %H:%M:%S', 
+                                       time.localtime(job._Tf))
+            
             # recreate the job node
             xmlj = src.xmlManager.add_simple_node(self.xmljobs, "job", attrib={"name" : job.name})
             src.xmlManager.add_simple_node(xmlj, "host", job.machine.host)
             src.xmlManager.add_simple_node(xmlj, "port", str(job.machine.port))
             src.xmlManager.add_simple_node(xmlj, "user", job.machine.user)
+            src.xmlManager.add_simple_node(xmlj, "sat_path", job.machine.sat_path)
             src.xmlManager.add_simple_node(xmlj, "application", job.application)
             src.xmlManager.add_simple_node(xmlj, "distribution", job.distribution)
             src.xmlManager.add_simple_node(xmlj, "timeout", str(job.timeout))
             src.xmlManager.add_simple_node(xmlj, "commands", " ; ".join(job.commands))
             src.xmlManager.add_simple_node(xmlj, "state", job.get_status())
-            src.xmlManager.add_simple_node(xmlj, "begin", str(job._T0))
-            src.xmlManager.add_simple_node(xmlj, "end", str(job._Tf))
+            src.xmlManager.add_simple_node(xmlj, "begin", T0)
+            src.xmlManager.add_simple_node(xmlj, "end", Tf)
             src.xmlManager.add_simple_node(xmlj, "out", src.printcolors.cleancolor(job.out))
             src.xmlManager.add_simple_node(xmlj, "err", src.printcolors.cleancolor(job.err))
+            src.xmlManager.add_simple_node(xmlj, "res", str(job.res_job))
             if len(job.remote_log_files) > 0:
                 src.xmlManager.add_simple_node(xmlj, "remote_log_file_path", job.remote_log_files[0])
             else:
-                src.xmlManager.add_simple_node(xmlj, "remote_log_file_path", "nothing")
+                src.xmlManager.add_simple_node(xmlj, "remote_log_file_path", "nothing")           
+            
+            xmlafter = src.xmlManager.add_simple_node(xmlj, "after", job.after)
+            # get the job father
+            if job.after is not None:
+                job_father = None
+                for jb in l_jobs:
+                    if jb.name == job.after:
+                        job_father = jb
+                if job_father is None:
+                    msg = _("The job %(father_name)s that is parent of "
+                            "%(son_name)s is not in the job list." %
+                             {"father_name" : job.after , "son_name" : job.name})
+                    raise src.SatException(msg)
+                
+                if len(job_father.remote_log_files) > 0:
+                    link = job_father.remote_log_files[0]
+                else:
+                    link = "nothing"
+                src.xmlManager.append_node_attrib(xmlafter, {"link" : link})
+            
+        
         # Update the date
         src.xmlManager.append_node_attrib(self.xmlinfos,
                     attrib={"value" : 

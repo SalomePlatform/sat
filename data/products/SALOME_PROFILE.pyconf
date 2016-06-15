@@ -12,6 +12,7 @@ SALOME_PROFILE :
     {
     }
     depend : ["KERNEL", "GUI", "Python", "Sphinx", "qt"]
+    patches : [$VARS.datadir + $VARS.sep + "patches" + $VARS.sep + "SALOME_PROFILE_NO_ENV.patch"]
     type : "salome"
     source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
     build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name

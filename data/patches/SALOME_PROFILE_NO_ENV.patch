@@ -1,0 +1,11 @@
+diff -rupN SALOME_PROFILE/CMakeLists.txt SALOME_PROFILE_new/CMakeLists.txt
+--- SALOME_PROFILE/CMakeLists.txt	2016-06-15 15:25:21.000000000 +0200
++++ SALOME_PROFILE_new/CMakeLists.txt	2016-06-15 15:26:46.000000000 +0200
+@@ -117,5 +117,5 @@ SALOME_INSTALL_SCRIPTS("${_salome_contex
+ SET(_salome_context_BASHRC
+    ${KERNEL_ROOT_DIR}/bin/salome/appliskel/.bashrc
+ )
+-FILE(TO_CMAKE_PATH $ENV{SALOME_PROFILE_ROOT_DIR} _SALOME_PROFILE_ROOT_DIR)
++FILE(TO_CMAKE_PATH ${CMAKE_INSTALL_PREFIX} _SALOME_PROFILE_ROOT_DIR)
+ SALOME_INSTALL_SCRIPTS("${_salome_context_BASHRC}" ${_SALOME_PROFILE_ROOT_DIR})
+Les fichiers binaires SALOME_PROFILE/.git/index et SALOME_PROFILE_new/.git/index sont différents
