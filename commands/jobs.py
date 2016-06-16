@@ -213,7 +213,7 @@ class job(object):
     '''Class to manage one job
     '''
     def __init__(self, name, machine, application, distribution,
-                 commands, timeout, logger, job_file, after=None):
+                 commands, timeout, config, logger, job_file, after=None):
 
         self.name = name
         self.machine = machine
@@ -221,9 +221,11 @@ class job(object):
         self.timeout = timeout
         self.application = application
         self.distribution = distribution
+        self.config = config
         self.logger = logger
         # The list of log files to download from the remote machine 
         self.remote_log_files = []
+        
         # The remote command status
         # -1 means that it has not been launched, 
         # 0 means success and 1 means fail
@@ -244,14 +246,17 @@ class job(object):
                
         self.commands = commands
         self.command = (os.path.join(self.machine.sat_path, "sat") +
-                        " -v1 job --jobs_config " +
+                        " -l " +
+                        os.path.join(self.machine.sat_path,
+                                     "list_log_files.txt") +
+                        " job --jobs_config " +
                         job_file +
                         " --job " +
                         self.name)
     
     def get_pids(self):
         pids = []
-        cmd_pid = 'ps aux | grep "sat -v1 job --jobs_config" | awk \'{print $2}\''
+        cmd_pid = 'ps aux | grep "' + self.command + '" | awk \'{print $2}\''
         (_, out_pid, _) = self.machine.exec_command(cmd_pid, self.logger)
         pids_cmd = out_pid.readlines()
         pids_cmd = [str(src.only_numbers(pid)) for pid in pids_cmd]
@@ -266,7 +271,7 @@ class job(object):
         '''
         
         pids = self.get_pids()
-        cmd_kill = " ; ".join([("kill -9 " + pid) for pid in pids])
+        cmd_kill = " ; ".join([("kill -2 " + pid) for pid in pids])
         (_, out_kill, err_kill) = self.machine.exec_command(cmd_kill, 
                                                             self.logger)
         return (out_kill, err_kill)
@@ -307,7 +312,40 @@ class job(object):
             self.get_log_files()
         
         return self._has_finished
-    
+          
+    def get_log_files(self):
+        if not self.has_finished():
+            msg = _("Trying to get log files whereas the job is not finished.")
+            self.logger.write(src.printcolors.printcWarning(msg))
+            return
+        
+        tmp_file_path = src.get_tmp_filename(self.config, "list_log_files.txt")
+        self.machine.sftp.get(
+                    os.path.join(self.machine.sat_path, "list_log_files.txt"),
+                    tmp_file_path)
+        
+        fstream_tmp = open(tmp_file_path, "r")
+        file_lines = fstream_tmp.readlines()
+        file_lines = [line.replace("\n", "") for line in file_lines]
+        fstream_tmp.close()
+        os.remove(tmp_file_path)
+        self.res_job = file_lines[0]
+        for job_path_remote in file_lines[1:]:
+            if os.path.basename(os.path.dirname(job_path_remote)) != 'OUT':
+                local_path = os.path.join(os.path.dirname(
+                                                    self.logger.logFilePath),
+                                          os.path.basename(job_path_remote))
+                if not os.path.exists(local_path):
+                    self.machine.sftp.get(job_path_remote, local_path)
+            else:
+                local_path = os.path.join(os.path.dirname(
+                                                    self.logger.logFilePath),
+                                          'OUT',
+                                          os.path.basename(job_path_remote))
+                if not os.path.exists(local_path):
+                    self.machine.sftp.get(job_path_remote, local_path)
+            self.remote_log_files.append(local_path)
+
     def has_failed(self):
         '''Returns True if the job has failed. 
            A job is considered as failed if the machine could not be reached,
@@ -336,31 +374,7 @@ class job(object):
         self.cancelled = True
         self.out = _("This job was not launched because its father has failed.")
         self.err = _("This job was not launched because its father has failed.")
-    
-    def get_log_files(self):
-        if not self.has_finished():
-            msg = _("Trying to get log files whereas the job is not finished.")
-            self.logger.write(src.printcolors.printcWarning(msg))
-            return
-        out_lines = self.out.split("\n")
-        out_lines = [line for line in out_lines if line != '']
-        self.res_job = out_lines[0]
-        for job_path_remote in out_lines[1:]:
-            if os.path.basename(os.path.dirname(job_path_remote)) != 'OUT':
-                local_path = os.path.join(os.path.dirname(
-                                                    self.logger.logFilePath),
-                                          os.path.basename(job_path_remote))
-                if not os.path.exists(local_path):
-                    self.machine.sftp.get(job_path_remote, local_path)
-            else:
-                local_path = os.path.join(os.path.dirname(
-                                                    self.logger.logFilePath),
-                                          'OUT',
-                                          os.path.basename(job_path_remote))
-                if not os.path.exists(local_path):
-                    self.machine.sftp.get(job_path_remote, local_path)
-            self.remote_log_files.append(local_path)
-    
+
     def is_running(self):
         '''Returns True if the job commands are running 
         
@@ -406,8 +420,13 @@ class job(object):
         if not self.machine.successfully_connected(logger):
             self._has_finished = True
             self.out = "N\A"
-            self.err = ("Connection to machine (name : %s, host: %s, port: %s, user: %s) has failed\nUse the log command to get more information." 
-                        % (self.machine.name, self.machine.host, self.machine.port, self.machine.user))
+            self.err = ("Connection to machine (name : %s, host: %s, port:"
+                        " %s, user: %s) has failed\nUse the log command "
+                        "to get more information."
+                        % (self.machine.name,
+                           self.machine.host,
+                           self.machine.port,
+                           self.machine.user))
         else:
             self._T0 = time.time()
             self._stdin, self._stdout, self._stderr = self.machine.exec_command(
@@ -535,6 +554,7 @@ class Jobs(object):
                    distribution,
                    cmmnds,
                    timeout,
+                   self.runner.cfg,
                    self.logger,
                    self.job_file,
                    after = after)

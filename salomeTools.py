@@ -285,7 +285,7 @@ class Sat(object):
                                         {"launchedCommand" : launchedCommand})
                     
                     if res is None:
-                        res = 0
+                        res = 1
                     # If the logs_paths_in_file was called, write the result
                     # and log files in the given file path
                     if options.logs_paths_in_file:

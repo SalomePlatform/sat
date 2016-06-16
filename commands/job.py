@@ -139,16 +139,9 @@ def run(args, runner, logger):
     else:
         final_status = "KO"
    
-    logger.write(_("\nCommands: %(status)s (%(valid_result)d/%(nb_products)d)\n\n") % \
+    logger.write(_("\nCommands: %(status)s (%(valid_result)d/%(nb_products)d)\n") % \
         { 'status': src.printcolors.printc(final_status), 
           'valid_result': nb_pass,
           'nb_products': len(commands) }, 3)
-    
-    # Print the status and the list of log files
-    logger.write(_("The status and the list of log files "
-                   "used in the command is the following :\n"))
-    logger.write("%i\n" % res, 1)
-    for file_path in logger.l_logFiles:
-        logger.write("%s\n" % file_path, 1)
     
     return res
