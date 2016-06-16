@@ -43,7 +43,7 @@ parser.add_option('p', 'publish', 'boolean', 'publish',
                     "display the jobs status."),
                   False)
 
-class machine(object):
+class Machine(object):
     '''Class to manage a ssh connection on a machine
     '''
     def __init__(self, name, host, user, port=22, passwd=None, sat_path="salomeTools"):
@@ -98,7 +98,7 @@ class machine(object):
             message = "Warning : trying to ask if the connection to "
             "(host: %s, port: %s, user: %s) is OK whereas there were"
             " no connection request" % \
-            (machine.host, machine.port, machine.user)
+            (self.host, self.port, self.user)
             logger.write( src.printcolors.printcWarning(message))
         return self._connection_successful
 
@@ -209,7 +209,7 @@ class machine(object):
         logger.write("Connection : " + status + "\n\n") 
 
 
-class job(object):
+class Job(object):
     '''Class to manage one job
     '''
     def __init__(self, name, machine, application, distribution,
@@ -548,7 +548,7 @@ class Jobs(object):
         if 'distribution' in job_def:
             distribution = job_def.distribution
             
-        return job(name,
+        return Job(name,
                    machine,
                    application,
                    distribution,
@@ -608,7 +608,7 @@ class Jobs(object):
                             else:
                                 sat_path = machine_def.sat_path
                             
-                            a_machine = machine(
+                            a_machine = Machine(
                                                 machine_def.name,
                                                 host,
                                                 user,
