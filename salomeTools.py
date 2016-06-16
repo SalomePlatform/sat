@@ -81,6 +81,8 @@ parser.add_option('b', 'batch', 'boolean', "batch",
                   _("batch mode (no question)."))
 parser.add_option('t', 'all_in_terminal', 'boolean', "all_in_terminal", 
                   _("All traces in the terminal (for example compilation logs)."))
+parser.add_option('l', 'logs_paths_in_file', 'string', "logs_paths_in_file", 
+                  _("Put the command result and paths to log files in ."))
 
 class Sat(object):
     '''The main class that stores all the commands of salomeTools
@@ -138,7 +140,7 @@ class Sat(object):
         # loop on the commands name
         for nameCmd in lCommand:
             
-            # Exception for the jobs command that require the paramiko module
+            # Exception for the jobs command that requires the paramiko module
             if nameCmd == "jobs":
                 try:
                     import paramiko
@@ -208,8 +210,26 @@ class Sat(object):
                 logger_command = src.logger.Logger(self.cfg, 
                                                    silent_sysstd=silent,
                                                    all_in_terminal=self.options.all_in_terminal)
-                               
+                
+                # Check that the path given by the logs_paths_in_file option
+                # is a file path that can be written
+                if options.logs_paths_in_file:
+                    try:
+                        dir_file = os.path.dirname(options.logs_paths_in_file)
+                        if not os.path.exists(dir_file):
+                            os.makedirs(dir_file)
+                        if os.path.exists(options.logs_paths_in_file):
+                            os.remove(options.logs_paths_in_file)
+                        file_test = open(options.logs_paths_in_file, "w")
+                        file_test.close()
+                    except Exception as e:
+                        msg = _("WARNING: the logs_paths_in_file option will "
+                                "not be taken into account.\nHere is the error:")
+                        logger_command.write("%s\n%s\n\n" % (src.printcolors.printcWarning(msg), str(e)))
+                        options.logs_paths_in_file = None
+                
                 try:
+                    res = None
                     # Execute the hooks (if there is any) 
                     # and run method of the command
                     self.run_hook(__nameCmd__, C_PRE_HOOK, logger_command)
@@ -249,7 +269,7 @@ class Sat(object):
                                             attrib = {"command" : __nameCmd__,
                                                       "passed" : res,
                                         "launchedCommand" : launchedCommand})
-                        logger_add_link.l_logFiles +=    logger_command.l_logFiles
+                        logger_add_link.l_logFiles += logger_command.l_logFiles
 
                 finally:
                     launchedCommand = ' '.join([self.cfg.VARS.salometoolsway +
@@ -263,6 +283,18 @@ class Sat(object):
                     # Write the file to the hard drive
                     logger_command.end_write(
                                         {"launchedCommand" : launchedCommand})
+                    
+                    if res is None:
+                        res = 0
+                    # If the logs_paths_in_file was called, write the result
+                    # and log files in the given file path
+                    if options.logs_paths_in_file:
+                        file_res = open(options.logs_paths_in_file, "w")
+                        file_res.write(str(res) + "\n")
+                        for i, filepath in enumerate(logger_command.l_logFiles):
+                            file_res.write(filepath)
+                            if i < len(logger_command.l_logFiles):
+                                file_res.write("\n")
                 
                 return res
 
@@ -340,7 +372,7 @@ class Sat(object):
             return
         # get command name
         command = opt[0]
-        # read the configuration from all the pyconf files    
+        # read the configuration from all the pyconf files
         cfgManager = config.ConfigManager()
         self.cfg = cfgManager.get_config(datadir=self.datadir)
 
