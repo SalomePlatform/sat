@@ -489,7 +489,9 @@ class Jobs(object):
         # can be several ssh parameters) 
         self.lhosts = []
         # The jobs to be launched today 
-        self.ljobs = []     
+        self.ljobs = []
+        # The jobs that will not be launched today
+        self.ljobsdef_not_today = []
         self.runner = runner
         self.logger = logger
         # The correlation dictionary between jobs and machines
@@ -611,6 +613,8 @@ class Jobs(object):
                 self.dic_job_machine[a_job] = a_machine
                 
                 self.ljobs.append(a_job)
+            else: # today in job_def.when
+                self.ljobsdef_not_today.append(job_def)
                                      
         self.lhosts = host_list
         
@@ -940,7 +944,7 @@ class Gui(object):
     
     """
     
-    def __init__(self, xml_file_path, l_jobs, stylesheet):
+    def __init__(self, xml_file_path, l_jobs, l_jobs_not_today, stylesheet):
         # The path of the xml file
         self.xml_file_path = xml_file_path
         # The stylesheet
@@ -948,22 +952,31 @@ class Gui(object):
         # Open the file in a writing stream
         self.xml_file = src.xmlManager.XmlLogFile(xml_file_path, "JobsReport")
         # Create the lines and columns
-        self.initialize_array(l_jobs)
+        self.initialize_array(l_jobs, l_jobs_not_today)
         # Write the wml file
         self.update_xml_file(l_jobs)
     
-    def initialize_array(self, l_jobs):
+    def initialize_array(self, l_jobs, l_jobs_not_today):
         l_dist = []
         l_applications = []
         for job in l_jobs:
             distrib = job.distribution
-            if distrib not in l_dist:
+            if distrib is not None and distrib not in l_dist:
                 l_dist.append(distrib)
             
             application = job.application
-            if application not in l_applications:
+            if application is not None and application not in l_applications:
                 l_applications.append(application)
-                    
+        
+        for job_def in l_jobs_not_today:
+            distrib = src.get_cfg_param(job_def, "distribution", "nothing")
+            if distrib is not "nothing" and distrib not in l_dist:
+                l_dist.append(distrib)
+                
+            application = src.get_cfg_param(job_def, "application", "nothing")
+            if application is not "nothing" and application not in l_applications:
+                l_applications.append(application)
+        
         self.l_dist = l_dist
         self.l_applications = l_applications
         
@@ -980,8 +993,19 @@ class Gui(object):
         # Initialize the jobs node
         self.xmljobs = self.xml_file.add_simple_node("jobs")
         
+        # 
+        self.put_jobs_not_today(l_jobs_not_today)
+        
         # Initialize the info node (when generated)
         self.xmlinfos = self.xml_file.add_simple_node("infos", attrib={"name" : "last update", "JobsCommandStatus" : "running"})
+    
+    def put_jobs_not_today(self, l_jobs_not_today):
+        for job_def in l_jobs_not_today:
+            xmlj = src.xmlManager.add_simple_node(self.xmljobs, "job", attrib={"name" : job_def.name})
+            src.xmlManager.add_simple_node(xmlj, "application", src.get_cfg_param(job_def, "application", "nothing"))
+            src.xmlManager.add_simple_node(xmlj, "distribution", src.get_cfg_param(job_def, "distribution", "nothing"))
+            src.xmlManager.add_simple_node(xmlj, "commands", " ; ".join(job_def.commands))
+            src.xmlManager.add_simple_node(xmlj, "state", "Not today")        
         
     def update_xml_file(self, l_jobs):      
         
@@ -1142,7 +1166,7 @@ def run(args, runner, logger):
     
     gui = None
     if options.publish:
-        gui = Gui("/export/home/serioja/LOGS/test.xml", today_jobs.ljobs, "job_report.xsl")
+        gui = Gui("/export/home/serioja/LOGS/test.xml", today_jobs.ljobs, today_jobs.ljobsdef_not_today, "job_report.xsl")
     
     today_jobs.gui = gui
     

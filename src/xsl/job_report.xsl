@@ -41,6 +41,7 @@
     .KO2day       { color:#FF0000; font-weight: bold; }
     .KF2day       { color:#FF8000; font-weight: bold; }
     .NA2day       { color:#BBBBBB; font-weight: bold; }
+    .TO2day       { color:GoldenRod; font-weight: bold; }
 
     .new          { background-color:#FF5500; }
     .day          { background-color:#F0E25A; font-size: small; }
@@ -149,7 +150,7 @@
 			      <a href="#">
 				    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
 				    <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
-				    <xsl:attribute name="class">KO2</xsl:attribute>
+				    <xsl:attribute name="class">KO2day</xsl:attribute>
 				    <xsl:value-of select="@name"/>
 			      </a>
 			    </xsl:when>
@@ -157,7 +158,7 @@
 			      <a href="#">
 				    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
 				    <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
-				    <xsl:attribute name="class">NA2</xsl:attribute>
+				    <xsl:attribute name="class">NA2day</xsl:attribute>
 				    <xsl:value-of select="@name"/>
 			      </a>
 			    </xsl:when>
@@ -173,7 +174,7 @@
 			      <a href="#">
 				    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
 				    <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
-				    <xsl:attribute name="class">OK2</xsl:attribute>
+				    <xsl:attribute name="class">OK2day</xsl:attribute>
 				    <xsl:value-of select="@name"/>
 			      </a>
 			    </xsl:when>
@@ -181,13 +182,21 @@
 			      <a href="#">
 				    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
 				    <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
-				    <xsl:attribute name="class">TO2</xsl:attribute>
+				    <xsl:attribute name="class">TO2day</xsl:attribute>
+				    <xsl:value-of select="@name"/>
+			      </a>
+			    </xsl:when>
+			    <xsl:when test="state/.='Not today'">
+			      <a href="#">
+				    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
+				    <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
+				    <xsl:attribute name="class">NA2</xsl:attribute>
 				    <xsl:value-of select="@name"/>
 			      </a>
 			    </xsl:when>
 		      </xsl:choose>
 		      <!--<xsl:value-of select="state/." />-->
-		      <xsl:if test="not(remote_log_file_path/.='nothing')">
+		      <xsl:if test="not(remote_log_file_path/.='nothing') and state/.!='Not today'">
 			     : 
 			    <a>
 				<xsl:attribute name="title">remote log</xsl:attribute>
@@ -232,34 +241,36 @@
 	  <!-- Display job name -->
 	  <h4>Name : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/@name"/>
 	  <br/>
-	  <!-- Display the job attributes -->
-	  <h4>Hostname/port : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/host"/>/<xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/port"/>
-	  <br/>
-	  <h4>User : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/user"/>
-	  <br/>
-	  <h4>salomeTools path : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/sat_path"/>
-	  <br/>
-	  <h4>After : </h4>
-	  <a href="#">
-		<xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/after"/>')</xsl:attribute>
-		<xsl:attribute name="title">Click to get job information</xsl:attribute>
-		<xsl:attribute name="class">OK2</xsl:attribute>
-		<xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/after"/>
-	  </a>
-	  <br/>
-	  <h4>Timeout : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/timeout"/>
-	  <br/>
-	  <h4>Begin : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/begin"/>
-	  <br/>
-	  <h4>End : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/end"/>
-	  <br/>
+	  <xsl:if test="//JobsReport/jobs/job[@name=$curr_job_name]/state!='Not today'">
+		  <!-- Display the job attributes -->
+		  <h4>Hostname/port : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/host"/>/<xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/port"/>
+		  <br/>
+		  <h4>User : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/user"/>
+		  <br/>
+		  <h4>salomeTools path : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/sat_path"/>
+		  <br/>
+		  <h4>After : </h4>
+		  <a href="#">
+			<xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/after"/>')</xsl:attribute>
+			<xsl:attribute name="title">Click to get job information</xsl:attribute>
+			<xsl:attribute name="class">OK2</xsl:attribute>
+			<xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/after"/>
+		  </a>
+		  <br/>
+		  <h4>Timeout : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/timeout"/>
+		  <br/>
+		  <h4>Begin : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/begin"/>
+		  <br/>
+		  <h4>End : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/end"/>
+		  <br/>
+		  <h4>Out : </h4><PRE><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/out"/></PRE>
+		  <br/>
+		  <h4>Err : </h4><h_err><PRE><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/err"/></PRE></h_err>
+          </xsl:if>
 	  <h4>Status : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/state"/>
 	  <br/>
 	  <h4>Commands : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/commands"/>
 	  <br/>
-	  <h4>Out : </h4><PRE><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/out"/></PRE>
-	  <br/>
-	  <h4>Err : </h4><h_err><PRE><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/err"/></PRE></h_err>
       </div>
     </xsl:for-each>
 
