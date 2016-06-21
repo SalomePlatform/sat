@@ -5,7 +5,7 @@
 <xsl:template match="/">
 <html>
 <head>
-<title>Jobs Report</title>
+<title>Jobs global report</title>
 <style type="text/css">
     <!-- styles for commands results -->
     .OKday        { background-color:#20FF20; }
@@ -73,7 +73,7 @@
     h4            { text-align : left; font-size: small; font-weight: bold; display: inline; }
     h_err         { text-align : left; font-size: small; font-weight: normal; display: inline; 	color: red; }
     .legend       { text-align : center; } 
-    .def        { font-family: Arial, Verdana, "Times New Roman", Times, serif;}
+    .def        { font-family: Arial, Verdana, "Times New Roman", Times, serif; background-color:#FFFFCC;}
    
 </style>
 
@@ -109,7 +109,7 @@
     <table width="100%">
 	<tr>
 	    <td class="summary">
-		<h2>Jobs Report</h2>
+		<h2>Jobs global report</h2>
 	    </td>
 	    <td class="summary" align="right" valign="bottom" width="300">
 		<xsl:for-each select="//JobsReport/infos">
@@ -121,103 +121,94 @@
        
     <div id="matrix">
     <table class="summary">
-      <!-- header -->
-      <tr bgcolor="#9acd32">
-      <th></th>
-      <xsl:for-each select="//JobsReport/applications/application">
+     
+    <!-- for all machines -->
+    <xsl:for-each select="//JobsReport/hosts_ports/host_port">
         <xsl:sort select="@name" />
-	<th><xsl:value-of select="@name" /></th>
-      </xsl:for-each>
-      </tr>
-      
-      <!-- for all hosts -->
-      <xsl:for-each select="//JobsReport/distributions/dist">
-        <xsl:sort select="@name" />
-	<xsl:variable name="curr_distname" select="@name" />
-	<tr>
-	<td align="center"><xsl:value-of select="$curr_distname" /></td>
-	<!-- for all jobs -->
-	<xsl:for-each select="//JobsReport/applications/application">
-	  <xsl:sort select="@name" />
-	  <xsl:variable name="curr_appli" select="@name" />
-	  <td align="center" class="small">
-	      <!-- get the job for current host and current appli -->
-	      <xsl:for-each select="//JobsReport/jobs/job">
-		  <xsl:sort select="@name" />
-		  <xsl:if test="application/.=$curr_appli and distribution/.=$curr_distname">
-		      <xsl:choose>
-			    <xsl:when test="state/.='SSH connection KO' or state/.='Cancelled'">
-			      <a href="#">
-				    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
-				    <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
-				    <xsl:attribute name="class">KO2day</xsl:attribute>
-				    <xsl:value-of select="@name"/>
-			      </a>
-			    </xsl:when>
-			    <xsl:when test="contains(state/., 'Not launched')">
-			      <a href="#">
-				    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
-				    <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
-				    <xsl:attribute name="class">NA2day</xsl:attribute>
-				    <xsl:value-of select="@name"/>
-			      </a>
-			    </xsl:when>
-			    <xsl:when test="contains(state/., 'running')">
-			      <a href="#">
-				    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
-				    <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
-				    <xsl:attribute name="class">RUNNING2</xsl:attribute>
-				    <xsl:value-of select="@name"/>
-			      </a>
-			    </xsl:when>
-			    <xsl:when test="contains(state/., 'Finished')">
-			      <a href="#">
-				    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
-				    <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
-				    <xsl:attribute name="class">OK2day</xsl:attribute>
-				    <xsl:value-of select="@name"/>
-			      </a>
-			    </xsl:when>
-			    <xsl:when test="contains(state/., 'Timeout')">
-			      <a href="#">
-				    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
-				    <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
-				    <xsl:attribute name="class">TO2day</xsl:attribute>
-				    <xsl:value-of select="@name"/>
-			      </a>
-			    </xsl:when>
-			    <xsl:when test="state/.='Not today'">
-			      <a href="#">
-				    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
-				    <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
-				    <xsl:attribute name="class">NA2</xsl:attribute>
-				    <xsl:value-of select="@name"/>
-			      </a>
-			    </xsl:when>
-		      </xsl:choose>
-		      <!--<xsl:value-of select="state/." />-->
-		      <xsl:if test="not(remote_log_file_path/.='nothing') and state/.!='Not today'">
-			     : 
-			    <a>
-				<xsl:attribute name="title">remote log</xsl:attribute>
-				<xsl:attribute name="href"><xsl:value-of select="remote_log_file_path/."/></xsl:attribute>
-				<xsl:if test="res/.='0'">
-				   <xsl:attribute name="class">OK2day</xsl:attribute>
-				</xsl:if>
-				<xsl:if test="res/.='1'">
-				   <xsl:attribute name="class">KO2day</xsl:attribute>
-				</xsl:if>
-				<xsl:value-of select="host/."/>/<xsl:value-of select="port/."/>
-			    </a>
-		      </xsl:if> 
-		      <br/>
-		  </xsl:if> 
-		  
-	      </xsl:for-each>
-	  </td>
-	</xsl:for-each>
-	</tr>
-      </xsl:for-each>
+        <xsl:variable name="curr_host_port" select="@name" />
+        <tr>
+        <td align="center"><xsl:value-of select="$curr_host_port" /></td>
+          <!-- for all jobs -->
+          
+              <!-- get the jobs for the current machine -->
+              <xsl:for-each select="//JobsReport/jobs/job">
+              <xsl:sort select="@name" />
+              
+              <xsl:if test="concat(host/., ':', port/.)=$curr_host_port">
+                  <td align="center" class="small">
+                  <xsl:choose>
+                    <xsl:when test="state/.='SSH connection KO' or state/.='Cancelled'">
+                      <a href="#">
+                        <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
+                        <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
+                        <xsl:attribute name="class">KO2day</xsl:attribute>
+                        <xsl:value-of select="@name"/>
+                      </a>
+                    </xsl:when>
+                    <xsl:when test="contains(state/., 'Not launched')">
+                      <a href="#">
+                        <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
+                        <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
+                        <xsl:attribute name="class">NA2day</xsl:attribute>
+                        <xsl:value-of select="@name"/>
+                      </a>
+                    </xsl:when>
+                    <xsl:when test="contains(state/., 'running')">
+                      <a href="#">
+                        <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
+                        <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
+                        <xsl:attribute name="class">RUNNING2</xsl:attribute>
+                        <xsl:value-of select="@name"/>
+                      </a>
+                    </xsl:when>
+                    <xsl:when test="contains(state/., 'Finished')">
+                      <a href="#">
+                        <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
+                        <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
+                        <xsl:attribute name="class">OK2day</xsl:attribute>
+                        <xsl:value-of select="@name"/>
+                      </a>
+                    </xsl:when>
+                    <xsl:when test="contains(state/., 'Timeout')">
+                      <a href="#">
+                        <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
+                        <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
+                        <xsl:attribute name="class">TO2day</xsl:attribute>
+                        <xsl:value-of select="@name"/>
+                      </a>
+                    </xsl:when>
+                    <xsl:when test="state/.='Not today'">
+                      <a href="#">
+                        <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
+                        <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
+                        <xsl:attribute name="class">NA2</xsl:attribute>
+                        <xsl:value-of select="@name"/>
+                      </a>
+                    </xsl:when>
+                  </xsl:choose>
+                  <!--<xsl:value-of select="state/." />-->
+                  <xsl:if test="not(remote_log_file_path/.='nothing') and state/.!='Not today'">
+                     : 
+                    <a>
+                    <xsl:attribute name="title">remote log</xsl:attribute>
+                    <xsl:attribute name="href"><xsl:value-of select="remote_log_file_path/."/></xsl:attribute>
+                    <xsl:if test="res/.='0'">
+                       <xsl:attribute name="class">OK2day</xsl:attribute>
+                    </xsl:if>
+                    <xsl:if test="res/.='1'">
+                       <xsl:attribute name="class">KO2day</xsl:attribute>
+                    </xsl:if>
+                    <xsl:value-of select="host/."/>/<xsl:value-of select="port/."/>
+                    </a>
+                  </xsl:if> 
+                  <br/>
+                  </td>
+              </xsl:if> 
+              
+              </xsl:for-each>
+          
+        </tr>
+    </xsl:for-each>
     </table>
     
     <h3>

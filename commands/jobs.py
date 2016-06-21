@@ -23,6 +23,8 @@ import paramiko
 
 import src
 
+STYLESHEET_GLOBAL = "jobs_global_report.xsl"
+STYLESHEET_TABLE = "jobs_table_report.xsl"
 
 parser = src.options.Options()
 
@@ -46,7 +48,13 @@ parser.add_option('p', 'publish', 'boolean', 'publish',
 class Machine(object):
     '''Class to manage a ssh connection on a machine
     '''
-    def __init__(self, name, host, user, port=22, passwd=None, sat_path="salomeTools"):
+    def __init__(self,
+                 name,
+                 host,
+                 user,
+                 port=22,
+                 passwd=None,
+                 sat_path="salomeTools"):
         self.name = name
         self.host = host
         self.port = port
@@ -95,10 +103,10 @@ class Machine(object):
         :rtype: bool
         '''
         if self._connection_successful == None:
-            message = "Warning : trying to ask if the connection to "
-            "(host: %s, port: %s, user: %s) is OK whereas there were"
-            " no connection request" % \
-            (self.host, self.port, self.user)
+            message = _("Warning : trying to ask if the connection to "
+            "(name: %s host: %s, port: %s, user: %s) is OK whereas there were"
+            " no connection request" % 
+                        (self.name, self.host, self.port, self.user))
             logger.write( src.printcolors.printcWarning(message))
         return self._connection_successful
 
@@ -212,7 +220,7 @@ class Machine(object):
 class Job(object):
     '''Class to manage one job
     '''
-    def __init__(self, name, machine, application, distribution,
+    def __init__(self, name, machine, application, distribution, table, 
                  commands, timeout, config, logger, job_file, after=None):
 
         self.name = name
@@ -221,6 +229,7 @@ class Job(object):
         self.timeout = timeout
         self.application = application
         self.distribution = distribution
+        self.table = table
         self.config = config
         self.logger = logger
         # The list of log files to download from the remote machine 
@@ -510,7 +519,7 @@ class Jobs(object):
         # The jobs to be launched today 
         self.ljobs = []
         # The jobs that will not be launched today
-        self.ljobsdef_not_today = []
+        self.ljobs_not_today = []
         self.runner = runner
         self.logger = logger
         # The correlation dictionary between jobs and machines
@@ -524,7 +533,7 @@ class Jobs(object):
         # the list of jobs that are running 
         self._l_jobs_running = [] 
                 
-        self.determine_products_and_machines()
+        self.determine_jobs_and_machines()
     
     def define_job(self, job_def, machine):
         '''Takes a pyconf job definition and a machine (from class machine)
@@ -547,11 +556,15 @@ class Jobs(object):
         distribution = None
         if 'distribution' in job_def:
             distribution = job_def.distribution
+        table = None
+        if 'table' in job_def:
+            table = job_def.table
             
         return Job(name,
                    machine,
                    application,
                    distribution,
+                   table,
                    cmmnds,
                    timeout,
                    self.runner.cfg,
@@ -559,7 +572,7 @@ class Jobs(object):
                    self.job_file,
                    after = after)
     
-    def determine_products_and_machines(self):
+    def determine_jobs_and_machines(self):
         '''Function that reads the pyconf jobs definition and instantiates all
            the machines and jobs to be done today.
 
@@ -570,57 +583,60 @@ class Jobs(object):
         host_list = []
                
         for job_def in self.cfg_jobs.jobs :
-            if today in job_def.when:
                 
-                name_machine = job_def.machine
-                
-                a_machine = None
-                for mach in self.lmachines:
-                    if mach.name == name_machine:
-                        a_machine = mach
-                        break
-                
-                if a_machine == None:
-                    for machine_def in self.cfg_jobs.machines:
-                        if machine_def.name == name_machine:
-                            if 'host' not in machine_def:
-                                host = self.runner.cfg.VARS.hostname
-                            else:
-                                host = machine_def.host
+            if not "machine" in job_def:
+                msg = _('WARNING: The job "%s" do not have the key '
+                       '"machine", this job is ignored.\n\n' % job_def.name)
+                self.logger.write(src.printcolors.printcWarning(msg))
+                continue
+            name_machine = job_def.machine
+            
+            a_machine = None
+            for mach in self.lmachines:
+                if mach.name == name_machine:
+                    a_machine = mach
+                    break
+            
+            if a_machine == None:
+                for machine_def in self.cfg_jobs.machines:
+                    if machine_def.name == name_machine:
+                        if 'host' not in machine_def:
+                            host = self.runner.cfg.VARS.hostname
+                        else:
+                            host = machine_def.host
 
-                            if 'user' not in machine_def:
-                                user = self.runner.cfg.VARS.user
-                            else:
-                                user = machine_def.user
+                        if 'user' not in machine_def:
+                            user = self.runner.cfg.VARS.user
+                        else:
+                            user = machine_def.user
 
-                            if 'port' not in machine_def:
-                                port = 22
-                            else:
-                                port = machine_def.port
-                
-                            if 'password' not in machine_def:
-                                passwd = None
-                            else:
-                                passwd = machine_def.password    
-                                
-                            if 'sat_path' not in machine_def:
-                                sat_path = "salomeTools"
-                            else:
-                                sat_path = machine_def.sat_path
+                        if 'port' not in machine_def:
+                            port = 22
+                        else:
+                            port = machine_def.port
+            
+                        if 'password' not in machine_def:
+                            passwd = None
+                        else:
+                            passwd = machine_def.password    
                             
-                            a_machine = Machine(
-                                                machine_def.name,
-                                                host,
-                                                user,
-                                                port=port,
-                                                passwd=passwd,
-                                                sat_path=sat_path
-                                                )
-                            
-                            if (host, port) not in host_list:
-                                host_list.append((host, port))
-                                             
-                            self.lmachines.append(a_machine)
+                        if 'sat_path' not in machine_def:
+                            sat_path = "salomeTools"
+                        else:
+                            sat_path = machine_def.sat_path
+                        
+                        a_machine = Machine(
+                                            machine_def.name,
+                                            host,
+                                            user,
+                                            port=port,
+                                            passwd=passwd,
+                                            sat_path=sat_path
+                                            )
+                        
+                        self.lmachines.append(a_machine)
+                        if (host, port) not in host_list:
+                            host_list.append((host, port))
                 
                 if a_machine == None:
                     msg = _("WARNING: The job \"%(job_name)s\" requires the "
@@ -629,12 +645,13 @@ class Jobs(object):
                             "The job will not be launched")
                     self.logger.write(src.printcolors.printcWarning(msg))
                                   
-                a_job = self.define_job(job_def, a_machine)
-                self.dic_job_machine[a_job] = a_machine
+            a_job = self.define_job(job_def, a_machine)
+            self.dic_job_machine[a_job] = a_machine
                 
+            if today in job_def.when:    
                 self.ljobs.append(a_job)
             else: # today in job_def.when
-                self.ljobsdef_not_today.append(job_def)
+                self.ljobs_not_today.append(a_job)
                                      
         self.lhosts = host_list
         
@@ -870,7 +887,7 @@ class Jobs(object):
             new_job_finished = self.update_jobs_states_list()
             
             if new_job_start or new_job_finished:
-                self.gui.update_xml_file(self.ljobs)            
+                self.gui.update_xml_files(self.ljobs)            
                 # Display the current status     
                 self.display_status(self.len_columns)
             
@@ -881,7 +898,7 @@ class Jobs(object):
         self.logger.write(tiret_line)                   
         self.logger.write("\n\n")
         
-        self.gui.update_xml_file(self.ljobs)
+        self.gui.update_xml_files(self.ljobs)
         self.gui.last_update()
 
     def write_all_results(self):
@@ -901,141 +918,125 @@ class Gui(object):
     '''Class to manage the the xml data that can be displayed in a browser to
        see the jobs states
     '''
-    
-    """
-    <?xml version='1.0' encoding='utf-8'?>
-    <?xml-stylesheet type='text/xsl' href='job_report.xsl'?>
-    <JobsReport>
-      <infos>
-        <info name="generated" value="2016-06-02 07:06:45"/>
-      </infos>
-      <hosts>
-          <host name=is221553 port=22 distribution=UB12.04/>
-          <host name=is221560 port=22/>
-          <host name=is221553 port=22 distribution=FD20/>
-      </hosts>
-      <applications>
-          <application name=SALOME-7.8.0/>
-          <application name=SALOME-master/>
-          <application name=MED-STANDALONE-master/>
-          <application name=CORPUS/>
-      </applications>
-      
-      <jobs>
-          <job name="7.8.0 FD22">
-                <host>is228809</host>
-                <port>2200</port>
-                <application>SALOME-7.8.0</application>
-                <user>adminuser</user>
-                <timeout>240</timeout>
-                <commands>
-                    export DISPLAY=is221560
-                    scp -p salome@is221560.intra.cea.fr:/export/home/salome/SALOME-7.7.1p1-src.tgz /local/adminuser         
-                    tar xf /local/adminuser/SALOME-7.7.1p1-src.tgz -C /local/adminuser
-                </commands>
-                <state>Not launched</state>
-          </job>
-
-          <job name="master MG05">
-                <host>is221560</host>
-                <port>22</port>
-                <application>SALOME-master</application>
-                <user>salome</user>
-                <timeout>240</timeout>
-                <commands>
-                    export DISPLAY=is221560
-                    scp -p salome@is221560.intra.cea.fr:/export/home/salome/SALOME-7.7.1p1-src.tgz /local/adminuser         
-                    sat prepare SALOME-master
-                    sat compile SALOME-master
-                    sat check SALOME-master
-                    sat launcher SALOME-master
-                    sat test SALOME-master
-                </commands>
-                <state>Running since 23 min</state>
-                <!-- <state>time out</state> -->
-                <!-- <state>OK</state> -->
-                <!-- <state>KO</state> -->
-                <begin>10/05/2016 20h32</begin>
-                <end>10/05/2016 22h59</end>
-          </job>
-
-      </jobs>
-    </JobsReport>
-    
-    """
-    
-    def __init__(self, xml_file_path, l_jobs, l_jobs_not_today, stylesheet):
-        # The path of the xml file
-        self.xml_file_path = xml_file_path
-        # The stylesheet
-        self.stylesheet = stylesheet
-        # Open the file in a writing stream
-        self.xml_file = src.xmlManager.XmlLogFile(xml_file_path, "JobsReport")
+   
+    def __init__(self, xml_dir_path, l_jobs, l_jobs_not_today):
+        # The path of the global xml file
+        self.xml_dir_path = xml_dir_path
+        # Initialize the xml files
+        xml_global_path = os.path.join(self.xml_dir_path, "global_report.xml")
+        self.xml_global_file = src.xmlManager.XmlLogFile(xml_global_path,
+                                                         "JobsReport")
+        # The xml files that corresponds to the tables.
+        # {name_table : xml_object}}
+        self.d_xml_table_files = {}
         # Create the lines and columns
-        self.initialize_array(l_jobs, l_jobs_not_today)
-        # Write the wml file
-        self.update_xml_file(l_jobs)
+        self.initialize_arrays(l_jobs, l_jobs_not_today)
+        # Write the xml file
+        self.update_xml_files(l_jobs)
     
-    def initialize_array(self, l_jobs, l_jobs_not_today):
-        l_dist = []
-        l_applications = []
-        for job in l_jobs:
-            distrib = job.distribution
-            if distrib is not None and distrib not in l_dist:
-                l_dist.append(distrib)
+    def initialize_arrays(self, l_jobs, l_jobs_not_today):
+       
+        # Get the tables to fill and put it in a dictionary
+        # {table_name : xml instance corresponding to the table}
+        for job in l_jobs + l_jobs_not_today:
+            table = job.table
+            if (table is not None and 
+                    table not in self.d_xml_table_files.keys()):
+                xml_table_path = os.path.join(self.xml_dir_path, table + ".xml")
+                self.d_xml_table_files[table] =  src.xmlManager.XmlLogFile(
+                                                            xml_table_path,
+                                                            "JobsReport")
+                self.d_xml_table_files[table].add_simple_node("distributions")
+                self.d_xml_table_files[table].add_simple_node("applications")
+                self.d_xml_table_files[table].add_simple_node("table", text=table)
+                 
+        d_dist = {}
+        d_application = {}
+        for table in self.d_xml_table_files:
+            d_dist[table] = []
+            d_application[table] = []
             
-            application = job.application
-            if application is not None and application not in l_applications:
-                l_applications.append(application)
-        
-        for job_def in l_jobs_not_today:
-            distrib = src.get_cfg_param(job_def, "distribution", "nothing")
-            if distrib is not "nothing" and distrib not in l_dist:
-                l_dist.append(distrib)
+        l_hosts_ports = []
+            
+        for job in l_jobs + l_jobs_not_today:
+            
+            if (job.machine.host, job.machine.port) not in l_hosts_ports:
+                l_hosts_ports.append((job.machine.host, job.machine.port))
                 
-            application = src.get_cfg_param(job_def, "application", "nothing")
-            if application is not "nothing" and application not in l_applications:
-                l_applications.append(application)
-        
-        self.l_dist = l_dist
-        self.l_applications = l_applications
-        
-        # Update the hosts node
-        self.xmldists = self.xml_file.add_simple_node("distributions")
-        for dist_name in self.l_dist:
-            src.xmlManager.add_simple_node(self.xmldists, "dist", attrib={"name" : dist_name})
+            distrib = job.distribution
+            application = job.application
             
-        # Update the applications node
-        self.xmlapplications = self.xml_file.add_simple_node("applications")
-        for application in self.l_applications:
-            src.xmlManager.add_simple_node(self.xmlapplications, "application", attrib={"name" : application})
+            table_job = job.table
+            if table is None:
+                continue
+            for table in self.d_xml_table_files:
+                if table_job == table:
+                    if distrib is not None and distrib not in d_dist[table]:
+                        d_dist[table].append(distrib)
+                        src.xmlManager.add_simple_node(
+                            self.d_xml_table_files[table].xmlroot.find('distributions'),
+                                                   "dist",
+                                                   attrib={"name" : distrib})
+                    
+                if table_job == table:
+                    if application is not None and application not in d_application[table]:
+                        d_application[table].append(application)
+                        src.xmlManager.add_simple_node(self.d_xml_table_files[table].xmlroot.find('applications'),
+                                                   "application",
+                                                   attrib={"name" : application})
+
+        # Initialize the hosts_ports node for the global file
+        self.xmlhosts_ports = self.xml_global_file.add_simple_node("hosts_ports")
+        for host, port in l_hosts_ports:
+            host_port = "%s:%i" % (host, port)
+            src.xmlManager.add_simple_node(self.xmlhosts_ports,
+                                           "host_port",
+                                           attrib={"name" : host_port})
         
-        # Initialize the jobs node
-        self.xmljobs = self.xml_file.add_simple_node("jobs")
-        
-        # 
-        self.put_jobs_not_today(l_jobs_not_today)
-        
-        # Initialize the info node (when generated)
-        self.xmlinfos = self.xml_file.add_simple_node("infos", attrib={"name" : "last update", "JobsCommandStatus" : "running"})
+        # Initialize the jobs node in all files
+        for xml_file in [self.xml_global_file] + self.d_xml_table_files.values():
+            xml_jobs = xml_file.add_simple_node("jobs")      
+            # Get the jobs present in the config file but that will not be launched
+            # today
+            self.put_jobs_not_today(l_jobs_not_today, xml_jobs)
+            
+            xml_file.add_simple_node("infos", attrib={"name" : "last update", "JobsCommandStatus" : "running"})
+
     
-    def put_jobs_not_today(self, l_jobs_not_today):
-        for job_def in l_jobs_not_today:
-            xmlj = src.xmlManager.add_simple_node(self.xmljobs, "job", attrib={"name" : job_def.name})
-            src.xmlManager.add_simple_node(xmlj, "application", src.get_cfg_param(job_def, "application", "nothing"))
-            src.xmlManager.add_simple_node(xmlj, "distribution", src.get_cfg_param(job_def, "distribution", "nothing"))
-            src.xmlManager.add_simple_node(xmlj, "commands", " ; ".join(job_def.commands))
-            src.xmlManager.add_simple_node(xmlj, "state", "Not today")        
+    def put_jobs_not_today(self, l_jobs_not_today, xml_node_jobs):
+        for job in l_jobs_not_today:
+            xmlj = src.xmlManager.add_simple_node(xml_node_jobs,
+                                                 "job",
+                                                 attrib={"name" : job.name})
+            src.xmlManager.add_simple_node(xmlj, "application", job.application)
+            src.xmlManager.add_simple_node(xmlj,
+                                           "distribution",
+                                           job.distribution)
+            src.xmlManager.add_simple_node(xmlj, "table", job.table)
+            src.xmlManager.add_simple_node(xmlj,
+                                       "commands", " ; ".join(job.commands))
+            src.xmlManager.add_simple_node(xmlj, "state", "Not today")
+            src.xmlManager.add_simple_node(xmlj, "machine", job.machine.name)
+            src.xmlManager.add_simple_node(xmlj, "host", job.machine.host)
+            src.xmlManager.add_simple_node(xmlj, "port", str(job.machine.port))
+            src.xmlManager.add_simple_node(xmlj, "user", job.machine.user)
+            src.xmlManager.add_simple_node(xmlj, "sat_path",
+                                                        job.machine.sat_path)
+    
+    def update_xml_files(self, l_jobs):
+        for xml_file in [self.xml_global_file] + self.d_xml_table_files.values():
+            self.update_xml_file(l_jobs, xml_file)
+            
+    def update_xml_file(self, l_jobs, xml_file):      
         
-    def update_xml_file(self, l_jobs):      
-        
+        xml_node_jobs = xml_file.xmlroot.find('jobs')
         # Update the job names and status node
         for job in l_jobs:
             # Find the node corresponding to the job and delete it
             # in order to recreate it
-            for xmljob in self.xmljobs.findall('job'):
+            for xmljob in xml_node_jobs.findall('job'):
                 if xmljob.attrib['name'] == job.name:
-                    self.xmljobs.remove(xmljob)
+                    xml_node_jobs.remove(xmljob)
             
             T0 = str(job._T0)
             if T0 != "-1":
@@ -1047,25 +1048,38 @@ class Gui(object):
                                        time.localtime(job._Tf))
             
             # recreate the job node
-            xmlj = src.xmlManager.add_simple_node(self.xmljobs, "job", attrib={"name" : job.name})
+            xmlj = src.xmlManager.add_simple_node(xml_node_jobs,
+                                                  "job",
+                                                  attrib={"name" : job.name})
+            src.xmlManager.add_simple_node(xmlj, "machine", job.machine.name)
             src.xmlManager.add_simple_node(xmlj, "host", job.machine.host)
             src.xmlManager.add_simple_node(xmlj, "port", str(job.machine.port))
             src.xmlManager.add_simple_node(xmlj, "user", job.machine.user)
-            src.xmlManager.add_simple_node(xmlj, "sat_path", job.machine.sat_path)
+            src.xmlManager.add_simple_node(xmlj, "sat_path",
+                                           job.machine.sat_path)
             src.xmlManager.add_simple_node(xmlj, "application", job.application)
-            src.xmlManager.add_simple_node(xmlj, "distribution", job.distribution)
+            src.xmlManager.add_simple_node(xmlj, "distribution",
+                                           job.distribution)
+            src.xmlManager.add_simple_node(xmlj, "table", job.table)
             src.xmlManager.add_simple_node(xmlj, "timeout", str(job.timeout))
-            src.xmlManager.add_simple_node(xmlj, "commands", " ; ".join(job.commands))
+            src.xmlManager.add_simple_node(xmlj, "commands",
+                                           " ; ".join(job.commands))
             src.xmlManager.add_simple_node(xmlj, "state", job.get_status())
             src.xmlManager.add_simple_node(xmlj, "begin", T0)
             src.xmlManager.add_simple_node(xmlj, "end", Tf)
-            src.xmlManager.add_simple_node(xmlj, "out", src.printcolors.cleancolor(job.out))
-            src.xmlManager.add_simple_node(xmlj, "err", src.printcolors.cleancolor(job.err))
+            src.xmlManager.add_simple_node(xmlj, "out",
+                                           src.printcolors.cleancolor(job.out))
+            src.xmlManager.add_simple_node(xmlj, "err",
+                                           src.printcolors.cleancolor(job.err))
             src.xmlManager.add_simple_node(xmlj, "res", str(job.res_job))
             if len(job.remote_log_files) > 0:
-                src.xmlManager.add_simple_node(xmlj, "remote_log_file_path", job.remote_log_files[0])
+                src.xmlManager.add_simple_node(xmlj,
+                                               "remote_log_file_path",
+                                               job.remote_log_files[0])
             else:
-                src.xmlManager.add_simple_node(xmlj, "remote_log_file_path", "nothing")           
+                src.xmlManager.add_simple_node(xmlj,
+                                               "remote_log_file_path",
+                                               "nothing")           
             
             xmlafter = src.xmlManager.add_simple_node(xmlj, "after", job.after)
             # get the job father
@@ -1077,7 +1091,7 @@ class Gui(object):
                 if job_father is None:
                     msg = _("The job %(father_name)s that is parent of "
                             "%(son_name)s is not in the job list." %
-                             {"father_name" : job.after , "son_name" : job.name})
+                            {"father_name" : job.after , "son_name" : job.name})
                     raise src.SatException(msg)
                 
                 if len(job_father.remote_log_files) > 0:
@@ -1088,21 +1102,26 @@ class Gui(object):
             
         
         # Update the date
-        src.xmlManager.append_node_attrib(self.xmlinfos,
+        xml_node_infos = xml_file.xmlroot.find('infos')
+        src.xmlManager.append_node_attrib(xml_node_infos,
                     attrib={"value" : 
                     datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
                
         # Write the file
-        self.write_xml_file()
+        self.write_xml_files()
     
     def last_update(self, finish_status = "finished"):
-        src.xmlManager.append_node_attrib(self.xmlinfos,
-                    attrib={"JobsCommandStatus" : finish_status})
+        for xml_file in [self.xml_global_file] + self.d_xml_table_files.values():
+            xml_node_infos = xml_file.xmlroot.find('infos')
+            src.xmlManager.append_node_attrib(xml_node_infos,
+                        attrib={"JobsCommandStatus" : finish_status})
         # Write the file
-        self.write_xml_file()
+        self.write_xml_files()
     
-    def write_xml_file(self):
-        self.xml_file.write_tree(self.stylesheet)
+    def write_xml_files(self):
+        self.xml_global_file.write_tree(STYLESHEET_GLOBAL)
+        for xml_file in self.d_xml_table_files.values():
+            xml_file.write_tree(STYLESHEET_TABLE)
         
 ##
 # Describes the command
@@ -1118,7 +1137,8 @@ def run(args, runner, logger):
        
     jobs_cfg_files_dir = runner.cfg.SITE.jobs.config_path
     
-    l_cfg_dir = [jobs_cfg_files_dir, os.path.join(runner.cfg.VARS.datadir, "jobs")]
+    l_cfg_dir = [jobs_cfg_files_dir,
+                 os.path.join(runner.cfg.VARS.datadir, "jobs")]
     
     # Make sure the path to the jobs config files directory exists 
     src.ensure_path_exists(jobs_cfg_files_dir)   
@@ -1178,7 +1198,11 @@ def run(args, runner, logger):
         config_jobs.jobs = l_jb
               
     # Initialization
-    today_jobs = Jobs(runner, logger, options.jobs_cfg, file_jobs_cfg, config_jobs)
+    today_jobs = Jobs(runner,
+                      logger,
+                      options.jobs_cfg,
+                      file_jobs_cfg,
+                      config_jobs)
     # SSH connection to all machines
     today_jobs.ssh_connection_all_machines()
     if options.test_connection:
@@ -1186,7 +1210,9 @@ def run(args, runner, logger):
     
     gui = None
     if options.publish:
-        gui = Gui("/export/home/serioja/LOGS/test.xml", today_jobs.ljobs, today_jobs.ljobsdef_not_today, "job_report.xsl")
+        gui = Gui("/export/home/serioja/LOGS",
+                  today_jobs.ljobs,
+                  today_jobs.ljobs_not_today,)
     
     today_jobs.gui = gui
     

@@ -45,12 +45,15 @@ class XmlLogFile(object):
         # Initialize the field that contain the xml in memory
         self.xmlroot = etree.Element(rootname, attrib = attrib)
     
-    def write_tree(self, stylesheet=None):
+    def write_tree(self, stylesheet=None, file_path = None):
         '''Write the xml tree in the log file path. Add the stylesheet if asked.
         
         :param stylesheet str: The stylesheet to apply to the xml file
         '''
-        f = open(self.logFile, 'w')
+        log_file_path = self.logFile
+        if file_path:
+            log_file_path = file_path
+        f = open(log_file_path, 'w')
         f.write("<?xml version='1.0' encoding='utf-8'?>\n")
         if stylesheet:
             f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % 
