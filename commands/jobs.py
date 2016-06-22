@@ -272,7 +272,7 @@ class Job(object):
         pids+=pids_cmd
         return pids
     
-    def kill_remote_process(self):
+    def kill_remote_process(self, wait=1):
         '''Kills the process on the remote machine.
         
         :return: (the output of the kill, the error of the kill)
@@ -283,6 +283,7 @@ class Job(object):
         cmd_kill = " ; ".join([("kill -2 " + pid) for pid in pids])
         (_, out_kill, err_kill) = self.machine.exec_command(cmd_kill, 
                                                             self.logger)
+        time.sleep(wait)
         return (out_kill, err_kill)
             
     def has_begun(self):
@@ -340,20 +341,23 @@ class Job(object):
         os.remove(tmp_file_path)
         self.res_job = file_lines[0]
         for job_path_remote in file_lines[1:]:
-            if os.path.basename(os.path.dirname(job_path_remote)) != 'OUT':
-                local_path = os.path.join(os.path.dirname(
-                                                    self.logger.logFilePath),
-                                          os.path.basename(job_path_remote))
-                if not os.path.exists(local_path):
-                    self.machine.sftp.get(job_path_remote, local_path)
-            else:
-                local_path = os.path.join(os.path.dirname(
-                                                    self.logger.logFilePath),
-                                          'OUT',
-                                          os.path.basename(job_path_remote))
-                if not os.path.exists(local_path):
-                    self.machine.sftp.get(job_path_remote, local_path)
-            self.remote_log_files.append(local_path)
+            try:
+                if os.path.basename(os.path.dirname(job_path_remote)) != 'OUT':
+                    local_path = os.path.join(os.path.dirname(
+                                                        self.logger.logFilePath),
+                                              os.path.basename(job_path_remote))
+                    if not os.path.exists(local_path):
+                        self.machine.sftp.get(job_path_remote, local_path)
+                else:
+                    local_path = os.path.join(os.path.dirname(
+                                                        self.logger.logFilePath),
+                                              'OUT',
+                                              os.path.basename(job_path_remote))
+                    if not os.path.exists(local_path):
+                        self.machine.sftp.get(job_path_remote, local_path)
+                self.remote_log_files.append(local_path)
+            except:
+                self.err += _("Unable to get %s log file from remote.") % job_path_remote
 
     def has_failed(self):
         '''Returns True if the job has failed. 
@@ -417,7 +421,11 @@ class Job(object):
             (out_kill, _) = self.kill_remote_process()
             self.out = "TIMEOUT \n" + out_kill.read()
             self.err = "TIMEOUT : %s seconds elapsed\n" % str(self.timeout)
-    
+            try:
+                self.get_log_files()
+            except:
+                self.err += _("Unable to get remote log files")
+            
     def total_duration(self):
         return self._Tf - self._T0
         
@@ -920,6 +928,13 @@ class Gui(object):
     '''
    
     def __init__(self, xml_dir_path, l_jobs, l_jobs_not_today):
+        '''Initialization
+        
+        :param xml_dir_path str: The path to the directory where to put 
+                                 the xml resulting files
+        :param l_jobs List: the list of jobs that run today
+        :param l_jobs_not_today List: the list of jobs that do not run today
+        '''
         # The path of the global xml file
         self.xml_dir_path = xml_dir_path
         # Initialize the xml files
@@ -935,7 +950,11 @@ class Gui(object):
         self.update_xml_files(l_jobs)
     
     def initialize_arrays(self, l_jobs, l_jobs_not_today):
-       
+        '''Get all the first information needed for each file and write the 
+           first version of the files   
+        :param l_jobs List: the list of jobs that run today
+        :param l_jobs_not_today List: the list of jobs that do not run today
+        '''
         # Get the tables to fill and put it in a dictionary
         # {table_name : xml instance corresponding to the table}
         for job in l_jobs + l_jobs_not_today:
@@ -949,7 +968,9 @@ class Gui(object):
                 self.d_xml_table_files[table].add_simple_node("distributions")
                 self.d_xml_table_files[table].add_simple_node("applications")
                 self.d_xml_table_files[table].add_simple_node("table", text=table)
-                 
+        
+        # Loop over all jobs in order to get the lines and columns for each 
+        # xml file
         d_dist = {}
         d_application = {}
         for table in self.d_xml_table_files:
@@ -1004,6 +1025,12 @@ class Gui(object):
 
     
     def put_jobs_not_today(self, l_jobs_not_today, xml_node_jobs):
+        '''Get all the first information needed for each file and write the 
+           first version of the files   
+
+        :param xml_node_jobs etree.Element: the node corresponding to a job
+        :param l_jobs_not_today List: the list of jobs that do not run today
+        '''
         for job in l_jobs_not_today:
             xmlj = src.xmlManager.add_simple_node(xml_node_jobs,
                                                  "job",
@@ -1024,10 +1051,22 @@ class Gui(object):
                                                         job.machine.sat_path)
     
     def update_xml_files(self, l_jobs):
+        '''Write all the xml files with updated information about the jobs   
+
+        :param l_jobs List: the list of jobs that run today
+        '''
         for xml_file in [self.xml_global_file] + self.d_xml_table_files.values():
             self.update_xml_file(l_jobs, xml_file)
             
+        # Write the file
+        self.write_xml_files()
+            
     def update_xml_file(self, l_jobs, xml_file):      
+        '''update information about the jobs for the file xml_file   
+
+        :param l_jobs List: the list of jobs that run today
+        :param xml_file xmlManager.XmlLogFile: the xml instance to update
+        '''
         
         xml_node_jobs = xml_file.xmlroot.find('jobs')
         # Update the job names and status node
@@ -1107,10 +1146,14 @@ class Gui(object):
                     attrib={"value" : 
                     datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
                
-        # Write the file
-        self.write_xml_files()
+
     
     def last_update(self, finish_status = "finished"):
+        '''update information about the jobs for the file xml_file   
+
+        :param l_jobs List: the list of jobs that run today
+        :param xml_file xmlManager.XmlLogFile: the xml instance to update
+        '''
         for xml_file in [self.xml_global_file] + self.d_xml_table_files.values():
             xml_node_infos = xml_file.xmlroot.find('infos')
             src.xmlManager.append_node_attrib(xml_node_infos,
@@ -1119,6 +1162,8 @@ class Gui(object):
         self.write_xml_files()
     
     def write_xml_files(self):
+        ''' Write the xml files   
+        '''
         self.xml_global_file.write_tree(STYLESHEET_GLOBAL)
         for xml_file in self.d_xml_table_files.values():
             xml_file.write_tree(STYLESHEET_TABLE)

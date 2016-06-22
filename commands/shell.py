@@ -22,8 +22,6 @@ import src
 
 # Define all possible option for the make command :  sat make <options>
 parser = src.options.Options()
-parser.add_option('s', 'sat', 'string', 'sat',
-    _('The salomeTools path to use for the command.'))
 parser.add_option('c', 'command', 'string', 'command',
     _('The shell command to execute.'), "")
 

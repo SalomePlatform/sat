@@ -40,6 +40,9 @@ _show_applications()
         shell)
             opts2=$(echo --command --sat $opts2)
             ;;
+        job)
+            opts2=$(echo --jobs_config --job $opts2)
+            ;;
     esac
 
     COMPREPLY=( $(compgen -W "${opts2}" -- ${cur}) )
@@ -86,7 +89,7 @@ _salomeTools_complete()
     # first argument => show available commands
     if [[ ${argc} == 1 ]]
     then
-        opts="config log testcommand source patch prepare environ clean configure make makeinstall compile launcher run jobs shell --help"
+        opts="config log testcommand source patch prepare environ clean configure make makeinstall compile launcher run jobs job shell --help"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     fi
@@ -201,7 +204,12 @@ _salomeTools_complete()
             return 0
             ;;
         shell)
-            opts="--command --sat"
+            opts="--command"
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        job)
+            opts="--jobs_config --job"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
