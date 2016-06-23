@@ -264,6 +264,12 @@ class Job(object):
                         self.name)
     
     def get_pids(self):
+        """ Get the pid(s) corresponding to the command that have been launched
+            On the remote machine
+        
+        :return: The list of integers corresponding to the found pids
+        :rtype: List
+        """
         pids = []
         cmd_pid = 'ps aux | grep "' + self.command + '" | awk \'{print $2}\''
         (_, out_pid, _) = self.machine.exec_command(cmd_pid, self.logger)
@@ -324,40 +330,55 @@ class Job(object):
         return self._has_finished
           
     def get_log_files(self):
+        """Get the log files produced by the command launched 
+           on the remote machine.
+        """
+        # Do not get the files if the command is not finished
         if not self.has_finished():
             msg = _("Trying to get log files whereas the job is not finished.")
             self.logger.write(src.printcolors.printcWarning(msg))
             return
         
+        # First get the file that contains the list of log files to get
         tmp_file_path = src.get_tmp_filename(self.config, "list_log_files.txt")
         self.machine.sftp.get(
                     os.path.join(self.machine.sat_path, "list_log_files.txt"),
                     tmp_file_path)
         
+        # Read the file and get the result of the command and all the log files
+        # to get
         fstream_tmp = open(tmp_file_path, "r")
         file_lines = fstream_tmp.readlines()
         file_lines = [line.replace("\n", "") for line in file_lines]
         fstream_tmp.close()
         os.remove(tmp_file_path)
+        # The first line is the result of the command (0 success or 1 fail)
         self.res_job = file_lines[0]
         for job_path_remote in file_lines[1:]:
             try:
+                # For each command, there is two files to get :
+                # 1- The xml file describing the command and giving the 
+                # internal traces.
+                # 2- The txt file containing the system command traces (like 
+                # traces produced by the "make" command)
                 if os.path.basename(os.path.dirname(job_path_remote)) != 'OUT':
+                    # Case 1-
                     local_path = os.path.join(os.path.dirname(
                                                         self.logger.logFilePath),
                                               os.path.basename(job_path_remote))
-                    if not os.path.exists(local_path):
-                        self.machine.sftp.get(job_path_remote, local_path)
                 else:
+                    # Case 2-
                     local_path = os.path.join(os.path.dirname(
                                                         self.logger.logFilePath),
                                               'OUT',
                                               os.path.basename(job_path_remote))
-                    if not os.path.exists(local_path):
-                        self.machine.sftp.get(job_path_remote, local_path)
+                # Get the file
+                if not os.path.exists(local_path):
+                    self.machine.sftp.get(job_path_remote, local_path)
                 self.remote_log_files.append(local_path)
             except Exception as e:
-                self.err += _("Unable to get %s log file from remote: %s") % (job_path_remote, str(e))
+                self.err += _("Unable to get %s log file from remote: %s" % 
+                                                    (job_path_remote, str(e)))
 
     def has_failed(self):
         '''Returns True if the job has failed. 
@@ -405,12 +426,20 @@ class Job(object):
         return self._has_timouted
 
     def time_elapsed(self):
+        """Get the time elapsed since the job launching
+        
+        :return: The number of seconds
+        :rtype: int
+        """
         if not self.has_begun():
             return -1
         T_now = time.time()
         return T_now - self._T0
     
     def check_time(self):
+        """Verify that the job has not exceeded its timeout.
+           If it has, kill the remote command and consider the job as finished.
+        """
         if not self.has_begun():
             return
         if self.time_elapsed() > self.timeout:
@@ -427,14 +456,27 @@ class Job(object):
                 self.err += _("Unable to get remote log files: %s" % e)
             
     def total_duration(self):
+        """Give the total duration of the job
+        
+        :return: the total duration of the job in seconds
+        :rtype: int
+        """
         return self._Tf - self._T0
         
-    def run(self, logger):
+    def run(self):
+        """Launch the job by executing the remote command.
+        """
+        
+        # Prevent multiple run
         if self.has_begun():
-            print("Warn the user that a job can only be launched one time")
+            msg = _("Warning: A job can only be launched one time")
+            msg2 = _("Trying to launch the job \"%s\" whereas it has "
+                     "already been launched." % self.name)
+            self.logger.write(src.printcolors.printcWarning("%s\n%s\n" % (msg, msg2)))
             return
         
-        if not self.machine.successfully_connected(logger):
+        # Do not execute the command if the machine could not be reached
+        if not self.machine.successfully_connected(self.logger):
             self._has_finished = True
             self.out = "N\A"
             self.err = ("Connection to machine (name : %s, host: %s, port:"
@@ -445,49 +487,60 @@ class Job(object):
                            self.machine.port,
                            self.machine.user))
         else:
+            # Usual case : Launch the command on remote machine
             self._T0 = time.time()
             self._stdin, self._stdout, self._stderr = self.machine.exec_command(
-                                                        self.command, logger)
+                                                        self.command, self.logger)
+            # If the results are not initialized, finish the job
             if (self._stdin, self._stdout, self._stderr) == (None, None, None):
                 self._has_finished = True
                 self._Tf = time.time()
                 self.out = "N\A"
                 self.err = "The server failed to execute the command"
         
+        # Put the beginning flag to true.
         self._has_begun = True
     
-    def write_results(self, logger):
-        logger.write("name : " + self.name + "\n")
+    def write_results(self):
+        """Display on the terminal all the job's information
+        """
+        self.logger.write("name : " + self.name + "\n")
         if self.after:
-            logger.write("after : %s\n" % self.after)
-        logger.write("Time elapsed : %4imin %2is \n" % 
+            self.logger.write("after : %s\n" % self.after)
+        self.logger.write("Time elapsed : %4imin %2is \n" % 
                      (self.total_duration()/60 , self.total_duration()%60))
         if self._T0 != -1:
-            logger.write("Begin time : %s\n" % 
+            self.logger.write("Begin time : %s\n" % 
                          time.strftime('%Y-%m-%d %H:%M:%S', 
                                        time.localtime(self._T0)) )
         if self._Tf != -1:
-            logger.write("End time   : %s\n\n" % 
+            self.logger.write("End time   : %s\n\n" % 
                          time.strftime('%Y-%m-%d %H:%M:%S', 
                                        time.localtime(self._Tf)) )
         
         machine_head = "Informations about connection :\n"
         underline = (len(machine_head) - 2) * "-"
-        logger.write(src.printcolors.printcInfo(machine_head+underline+"\n"))
-        self.machine.write_info(logger)
+        self.logger.write(src.printcolors.printcInfo(
+                                                machine_head+underline+"\n"))
+        self.machine.write_info(self.logger)
         
-        logger.write(src.printcolors.printcInfo("out : \n"))
+        self.logger.write(src.printcolors.printcInfo("out : \n"))
         if self.out is None:
-            logger.write("Unable to get output\n")
+            self.logger.write("Unable to get output\n")
         else:
-            logger.write(self.out + "\n")
-        logger.write(src.printcolors.printcInfo("err : \n"))
+            self.logger.write(self.out + "\n")
+        self.logger.write(src.printcolors.printcInfo("err : \n"))
         if self.err is None:
-            logger.write("Unable to get error\n")
+            self.logger.write("Unable to get error\n")
         else:
-            logger.write(self.err + "\n")
+            self.logger.write(self.err + "\n")
         
     def get_status(self):
+        """Get the status of the job (used by the Gui for xml display)
+        
+        :return: The current status of the job
+        :rtype: String
+        """
         if not self.machine.successfully_connected(self.logger):
             return "SSH connection KO"
         if not self.has_begun():
@@ -880,14 +933,14 @@ class Jobs(object):
                     if (jb.machine.host, jb.machine.port) != host_port:
                         continue 
                     if jb.after == None:
-                        jb.run(self.logger)
+                        jb.run()
                         l_jobs_not_started.remove(jb)
                         new_job_start = True
                         break
                     else:
                         jb_before = self.find_job_that_has_name(jb.after) 
                         if jb_before.has_finished():
-                            jb.run(self.logger)
+                            jb.run()
                             l_jobs_not_started.remove(jb)
                             new_job_start = True
                             break
@@ -919,7 +972,7 @@ class Jobs(object):
         for jb in self.dic_job_machine.keys():
             self.logger.write(src.printcolors.printcLabel(
                         "#------- Results for job %s -------#\n" % jb.name))
-            jb.write_results(self.logger)
+            jb.write_results()
             self.logger.write("\n\n")
 
 class Gui(object):
