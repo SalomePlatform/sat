@@ -213,20 +213,20 @@ class Sat(object):
                 
                 # Check that the path given by the logs_paths_in_file option
                 # is a file path that can be written
-                if options.logs_paths_in_file:
+                if self.options.logs_paths_in_file:
                     try:
-                        dir_file = os.path.dirname(options.logs_paths_in_file)
+                        dir_file = os.path.dirname(self.options.logs_paths_in_file)
                         if not os.path.exists(dir_file):
                             os.makedirs(dir_file)
-                        if os.path.exists(options.logs_paths_in_file):
-                            os.remove(options.logs_paths_in_file)
-                        file_test = open(options.logs_paths_in_file, "w")
+                        if os.path.exists(self.options.logs_paths_in_file):
+                            os.remove(self.options.logs_paths_in_file)
+                        file_test = open(self.options.logs_paths_in_file, "w")
                         file_test.close()
                     except Exception as e:
                         msg = _("WARNING: the logs_paths_in_file option will "
                                 "not be taken into account.\nHere is the error:")
                         logger_command.write("%s\n%s\n\n" % (src.printcolors.printcWarning(msg), str(e)))
-                        options.logs_paths_in_file = None
+                        self.options.logs_paths_in_file = None
                 
                 try:
                     res = None
@@ -288,8 +288,8 @@ class Sat(object):
                         res = 1
                     # If the logs_paths_in_file was called, write the result
                     # and log files in the given file path
-                    if options.logs_paths_in_file:
-                        file_res = open(options.logs_paths_in_file, "w")
+                    if self.options.logs_paths_in_file:
+                        file_res = open(self.options.logs_paths_in_file, "w")
                         file_res.write(str(res) + "\n")
                         for i, filepath in enumerate(logger_command.l_logFiles):
                             file_res.write(filepath)

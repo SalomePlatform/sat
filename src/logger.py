@@ -185,7 +185,7 @@ class Logger(object):
         seconds = total_time - hours*3600 - minutes*60
         # Add the fields corresponding to the end time
         # and the total time of command
-        endtime = dt.strftime('%d/%Y/%m %Hh%Mm%Ss')
+        endtime = dt.strftime('%Y/%m/%d %Hh%Mm%Ss')
         self.xmlFile.append_node_attrib("Site", attrib={"endTime" : endtime})
         self.xmlFile.append_node_attrib("Site", 
                 attrib={"TotalTime" : "%ih%im%is" % (hours, minutes, seconds)})

@@ -54,7 +54,8 @@ def run(args, runner, logger):
     # Make sure the jobs_config option has been called
     if not options.jobs_cfg:
         message = _("The option --jobs_config is required\n")      
-        raise src.SatException( message )
+        logger.write(src.printcolors.printcError(message))
+        return 1
     
     # Find the file in the directories
     found = False

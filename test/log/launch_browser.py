@@ -31,7 +31,7 @@ sys.path.append(os.path.join(testdir, '..', '_testTools'))
 sys.path.append(os.path.join(testdir, '..', '..','commands'))
 
 from salomeTools import Sat
-from tools import check_proc_existence_and_kill
+from tools import check_proc_existence_and_kill_multi
 import HTMLTestRunner
 
 sleep_time = 2
@@ -238,7 +238,7 @@ class TestLog(unittest.TestCase):
         time.sleep(sleep_time)
 
         browser = sat.cfg.USER.browser
-        pid = check_proc_existence_and_kill(browser + ".*" + "xml")
+        pid = check_proc_existence_and_kill_multi(browser + ".*" + "xml", 10)
         
         if pid:
             OK = "OK"
@@ -314,7 +314,7 @@ class TestLog(unittest.TestCase):
         time.sleep(sleep_time)
 
         browser = sat.cfg.USER.browser
-        check_proc_existence_and_kill(browser + ".*" + "hat\.xml")
+        check_proc_existence_and_kill_multi(browser + ".*" + "hat\.xml", 10)
         
         # Read and check the hat.xml file contains at least one log file corresponding to log
         hatFilePath = os.path.join(sat.cfg.SITE.log.log_dir, "hat.xml")

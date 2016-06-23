@@ -28,7 +28,7 @@ sys.path.append(os.path.join(testdir, '..', '..'))
 sys.path.append(os.path.join(testdir, '..', '_testTools'))
 
 from salomeTools import Sat
-from tools import check_proc_existence_and_kill
+from tools import check_proc_existence_and_kill_multi
 import HTMLTestRunner
 
 sleep_time = 3
@@ -44,13 +44,14 @@ class TestConfig(unittest.TestCase):
         OK = "KO"
 
         sat = Sat("-oUSER.editor='cooledit'")
+        sat.config()
         cmd_config = threading.Thread(target=sat.config, args=('-e',))
         cmd_config.start()
 
         time.sleep(sleep_time)
 
         editor = sat.cfg.USER.editor
-        pid = check_proc_existence_and_kill(editor + ".*" + "salomeTools\.pyconf")
+        pid = check_proc_existence_and_kill_multi(editor + ".*" + "salomeTools\.pyconf", 10)
 
         if pid:
             OK = "OK"
@@ -64,13 +65,14 @@ class TestConfig(unittest.TestCase):
         OK = "KO"
 
         sat = Sat("-oUSER.editor='cooledit'")
+        sat.config()
         cmd_config = threading.Thread(target=sat.config, args=('appli-test -e',))
         cmd_config.start()
 
         time.sleep(sleep_time)
 
         editor = sat.cfg.USER.editor
-        pid = check_proc_existence_and_kill(editor + ".*" + "appli-test\.pyconf")
+        pid = check_proc_existence_and_kill_multi(editor + ".*" + "appli-test\.pyconf", 10)
 
         if pid:
             OK = "OK"

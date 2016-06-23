@@ -16,8 +16,14 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+echo "Begin date:"
+date
+echo
+echo "Remove old results ... "
 rm -rf .coverage htmlcov
-
+echo "Done"
+echo
+echo "****************************"
 coverage run --source=../commands/config.py    config/option_value.py > test_res.html
 coverage run --source=../commands/config.py -a config/option_value_2.py >> test_res.html
 coverage run --source=../commands/config.py -a config/create_user_pyconf.py >> test_res.html
@@ -34,6 +40,17 @@ coverage run --source=../commands/config.py,../commands/configure.py,../commands
 coverage run --source=../commands/config.py,../commands/make.py,../commands/environ.py -a compilation/test_make.py >> test_res.html
 coverage run --source=../commands/config.py,../commands/makeinstall.py,../commands/environ.py -a compilation/test_makeinstall.py >> test_res.html
 coverage run --source=../commands/config.py,../commands/compile.py,../commands/configure.py,../commands/make.py,../commands/makeinstall.py,../commands/environ.py -a compilation/test_compilation.py >> test_res.html
+coverage run --source=../commands/shell.py -a shell/test_shell.py >> test_res.html
+coverage run --source=../commands/job.py -a job/test_job.py >> test_res.html
+coverage run --source=../commands/jobs.py -a jobs/test_jobs.py >> test_res.html
+echo "****************************"
+echo
+echo "building html coverage"
 coverage html
+echo "Done"
+echo
+echo "End date:"
+date
+echo
 
 #firefox test_res.html htmlcov/index.html

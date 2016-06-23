@@ -65,13 +65,13 @@ def check_proc_existence_and_kill(regex):
         return pid
     return 0
 
-def check_proc_existence_and_kill_multi(regex, nb_kills, time_between_to_checks = 1):
+def check_proc_existence_and_kill_multi(regex, nb_kills, time_between_two_checks = 1):
     found = False
     i = 0
     while not found and i < nb_kills :
         found = check_proc_existence_and_kill(regex)
         if found:
             return found
-        time.sleep(time_between_to_checks)
+        time.sleep(time_between_two_checks)
         i+=1
     return 0

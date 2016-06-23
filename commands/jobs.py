@@ -356,8 +356,8 @@ class Job(object):
                     if not os.path.exists(local_path):
                         self.machine.sftp.get(job_path_remote, local_path)
                 self.remote_log_files.append(local_path)
-            except:
-                self.err += _("Unable to get %s log file from remote.") % job_path_remote
+            except Exception as e:
+                self.err += _("Unable to get %s log file from remote: %s") % (job_path_remote, str(e))
 
     def has_failed(self):
         '''Returns True if the job has failed. 
@@ -423,8 +423,8 @@ class Job(object):
             self.err = "TIMEOUT : %s seconds elapsed\n" % str(self.timeout)
             try:
                 self.get_log_files()
-            except:
-                self.err += _("Unable to get remote log files")
+            except Exception as e:
+                self.err += _("Unable to get remote log files: %s" % e)
             
     def total_duration(self):
         return self._Tf - self._T0
@@ -1205,7 +1205,8 @@ def run(args, runner, logger):
     # Make sure the jobs_config option has been called
     if not options.jobs_cfg:
         message = _("The option --jobs_config is required\n")      
-        raise src.SatException( message )
+        src.printcolors.printcError(message)
+        return 1
     
     # Find the file in the directories
     found = False
