@@ -256,3 +256,15 @@ def handleRemoveReadonly(func, path, exc):
         func(path)
     else:
         raise
+
+def deepcopy_list(input_list):
+    """ Do a deep copy of a list
+    
+    :param input_list List: The list to copy
+    :return: The copy of the list
+    :rtype: List
+    """
+    res = []
+    for elem in input_list:
+        res.append(elem)
+    return res

@@ -261,14 +261,10 @@ class Sat(object):
                     
                     # Add a link to the parent command      
                     if logger_add_link is not None:
-                        xmlLinks = logger_add_link.xmlFile.xmlroot.find(
-                                                                    "Links")
-                        src.xmlManager.add_simple_node(xmlLinks, 
-                                                       "link", 
-                                            text = logger_command.logFileName,
-                                            attrib = {"command" : __nameCmd__,
-                                                      "passed" : res,
-                                        "launchedCommand" : launchedCommand})
+                        logger_add_link.add_link(logger_command.logFileName,
+                                                 __nameCmd__,
+                                                 res,
+                                                 launchedCommand)
                         logger_add_link.l_logFiles += logger_command.l_logFiles
 
                 finally:

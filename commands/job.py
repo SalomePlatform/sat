@@ -25,7 +25,7 @@ parser = src.options.Options()
 parser.add_option('j', 'jobs_config', 'string', 'jobs_cfg', 
                   _('The name of the config file that contains'
                   ' the jobs configuration'))
-parser.add_option('', 'job', 'string', 'job',
+parser.add_option('', 'name', 'string', 'job',
     _('The job name from which to execute commands.'), "")
 
 def description():

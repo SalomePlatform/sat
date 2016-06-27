@@ -41,7 +41,7 @@ _show_applications()
             opts2=$(echo --command --sat $opts2)
             ;;
         job)
-            opts2=$(echo --jobs_config --job $opts2)
+            opts2=$(echo --jobs_config --name $opts2)
             ;;
     esac
 
@@ -209,7 +209,7 @@ _salomeTools_complete()
             return 0
             ;;
         job)
-            opts="--jobs_config --job"
+            opts="--jobs_config --name"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;

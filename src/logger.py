@@ -115,6 +115,27 @@ class Logger(object):
         # command 
         self.xmlFile.add_simple_node("Links")
 
+    def add_link(self,
+                 log_file_name,
+                 command_name,
+                 command_res,
+                 full_launched_command):
+        '''Add a link to another log file.
+        
+        :param log_file_name str: The file name of the link.
+        :param command_name str: The name of the command linked.
+        :param command_res str: The result of the command linked. "0" or "1"
+        :parma full_launched_command str: The full lanch command 
+                                          ("sat command ...")
+        '''
+        xmlLinks = self.xmlFile.xmlroot.find("Links")
+        src.xmlManager.add_simple_node(xmlLinks,
+                                       "link", 
+                                       text = log_file_name,
+                                       attrib = {"command" : command_name,
+                                                 "passed" : command_res,
+                                           "launchedCommand" : full_launched_command})
+
     def write(self, message, level=None, screenOnly=False):
         '''the function used in the commands 
         that will print in the terminal and the log file.

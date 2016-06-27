@@ -202,7 +202,7 @@ def sort_products(config, p_infos):
     :param config Config: The global configuration
     :param p_infos list: List of (str, Config) => (product_name, product_info)
     """
-    l_prod_sorted = deepcopy_list(p_infos)
+    l_prod_sorted = src.deepcopy_list(p_infos)
     for prod in p_infos:
         l_fathers = get_recursive_fathers(config,
                                           prod,
@@ -219,21 +219,9 @@ def sort_products(config, p_infos):
                 break
         
     return l_prod_sorted
-       
-def deepcopy_list(input_list):
-    """ Do a deep copy of a list
-    
-    :param input_list List: The list to copy
-    :return: The copy of the list
-    :rtype: List
-    """
-    res = []
-    for elem in input_list:
-        res.append(elem)
-    return res
 
 def extend_with_fathers(config, p_infos):
-    p_infos_res = deepcopy_list(p_infos)
+    p_infos_res = src.deepcopy_list(p_infos)
     for p_name_p_info in p_infos:
         fathers = get_recursive_fathers(config,
                                         p_name_p_info,
@@ -244,7 +232,7 @@ def extend_with_fathers(config, p_infos):
     return p_infos_res
 
 def extend_with_children(config, p_infos):
-    p_infos_res = deepcopy_list(p_infos)
+    p_infos_res = src.deepcopy_list(p_infos)
     for p_name_p_info in p_infos:
         children = get_recursive_children(config,
                                         p_name_p_info,
