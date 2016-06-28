@@ -24,7 +24,7 @@ import paramiko
 import src
 
 STYLESHEET_GLOBAL = "jobs_global_report.xsl"
-STYLESHEET_TABLE = "jobs_table_report.xsl"
+STYLESHEET_BOARD = "jobs_board_report.xsl"
 
 parser = src.options.Options()
 
@@ -226,7 +226,7 @@ class Machine(object):
 class Job(object):
     '''Class to manage one job
     '''
-    def __init__(self, name, machine, application, table, 
+    def __init__(self, name, machine, application, board, 
                  commands, timeout, config, logger, job_file, after=None):
 
         self.name = name
@@ -234,7 +234,7 @@ class Job(object):
         self.after = after
         self.timeout = timeout
         self.application = application
-        self.table = table
+        self.board = board
         self.config = config
         self.logger = logger
         # The list of log files to download from the remote machine 
@@ -624,14 +624,14 @@ class Jobs(object):
         application = None
         if 'application' in job_def:
             application = job_def.application
-        table = None
-        if 'table' in job_def:
-            table = job_def.table
+        board = None
+        if 'board' in job_def:
+            board = job_def.board
             
         return Job(name,
                    machine,
                    application,
-                   table,
+                   board,
                    cmmnds,
                    timeout,
                    self.runner.cfg,
@@ -840,7 +840,7 @@ class Jobs(object):
             if job.after is None:
                 continue
             father_job = self.find_job_that_has_name(job.after)
-            if father_job.has_failed():
+            if father_job is not None and father_job.has_failed():
                 job.cancel()
     
     def find_job_that_has_name(self, name):
@@ -854,8 +854,7 @@ class Jobs(object):
             if jb.name == name:
                 return jb
         # the following is executed only if the job was not found
-        msg = _('The job "%s" seems to be nonexistent') % name
-        raise src.SatException(msg)
+        return None
     
     def str_of_length(self, text, length):
         '''Takes a string text of any length and returns 
@@ -949,7 +948,13 @@ class Jobs(object):
                         new_job_start = True
                         break
                     else:
-                        jb_before = self.find_job_that_has_name(jb.after) 
+                        jb_before = self.find_job_that_has_name(jb.after)
+                        if jb_before is None:
+                            jb.cancel()
+                            msg = _("This job was not launched because its father is not in the jobs list.")
+                            jb.out = msg
+                            jb.err = msg
+                            break
                         if jb_before.has_finished():
                             jb.run()
                             l_jobs_not_started.remove(jb)
@@ -1005,9 +1010,9 @@ class Gui(object):
         xml_global_path = os.path.join(self.xml_dir_path, "global_report.xml")
         self.xml_global_file = src.xmlManager.XmlLogFile(xml_global_path,
                                                          "JobsReport")
-        # The xml files that corresponds to the tables.
-        # {name_table : xml_object}}
-        self.d_xml_table_files = {}
+        # The xml files that corresponds to the boards.
+        # {name_board : xml_object}}
+        self.d_xml_board_files = {}
         # Create the lines and columns
         self.initialize_arrays(l_jobs, l_jobs_not_today)
         # Write the xml file
@@ -1019,27 +1024,27 @@ class Gui(object):
         :param l_jobs List: the list of jobs that run today
         :param l_jobs_not_today List: the list of jobs that do not run today
         '''
-        # Get the tables to fill and put it in a dictionary
-        # {table_name : xml instance corresponding to the table}
+        # Get the boards to fill and put it in a dictionary
+        # {board_name : xml instance corresponding to the board}
         for job in l_jobs + l_jobs_not_today:
-            table = job.table
-            if (table is not None and 
-                    table not in self.d_xml_table_files.keys()):
-                xml_table_path = os.path.join(self.xml_dir_path, table + ".xml")
-                self.d_xml_table_files[table] =  src.xmlManager.XmlLogFile(
-                                                            xml_table_path,
+            board = job.board
+            if (board is not None and 
+                    board not in self.d_xml_board_files.keys()):
+                xml_board_path = os.path.join(self.xml_dir_path, board + ".xml")
+                self.d_xml_board_files[board] =  src.xmlManager.XmlLogFile(
+                                                            xml_board_path,
                                                             "JobsReport")
-                self.d_xml_table_files[table].add_simple_node("distributions")
-                self.d_xml_table_files[table].add_simple_node("applications")
-                self.d_xml_table_files[table].add_simple_node("table", text=table)
+                self.d_xml_board_files[board].add_simple_node("distributions")
+                self.d_xml_board_files[board].add_simple_node("applications")
+                self.d_xml_board_files[board].add_simple_node("board", text=board)
         
         # Loop over all jobs in order to get the lines and columns for each 
         # xml file
         d_dist = {}
         d_application = {}
-        for table in self.d_xml_table_files:
-            d_dist[table] = []
-            d_application[table] = []
+        for board in self.d_xml_board_files:
+            d_dist[board] = []
+            d_application[board] = []
             
         l_hosts_ports = []
             
@@ -1051,24 +1056,24 @@ class Gui(object):
             distrib = job.machine.distribution
             application = job.application
             
-            table_job = job.table
-            if table is None:
+            board_job = job.board
+            if board is None:
                 continue
-            for table in self.d_xml_table_files:
-                if table_job == table:
-                    if distrib is not None and distrib not in d_dist[table]:
-                        d_dist[table].append(distrib)
+            for board in self.d_xml_board_files:
+                if board_job == board:
+                    if distrib is not None and distrib not in d_dist[board]:
+                        d_dist[board].append(distrib)
                         src.xmlManager.add_simple_node(
-                            self.d_xml_table_files[table].xmlroot.find('distributions'),
+                            self.d_xml_board_files[board].xmlroot.find('distributions'),
                                                    "dist",
                                                    attrib={"name" : distrib})
                     
-                if table_job == table:
+                if board_job == board:
                     if (application is not None and 
-                                    application not in d_application[table]):
-                        d_application[table].append(application)
+                                    application not in d_application[board]):
+                        d_application[board].append(application)
                         src.xmlManager.add_simple_node(
-                            self.d_xml_table_files[table].xmlroot.find('applications'),
+                            self.d_xml_board_files[board].xmlroot.find('applications'),
                                                    "application",
                                                    attrib={"name" : application})
 
@@ -1081,7 +1086,7 @@ class Gui(object):
                                            attrib={"name" : host_port})
         
         # Initialize the jobs node in all files
-        for xml_file in [self.xml_global_file] + list(self.d_xml_table_files.values()):
+        for xml_file in [self.xml_global_file] + list(self.d_xml_board_files.values()):
             xml_jobs = xml_file.add_simple_node("jobs")      
             # Get the jobs present in the config file but 
             # that will not be launched today
@@ -1107,7 +1112,7 @@ class Gui(object):
             src.xmlManager.add_simple_node(xmlj,
                                            "distribution",
                                            job.machine.distribution)
-            src.xmlManager.add_simple_node(xmlj, "table", job.table)
+            src.xmlManager.add_simple_node(xmlj, "board", job.board)
             src.xmlManager.add_simple_node(xmlj,
                                        "commands", " ; ".join(job.commands))
             src.xmlManager.add_simple_node(xmlj, "state", "Not today")
@@ -1123,7 +1128,7 @@ class Gui(object):
 
         :param l_jobs List: the list of jobs that run today
         '''
-        for xml_file in [self.xml_global_file] + list(self.d_xml_table_files.values()):
+        for xml_file in [self.xml_global_file] + list(self.d_xml_board_files.values()):
             self.update_xml_file(l_jobs, xml_file)
             
         # Write the file
@@ -1167,7 +1172,7 @@ class Gui(object):
             src.xmlManager.add_simple_node(xmlj, "application", job.application)
             src.xmlManager.add_simple_node(xmlj, "distribution",
                                            job.machine.distribution)
-            src.xmlManager.add_simple_node(xmlj, "table", job.table)
+            src.xmlManager.add_simple_node(xmlj, "board", job.board)
             src.xmlManager.add_simple_node(xmlj, "timeout", str(job.timeout))
             src.xmlManager.add_simple_node(xmlj, "commands",
                                            " ; ".join(job.commands))
@@ -1195,13 +1200,9 @@ class Gui(object):
                 for jb in l_jobs:
                     if jb.name == job.after:
                         job_father = jb
-                if job_father is None:
-                    msg = _("The job %(father_name)s that is parent of "
-                            "%(son_name)s is not in the job list." %
-                            {"father_name" : job.after , "son_name" : job.name})
-                    raise src.SatException(msg)
                 
-                if len(job_father.remote_log_files) > 0:
+                if (job_father is not None and 
+                        len(job_father.remote_log_files) > 0):
                     link = job_father.remote_log_files[0]
                 else:
                     link = "nothing"
@@ -1222,7 +1223,7 @@ class Gui(object):
         :param l_jobs List: the list of jobs that run today
         :param xml_file xmlManager.XmlLogFile: the xml instance to update
         '''
-        for xml_file in [self.xml_global_file] + list(self.d_xml_table_files.values()):
+        for xml_file in [self.xml_global_file] + list(self.d_xml_board_files.values()):
             xml_node_infos = xml_file.xmlroot.find('infos')
             src.xmlManager.append_node_attrib(xml_node_infos,
                         attrib={"JobsCommandStatus" : finish_status})
@@ -1233,8 +1234,8 @@ class Gui(object):
         ''' Write the xml files   
         '''
         self.xml_global_file.write_tree(STYLESHEET_GLOBAL)
-        for xml_file in self.d_xml_table_files.values():
-            xml_file.write_tree(STYLESHEET_TABLE)
+        for xml_file in self.d_xml_board_files.values():
+            xml_file.write_tree(STYLESHEET_BOARD)
         
 ##
 # Describes the command
@@ -1247,11 +1248,11 @@ def description():
 def run(args, runner, logger):
        
     (options, args) = parser.parse_args(args)
-       
+    
     jobs_cfg_files_dir = runner.cfg.SITE.jobs.config_path
     
-    l_cfg_dir = [jobs_cfg_files_dir,
-                 os.path.join(runner.cfg.VARS.datadir, "jobs")]
+    l_cfg_dir = [os.path.join(runner.cfg.VARS.datadir, "jobs"),
+                 jobs_cfg_files_dir]
     
     # Make sure the path to the jobs config files directory exists 
     src.ensure_path_exists(jobs_cfg_files_dir)   
@@ -1310,7 +1311,7 @@ def run(args, runner, logger):
                 l_jb.append(jb,
                 "Adding a job that was given in only_jobs option parameters")
         config_jobs.jobs = l_jb
-              
+     
     # Initialization
     today_jobs = Jobs(runner,
                       logger,
@@ -1338,8 +1339,12 @@ def run(args, runner, logger):
         interruped = True
         logger.write("\n\n%s\n\n" % 
                 (src.printcolors.printcWarning(_("Forced interruption"))), 1)
-        
     finally:
+        if interruped:
+            msg = _("Killing the running jobs and trying"
+                    " to get the corresponding logs\n")
+            logger.write(src.printcolors.printcWarning(msg))
+            
         # find the potential not finished jobs and kill them
         for jb in today_jobs.ljobs:
             if not jb.has_finished():

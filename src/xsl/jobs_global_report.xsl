@@ -33,7 +33,7 @@
     <!-- styles for links in matrix -->
     .OK2          { color:#00AA00; }
     .KO2          { color:#FF0000; }
-    .KF2          { color:#509050; }
+    .KF2          { color:#FF8000; }
     .NA2          { color:#BBBBBB; }
     .TO2          { color:GoldenRod; }
     .RUNNING2     { color:LightSeaGreen; font-weight: bold; }
@@ -56,6 +56,7 @@
                     border-collapse:collapse;
                     empty-cells : show;
                     border : solid 1px;
+                    font-size: xx-small;
                   }
     table.summary { width : 100%;
                     margin:0px;
@@ -112,13 +113,25 @@
 		<h2>Jobs global report</h2>
 	    </td>
 	    <td class="summary" align="right" valign="bottom" width="300">
-		<xsl:for-each select="//JobsReport/infos">
-		  <span class="note"><xsl:value-of select="@name" />: <xsl:value-of select="@value" /></span>
-		</xsl:for-each>
+		<span class="note"><xsl:value-of select="//JobsReport/infos/@name" />: <xsl:value-of select="//JobsReport/infos/@value" /></span>
 	    </td>
 	</tr>
     </table>
-       
+    Legend :
+    <table class="legend">
+	<tr><td>job</td><td>result</td></tr>
+	<tr><td> <xsl:attribute name="class">OK2day</xsl:attribute>success today</td><td> <xsl:attribute name="class">OK2day</xsl:attribute>success today</td></tr>
+	<tr><td> <xsl:attribute name="class">OK2</xsl:attribute>success not today</td><td> <xsl:attribute name="class">OK2</xsl:attribute>success not today</td></tr>
+	<tr><td> <xsl:attribute name="class">KO2day</xsl:attribute>fail today</td><td> <xsl:attribute name="class">KO2day</xsl:attribute>fail today</td></tr>
+	<tr><td> <xsl:attribute name="class">KO2</xsl:attribute>fail not today</td><td> <xsl:attribute name="class">KO2</xsl:attribute>fail not today</td></tr>
+	<tr><td> <xsl:attribute name="class">TO2day</xsl:attribute>timeout today</td><td> <xsl:attribute name="class">KF2day</xsl:attribute>known failure today</td></tr>
+	<tr><td> <xsl:attribute name="class">RUNNING2</xsl:attribute>running</td><td> <xsl:attribute name="class">KF2</xsl:attribute>known failure not today</td></tr>
+	<tr><td> <xsl:attribute name="class">NA2day</xsl:attribute>To be launched</td></tr>
+	<tr><td> <xsl:attribute name="class">NA2</xsl:attribute>Not today</td></tr>
+    </table>
+    
+    <br/>
+    
     <div id="matrix">
     <table class="summary">
      
