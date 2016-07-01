@@ -123,9 +123,9 @@ def run(args, runner, logger):
         logger.flush()
         # Execute the command
         code = sat_command(end_cmd,
-                                     batch = True,
-                                     verbose = 0,
-                                     logger_add_link = logger)
+                           batch = True,
+                           verbose = 0,
+                           logger_add_link = logger)
         # Print the status of the command
         if code == 0:
             nb_pass += 1

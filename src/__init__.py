@@ -249,6 +249,29 @@ class Path:
         except:
             return False
 
+def find_file_in_lpath(file_name, lpath, additional_dir = ""):
+    """Find in all the directories in lpath list the file that has the same name
+       as file_name. If it is found, return the full path of the file, else,
+       return False. 
+       The additional_dir (optional) is the name of the directory to add to all 
+       paths in lpath.
+    
+    :param file_name str: The file name to search
+    :param lpath List: The list of directories where to search
+    :param additional_dir str: The name of the additional directory
+    :return: the full path of the file or False if not found
+    :rtype: str
+    """
+    for directory in lpath:
+        dir_complete = os.path.join(directory, additional_dir)
+        if not os.path.isdir(directory) or not os.path.isdir(dir_complete):
+            continue
+        l_files = os.listdir(dir_complete)
+        for file_n in l_files:
+            if file_n == file_name:
+                return os.path.join(dir_complete, file_name)
+    return False
+
 def handleRemoveReadonly(func, path, exc):
     excvalue = exc[1]
     if func in (os.rmdir, os.remove) and excvalue.errno == errno.EACCES:

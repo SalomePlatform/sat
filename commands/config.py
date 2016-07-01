@@ -40,7 +40,7 @@ parser.add_option('i', 'info', 'string', 'info',
 parser.add_option('l', 'list', 'boolean', 'list',
     _("list all available applications."))
 parser.add_option('c', 'copy', 'boolean', 'copy',
-    _("""copy a config file to the personnal config files directory.
+    _("""copy a config file to the personal config files directory.
 \tWARNING the included files are not copied.
 \tIf a name is given the new config file takes the given name."""))
 parser.add_option('n', 'no_label', 'boolean', 'no_label',
@@ -55,7 +55,7 @@ class ConfigOpener:
     def __init__(self, pathList):
         '''Initialization
         
-        :param pathList list: The list of paths where to serach a pyconf.
+        :param pathList list: The list of paths where to search a pyconf.
         '''
         self.pathList = pathList
 
@@ -107,6 +107,27 @@ class ConfigManager:
 
         var['personalDir'] = os.path.join(os.path.expanduser('~'),
                                            '.salomeTools')
+        src.ensure_path_exists(var['personalDir'])
+
+        var['personal_applications_dir'] = os.path.join(var['personalDir'],
+                                                        "Applications")
+        src.ensure_path_exists(var['personal_applications_dir'])
+        
+        var['personal_products_dir'] = os.path.join(var['personalDir'],
+                                                    "products")
+        src.ensure_path_exists(var['personal_products_dir'])
+        
+        var['personal_archives_dir'] = os.path.join(var['personalDir'],
+                                                    "Archives")
+        src.ensure_path_exists(var['personal_archives_dir'])
+
+        var['personal_jobs_dir'] = os.path.join(var['personalDir'],
+                                                "Jobs")
+        src.ensure_path_exists(var['personal_jobs_dir'])
+
+        var['personal_machines_dir'] = os.path.join(var['personalDir'],
+                                                    "Machines")
+        src.ensure_path_exists(var['personal_machines_dir'])
 
         # read linux distributions dictionary
         distrib_cfg = src.pyconf.Config(os.path.join(var['srcDir'],
@@ -219,7 +240,7 @@ class ConfigManager:
         # apply overwrite from command line if needed
         for rule in self.get_command_line_overrides(options, ["INTERNAL"]):
             exec('cfg.' + rule) # this cannot be factorized because of the exec        
-        
+               
         # =====================================================================
         # Load SITE config file
         # search only in the data directory
@@ -241,23 +262,119 @@ class ConfigManager:
                   + "site.pyconf and edit the file")
             raise src.SatException( e );
         
-        # add user local path for configPath
-        site_cfg.SITE.config.config_path.append(
-                        os.path.join(cfg.VARS.personalDir, 'Applications'), 
-                        "User applications path")
-        
         merger.merge(cfg, site_cfg)
 
         # apply overwrite from command line if needed
         for rule in self.get_command_line_overrides(options, ["SITE"]):
             exec('cfg.' + rule) # this cannot be factorized because of the exec
-  
         
+        # =====================================================================
+        # Load the PROJECTS
+        if "PROJECTS" in cfg:
+            cfg.PROJECTS.addMapping("projects",
+                                    src.pyconf.Mapping(cfg.PROJECTS),
+                                    "The projects definition\n")
+            for project_pyconf_path in cfg.PROJECTS.project_file_paths:
+                if not os.path.exists(project_pyconf_path):
+                    #msg = _("WARNING: The project file %s cannot be found. "
+                    #        "It will be ignored\n" % project_pyconf_path)
+                    #sys.stdout.write(src.printcolors.printcWarning(msg))
+                    continue
+                project_name = os.path.basename(
+                                        project_pyconf_path)[:-len(".pyconf")]
+                try:
+                    project_cfg = src.pyconf.Config(open(project_pyconf_path))
+                except Exception as e:
+                    raise src.SatException(_("Error in configuration file: "
+                                     "%(file_path)s\n  %(error)s") % \
+                                {'file_path' : project_cfg, 'error': str(e) })
+                cfg.PROJECTS.projects.addMapping(project_name,
+                                 src.pyconf.Mapping(cfg.PROJECTS.projects),
+                                 "The %s project\n" % project_name)
+                cfg.PROJECTS.projects[project_name]=project_cfg
+                cfg.PROJECTS.projects[project_name]["file_path"] = \
+                                                            project_pyconf_path
+                     
+
+        # apply overwrite from command line if needed
+        for rule in self.get_command_line_overrides(options, ["PROJECTS"]):
+            exec('cfg.' + rule) # this cannot be factorized because of the exec
+        
+        # =====================================================================
+        # Create the paths where to search the application configurations, 
+        # the product configurations, the products archives, 
+        # the jobs configurations and the machines configurations
+        cfg.addMapping("PATHS", src.pyconf.Mapping(cfg), "The paths\n")
+        cfg.PATHS["APPLICATIONPATH"] = src.pyconf.Sequence(cfg.PATHS)
+        cfg.PATHS.APPLICATIONPATH.append(cfg.VARS.personal_applications_dir, "")
+        
+        cfg.PATHS["PRODUCTPATH"] = src.pyconf.Sequence(cfg.PATHS)
+        cfg.PATHS.PRODUCTPATH.append(cfg.VARS.personal_products_dir, "")
+        cfg.PATHS["ARCHIVEPATH"] = src.pyconf.Sequence(cfg.PATHS)
+        cfg.PATHS.ARCHIVEPATH.append(cfg.VARS.personal_archives_dir, "")
+        cfg.PATHS["JOBPATH"] = src.pyconf.Sequence(cfg.PATHS)
+        cfg.PATHS.JOBPATH.append(cfg.VARS.personal_jobs_dir, "")
+        cfg.PATHS["MACHINEPATH"] = src.pyconf.Sequence(cfg.PATHS)
+        cfg.PATHS.MACHINEPATH.append(cfg.VARS.personal_machines_dir, "")
+        # Loop over the projects in order to complete the PATHS variables
+        for project in cfg.PROJECTS.projects:
+            for PATH in ["APPLICATIONPATH",
+                         "PRODUCTPATH",
+                         "ARCHIVEPATH",
+                         "JOBPATH",
+                         "MACHINEPATH"]:
+                if PATH not in cfg.PROJECTS.projects[project]:
+                    continue
+                cfg.PATHS[PATH].append(cfg.PROJECTS.projects[project][PATH], "")
+        
+        # apply overwrite from command line if needed
+        for rule in self.get_command_line_overrides(options, ["PATHS"]):
+            exec('cfg.' + rule) # this cannot be factorized because of the exec
+
+        # =====================================================================
+        # Load product config files in PRODUCTS section
+        products_cfg = src.pyconf.Config()
+        products_cfg.addMapping("PRODUCTS",
+                                src.pyconf.Mapping(products_cfg),
+                                "The products\n")
+        src.pyconf.streamOpener = ConfigOpener(cfg.PATHS.PRODUCTPATH)
+        for products_dir in cfg.PATHS.PRODUCTPATH:
+            # Loop on all files that are in softsDir directory
+            # and read their config
+            for fName in os.listdir(products_dir):
+                if fName.endswith(".pyconf"):
+                    pName = fName[:-len(".pyconf")]
+                    if pName in products_cfg.PRODUCTS:
+                        continue
+                    try:
+                        prod_cfg = src.pyconf.Config(open(
+                                                    os.path.join(products_dir,
+                                                                 fName)))
+                    except src.pyconf.ConfigError as e:
+                        raise src.SatException(_(
+                            "Error in configuration file: %(prod)s\n  %(error)s") % \
+                            {'prod' :  fName, 'error': str(e) })
+                    except IOError as error:
+                        e = str(error)
+                        raise src.SatException( e );
+                    except Exception as e:
+                        raise src.SatException(_(
+                            "Error in configuration file: %(prod)s\n  %(error)s") % \
+                            {'prod' :  fName, 'error': str(e) })
+                    
+                    products_cfg.PRODUCTS[pName] = prod_cfg
+        
+        merger.merge(cfg, products_cfg)
+        
+        # apply overwrite from command line if needed
+        for rule in self.get_command_line_overrides(options, ["PRODUCTS"]):
+            exec('cfg.' + rule) # this cannot be factorized because of the exec
+
         # =====================================================================
         # Load APPLICATION config file
         if application is not None:
             # search APPLICATION file in all directories in configPath
-            cp = cfg.SITE.config.config_path
+            cp = cfg.PATHS.APPLICATIONPATH
             src.pyconf.streamOpener = ConfigOpener(cp)
             try:
                 application_cfg = src.pyconf.Config(application + '.pyconf')
@@ -281,39 +398,6 @@ class ConfigManager:
             if ('profile' in cfg.APPLICATION and 
                 'launcher_name' not in cfg.APPLICATION.profile):
                 cfg.APPLICATION.profile.launcher_name = 'salome'
-        
-        # =====================================================================
-        # Load product config files in PRODUCTS section
-       
-        # The directory containing the softwares definition
-        products_dir = os.path.join(cfg.VARS.datadir, 'products')
-        
-        # Loop on all files that are in softsDir directory
-        # and read their config
-        for fName in os.listdir(products_dir):
-            if fName.endswith(".pyconf"):
-                src.pyconf.streamOpener = ConfigOpener([products_dir])
-                try:
-                    prod_cfg = src.pyconf.Config(open(
-                                                os.path.join(products_dir, fName)))
-                except src.pyconf.ConfigError as e:
-                    raise src.SatException(_(
-                        "Error in configuration file: %(prod)s\n  %(error)s") % \
-                        {'prod' :  fName, 'error': str(e) })
-                except IOError as error:
-                    e = str(error)
-                    raise src.SatException( e );
-                except Exception as e:
-                    raise src.SatException(_(
-                        "Error in configuration file: %(prod)s\n  %(error)s") % \
-                        {'prod' :  fName, 'error': str(e) })
-                
-                merger.merge(cfg.PRODUCTS, prod_cfg)
-
-        # apply overwrite from command line if needed
-        for rule in self.get_command_line_overrides(options, ["PRODUCTS"]):
-            exec('cfg.' + rule) # this cannot be factorized because of the exec
-
         
         # =====================================================================
         # load USER config
@@ -690,7 +774,7 @@ def run(args, runner, logger):
             src.system.show_in_editor(editor, usercfg, logger)
         else:
             # search for file <application>.pyconf and open it
-            for path in runner.cfg.SITE.config.config_path:
+            for path in runner.cfg.PATHS.APPLICATIONPATH:
                 pyconf_path = os.path.join(path, 
                                     runner.cfg.VARS.application + ".pyconf")
                 if os.path.exists(pyconf_path):
@@ -718,7 +802,7 @@ def run(args, runner, logger):
         # get application file path 
         source = runner.cfg.VARS.application + '.pyconf'
         source_full_path = ""
-        for path in runner.cfg.SITE.config.config_path:
+        for path in runner.cfg.PATHS.APPLICATIONPATH:
             # ignore personal directory
             if path == runner.cfg.VARS.personalDir:
                 continue
@@ -735,9 +819,9 @@ def run(args, runner, logger):
             if len(args) > 0:
                 # a name is given as parameter, use it
                 dest = args[0]
-            elif 'copy_prefix' in runner.cfg.SITE.config:
+            elif 'copy_prefix' in runner.cfg.INTERNAL.config:
                 # use prefix
-                dest = (runner.cfg.SITE.config.copy_prefix 
+                dest = (runner.cfg.INTERNAL.config.copy_prefix 
                         + runner.cfg.VARS.application)
             else:
                 # use same name as source
@@ -758,7 +842,7 @@ def run(args, runner, logger):
     elif options.list:
         lproduct = list()
         # search in all directories that can have pyconf applications
-        for path in runner.cfg.SITE.config.config_path:
+        for path in runner.cfg.PATHS.APPLICATIONPATH:
             # print a header
             if not options.no_label:
                 logger.write("------ %s\n" % src.printcolors.printcHeader(path))

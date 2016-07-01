@@ -95,10 +95,10 @@ class TestConfig(unittest.TestCase):
         OK = "KO"
         
         # The command to test
-        sat = Sat("-oSITE.prepare.default_git_server='testgit'")
+        sat = Sat("-oSITE.jobs.config_path='/tmp'")
         sat.config()
 
-        if sat.cfg.SITE.prepare.default_git_server == 'testgit':
+        if sat.cfg.SITE.jobs.config_path == '/tmp':
             OK = "OK"
 
         # pyunit method to compare 2 str
@@ -125,10 +125,10 @@ class TestConfig(unittest.TestCase):
         OK = "KO"
         
         # The command to test
-        sat = Sat("-oPRODUCTS.softA.name='test'")
+        sat = Sat("-oPRODUCTS.PRODUCT_GIT.default.name='test'")
         sat.config('')
 
-        if sat.cfg.PRODUCTS.softA.name == 'test':
+        if sat.cfg.PRODUCTS.PRODUCT_GIT.default.name == 'test':
             OK = "OK"
 
         # pyunit method to compare 2 str

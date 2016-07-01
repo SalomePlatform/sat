@@ -151,7 +151,7 @@ class TestPatch(unittest.TestCase):
         appli = 'appli-test'
         product_name = 'PRODUCT_DEV'
 
-        sat = Sat("-oPRODUCTS.PRODUCT_DEV.patches=['/']")
+        sat = Sat("-oPRODUCTS.PRODUCT_DEV.default.patches=['/']")
                       
         sat.source(appli + ' --product ' + product_name)
                

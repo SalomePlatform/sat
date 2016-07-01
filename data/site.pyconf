@@ -3,19 +3,6 @@
 
 SITE :
 {   
-    config : 
-    {
-        config_path : ["/home/salome/SPN_PRIVATE/sat5dev_Applications"]
-    	copy_prefix : "LOCAL_"
-    }
-    prepare :
-    {
-    	default_git_server : "http://default.git"
-    	default_git_server_dev : "http://default_dev.git"
-    	archive_dir : "/data/tmpsalome/salome/prerequis/archives/"
-    	cvs_dir : "/test"
-    	default_cvs_server : "http://default.cvs"
-    }
     log :
     {
         log_dir : $USER.workdir + "/LOGS"
@@ -26,3 +13,7 @@ SITE :
     }
 }
 
+PROJECTS :
+{
+project_file_paths : ["/home/salome/SPN_PRIVATE/SAT5/SALOME-PROJECT/salome.pyconf"]
+}

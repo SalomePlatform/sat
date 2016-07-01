@@ -215,6 +215,8 @@ class Sat(object):
                 # is a file path that can be written
                 if self.options.logs_paths_in_file:
                     try:
+                        self.options.logs_paths_in_file = os.path.abspath(
+                                                self.options.logs_paths_in_file)
                         dir_file = os.path.dirname(self.options.logs_paths_in_file)
                         if not os.path.exists(dir_file):
                             os.makedirs(dir_file)

@@ -4,13 +4,13 @@
 INTERNAL :
 {   
     sat_version : "5.0.0dev"
+    config :
+    {    
+        copy_prefix : "LOCAL_"
+    }
     log :
     {
     	not_shown_commands : ["log"]
-    }
-    compile :
-    {
-        default_script_dir : $VARS.datadir + $VARS.sep + "compil_scripts"
     }
 }
 PRODUCTS :

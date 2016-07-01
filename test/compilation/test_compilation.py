@@ -36,7 +36,7 @@ class TestCompile(unittest.TestCase):
     '''
 
     def test_compile(self):
-        '''Test the configure command with --products option
+        '''Test the compile command with --products option
         '''
         OK = 'KO'
 

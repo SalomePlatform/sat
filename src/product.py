@@ -66,49 +66,51 @@ def get_product_config(config, product_name):
     # in config.PRODUCTS. This is done because the pyconf tool does not handle
     # the . and - characters 
     for c in ".-": vv = vv.replace(c, "_")
-    full_product_name = product_name + '_' + vv
-
+    
     prod_info = None
-    # If it exists, get the information of the product_version
-    if full_product_name in config.PRODUCTS:
-        # returns specific information for the given version
-        prod_info = config.PRODUCTS[full_product_name]    
-    # Get the standard informations
-    elif product_name in config.PRODUCTS:
-        # returns the generic information (given version not found)
-        prod_info = config.PRODUCTS[product_name]
-    
-    # merge opt_depend in depend
-    if prod_info is not None and 'opt_depend' in prod_info:
-        for depend in prod_info.opt_depend:
-            if depend in config.PRODUCTS:
-                prod_info.depend.append(depend,'')
-    
-    # In case of a product get with a vcs, put the tag (equal to the version)
-    if prod_info is not None and prod_info.get_source in AVAILABLE_VCS:
+    if product_name in config.PRODUCTS:
+        # If it exists, get the information of the product_version
+        if "version_" + vv in config.PRODUCTS[product_name]:
+            # returns specific information for the given version
+            prod_info = config.PRODUCTS[product_name]["version_" + vv]    
+        # Get the standard informations
+        elif "default" in config.PRODUCTS[product_name]:
+            # returns the generic information (given version not found)
+            prod_info = config.PRODUCTS[product_name].default
         
-        if prod_info.get_source == 'git':
-            prod_info.git_info.tag = version
+        # merge opt_depend in depend
+        if prod_info is not None and 'opt_depend' in prod_info:
+            for depend in prod_info.opt_depend:
+                if depend in config.PRODUCTS:
+                    prod_info.depend.append(depend,'')
         
-        if prod_info.get_source == 'svn':
-            prod_info.svn_info.tag = version
+        # In case of a product get with a vcs, 
+        # put the tag (equal to the version)
+        if prod_info is not None and prod_info.get_source in AVAILABLE_VCS:
+            
+            if prod_info.get_source == 'git':
+                prod_info.git_info.tag = version
+            
+            if prod_info.get_source == 'svn':
+                prod_info.svn_info.tag = version
+            
+            if prod_info.get_source == 'cvs':
+                prod_info.cvs_info.tag = version
         
-        if prod_info.get_source == 'cvs':
-            prod_info.cvs_info.tag = version
-    
-    # In case of a fixed product, define the install_dir (equal to the version)
-    if prod_info is not None and prod_info.get_source=="fixed":
-        prod_info.install_dir = version
-    
-    # Check if the product is defined as native in the application
-    if prod_info is not None:
-        if version == "native":
-            prod_info.get_source = "native"
-        elif prod_info.get_source == "native":
-            msg = _("The product %(prod)s has version %(ver)s but is declared"
-                    " as native in its definition" %
-                { 'prod': prod_info.name, 'ver': version})
-            raise src.SatException(msg)
+        # In case of a fixed product, 
+        # define the install_dir (equal to the version)
+        if prod_info is not None and prod_info.get_source=="fixed":
+            prod_info.install_dir = version
+        
+        # Check if the product is defined as native in the application
+        if prod_info is not None:
+            if version == "native":
+                prod_info.get_source = "native"
+            elif prod_info.get_source == "native":
+                msg = _("The product %(prod)s has version %(ver)s but is "
+                        "declared as native in its definition" %
+                        { 'prod': prod_info.name, 'ver': version})
+                raise src.SatException(msg)
 
     # If there is no definition but the product is declared as native,
     # construct a new definition containing only the get_source key
@@ -135,10 +137,19 @@ def get_product_config(config, product_name):
             prod_info.addMapping("archive_info",
                                  src.pyconf.Mapping(prod_info),
                                  "")
-        if "archive_name" not in prod_info.archive_info:
-            arch_name = os.path.join(config.SITE.prepare.archive_dir,
-                                     product_name + "-" + version + ".tar.gz")
-            prod_info.archive_info.archive_name = arch_name
+        if ("archive_name" not in prod_info.archive_info or 
+                os.path.basename(prod_info.archive_info.archive_name) == 
+                prod_info.archive_info.archive_name):
+            arch_name = product_name + "-" + version + ".tar.gz"
+            arch_path = src.find_file_in_lpath(arch_name,
+                                               config.PATHS.ARCHIVEPATH)
+            if not arch_path:
+                msg = _("Archive %(arch_name)s for %(prod_name)s not found:"
+                            "\n" % {"arch_name" : arch_name,
+                                     "prod_name" : prod_info.name}) 
+                raise src.SatException(msg)
+            
+            prod_info.archive_info.archive_name = arch_path
     
     # Set the install_dir key
     if "install_dir" not in prod_info:
@@ -168,8 +179,9 @@ def get_product_config(config, product_name):
         script_name = os.path.basename(script)
         if script == script_name:
             # Only a name is given. Search in the default directory
-            script_path = os.path.join(
-                    config.INTERNAL.compile.default_script_dir, script_name)
+            script_path = src.find_file_in_lpath(script_name,
+                                                 config.PATHS.PRODUCTPATH,
+                                                 "compil_scripts")
             prod_info.compil_script = script_path
 
         # Check script existence
@@ -182,7 +194,45 @@ def get_product_config(config, product_name):
             raise src.SatException(
                     _("Compilation script cannot be executed: %s") % 
                     prod_info.compil_script)
-        
+    
+    # Get the full paths of all the patches
+    if "patches" in prod_info:
+        patches = []
+        for patch in prod_info.patches:
+            patch_path = patch
+            # If only a filename, then search for the patch in the PRODUCTPATH
+            if os.path.basename(patch_path) == patch_path:
+                # Search in the PRODUCTPATH/patches
+                patch_path = src.find_file_in_lpath(patch,
+                                                    config.PATHS.PRODUCTPATH,
+                                                    "patches")
+                if not patch_path:
+                    msg = _("Patch %(patch_name)s for %(prod_name)s not found:"
+                            "\n" % {"patch_name" : patch,
+                                     "prod_name" : prod_info.name}) 
+                    raise src.SatException(msg)
+            patches.append(patch_path)
+        prod_info.patches = patches
+
+    # Get the full paths of the environment scripts
+    if "environ" in prod_info and "env_script" in prod_info.environ:
+        env_script_path = prod_info.environ.env_script
+        # If only a filename, then search for the environment script 
+        # in the PRODUCTPATH/env_scripts
+        if os.path.basename(env_script_path) == env_script_path:
+            # Search in the PRODUCTPATH/env_scripts
+            env_script_path = src.find_file_in_lpath(
+                                            prod_info.environ.env_script,
+                                            config.PATHS.PRODUCTPATH,
+                                            "env_scripts")
+            if not env_script_path:
+                msg = _("Environment script %(env_name)s for %(prod_name)s not "
+                        "found.\n" % {"env_name" : env_script_path,
+                                       "prod_name" : prod_info.name}) 
+                raise src.SatException(msg)
+
+        prod_info.environ.env_script = env_script_path
+                    
     return prod_info
 
 def get_products_infos(lproducts, config):

@@ -42,7 +42,7 @@ class TestJob(unittest.TestCase):
         sat = Sat("-l " + tmp_file)
         
         # Execute the job command
-        sat.job("--jobs_config .test --job Job 1" )
+        sat.job("--jobs_config .test --name Job 1" )
 
         ff = open(tmp_file, "r")
         log_files = ff.readlines()
@@ -67,7 +67,7 @@ class TestJob(unittest.TestCase):
         sat = Sat("-l " + tmp_file)
         
         # Execute the job command
-        res = sat.job("--jobs_config .test --job Job 4" )
+        res = sat.job("--jobs_config .test --name Job 4" )
 
         if res == 1:
             OK = 'OK'         
@@ -83,7 +83,7 @@ class TestJob(unittest.TestCase):
         sat = Sat("-l " + tmp_file)
         
         # Execute the job command
-        res = sat.job("--jobs_config NOTEXIST --job Job 4" )
+        res = sat.job("--jobs_config NOTEXIST --name Job 4" )
 
         if res == 1:
             OK = 'OK'         
@@ -99,7 +99,7 @@ class TestJob(unittest.TestCase):
         sat = Sat("-l " + tmp_file)
         
         # Execute the job command
-        res = sat.job("--job Job 4" )
+        res = sat.job("--name Job 4" )
 
         if res == 1:
             OK = 'OK'         
@@ -115,7 +115,7 @@ class TestJob(unittest.TestCase):
         sat = Sat("-l " + tmp_file)
         
         # Execute the job command
-        res = sat.job("--jobs_config .test --job NOTEXIST" )
+        res = sat.job("--jobs_config .test --name NOTEXIST" )
 
         if res == 1:
             OK = 'OK'         

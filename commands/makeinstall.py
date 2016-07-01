@@ -108,7 +108,7 @@ def makeinstall_product(p_name_info, config, logger):
     # Logging
     logger.write("\n", 4, False)
     logger.write("################ ", 4)
-    header = _("Make of %s") % src.printcolors.printcLabel(p_name)
+    header = _("Make install of %s") % src.printcolors.printcLabel(p_name)
     header += " %s " % ("." * (20 - len(p_name)))
     logger.write(header, 3)
     logger.write("\n", 4, False)
