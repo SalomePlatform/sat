@@ -157,8 +157,15 @@
 	  <td align="center" class="small">
 	      <!-- get the job for current host and current appli -->
 	      <xsl:for-each select="//JobsReport/jobs/job">
+	      
 		  <xsl:sort select="@name" />
+		  
 		  <xsl:if test="application/.=$curr_appli and distribution/.=$curr_distname and board/.=//JobsReport/board/.">
+		      <!-- Change background color if it is an extra job (not defined in the input csv files) -->
+		      <xsl:if test="extra_job/.='yes'">
+			  <xsl:attribute name="bgcolor">FFCCCC</xsl:attribute>
+		      </xsl:if>
+		      <!-- Get job status and put a link -->
 		      <xsl:choose>
 			    <xsl:when test="state/.='SSH connection KO' or state/.='Cancelled'">
 			      <a href="#">
@@ -225,9 +232,19 @@
 			    </a>
 		      </xsl:if> 
 		      <br/>
-		  </xsl:if> 
+		      
+
+		  </xsl:if>
 		  
 	      </xsl:for-each>
+	      
+	      <!-- get the missing jobs -->
+	      <xsl:for-each select="//JobsReport/missing_jobs/job">    
+		    <xsl:if test="@distribution=$curr_distname and @application=$curr_appli">
+			<xsl:attribute name="bgcolor">FFCCCC</xsl:attribute>
+		    </xsl:if>
+	      </xsl:for-each>
+	      
 	  </td>
 	</xsl:for-each>
 	</tr>

@@ -19,12 +19,21 @@
 import os
 import datetime
 import time
+import csv
+import shutil
 import paramiko
 
 import src
 
 STYLESHEET_GLOBAL = "jobs_global_report.xsl"
 STYLESHEET_BOARD = "jobs_board_report.xsl"
+d_INT_DAY = {0 : "monday",
+             1 : "tuesday",
+             2 : "wednesday",
+             3 : "thursday",
+             4 : "friday",
+             5 : "saturday",
+             6 : "sunday"}
 
 parser = src.options.Options()
 
@@ -32,17 +41,23 @@ parser.add_option('j', 'jobs_config', 'string', 'jobs_cfg',
                   _('The name of the config file that contains'
                   ' the jobs configuration'))
 parser.add_option('o', 'only_jobs', 'list2', 'only_jobs',
-                  _('The list of jobs to launch, by their name. '))
+                  _('Optional: the list of jobs to launch, by their name. '))
 parser.add_option('l', 'list', 'boolean', 'list', 
-                  _('list all available config files.'))
-parser.add_option('n', 'no_label', 'boolean', 'no_label',
-                  _("do not print labels, Works only with --list."), False)
+                  _('Optional: list all available config files.'))
 parser.add_option('t', 'test_connection', 'boolean', 'test_connection',
-                  _("Try to connect to the machines. Not executing the jobs."),
+                  _("Optional: try to connect to the machines. "
+                    "Not executing the jobs."),
                   False)
 parser.add_option('p', 'publish', 'boolean', 'publish',
-                  _("Generate an xml file that can be read in a browser to "
-                    "display the jobs status."),
+                  _("Optional: generate an xml file that can be read in a "
+                    "browser to display the jobs status."),
+                  False)
+parser.add_option('i', 'input_boards', 'list2', 'input_boards', _("Optional: "
+                                "the list of path to csv files that contain "
+                                "the expected boards."),[])
+parser.add_option('n', 'completion', 'boolean', 'no_label',
+                  _("Optional (internal use): do not print labels, Works only "
+                    "with --list."),
                   False)
 
 class Machine(object):
@@ -137,7 +152,7 @@ class Machine(object):
         
     def put_dir(self, source, target, filters = []):
         ''' Uploads the contents of the source directory to the target path. The
-            target directory needs to exists. All subdirectories in source are 
+            target directory needs to exists. All sub-directories in source are 
             created under target.
         '''
         for item in os.listdir(source):
@@ -502,7 +517,8 @@ class Job(object):
             # Usual case : Launch the command on remote machine
             self._T0 = time.time()
             self._stdin, self._stdout, self._stderr = self.machine.exec_command(
-                                                        self.command, self.logger)
+                                                                  self.command,
+                                                                  self.logger)
             # If the results are not initialized, finish the job
             if (self._stdin, self._stdout, self._stderr) == (None, None, None):
                 self._has_finished = True
@@ -951,7 +967,8 @@ class Jobs(object):
                         jb_before = self.find_job_that_has_name(jb.after)
                         if jb_before is None:
                             jb.cancel()
-                            msg = _("This job was not launched because its father is not in the jobs list.")
+                            msg = _("This job was not launched because its "
+                                    "father is not in the jobs list.")
                             jb.out = msg
                             jb.err = msg
                             break
@@ -964,7 +981,8 @@ class Jobs(object):
             new_job_finished = self.update_jobs_states_list()
             
             if new_job_start or new_job_finished:
-                self.gui.update_xml_files(self.ljobs)            
+                if self.gui:
+                    self.gui.update_xml_files(self.ljobs)            
                 # Display the current status     
                 self.display_status(self.len_columns)
             
@@ -975,8 +993,9 @@ class Jobs(object):
         self.logger.write(tiret_line)                   
         self.logger.write("\n\n")
         
-        self.gui.update_xml_files(self.ljobs)
-        self.gui.last_update()
+        if self.gui:
+            self.gui.update_xml_files(self.ljobs)
+            self.gui.last_update()
 
     def write_all_results(self):
         '''Display all the jobs outputs.
@@ -996,14 +1015,22 @@ class Gui(object):
        see the jobs states
     '''
    
-    def __init__(self, xml_dir_path, l_jobs, l_jobs_not_today):
+    def __init__(self, xml_dir_path, l_jobs, l_jobs_not_today, l_file_boards = []):
         '''Initialization
         
         :param xml_dir_path str: The path to the directory where to put 
                                  the xml resulting files
         :param l_jobs List: the list of jobs that run today
         :param l_jobs_not_today List: the list of jobs that do not run today
+        :param l_file_boards List: the list of file path from which to read the
+                                   expected boards
         '''
+        # The path of the csv files to read to fill the expected boards
+        self.l_file_boards = l_file_boards
+        
+        today = d_INT_DAY[datetime.date.weekday(datetime.date.today())]
+        self.parse_csv_boards(today)
+        
         # The path of the global xml file
         self.xml_dir_path = xml_dir_path
         # Initialize the xml files
@@ -1014,11 +1041,21 @@ class Gui(object):
         # {name_board : xml_object}}
         self.d_xml_board_files = {}
         # Create the lines and columns
-        self.initialize_arrays(l_jobs, l_jobs_not_today)
+        self.initialize_boards(l_jobs, l_jobs_not_today)
+        
         # Write the xml file
         self.update_xml_files(l_jobs)
     
-    def initialize_arrays(self, l_jobs, l_jobs_not_today):
+    def add_xml_board(self, name):
+        xml_board_path = os.path.join(self.xml_dir_path, name + ".xml")
+        self.d_xml_board_files[name] =  src.xmlManager.XmlLogFile(
+                                                    xml_board_path,
+                                                    "JobsReport")
+        self.d_xml_board_files[name].add_simple_node("distributions")
+        self.d_xml_board_files[name].add_simple_node("applications")
+        self.d_xml_board_files[name].add_simple_node("board", text=name)
+           
+    def initialize_boards(self, l_jobs, l_jobs_not_today):
         '''Get all the first information needed for each file and write the 
            first version of the files   
         :param l_jobs List: the list of jobs that run today
@@ -1029,14 +1066,13 @@ class Gui(object):
         for job in l_jobs + l_jobs_not_today:
             board = job.board
             if (board is not None and 
-                    board not in self.d_xml_board_files.keys()):
-                xml_board_path = os.path.join(self.xml_dir_path, board + ".xml")
-                self.d_xml_board_files[board] =  src.xmlManager.XmlLogFile(
-                                                            xml_board_path,
-                                                            "JobsReport")
-                self.d_xml_board_files[board].add_simple_node("distributions")
-                self.d_xml_board_files[board].add_simple_node("applications")
-                self.d_xml_board_files[board].add_simple_node("board", text=board)
+                                board not in self.d_xml_board_files.keys()):
+                self.add_xml_board(board)
+        
+        # Verify that the boards given as input are done
+        for board in list(self.d_input_boards.keys()):
+            if board not in self.d_xml_board_files:
+                self.add_xml_board(board)
         
         # Loop over all jobs in order to get the lines and columns for each 
         # xml file
@@ -1064,7 +1100,8 @@ class Gui(object):
                     if distrib is not None and distrib not in d_dist[board]:
                         d_dist[board].append(distrib)
                         src.xmlManager.add_simple_node(
-                            self.d_xml_board_files[board].xmlroot.find('distributions'),
+                            self.d_xml_board_files[board].xmlroot.find(
+                                                            'distributions'),
                                                    "dist",
                                                    attrib={"name" : distrib})
                     
@@ -1073,12 +1110,37 @@ class Gui(object):
                                     application not in d_application[board]):
                         d_application[board].append(application)
                         src.xmlManager.add_simple_node(
-                            self.d_xml_board_files[board].xmlroot.find('applications'),
+                            self.d_xml_board_files[board].xmlroot.find(
+                                                                'applications'),
                                                    "application",
-                                                   attrib={"name" : application})
-
+                                                   attrib={
+                                                        "name" : application})
+        
+        # Verify that there are no missing application or distribution in the
+        # xml board files (regarding the input boards)
+        for board in self.d_xml_board_files:
+            l_dist = d_dist[board]
+            if board not in self.d_input_boards.keys():
+                continue
+            for dist in self.d_input_boards[board]["rows"]:
+                if dist not in l_dist:
+                    src.xmlManager.add_simple_node(
+                            self.d_xml_board_files[board].xmlroot.find(
+                                                            'distributions'),
+                                                   "dist",
+                                                   attrib={"name" : dist})
+            l_appli = d_application[board]
+            for appli in self.d_input_boards[board]["columns"]:
+                if appli not in l_appli:
+                    src.xmlManager.add_simple_node(
+                            self.d_xml_board_files[board].xmlroot.find(
+                                                                'applications'),
+                                                   "application",
+                                                   attrib={"name" : appli})
+                
         # Initialize the hosts_ports node for the global file
-        self.xmlhosts_ports = self.xml_global_file.add_simple_node("hosts_ports")
+        self.xmlhosts_ports = self.xml_global_file.add_simple_node(
+                                                                "hosts_ports")
         for host, port in l_hosts_ports:
             host_port = "%s:%i" % (host, port)
             src.xmlManager.add_simple_node(self.xmlhosts_ports,
@@ -1086,7 +1148,8 @@ class Gui(object):
                                            attrib={"name" : host_port})
         
         # Initialize the jobs node in all files
-        for xml_file in [self.xml_global_file] + list(self.d_xml_board_files.values()):
+        for xml_file in [self.xml_global_file] + list(
+                                            self.d_xml_board_files.values()):
             xml_jobs = xml_file.add_simple_node("jobs")      
             # Get the jobs present in the config file but 
             # that will not be launched today
@@ -1095,7 +1158,25 @@ class Gui(object):
             xml_file.add_simple_node("infos",
                                      attrib={"name" : "last update",
                                              "JobsCommandStatus" : "running"})
-
+        
+        # Find in each board the squares that needs to be filled regarding the
+        # input csv files but that are not covered by a today job
+        for board in self.d_input_boards.keys():
+            xml_root_board = self.d_xml_board_files[board].xmlroot
+            xml_missing = src.xmlManager.add_simple_node(xml_root_board,
+                                                 "missing_jobs")
+            for row, column in self.d_input_boards[board]["jobs"]:
+                found = False
+                for job in l_jobs:
+                    if (job.application == column and 
+                        job.machine.distribution == row):
+                        found = True
+                        break
+                if not found:
+                    src.xmlManager.add_simple_node(xml_missing,
+                                            "job",
+                                            attrib={"distribution" : row,
+                                                    "application" : column })
     
     def put_jobs_not_today(self, l_jobs_not_today, xml_node_jobs):
         '''Get all the first information needed for each file and write the 
@@ -1122,13 +1203,59 @@ class Gui(object):
             src.xmlManager.add_simple_node(xmlj, "user", job.machine.user)
             src.xmlManager.add_simple_node(xmlj, "sat_path",
                                                         job.machine.sat_path)
+
+    def parse_csv_boards(self, today):
+        """ Parse the csv files that describes the boards to produce and fill 
+            the dict d_input_boards that contain the csv file contain
+        
+        :param today str: the current day of the week 
+        """
+        # loop over each csv file and read its content
+        l_boards = []
+        for file_path in self.l_file_boards:
+            l_read = []
+            with open(file_path, 'r') as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    l_read.append(row)
+            l_boards.append(l_read)
     
+        # loop over the csv lists of lines and get the rows, columns and jobs
+        d_boards = {}
+        for input_board in l_boards:
+            # get board name
+            board_name = input_board[0][0]
+            
+            # Get columns list
+            columns = input_board[0][1:]
+            
+            rows = []
+            columns_out = []
+            jobs = []
+            for line in input_board[1:]:
+                row = line[0]
+                for i, square in enumerate(line[1:]):
+                    if today in square:
+                        if row not in rows:
+                            rows.append(row)
+                        if columns[i] not in columns_out:
+                            columns_out.append(columns[i])
+                        job = (row, columns[i])
+                        jobs.append(job)
+            
+            d_boards[board_name] = {"rows" : rows,
+                                    "columns" : columns_out,
+                                    "jobs" : jobs}
+        
+        self.d_input_boards = d_boards
+
     def update_xml_files(self, l_jobs):
         '''Write all the xml files with updated information about the jobs   
 
         :param l_jobs List: the list of jobs that run today
         '''
-        for xml_file in [self.xml_global_file] + list(self.d_xml_board_files.values()):
+        for xml_file in [self.xml_global_file] + list(
+                                            self.d_xml_board_files.values()):
             self.update_xml_file(l_jobs, xml_file)
             
         # Write the file
@@ -1207,6 +1334,23 @@ class Gui(object):
                 else:
                     link = "nothing"
                 src.xmlManager.append_node_attrib(xmlafter, {"link" : link})
+            
+            # Verify that the job is to be done today regarding the input csv
+            # files
+            if job.board and job.board in self.d_input_boards.keys():
+                found = False
+                for dist, appli in self.d_input_boards[job.board]["jobs"]:
+                    if (job.machine.distribution == dist 
+                        and job.application == appli):
+                        found = True
+                        src.xmlManager.add_simple_node(xmlj,
+                                               "extra_job",
+                                               "no")
+                        break
+                if not found:
+                    src.xmlManager.add_simple_node(xmlj,
+                                               "extra_job",
+                                               "yes")
             
         
         # Update the date
@@ -1325,9 +1469,22 @@ def run(args, runner, logger):
     
     gui = None
     if options.publish:
+        # Copy the stylesheets in the log directory 
+        log_dir = runner.cfg.SITE.log.log_dir
+        xsl_dir = os.path.join(runner.cfg.VARS.srcDir, 'xsl')
+        files_to_copy = []
+        files_to_copy.append(os.path.join(xsl_dir, STYLESHEET_GLOBAL))
+        files_to_copy.append(os.path.join(xsl_dir, STYLESHEET_BOARD))
+        files_to_copy.append(os.path.join(xsl_dir, "running.gif"))
+        for file_path in files_to_copy:
+            shutil.copy2(file_path, log_dir)
+        
+        # Instanciate the Gui in order to produce the xml files that contain all
+        # the boards
         gui = Gui(runner.cfg.SITE.log.log_dir,
                   today_jobs.ljobs,
-                  today_jobs.ljobs_not_today,)
+                  today_jobs.ljobs_not_today,
+                  l_file_boards = options.input_boards)
     
     today_jobs.gui = gui
     
@@ -1350,8 +1507,10 @@ def run(args, runner, logger):
             if not jb.has_finished():
                 jb.kill_remote_process()
         if interruped:
-            today_jobs.gui.last_update(_("Forced interruption"))
+            if today_jobs.gui:
+                today_jobs.gui.last_update(_("Forced interruption"))
         else:
-            today_jobs.gui.last_update()
+            if today_jobs.gui:
+                today_jobs.gui.last_update()
         # Output the results
         today_jobs.write_all_results()

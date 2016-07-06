@@ -209,7 +209,6 @@ class TestCompile(unittest.TestCase):
         OK = 'KO'
 
         appli = 'appli-test'
-        product_name = 'PRODUCT_GIT'
 
         sat = Sat()
                             

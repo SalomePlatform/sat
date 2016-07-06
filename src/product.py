@@ -137,9 +137,7 @@ def get_product_config(config, product_name):
             prod_info.addMapping("archive_info",
                                  src.pyconf.Mapping(prod_info),
                                  "")
-        if ("archive_name" not in prod_info.archive_info or 
-                os.path.basename(prod_info.archive_info.archive_name) == 
-                prod_info.archive_info.archive_name):
+        if "archive_name" not in prod_info.archive_info: 
             arch_name = product_name + "-" + version + ".tar.gz"
             arch_path = src.find_file_in_lpath(arch_name,
                                                config.PATHS.ARCHIVEPATH)
@@ -148,8 +146,20 @@ def get_product_config(config, product_name):
                             "\n" % {"arch_name" : arch_name,
                                      "prod_name" : prod_info.name}) 
                 raise src.SatException(msg)
-            
             prod_info.archive_info.archive_name = arch_path
+        else:
+            if (os.path.basename(prod_info.archive_info.archive_name) == 
+                                        prod_info.archive_info.archive_name):
+            
+                arch_path = src.find_file_in_lpath(
+                                            prod_info.archive_info.archive_name,
+                                            config.PATHS.ARCHIVEPATH)
+                if not arch_path:
+                    msg = _("Archive %(arch_name)s for %(prod_name)s not found:"
+                                "\n" % {"arch_name" : arch_name,
+                                         "prod_name" : prod_info.name}) 
+                    raise src.SatException(msg)
+                prod_info.archive_info.archive_name = arch_path
     
     # Set the install_dir key
     if "install_dir" not in prod_info:
