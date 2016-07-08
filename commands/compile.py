@@ -509,4 +509,7 @@ def run(args, runner, logger):
           'valid_result': nb_products - res,
           'nb_products': nb_products }, 1)    
     
-    return res
+    code = res
+    if code != 0:
+        code = 1
+    return code

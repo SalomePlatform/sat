@@ -208,7 +208,7 @@
                     <xsl:if test="res/.='0'">
                        <xsl:attribute name="class">OK2day</xsl:attribute>
                     </xsl:if>
-                    <xsl:if test="res/.='1'">
+                    <xsl:if test="res/.!='0'">
                        <xsl:attribute name="class">KO2day</xsl:attribute>
                     </xsl:if>
                     <xsl:value-of select="host/."/>/<xsl:value-of select="port/."/>

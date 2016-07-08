@@ -65,7 +65,7 @@
 								<xsl:value-of select="@command"/>
 							</a>
 						</xsl:if>
-						<xsl:if test="@passed='1'">
+						<xsl:if test="@passed!='0'">
 							<a>
 								<xsl:attribute name="title">Click for more information</xsl:attribute>
 								<xsl:attribute name="class">KO2</xsl:attribute>
@@ -90,7 +90,8 @@
 		<xsl:variable name="txtLog">
 			<xsl:value-of select="SATcommand/OutLog"/>
 		</xsl:variable>
-		<iframe src="{$txtLog}" frameborder="0" class="center" width="100%" height="1500000" scrolling="no"></iframe>
+		<iframe src="{$txtLog}" frameborder="0" class="center" width="100%" height="3000" scrolling="yes"></iframe>
+		<!--<iframe src="{$txtLog}" frameborder="0" class="center" width="100%" height="1500000" scrolling="no"></iframe>-->
 	</body>
 </xsl:template>
 

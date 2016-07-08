@@ -7,10 +7,7 @@ SITE :
     {
         log_dir : $USER.workdir + "/LOGS"
     }
-    jobs :
-    {
-        config_path : $VARS.personalDir + '/Jobs'
-    }
+    #base : $USER.workdir + $VARS.sep + "BASE-FROM-SITE"
 }
 
 PROJECTS :

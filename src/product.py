@@ -45,6 +45,7 @@ def get_product_config(config, product_name):
     # current product 
     debug = 'no'
     dev = 'no'
+    base = 'maybe'
     if isinstance(version, src.pyconf.Mapping):
         dic_version = version
         # Get the version/tag
@@ -60,6 +61,10 @@ def get_product_config(config, product_name):
         # Get the dev if any
         if 'dev' in dic_version:
             dev = dic_version.dev
+        
+        # Get the dev if any
+        if 'base' in dic_version:
+            base = dic_version.base
     
     vv = version
     # substitute some character with _ in order to get the correct definition
@@ -162,17 +167,25 @@ def get_product_config(config, product_name):
                 prod_info.archive_info.archive_name = arch_path
     
     # Set the install_dir key
-    if "install_dir" not in prod_info:
+    if "no_base" in config.APPLICATION and config.APPLICATION.no_base == "yes":
         # Set it to the default value (in application directory)
         prod_info.install_dir = os.path.join(config.APPLICATION.workdir,
                                             "INSTALL",
                                             prod_info.name)
     else:
-        if prod_info.install_dir == "base":
-            # Get the product base of the application
-            base_path = src.get_base_path(config) 
-            prod_info.install_dir = os.path.join(base_path,
-                                            prod_info.name + "-" + version)
+        if base == "yes":
+            prod_info.install_dir = "base"
+        if "install_dir" not in prod_info:
+            # Set it to the default value (in application directory)
+            prod_info.install_dir = os.path.join(config.APPLICATION.workdir,
+                                                "INSTALL",
+                                                prod_info.name)
+        else:
+            if prod_info.install_dir == "base":
+                # Get the product base of the application
+                base_path = src.get_base_path(config) 
+                prod_info.install_dir = os.path.join(base_path,
+                                                prod_info.name + "-" + version)
     
     # If the product compiles with a script, check the script existence
     # and if it is executable

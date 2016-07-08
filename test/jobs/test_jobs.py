@@ -43,7 +43,7 @@ class TestJobs(unittest.TestCase):
         sat = Sat("-l " + tmp_file)
         
         # Execute the jobs command
-        sat.jobs("--jobs_config .test --publish" )
+        sat.jobs("--name .test --publish" )
 
         ff = open(tmp_file, "r")
         log_files = ff.readlines()
@@ -79,7 +79,7 @@ class TestJobs(unittest.TestCase):
         sat = Sat("-l " + tmp_file)
         
         # Execute the jobs command
-        sat.jobs("--jobs_config .test --publish --only_jobs Job 1" )
+        sat.jobs("--name .test --publish --only_jobs Job 1" )
 
         ff = open(tmp_file, "r")
         log_files = ff.readlines()
@@ -106,8 +106,8 @@ class TestJobs(unittest.TestCase):
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
 
-    def test_no_option_jobs_config(self):
-        '''Test the jobs command without --jobs_config option
+    def test_no_option_name(self):
+        '''Test the jobs command without --name option
         '''
         OK = 'KO'
         tmp_file = "/tmp/test.txt"
@@ -131,7 +131,7 @@ class TestJobs(unittest.TestCase):
         sat = Sat("-l " + tmp_file)
         
         # Execute the job command
-        res = sat.jobs("--jobs_config NOTEXIST" )
+        res = sat.jobs("--name NOTEXIST" )
 
         if res == 1:
             OK = 'OK'         

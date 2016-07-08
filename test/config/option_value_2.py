@@ -85,6 +85,35 @@ class TestConfig(unittest.TestCase):
 
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
+        
+    def test_option_info(self):
+        '''Test the display of the right value of "sat config -i"
+        '''
+        
+        application = 'appli-test'
+        product = 'PRODUCT_DEV'
+        
+        OK = 'KO'
+
+        # output redirection
+        my_out = outRedirection()
+
+        # The command to test
+        sat = Sat('')
+        sat.config(application + ' --info ' + product)
+
+        # stop output redirection
+        my_out.end_redirection()
+
+        # get results
+        res = my_out.read_results()
+        
+        
+        if 'compilation method = cmake' in res:
+            OK = 'OK'
+
+        # pyunit method to compare 2 str
+        self.assertEqual(OK, 'OK')
 
 # test launch
 if __name__ == '__main__':

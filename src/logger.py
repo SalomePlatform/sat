@@ -278,7 +278,12 @@ def show_command_log(logFilePath, cmd, application, notShownCommands):
         return False, None
  
     # Get the application of the log file
-    logFileXml = src.xmlManager.ReadXmlFile(logFilePath)
+    try:
+        logFileXml = src.xmlManager.ReadXmlFile(logFilePath)
+    except Exception as e:
+        msg = _("WARNING: the log file %s cannot be read:" % logFilePath)
+        sys.stdout.write(printcolors.printcWarning("%s\n%s\n" % (msg, e)))
+        return False, None
 
     if 'application' in logFileXml.xmlroot.keys():
         appliLog = logFileXml.xmlroot.get('application')

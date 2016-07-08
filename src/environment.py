@@ -474,7 +474,7 @@ class SalomeEnviron:
         :param product str: The product name
         :param logger Logger: The logger instance to display messages
         """
-        
+
         # Get the informations corresponding to the product
         pi = src.product.get_product_config(self.cfg, product)
         
@@ -487,6 +487,12 @@ class SalomeEnviron:
 
         self.add_line(1)
         self.add_comment('setting environ for ' + product)
+        
+        # Set an additional environment for SALOME products
+        if src.product.product_is_salome(pi):
+            # set environment using definition of the product
+            self.set_salome_minimal_product_env(pi, logger)
+            self.set_salome_generic_product_env(product)
 
         # Put the environment define in the configuration of the product
         if "environ" in pi:
@@ -499,11 +505,7 @@ class SalomeEnviron:
             if 'env_script' in pi.environ:
                 self.run_env_script(pi, logger)
 
-        # Set an additional environment for SALOME products
-        if src.product.product_is_salome(pi):
-            # set environment using definition of the product
-            self.set_salome_minimal_product_env(pi, logger)
-            self.set_salome_generic_product_env(product)
+        
             
 
     def run_env_script(self, product_info, logger=None):

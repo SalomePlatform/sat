@@ -43,13 +43,8 @@ def run(args, runner, logger):
     
     # Parse the options
     (options, args) = parser.parse_args(args)
-      
-    jobs_cfg_files_dir = runner.cfg.SITE.jobs.config_path
-    
-    l_cfg_dir = [jobs_cfg_files_dir, os.path.join(runner.cfg.VARS.datadir, "jobs")]
-    
-    # Make sure the path to the jobs config files directory exists 
-    src.ensure_path_exists(jobs_cfg_files_dir)   
+         
+    l_cfg_dir = runner.cfg.PATHS.JOBPATH
     
     # Make sure the jobs_config option has been called
     if not options.jobs_cfg:

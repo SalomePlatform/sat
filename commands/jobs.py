@@ -37,7 +37,7 @@ d_INT_DAY = {0 : "monday",
 
 parser = src.options.Options()
 
-parser.add_option('j', 'jobs_config', 'string', 'jobs_cfg', 
+parser.add_option('n', 'name', 'string', 'jobs_cfg', 
                   _('The name of the config file that contains'
                   ' the jobs configuration'))
 parser.add_option('o', 'only_jobs', 'list2', 'only_jobs',
@@ -139,11 +139,9 @@ class Machine(object):
             self.put_dir(sat_local_path, self.sat_path, filters = ['.git'])
             # put the job configuration file in order to make it reachable 
             # on the remote machine
-            job_file_name = os.path.basename(job_file)
-            self.sftp.put(job_file, os.path.join(self.sat_path,
-                                                 "data",
-                                                 "jobs",
-                                                 job_file_name))
+            self.sftp.put(job_file, os.path.join(".salomeTools",
+                                                 "Jobs",
+                                                 ".jobs_command_file.pyconf"))
         except Exception as e:
             res = str(e)
             self._connection_successful = False
@@ -242,7 +240,7 @@ class Job(object):
     '''Class to manage one job
     '''
     def __init__(self, name, machine, application, board, 
-                 commands, timeout, config, logger, job_file, after=None):
+                 commands, timeout, config, logger, after=None):
 
         self.name = name
         self.machine = machine
@@ -278,8 +276,7 @@ class Job(object):
                         " -l " +
                         os.path.join(self.machine.sat_path,
                                      "list_log_files.txt") +
-                        " job --jobs_config " +
-                        job_file +
+                        " job --jobs_config .jobs_command_file" +
                         " --name " +
                         self.name)
     
@@ -591,13 +588,11 @@ class Jobs(object):
     def __init__(self,
                  runner,
                  logger,
-                 job_file,
                  job_file_path,
                  config_jobs,
                  lenght_columns = 20):
         # The jobs configuration
         self.cfg_jobs = config_jobs
-        self.job_file = job_file
         self.job_file_path = job_file_path
         # The machine that will be used today
         self.lmachines = []
@@ -652,7 +647,6 @@ class Jobs(object):
                    timeout,
                    self.runner.cfg,
                    self.logger,
-                   self.job_file,
                    after = after)
     
     def determine_jobs_and_machines(self):
@@ -1392,14 +1386,8 @@ def description():
 def run(args, runner, logger):
        
     (options, args) = parser.parse_args(args)
-    
-    jobs_cfg_files_dir = runner.cfg.SITE.jobs.config_path
-    
-    l_cfg_dir = [os.path.join(runner.cfg.VARS.datadir, "jobs"),
-                 jobs_cfg_files_dir]
-    
-    # Make sure the path to the jobs config files directory exists 
-    src.ensure_path_exists(jobs_cfg_files_dir)   
+       
+    l_cfg_dir = runner.cfg.PATHS.JOBPATH
     
     # list option : display all the available config files
     if options.list:
@@ -1445,7 +1433,7 @@ def run(args, runner, logger):
         (_("File containing the jobs configuration"), file_jobs_cfg)
     ]    
     src.print_info(logger, info)
-    
+
     # Read the config that is in the file
     config_jobs = src.read_config_from_a_file(file_jobs_cfg)
     if options.only_jobs:
@@ -1459,7 +1447,6 @@ def run(args, runner, logger):
     # Initialization
     today_jobs = Jobs(runner,
                       logger,
-                      options.jobs_cfg,
                       file_jobs_cfg,
                       config_jobs)
     # SSH connection to all machines
@@ -1485,6 +1472,15 @@ def run(args, runner, logger):
                   today_jobs.ljobs,
                   today_jobs.ljobs_not_today,
                   l_file_boards = options.input_boards)
+        
+        # Display the list of the xml files
+        logger.write(src.printcolors.printcInfo(("Here is the list of published"
+                                                 " files :\n")), 4)
+        logger.write("%s\n" % gui.xml_global_file.logFile, 4)
+        for board in gui.d_xml_board_files.keys():
+            logger.write("%s\n" % gui.d_xml_board_files[board].logFile, 4)
+        
+        logger.write("\n", 4)
     
     today_jobs.gui = gui
     

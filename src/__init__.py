@@ -114,12 +114,11 @@ def get_base_path(config):
     :return: The path of the product base.
     :rtype: str
     '''
-    if "base" in config.APPLICATION:
-        base_name = config.APPLICATION.base
-        base_path = config.USER.bases[base_name]
+    if "base" in config.SITE:
+        base_path = config.SITE.base
     else:
         # default base
-        base_path = config.USER.bases.base
+        base_path = config.USER.base
     return base_path
 
 def only_numbers(str_num):

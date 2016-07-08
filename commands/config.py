@@ -471,14 +471,15 @@ class ConfigManager:
                                  'evince', 
                                  "This is the pdf_viewer used "
                                  "to read pdf documentation\n")
-        user_cfg.USER.addMapping("bases",
-                                 src.pyconf.Mapping(user_cfg.USER),
-                                 "The products installation base(s)\n")
-        
-        user_cfg.USER.bases.base = src.pyconf.Reference(
+        user_cfg.USER.addMapping("base",
+                                 src.pyconf.Reference(
                                             user_cfg,
                                             src.pyconf.DOLLAR,
-                                            'workdir  + $VARS.sep + "BASE"')
+                                            'workdir  + $VARS.sep + "BASE"'),
+                                 "The products installation base (could be "
+                                 "ignored if this key exists in the site.pyconf"
+                                 " file of salomTools).\n")
+        
         # 
         src.ensure_path_exists(config.VARS.personalDir)
         src.ensure_path_exists(os.path.join(config.VARS.personalDir, 
@@ -538,7 +539,7 @@ def show_product_info(config, name, logger):
     # Type of the product
     ptype = src.get_cfg_param(pinfo, "type", "")
     src.printcolors.print_value(logger, "type", ptype, 2)
-    if "opt_depend" in pinfo:
+    if "depend" in pinfo:
         src.printcolors.print_value(logger, 
                                     "depends on", 
                                     ', '.join(pinfo.depend), 2)
