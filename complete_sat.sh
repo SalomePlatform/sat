@@ -35,7 +35,7 @@ _show_applications()
             opts2=$(echo --clean --full --last --terminal $opts2)
             ;;
         jobs)
-            opts2=$(echo --jobs_config --only_jobs --list --no_label --test_connection --publish $opts2)
+            opts2=$(echo --name --only_jobs --list --completion --test_connection --input_boards --publish $opts2)
             ;;
         shell)
             opts2=$(echo --command --sat $opts2)
@@ -199,7 +199,7 @@ _salomeTools_complete()
             return 0
             ;;
         jobs)
-            opts="--jobs_config --only_jobs --list --no_label --test_connection --publish"
+            opts="--name --only_jobs --list --completion --test_connection --input_boards --publish"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
