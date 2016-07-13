@@ -20,7 +20,7 @@ import subprocess
 
 import src
 
-# Define all possible option for the make command :  sat make <options>
+# Define all possible option for the shell command :  sat shell <options>
 parser = src.options.Options()
 parser.add_option('c', 'command', 'string', 'command',
     _('The shell command to execute.'), "")

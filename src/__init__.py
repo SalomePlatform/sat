@@ -32,10 +32,13 @@ from . import product
 from . import environment
 from . import fileEnviron
 from . import compilation
+from . import test_module
 
 OK_STATUS = "OK"
 KO_STATUS = "KO"
 NA_STATUS = "NA"
+KNOWNFAILURE_STATUS = "KF"
+TIMEOUT_STATUS = "TIMEOUT"
 
 class SatException(Exception):
     '''rename Exception Class
@@ -120,6 +123,26 @@ def get_base_path(config):
         # default base
         base_path = config.USER.base
     return base_path
+
+def get_salome_version(config):
+    if hasattr(config.APPLICATION, 'version_salome'):
+        Version = config.APPLICATION.version_salome
+    else:
+        KERNEL_info = product.get_product_config(config, "KERNEL")
+        VERSION = os.path.join(
+                            KERNEL_info.install_dir,
+                            "bin",
+                            "salome",
+                            "VERSION")
+        if not os.path.isfile(VERSION):
+            return None
+            
+        fVERSION = open(VERSION)
+        Version = fVERSION.readline()
+        fVERSION.close()
+        
+    VersionSalome = int(only_numbers(Version))    
+    return VersionSalome
 
 def only_numbers(str_num):
     return ''.join([nb for nb in str_num if nb in '0123456789'] or '0')

@@ -8,6 +8,11 @@ SITE :
         log_dir : $USER.workdir + "/LOGS"
     }
     #base : $USER.workdir + $VARS.sep + "BASE-FROM-SITE"
+    test :{
+           tmp_dir_with_product : '/tmp' + $VARS.sep + $VARS.user + $VARS.sep + $APPLICATION.name + $VARS.sep + 'test'
+           tmp_dir : '/tmp' + $VARS.sep + $VARS.user + $VARS.sep + 'test'
+           timeout : 150
+           }
 }
 
 PROJECTS :

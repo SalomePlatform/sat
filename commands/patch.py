@@ -149,7 +149,10 @@ def run(args, runner, logger):
     good_result = 0
     for __, product_info in products_infos:
         # Apply the patch
-        return_code, patch_res = apply_patch(runner.cfg, product_info, max_product_name_len, logger)
+        return_code, patch_res = apply_patch(runner.cfg,
+                                             product_info,
+                                             max_product_name_len,
+                                             logger)
         logger.write(patch_res, 1, False)
         if return_code:
             good_result += 1

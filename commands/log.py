@@ -182,11 +182,14 @@ def run(args, runner, logger):
     xslDir = os.path.join(runner.cfg.VARS.srcDir, 'xsl')
     xslCommand = os.path.join(xslDir, "command.xsl")
     xslHat = os.path.join(xslDir, "hat.xsl")
+    xsltest = os.path.join(xslDir, "test.xsl")
     imgLogo = os.path.join(xslDir, "LOGO-SAT.png")
     
     # copy the stylesheets in the log directory
     shutil.copy2(xslCommand, logDir)
     shutil.copy2(xslHat, logDir)
+    src.ensure_path_exists(os.path.join(logDir, "TEST"))
+    shutil.copy2(xsltest, os.path.join(logDir, "TEST"))
     shutil.copy2(imgLogo, logDir)
 
     # If the last option is invoked, just, show the last log file

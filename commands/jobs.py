@@ -358,8 +358,9 @@ class Job(object):
         
         # First get the file that contains the list of log files to get
         tmp_file_path = src.get_tmp_filename(self.config, "list_log_files.txt")
+        remote_path = os.path.join(self.machine.sat_path, "list_log_files.txt")
         self.machine.sftp.get(
-                    os.path.join(self.machine.sat_path, "list_log_files.txt"),
+                    remote_path,
                     tmp_file_path)
         
         # Read the file and get the result of the command and all the log files
@@ -369,8 +370,13 @@ class Job(object):
         file_lines = [line.replace("\n", "") for line in file_lines]
         fstream_tmp.close()
         os.remove(tmp_file_path)
-        # The first line is the result of the command (0 success or 1 fail)
-        self.res_job = file_lines[0]
+        
+        try :
+            # The first line is the result of the command (0 success or 1 fail)
+            self.res_job = file_lines[0]
+        except Exception as e:
+            self.err += _("Unable to get status from remote file %s: %s" % 
+                                                    (remote_path, str(e)))
 
         for i, job_path_remote in enumerate(file_lines[1:]):
             try:
