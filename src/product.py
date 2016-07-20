@@ -205,13 +205,11 @@ def get_product_config(config, product_name):
             script_path = src.find_file_in_lpath(script_name,
                                                  config.PATHS.PRODUCTPATH,
                                                  "compil_scripts")
+            if not script_path:
+                raise src.SatException(_("Compilation script not found: %s") % 
+                                   script_name)
             prod_info.compil_script = script_path
-
-        # Check script existence
-        if not os.path.exists(prod_info.compil_script):
-            raise src.SatException(_("Compilation script not found: %s") % 
-                                   prod_info.compil_script)
-        
+       
         # Check that the script is executable
         if not os.access(prod_info.compil_script, os.X_OK):
             raise src.SatException(
