@@ -117,19 +117,12 @@
 	    </td>
 	</tr>
     </table>
-    Legend :
-    <table class="legend">
-	<tr><td>job</td><td>result</td></tr>
-	<tr><td> <xsl:attribute name="class">OK2day</xsl:attribute>success today</td><td> <xsl:attribute name="class">OK2day</xsl:attribute>success today</td></tr>
-	<tr><td> <xsl:attribute name="class">OK2</xsl:attribute>success not today</td><td> <xsl:attribute name="class">OK2</xsl:attribute>success not today</td></tr>
-	<tr><td> <xsl:attribute name="class">KO2day</xsl:attribute>fail today</td><td> <xsl:attribute name="class">KO2day</xsl:attribute>fail today</td></tr>
-	<tr><td> <xsl:attribute name="class">KO2</xsl:attribute>fail not today</td><td> <xsl:attribute name="class">KO2</xsl:attribute>fail not today</td></tr>
-	<tr><td> <xsl:attribute name="class">TO2day</xsl:attribute>timeout today</td><td> <xsl:attribute name="class">KF2day</xsl:attribute>known failure today</td></tr>
-	<tr><td> <xsl:attribute name="class">RUNNING2</xsl:attribute>running</td><td> <xsl:attribute name="class">KF2</xsl:attribute>known failure not today</td></tr>
-	<tr><td> <xsl:attribute name="class">NA2day</xsl:attribute>To be launched</td></tr>
-	<tr><td> <xsl:attribute name="class">NA2</xsl:attribute>Not today</td></tr>
-    </table>
-    
+    <a href="#">
+	<xsl:attribute name="onclick">javascript:Toggle('legend')</xsl:attribute>
+	<xsl:attribute name="title">legend</xsl:attribute>
+	legend
+    </a>
+    <br/>
     <br/>
     
     <div id="matrix">
@@ -278,6 +271,20 @@
       </div>
     </xsl:for-each>
 
+    <div style="display:none"><xsl:attribute name="id">legend</xsl:attribute>
+      <td border="0"> 
+    	<tr><td>job</td><td>result</td></tr>
+	<tr><td> <xsl:attribute name="class">OK2day</xsl:attribute>success today</td><td> <xsl:attribute name="class">OK2day</xsl:attribute>success today</td></tr>
+	<tr><td> <xsl:attribute name="class">OK2</xsl:attribute>success not today</td><td> <xsl:attribute name="class">OK2</xsl:attribute>success not today</td></tr>
+	<tr><td> <xsl:attribute name="class">KO2day</xsl:attribute>fail today</td><td> <xsl:attribute name="class">KO2day</xsl:attribute>fail today</td></tr>
+	<tr><td> <xsl:attribute name="class">KO2</xsl:attribute>fail not today</td><td> <xsl:attribute name="class">KO2</xsl:attribute>fail not today</td></tr>
+	<tr><td> <xsl:attribute name="class">TO2day</xsl:attribute>timeout today</td><td> <xsl:attribute name="class">KF2day</xsl:attribute>known failure today</td></tr>
+	<tr><td> <xsl:attribute name="class">RUNNING2</xsl:attribute>running</td><td> <xsl:attribute name="class">KF2</xsl:attribute>known failure not today</td></tr>
+	<tr><td> <xsl:attribute name="class">NA2day</xsl:attribute>To be launched</td></tr>
+	<tr><td> <xsl:attribute name="class">NA2</xsl:attribute>Not today</td></tr>
+      </td>
+    </div>
+    
 </body>
 
 </html>

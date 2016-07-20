@@ -118,24 +118,14 @@
 	</tr>
     </table>
 
-    Legend :
-    <table class="legend">
-      <td border="0"> 
-	  <tr><td>job</td><td>result</td></tr>
-	  <tr><td> <xsl:attribute name="class">OK2day</xsl:attribute>success today</td><td> <xsl:attribute name="class">OK2day</xsl:attribute>success today</td></tr>
-	  <tr><td> <xsl:attribute name="class">OK2</xsl:attribute>success not today</td><td> <xsl:attribute name="class">OK2</xsl:attribute>success not today</td></tr>
-	  <tr><td> <xsl:attribute name="class">KO2day</xsl:attribute>fail today</td><td> <xsl:attribute name="class">KO2day</xsl:attribute>fail today</td></tr>
-	  <tr><td> <xsl:attribute name="class">KO2</xsl:attribute>fail not today</td><td> <xsl:attribute name="class">KO2</xsl:attribute>fail not today</td></tr>
-	  <tr><td> <xsl:attribute name="class">TO2day</xsl:attribute>timeout today</td><td> <xsl:attribute name="class">KF2day</xsl:attribute>known failure today</td></tr>
-	  <tr><td> <xsl:attribute name="class">RUNNING2</xsl:attribute>running</td><td> <xsl:attribute name="class">KF2</xsl:attribute>known failure not today</td></tr>
-	  <tr><td> <xsl:attribute name="class">NA2day</xsl:attribute>To be launched</td></tr>
-	  <tr><td> <xsl:attribute name="class">NA2</xsl:attribute>Not today</td></tr>
-	  <tr>Missing job: <td> <xsl:attribute name="bgcolor">FFCCCC</xsl:attribute> </td></tr>
-	  <tr>Extra job: <td> <xsl:attribute name="bgcolor">FFCCCC</xsl:attribute> Job name </td></tr>
-      </td>
-    </table>
+    <a href="#">
+	<xsl:attribute name="onclick">javascript:Toggle('legend')</xsl:attribute>
+	<xsl:attribute name="title">legend</xsl:attribute>
+	legend
+    </a>
     <br/>
-
+    <br/>
+    
     <div id="matrix">
     <table class="summary">
       <!-- header -->
@@ -199,7 +189,7 @@
 				    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
 				    <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
 				    <xsl:attribute name="class">OK2day</xsl:attribute>
-				    <xsl:value-of select="@name"/>
+				    j
 			      </a>
 			    </xsl:when>
 			    <xsl:when test="contains(state/., 'Timeout')">
@@ -221,7 +211,7 @@
 		      </xsl:choose>
 		      <!--<xsl:value-of select="state/." />-->
 		      <xsl:if test="not(remote_log_file_path/.='nothing') and state/.!='Not today'">
-			     : 
+			     - 
 			    <a>
 				<xsl:attribute name="title">remote log</xsl:attribute>
 				<xsl:attribute name="href"><xsl:value-of select="remote_log_file_path/."/></xsl:attribute>
@@ -231,7 +221,10 @@
 				<xsl:if test="res/.!='0'">
 				   <xsl:attribute name="class">KO2day</xsl:attribute>
 				</xsl:if>
-				<xsl:value-of select="host/."/>/<xsl:value-of select="port/."/>
+				<xsl:value-of select="host/."/>
+				<xsl:if test="port/.!='22'">
+				 / <xsl:value-of select="port/."/>
+				</xsl:if>
 			    </a>
 		      </xsl:if> 
 		      <br/>
@@ -308,6 +301,22 @@
       </div>
     </xsl:for-each>
 
+    <div style="display:none"><xsl:attribute name="id">legend</xsl:attribute>
+      <td border="0"> 
+	    <tr><td>job</td><td>result</td></tr>
+	    <tr><td> <xsl:attribute name="class">OK2day</xsl:attribute>success today</td><td> <xsl:attribute name="class">OK2day</xsl:attribute>success today</td></tr>
+	    <tr><td> <xsl:attribute name="class">OK2</xsl:attribute>success not today</td><td> <xsl:attribute name="class">OK2</xsl:attribute>success not today</td></tr>
+	    <tr><td> <xsl:attribute name="class">KO2day</xsl:attribute>fail today</td><td> <xsl:attribute name="class">KO2day</xsl:attribute>fail today</td></tr>
+	    <tr><td> <xsl:attribute name="class">KO2</xsl:attribute>fail not today</td><td> <xsl:attribute name="class">KO2</xsl:attribute>fail not today</td></tr>
+	    <tr><td> <xsl:attribute name="class">TO2day</xsl:attribute>timeout today</td><td> <xsl:attribute name="class">KF2day</xsl:attribute>known failure today</td></tr>
+	    <tr><td> <xsl:attribute name="class">RUNNING2</xsl:attribute>running</td><td> <xsl:attribute name="class">KF2</xsl:attribute>known failure not today</td></tr>
+	    <tr><td> <xsl:attribute name="class">NA2day</xsl:attribute>To be launched</td></tr>
+	    <tr><td> <xsl:attribute name="class">NA2</xsl:attribute>Not today</td></tr>
+	    <tr>Missing job: <td> <xsl:attribute name="bgcolor">FFCCCC</xsl:attribute> </td></tr>
+	    <tr>Extra job: <td> <xsl:attribute name="bgcolor">FFCCCC</xsl:attribute> Job name </td></tr>
+	</td>
+    </div>
+    
 </body>
 
 </html>
