@@ -169,3 +169,20 @@ def append_node_attrib(root_node, attrib):
     :param attrib dixt: The attrib to append
     '''
     root_node.attrib.update(attrib)
+
+def write_report(filename, xmlroot, stylesheet):
+    """Writes a report file from a XML tree.
+    
+    :param filename str: The path to the file to create
+    :param xmlroot etree.Element: the Etree element to write to the file
+    :param stylesheet str: The stylesheet to add to the begin of the file
+    """
+    if not os.path.exists(os.path.dirname(filename)):
+        os.makedirs(os.path.dirname(filename))
+
+    f = open(filename, "w")
+    f.write("<?xml version='1.0' encoding='utf-8'?>\n")
+    if len(stylesheet) > 0:
+        f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % stylesheet)
+    f.write(etree.tostring(xmlroot, encoding='utf-8'))
+    f.close()

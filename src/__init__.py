@@ -313,3 +313,20 @@ def deepcopy_list(input_list):
     for elem in input_list:
         res.append(elem)
     return res
+
+def parse_date(date):
+    """Transform YYYYMMDD_hhmmss into YYYY-MM-DD hh:mm:ss.
+    
+    :param date str: The date to transform
+    :return: The date in the new format
+    :rtype: str
+    """
+    if len(date) != 15:
+        return date
+    res = "%s-%s-%s %s:%s:%s" % (date[0:4],
+                                 date[4:6],
+                                 date[6:8],
+                                 date[9:11],
+                                 date[11:13],
+                                 date[13:])
+    return res

@@ -16,15 +16,24 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+# Python 2/3 compatibility for execfile function
+try:
+    execfile
+except:
+    def execfile(somefile, global_vars, local_vars):
+        with open(somefile) as f:
+            code = compile(f.read(), somefile, 'exec')
+            exec(code, global_vars, local_vars)
+
+
 import os, sys, datetime, shutil, string
 import subprocess
-import fork
+from . import fork
 import src
 
 # directories not considered as test modules
 C_IGNORE_MODULES = ['.git', '.svn', 'RESSOURCES']
 
-C_TESTS_SOURCE_DIR = "Tests"
 C_TESTS_LIGHT_FILE = "TestsLight.txt"
 
 # Get directory to be used for the temporary files.
@@ -90,12 +99,15 @@ class Test:
                             symlinks=True)
 
     def prepare_grid_from_dir(self, grid_name, grid_dir):
-        self.logger.write(_("get grid from dir: %s\n") % src.printcolors.printcLabel(grid_dir), 3)
+        self.logger.write(_("get grid from dir: %s\n") % \
+                          src.printcolors.printcLabel(grid_dir), 3)
         if not os.access(grid_dir, os.X_OK):
-            raise src.SatException(_("testbase %(name)s (%(dir)s) does not exist ...\n") % \
-                { 'name': grid_name, 'dir': grid_dir })
+            raise src.SatException(_("testbase %(name)s (%(dir)s) does not "
+                                     "exist ...\n") % { 'name': grid_name,
+                                                       'dir': grid_dir })
 
-        self._copy_dir(grid_dir, os.path.join(self.sessionDir, 'BASES', grid_name))
+        self._copy_dir(grid_dir,
+                       os.path.join(self.sessionDir, 'BASES', grid_name))
 
     def prepare_grid_from_git(self, grid_name, grid_base, grid_tag):
         self.logger.write(
@@ -116,7 +128,9 @@ class Test:
             else:
                 cmd += " && git fetch origin %(branch)s:%(branch)s"
             cmd += " && git checkout %(branch)s"
-            cmd = cmd % { 'branch': grid_tag, 'base': grid_base, 'dir': grid_name }
+            cmd = cmd % { 'branch': grid_tag,
+                         'base': grid_base,
+                         'dir': grid_name }
 
             self.logger.write("> %s\n" % cmd, 5)
             if src.architecture.is_windows():
@@ -134,15 +148,17 @@ class Test:
                                 stdout=self.logger.logTxtFile,
                                 stderr=subprocess.PIPE)
             if res != 0:
-                raise src.SatException(_("Error: unable to get test base '%(name)s' from git '%(repo)s'.") % \
-                    { 'name': grid_name, 'repo': grid_base })
+                raise src.SatException(_("Error: unable to get test base "
+                                         "'%(name)s' from git '%(repo)s'.") % \
+                                       { 'name': grid_name, 'repo': grid_base })
 
         except OSError:
             self.logger.error(_("git is not installed. exiting...\n"))
             sys.exit(0)
 
     def prepare_grid_from_svn(self, user, grid_name, grid_base):
-        self.logger.write(_("get grid '%s' from svn\n") % src.printcolors.printcLabel(grid_name), 3)
+        self.logger.write(_("get grid '%s' from svn\n") % \
+                          src.printcolors.printcLabel(grid_name), 3)
         try:
             def set_signal(): # pragma: no cover
                 """see http://bugs.python.org/issue1652"""
@@ -306,6 +322,30 @@ class Test:
                         pass
 
                 results[test] = [status, exec_time, callback, expected]
+            
+            # check if <test>.py file exists
+            testfile = os.path.join(self.currentDir,
+                                   self.currentModule,
+                                   self.currentType,
+                                   test)
+            
+            if not os.path.exists(testfile):
+                results[test].append('')
+            else:
+                text = open(testfile, "r").read()
+                results[test].append(text)
+
+            # check if <test>.out.py file exists
+            outfile = os.path.join(self.currentDir,
+                                   self.currentModule,
+                                   self.currentType,
+                                   test[:-3] + ".out.py")
+            
+            if not os.path.exists(outfile):
+                results[test].append('')
+            else:
+                text = open(outfile, "r").read()
+                results[test].append(text)
 
         return results
 
@@ -401,8 +441,8 @@ class Test:
 
 
     def get_test_timeout(self, test_name, default_value):
-        if (self.settings.has_key("timeout") and 
-                self.settings["timeout"].has_key(test_name)):
+        if ("timeout" in self.settings and 
+                test_name in self.settings["timeout"]):
             return self.settings["timeout"][test_name]
 
         return default_value
@@ -443,7 +483,7 @@ class Test:
             else:
                 # New application
                 binSalome = self.appli
-                binPython = self.appli + ' shell'
+                binPython = self.appli + ' context'
                 killSalome = self.appli + ' killall'
                 return binSalome, binPython, killSalome
 
@@ -480,7 +520,7 @@ class Test:
             if src.architecture.is_windows():
                 binSalome += '.bat'
 
-            binPython = binSalome + ' shell'
+            binPython = binSalome + ' context'
             killSalome = binSalome + ' killall'
             return binSalome, binPython, killSalome
                 
@@ -585,7 +625,10 @@ class Test:
                 script_info.known_error.expected = kfres[1]
                 script_info.known_error.comment = kfres[2]
                 script_info.known_error.fixed = kfres[3]
-
+            
+            script_info.content = script_results[sr][4]
+            script_info.out = script_results[sr][5]
+            
             # add it to the list of results
             test_info.script.append(script_info, '')
 
@@ -784,7 +827,7 @@ class Test:
                 self.logger.write(src.printcolors.printcHeader("----------- end"
                                                 " %s" % script_name) + "\n", 2)
 
-    def run_all_tests(self, session_name=""):
+    def run_all_tests(self):
         initTime = datetime.datetime.now()
 
         self.run_script('test_setup')
@@ -839,9 +882,6 @@ class Test:
             status = src.KNOWNFAILURE_STATUS
         
         self.logger.write(_("Status: %s\n" % status), 3)
-        
-        if session_name is not None and len(session_name) > 0:
-            self.config.RESULTS.test["session"] = session_name
 
         return self.nb_run - self.nb_succeed - self.nb_acknoledge
 

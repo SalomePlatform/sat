@@ -79,6 +79,7 @@
 </style>
 <script language="JavaScript"><![CDATA[
       function Toggle(id) {
+        collapsealltext();
         var element = document.getElementById(id);
 
         if ( element.style.display == "none" )
@@ -93,6 +94,13 @@
           {
               divlist[i].style.display = "none";
           }
+          }
+        function collapsealltext() {
+          var divlist = document.getElementsByName("text");
+          for (i = 0; i < divlist.length; i++)
+          {
+              divlist[i].style.display = "none";
+          }          
       }
 
     ]]></script>
@@ -281,7 +289,20 @@
         <xsl:choose>
           <xsl:when test="count(./callback) != 0">
             <tr>
-              <td align="left"><xsl:attribute name="class"><xsl:value-of select="@res" /></xsl:attribute><xsl:value-of select="@script" /></td>
+              <td align="left">
+		    <xsl:attribute name="class"><xsl:value-of select="@res" /></xsl:attribute>
+		    <a href="#content">
+			    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>')</xsl:attribute>
+			    <xsl:attribute name="title">Click to see the script content</xsl:attribute>
+			    <xsl:value-of select="@script" />
+		    </a>
+		    &#160;
+		    <a href="#content">
+			    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>log')</xsl:attribute>
+			    <xsl:attribute name="title">Click to see the execution log</xsl:attribute>
+			    log
+		    </a>
+              </td>
               <td align="center"><xsl:attribute name="class"><xsl:value-of select="@res" /></xsl:attribute><xsl:value-of select="@res" /></td>
               <td align="right"><xsl:value-of select="format-number(@exec_time, '0.0')" /></td>
             </tr>
@@ -291,7 +312,19 @@
           </xsl:when>
           <xsl:otherwise>
             <tr>
-              <td align="left"><xsl:value-of select="@script" /></td>
+              <td align="left">
+		    <a href="#content">
+			    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>')</xsl:attribute>
+			    <xsl:attribute name="title">Click to see the script content</xsl:attribute>
+			    <xsl:value-of select="@script" />
+		    </a>
+		    &#160;
+		    <a href="#content">
+			    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>log')</xsl:attribute>
+			    <xsl:attribute name="title">Click to see the execution log</xsl:attribute>
+			    log
+		    </a>
+              </td>
               <td align="center"><xsl:attribute name="class"><xsl:value-of select="@res" /></xsl:attribute><xsl:value-of select="@res" /></td>
               <td align="right"><xsl:value-of select="format-number(@exec_time, '0.0')" /></td>
             </tr>
@@ -299,7 +332,7 @@
         </xsl:choose>
           <xsl:if test="count(./amend) != 0">
             <tr>
-              <td class="ko"><b>Amended</b></td>
+              <td class="ko"><b>Amended</b></td>	
               <td align="left" colspan="3"><xsl:value-of select="./amend" /></td>
             </tr>
           </xsl:if>
@@ -309,7 +342,20 @@
     </table>
     </div>
   </xsl:for-each>
-
+  
+  <xsl:for-each select="./module">
+    <xsl:for-each select="./type">
+      <xsl:for-each select="./test">
+	  <div style="display:none" name="text"><xsl:attribute name="id"><xsl:value-of select="@script"/></xsl:attribute>
+	    <PRE><xsl:value-of select="./content"/></PRE>
+	  </div>
+	  <div style="display:none" name="text"><xsl:attribute name="id"><xsl:value-of select="@script"/>log</xsl:attribute>
+	    <PRE><xsl:value-of select="./out"/></PRE>
+	  </div>
+      </xsl:for-each>
+    </xsl:for-each>
+  </xsl:for-each>
+  
 </xsl:template>
 
 <xsl:template name="display-percent">

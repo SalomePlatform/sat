@@ -37,8 +37,8 @@ parser = src.options.Options()
 parser.add_option('a', 'appli', 'string', 'appli',
     _('Use this option to specify the path to an installed application.'))
 parser.add_option('g', 'grid', 'string', 'grid',
-    _("""Indicate the name of the grid to test.
-\tThis name has to be registered in sat. If your test base is not known by sat, use the option --dir."""))
+    _("Indicate the name of the grid to test.\n\tThis name has to be registered"
+      " in sat. If your test base is not known by sat, use the option --dir."))
 parser.add_option('m', 'module', 'list', 'modules',
     _('Indicate which module(s) to test (subdirectory of the grid).'))
 parser.add_option('t', 'type', 'list', 'types',
@@ -46,12 +46,11 @@ parser.add_option('t', 'type', 'list', 'types',
 parser.add_option('d', 'dir', 'string', 'dir',
     _('Indicate the directory containing the test base.'), "")
 parser.add_option('', 'mode', 'string', 'mode',
-    _("Indicate which kind of test to run. If MODE is 'batch' only python and NO_GUI tests are run."), "normal")
+    _("Indicate which kind of test to run. If MODE is 'batch' only python and"
+      " NO_GUI tests are run."), "normal")
 parser.add_option('', 'display', 'string', 'display',
-    _("""Set the display where to launch SALOME.
-\tIf value is NO then option --show-desktop=0 will be used to launch SALOME."""))
-parser.add_option('n', 'name', 'string', 'session',
-    _('Give a name to the test session (REQUIRED if no product).'))
+    _("Set the display where to launch SALOME."
+"\tIf value is NO then option --show-desktop=0 will be used to launch SALOME."))
 parser.add_option('', 'light', 'boolean', 'light',
     _('Only run minimal tests declared in TestsLight.txt.'), False)
 
@@ -64,6 +63,13 @@ def description():
     return _("The test command runs a test base on a SALOME installation.")     
 
 def parse_option(args, config):
+    """ Parse the options and do some verifications about it
+    
+    :param args List: The list of arguments of the command
+    :param config Config: The global configuration
+    :return: the options of the current command launch and the full arguments
+    :rtype: Tuple (options, args)
+    """
     (options, args) = parser.parse_args(args)
 
     if not options.appli:
@@ -81,6 +87,8 @@ def parse_option(args, config):
     return (options, args)
 
 def ask_a_path():
+    """ 
+    """
     path = raw_input("enter a path where to save the result: ")
     if path == "":
         result = raw_input("the result will be not save. Are you sure to "
@@ -219,27 +227,6 @@ def check_remote_machine(machine_name, logger):
         logger.write(src.printcolors.printcSuccess(src.OK_STATUS) + "\n\n", 4)
 
 ##
-# Transform YYYYMMDD_hhmmss into YYYY-MM-DD hh:mm:ss.
-def parse_date(date):
-    if len(date) != 15:
-        return date
-    res = "%s-%s-%s %s:%s:%s" % (date[0:4], date[4:6], date[6:8], date[9:11], date[11:13], date[13:])
-    return res
-
-##
-# Writes a report file from a XML tree.
-def write_report(filename, xmlroot, stylesheet):
-    if not os.path.exists(os.path.dirname(filename)):
-        os.makedirs(os.path.dirname(filename))
-
-    f = open(filename, "w")
-    f.write("<?xml version='1.0' encoding='utf-8'?>\n")
-    if len(stylesheet) > 0:
-        f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % stylesheet)
-    f.write(etree.tostring(xmlroot, encoding='utf-8'))
-    f.close()
-
-##
 # Creates the XML report for a product.
 def create_test_report(config, dest_path, stylesheet, xmlname=""):
     application_name = config.VARS.application
@@ -251,18 +238,24 @@ def create_test_report(config, dest_path, stylesheet, xmlname=""):
 
     if withappli:
 
-        add_simple_node(prod_node, "version_to_download", config.APPLICATION.name)
+        add_simple_node(prod_node, "version_to_download",
+                        config.APPLICATION.name)
         
         add_simple_node(prod_node, "out_dir", config.APPLICATION.workdir)
 
     # add environment
     exec_node = add_simple_node(prod_node, "exec")
     exec_node.append(etree.Element("env", name="Host", value=config.VARS.node))
-    exec_node.append(etree.Element("env", name="Architecture", value=config.VARS.dist))
-    exec_node.append(etree.Element("env", name="Number of processors", value=str(config.VARS.nb_proc)))    
-    exec_node.append(etree.Element("env", name="Begin date", value=parse_date(config.VARS.datehour)))
-    exec_node.append(etree.Element("env", name="Command", value=config.VARS.command))
-    exec_node.append(etree.Element("env", name="sat version", value=config.INTERNAL.sat_version))
+    exec_node.append(etree.Element("env", name="Architecture",
+                                   value=config.VARS.dist))
+    exec_node.append(etree.Element("env", name="Number of processors",
+                                   value=str(config.VARS.nb_proc)))    
+    exec_node.append(etree.Element("env", name="Begin date",
+                                   value=src.parse_date(config.VARS.datehour)))
+    exec_node.append(etree.Element("env", name="Command",
+                                   value=config.VARS.command))
+    exec_node.append(etree.Element("env", name="sat version",
+                                   value=config.INTERNAL.sat_version))
 
     if 'TESTS' in config:
         tests = add_simple_node(prod_node, "tests")
@@ -295,9 +288,8 @@ def create_test_report(config, dest_path, stylesheet, xmlname=""):
                     types["%s/%s" % (test.module, test.type)] = tyn
 
                 for script in test.script:
-                    tn = add_simple_node(types["%s/%s" % (test.module, test.type)], "test")
-                    #tn.attrib['grid'] = test.grid
-                    #tn.attrib['module'] = test.module
+                    tn = add_simple_node(types[
+                                    "%s/%s" % (test.module, test.type)], "test")
                     tn.attrib['type'] = test.type
                     tn.attrib['script'] = script.name
                     if 'callback' in script:
@@ -305,14 +297,27 @@ def create_test_report(config, dest_path, stylesheet, xmlname=""):
                             cnode = add_simple_node(tn, "callback")
                             if src.architecture.is_windows():
                                 import string
-                                cnode.text = filter(lambda x: x in string.printable,
-                                                    script.callback)
+                                cnode.text = filter(
+                                                lambda x: x in string.printable,
+                                                script.callback)
                             else:
-                                cnode.text = script.callback.decode('string_escape')
+                                cnode.text = script.callback.decode(
+                                                                'string_escape')
                         except UnicodeDecodeError as exc:
-                            zz = script.callback[:exc.start] + '?' + script.callback[exc.end-2:]
+                            zz = (script.callback[:exc.start] +
+                                  '?' +
+                                  script.callback[exc.end-2:])
                             cnode = add_simple_node(tn, "callback")
                             cnode.text = zz.decode("UTF-8")
+                    
+                    # Add the script content
+                    cnode = add_simple_node(tn, "content")
+                    cnode.text = script.content
+                    
+                    # Add the script execution log
+                    cnode = add_simple_node(tn, "out")
+                    cnode.text = script.out
+                    
                     if 'amend' in script:
                         cnode = add_simple_node(tn, "amend")
                         cnode.text = script.amend.decode("UTF-8")
@@ -325,8 +330,11 @@ def create_test_report(config, dest_path, stylesheet, xmlname=""):
 
                     if "amend" in script:
                         amend_test = add_simple_node(amend, "atest")
-                        amend_test.attrib['name'] = os.path.join(test.module, test.type, script.name)
-                        amend_test.attrib['reason'] = script.amend.decode("UTF-8")
+                        amend_test.attrib['name'] = os.path.join(test.module,
+                                                                 test.type,
+                                                                 script.name)
+                        amend_test.attrib['reason'] = script.amend.decode(
+                                                                        "UTF-8")
 
                     # calculate status
                     nb += 1
@@ -337,21 +345,29 @@ def create_test_report(config, dest_path, stylesheet, xmlname=""):
 
                     if "known_error" in script:
                         kf_script = add_simple_node(known_errors, "error")
-                        kf_script.attrib['name'] = os.path.join(test.module, test.type, script.name)
+                        kf_script.attrib['name'] = os.path.join(test.module,
+                                                                test.type,
+                                                                script.name)
                         kf_script.attrib['date'] = script.known_error.date
-                        kf_script.attrib['expected'] = script.known_error.expected
-                        kf_script.attrib['comment'] = script.known_error.comment.decode("UTF-8")
-                        kf_script.attrib['fixed'] = str(script.known_error.fixed)
-                        overdue = datetime.datetime.today().strftime("%Y-%m-%d") > script.known_error.expected
+                        kf_script.attrib[
+                                    'expected'] = script.known_error.expected
+                        kf_script.attrib[
+                         'comment'] = script.known_error.comment.decode("UTF-8")
+                        kf_script.attrib['fixed'] = str(
+                                                       script.known_error.fixed)
+                        overdue = datetime.datetime.today().strftime("%Y-%m-"
+                                            "%d") > script.known_error.expected
                         if overdue:
                             kf_script.attrib['overdue'] = str(overdue)
                         
                     elif script.res == src.KO_STATUS:
                         new_err = add_simple_node(new_errors, "new_error")
-                        script_path = os.path.join(test.module, test.type, script.name)
+                        script_path = os.path.join(test.module,
+                                                   test.type, script.name)
                         new_err.attrib['name'] = script_path
-                        new_err.attrib['cmd'] = "sat testerror %s -s %s -c 'my comment' -p %s" % \
-                            (application_name, script_path, config.VARS.dist)
+                        new_err.attrib['cmd'] = ("sat testerror %s -s %s -c 'my"
+                                                 " comment' -p %s" % \
+                            (application_name, script_path, config.VARS.dist))
 
 
             gn.attrib['total'] = str(nb)
@@ -365,7 +381,9 @@ def create_test_report(config, dest_path, stylesheet, xmlname=""):
     if not xmlname.endswith(".xml"):
         xmlname += ".xml"
 
-    write_report(os.path.join(dest_path, xmlname), root, stylesheet)
+    src.xmlManager.write_report(os.path.join(dest_path, xmlname),
+                                root,
+                                stylesheet)
     return src.OK_STATUS
 
 def run(args, runner, logger):
@@ -377,19 +395,19 @@ def run(args, runner, logger):
         raise src.SatException(_("The options --grid and --dir are not "
                                  "compatible!"))
 
-    with_product = False
+    with_application = False
     if runner.cfg.VARS.application != 'None':
         logger.write(_('Running tests on application %s\n') % 
                             src.printcolors.printcLabel(
                                                 runner.cfg.VARS.application), 1)
-        with_product = True
+        with_application = True
     elif options.dir:
         logger.write(_('Running tests from directory %s\n') % 
                             src.printcolors.printcLabel(options.dir), 1)
     elif not options.grid:
         raise src.SatException(_('a grid or a directory is required'))
 
-    if with_product:
+    if with_application:
         # check if environment is loaded
         if 'KERNEL_ROOT_DIR' in os.environ:
             logger.write(src.printcolors.printcWarning(_("WARNING: "
@@ -402,11 +420,6 @@ def run(args, runner, logger):
     else:
         logger.write(src.printcolors.printcWarning(_("WARNING running "
                                             "without a product.")) + "\n\n", 1)
-
-        # name for session is required
-        if not options.session:
-            raise src.SatException(_("--name argument is required when no "
-                                        "product is specified."))
 
         # check if environment is loaded
         if not 'KERNEL_ROOT_DIR' in os.environ:
@@ -422,7 +435,8 @@ def run(args, runner, logger):
         os.environ['DISPLAY'] = options.display
     elif 'DISPLAY' not in os.environ:
         # if no display set
-        if 'display' in runner.cfg.SITE.test and len(runner.cfg.SITE.test.display) > 0:
+        if ('display' in runner.cfg.SITE.test and 
+                                        len(runner.cfg.SITE.test.display) > 0):
             # use default value for test tool
             os.environ['DISPLAY'] = runner.cfg.SITE.test.display
         else:
@@ -430,8 +444,8 @@ def run(args, runner, logger):
 
     # initialization
     #################
-    if with_product:
-        tmp_dir = runner.cfg.SITE.test.tmp_dir_with_product
+    if with_application:
+        tmp_dir = runner.cfg.SITE.test.tmp_dir_with_application
     else:
         tmp_dir = runner.cfg.SITE.test.tmp_dir
 
@@ -461,7 +475,7 @@ def run(args, runner, logger):
     content = "\n".join(lines)
 
     # create hash from session information
-    dirname = sha1(content).hexdigest()
+    dirname = sha1(content.encode()).hexdigest()
     session_dir = os.path.join(tmp_dir, dirname)
     os.makedirs(session_dir)
     os.environ['TT_TMP_RESULT'] = session_dir
@@ -489,7 +503,8 @@ def run(args, runner, logger):
     grid = ""
     if options.grid:
         grid = options.grid
-    elif not options.dir and with_product and "test_base" in runner.cfg.APPLICATION:
+    elif (not options.dir and with_application and 
+                                        "test_base" in runner.cfg.APPLICATION):
         grid = runner.cfg.APPLICATION.test_base.name
 
     src.printcolors.print_value(logger, _('Display'), os.environ['DISPLAY'], 2)
@@ -516,7 +531,7 @@ def run(args, runner, logger):
     
     # run the test
     logger.allowPrintLevel = False
-    retcode = test_runner.run_all_tests(options.session)
+    retcode = test_runner.run_all_tests()
     logger.allowPrintLevel = True
 
     logger.write(_("Tests finished"), 1)
@@ -526,7 +541,10 @@ def run(args, runner, logger):
     out_dir = os.path.join(runner.cfg.SITE.log.log_dir, "TEST")
     src.ensure_path_exists(out_dir)
     name_xml_board = logger.logFileName.split(".")[0] + "board" + ".xml"
-    create_test_report(runner.cfg, out_dir, "test.xsl", xmlname = name_xml_board)
+    create_test_report(runner.cfg,
+                       out_dir,
+                       "test.xsl",
+                       xmlname = name_xml_board)
     xml_board_path = os.path.join(out_dir, name_xml_board)
     logger.l_logFiles.append(xml_board_path)
     logger.add_link(os.path.join("TEST", name_xml_board),
