@@ -268,8 +268,8 @@ class Job(object):
         self._stdout = None # Store the command outputs field
         self._stderr = None # Store the command errors field
 
-        self.out = None # Contains something only if the job is finished
-        self.err = None # Contains something only if the job is finished    
+        self.out = ""
+        self.err = ""
                
         self.commands = commands
         self.command = (os.path.join(self.machine.sat_path, "sat") +
@@ -337,8 +337,8 @@ class Job(object):
         if self._stdout.channel.closed:
             self._has_finished = True
             # Store the result outputs
-            self.out = self._stdout.read().decode()
-            self.err = self._stderr.read().decode()
+            self.out += self._stdout.read().decode()
+            self.err += self._stderr.read().decode()
             # Put end time
             self._Tf = time.time()
             # And get the remote command status and log files
@@ -348,7 +348,8 @@ class Job(object):
           
     def get_log_files(self):
         """Get the log files produced by the command launched 
-           on the remote machine.
+           on the remote machine, and put it in the log directory of the user,
+           so they can be accessible from 
         """
         # Do not get the files if the command is not finished
         if not self.has_finished():
@@ -385,7 +386,10 @@ class Job(object):
                 # internal traces.
                 # 2- The txt file containing the system command traces (like 
                 # traces produced by the "make" command)
-                if os.path.basename(os.path.dirname(job_path_remote)) != 'OUT':
+                # 3- In case of the test command, there is another file to get :
+                # the xml board that contain the test results
+                dirname = os.path.basename(os.path.dirname(job_path_remote))
+                if dirname != 'OUT' and dirname != 'TEST':
                     # Case 1-
                     local_path = os.path.join(os.path.dirname(
                                                         self.logger.logFilePath),
@@ -395,12 +399,19 @@ class Job(object):
                                              "job",
                                              self.res_job,
                                              self.command) 
-                else:
+                elif dirname == 'OUT':
                     # Case 2-
                     local_path = os.path.join(os.path.dirname(
                                                         self.logger.logFilePath),
                                               'OUT',
                                               os.path.basename(job_path_remote))
+                elif dirname == 'TEST':
+                    # Case 3-
+                    local_path = os.path.join(os.path.dirname(
+                                                        self.logger.logFilePath),
+                                              'TEST',
+                                              os.path.basename(job_path_remote))
+                
                 # Get the file
                 if not os.path.exists(local_path):
                     self.machine.sftp.get(job_path_remote, local_path)
@@ -435,8 +446,8 @@ class Job(object):
         self._has_begun = True
         self._has_finished = True
         self.cancelled = True
-        self.out = _("This job was not launched because its father has failed.")
-        self.err = _("This job was not launched because its father has failed.")
+        self.out += _("This job was not launched because its father has failed.")
+        self.err += _("This job was not launched because its father has failed.")
 
     def is_running(self):
         '''Returns True if the job commands are running 
@@ -477,8 +488,8 @@ class Job(object):
             self._Tf = time.time()
             self.get_pids()
             (out_kill, _) = self.kill_remote_process()
-            self.out = "TIMEOUT \n" + out_kill.read().decode()
-            self.err = "TIMEOUT : %s seconds elapsed\n" % str(self.timeout)
+            self.out += "TIMEOUT \n" + out_kill.read().decode()
+            self.err += "TIMEOUT : %s seconds elapsed\n" % str(self.timeout)
             try:
                 self.get_log_files()
             except Exception as e:
@@ -509,7 +520,7 @@ class Job(object):
         if not self.machine.successfully_connected(self.logger):
             self._has_finished = True
             self.out = "N\A"
-            self.err = ("Connection to machine (name : %s, host: %s, port:"
+            self.err += ("Connection to machine (name : %s, host: %s, port:"
                         " %s, user: %s) has failed\nUse the log command "
                         "to get more information."
                         % (self.machine.name,
@@ -526,8 +537,8 @@ class Job(object):
             if (self._stdin, self._stdout, self._stderr) == (None, None, None):
                 self._has_finished = True
                 self._Tf = time.time()
-                self.out = "N\A"
-                self.err = "The server failed to execute the command"
+                self.out += "N\A"
+                self.err += "The server failed to execute the command"
         
         # Put the beginning flag to true.
         self._has_begun = True
@@ -556,15 +567,12 @@ class Job(object):
         self.machine.write_info(self.logger)
         
         self.logger.write(src.printcolors.printcInfo("out : \n"))
-        if self.out is None:
+        if self.out == "":
             self.logger.write("Unable to get output\n")
         else:
             self.logger.write(self.out + "\n")
         self.logger.write(src.printcolors.printcInfo("err : \n"))
-        if self.err is None:
-            self.logger.write("Unable to get error\n")
-        else:
-            self.logger.write(self.err + "\n")
+        self.logger.write(self.err + "\n")
         
     def get_status(self):
         """Get the status of the job (used by the Gui for xml display)
@@ -1507,7 +1515,11 @@ def run(args, runner, logger):
         # find the potential not finished jobs and kill them
         for jb in today_jobs.ljobs:
             if not jb.has_finished():
-                jb.kill_remote_process()
+                try:
+                    jb.kill_remote_process()
+                except Exception as e:
+                    msg = _("Failed to kill job %s: %s\n" % (jb.name, e))
+                    logger.write(src.printcolors.printcWarning(msg))
         if interruped:
             if today_jobs.gui:
                 today_jobs.gui.last_update(_("Forced interruption"))
