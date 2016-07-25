@@ -26,7 +26,12 @@ except:
             exec(code, global_vars, local_vars)
 
 
-import os, sys, datetime, shutil, string
+import os
+import sys
+import datetime
+import shutil
+import string
+import imp
 import subprocess
 from . import fork
 import src
@@ -51,31 +56,20 @@ class Test:
                  config,
                  logger,
                  sessionDir,
-                 grid="",
+                 testbase="",
                  modules=None,
                  types=None,
-                 appli="",
-                 mode="normal",
-                 dir_="",
-                 show_desktop=True,
-                 light=False):
+                 launcher="",
+                 show_desktop=True):
         self.modules = modules
         self.config = config
         self.logger = logger
         self.sessionDir = sessionDir
-        self.dir = dir_
         self.types = types
-        self.appli = appli
-        self.mode = mode
+        self.launcher = launcher
         self.show_desktop = show_desktop
-        self.light = light
 
-        if len(self.dir) > 0:
-            self.logger.write("\n", 3, False)
-            self.prepare_grid_from_dir("DIR", self.dir)
-            self.currentGrid = "DIR"
-        else:
-            self.prepare_grid(grid)
+        self.prepare_testbase(testbase)
 
         self.settings = {}
         self.known_errors = None
@@ -98,22 +92,22 @@ class Test:
             shutil.copytree(source, target,
                             symlinks=True)
 
-    def prepare_grid_from_dir(self, grid_name, grid_dir):
-        self.logger.write(_("get grid from dir: %s\n") % \
-                          src.printcolors.printcLabel(grid_dir), 3)
-        if not os.access(grid_dir, os.X_OK):
+    def prepare_testbase_from_dir(self, testbase_name, testbase_dir):
+        self.logger.write(_("get test base from dir: %s\n") % \
+                          src.printcolors.printcLabel(testbase_dir), 3)
+        if not os.access(testbase_dir, os.X_OK):
             raise src.SatException(_("testbase %(name)s (%(dir)s) does not "
-                                     "exist ...\n") % { 'name': grid_name,
-                                                       'dir': grid_dir })
+                                     "exist ...\n") % { 'name': testbase_name,
+                                                       'dir': testbase_dir })
 
-        self._copy_dir(grid_dir,
-                       os.path.join(self.sessionDir, 'BASES', grid_name))
+        self._copy_dir(testbase_dir,
+                       os.path.join(self.sessionDir, 'BASES', testbase_name))
 
-    def prepare_grid_from_git(self, grid_name, grid_base, grid_tag):
+    def prepare_testbase_from_git(self, testbase_name, testbase_base, testbase_tag):
         self.logger.write(
-            _("get grid '%(grid)s' with '%(tag)s' tag from git\n") % {
-                               "grid" : src.printcolors.printcLabel(grid_name),
-                               "tag" : src.printcolors.printcLabel(grid_tag)},
+            _("get test base '%(testbase)s' with '%(tag)s' tag from git\n") % {
+                               "testbase" : src.printcolors.printcLabel(testbase_name),
+                               "tag" : src.printcolors.printcLabel(testbase_tag)},
                           3)
         try:
             def set_signal(): # pragma: no cover
@@ -123,14 +117,14 @@ class Test:
 
             cmd = "git clone --depth 1 %(base)s %(dir)s"
             cmd += " && cd %(dir)s"
-            if grid_tag=='master':
+            if testbase_tag=='master':
                 cmd += " && git fetch origin %(branch)s"
             else:
                 cmd += " && git fetch origin %(branch)s:%(branch)s"
             cmd += " && git checkout %(branch)s"
-            cmd = cmd % { 'branch': grid_tag,
-                         'base': grid_base,
-                         'dir': grid_name }
+            cmd = cmd % { 'branch': testbase_tag,
+                         'base': testbase_base,
+                         'dir': testbase_name }
 
             self.logger.write("> %s\n" % cmd, 5)
             if src.architecture.is_windows():
@@ -150,15 +144,15 @@ class Test:
             if res != 0:
                 raise src.SatException(_("Error: unable to get test base "
                                          "'%(name)s' from git '%(repo)s'.") % \
-                                       { 'name': grid_name, 'repo': grid_base })
+                                       { 'name': testbase_name, 'repo': testbase_base })
 
         except OSError:
             self.logger.error(_("git is not installed. exiting...\n"))
             sys.exit(0)
 
-    def prepare_grid_from_svn(self, user, grid_name, grid_base):
-        self.logger.write(_("get grid '%s' from svn\n") % \
-                          src.printcolors.printcLabel(grid_name), 3)
+    def prepare_testbase_from_svn(self, user, testbase_name, testbase_base):
+        self.logger.write(_("get test base '%s' from svn\n") % \
+                          src.printcolors.printcLabel(testbase_name), 3)
         try:
             def set_signal(): # pragma: no cover
                 """see http://bugs.python.org/issue1652"""
@@ -166,7 +160,7 @@ class Test:
                 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
             cmd = "svn checkout --username %(user)s %(base)s %(dir)s"
-            cmd = cmd % { 'user': user, 'base': grid_base, 'dir': grid_name }
+            cmd = cmd % { 'user': user, 'base': testbase_base, 'dir': testbase_name }
 
             self.logger.write("> %s\n" % cmd, 5)
             if src.architecture.is_windows():
@@ -187,7 +181,7 @@ class Test:
             if res != 0:
                 raise src.SatException(_("Error: unable to get test base '%(nam"
                                          "e)s' from svn '%(repo)s'.") % \
-                                       { 'name': grid_name, 'repo': grid_base })
+                                       { 'name': testbase_name, 'repo': testbase_base })
 
         except OSError:
             self.logger.error(_("svn is not installed. exiting...\n"))
@@ -195,45 +189,51 @@ class Test:
 
     ##
     # Configure tests base.
-    def prepare_grid(self, grid_name):
+    def prepare_testbase(self, test_base_name):
         src.printcolors.print_value(self.logger,
-                                    _("Testing grid"),
-                                    grid_name,
+                                    _("Test base"),
+                                    test_base_name,
                                     3)
         self.logger.write("\n", 3, False)
 
-        # search for the grid
+        # search for the test base
         test_base_info = None
         for project_name in self.config.PROJECTS.projects:
             project_info = self.config.PROJECTS.projects[project_name]
             for t_b_info in project_info.test_bases:
-                if t_b_info.name == grid_name:
+                if t_b_info.name == test_base_name:
                     test_base_info = t_b_info
         
         if not test_base_info:
-            message = _("########## WARNING: grid '%s' not found\n") % grid_name
+            if os.path.exists(test_base_name):
+                self.prepare_testbase_from_dir("DIR", test_base_name)
+                self.currentTestBase = "DIR"
+                return 0
+        
+        if not test_base_info:
+            message = _("########## WARNING: base '%s' not found\n") % test_base_name
             raise src.SatException(message)
 
         if test_base_info.get_sources == "dir":
-            self.prepare_grid_from_dir(grid_name, test_base_info.info.dir)
+            self.prepare_testbase_from_dir(test_base_name, test_base_info.info.dir)
         elif test_base_info.get_sources == "git":
-            self.prepare_grid_from_git(grid_name,
+            self.prepare_testbase_from_git(test_base_name,
                                        test_base_info.info.base,
                                        self.config.APPLICATION.test_base.tag)
         elif test_base_info.get_sources == "svn":
             svn_user = src.get_cfg_param(test_base_info.svn_info,
                                          "svn_user",
                                          self.config.USER.svn_user)
-            self.prepare_grid_from_svn(svn_user,
-                                       grid_name,
+            self.prepare_testbase_from_svn(svn_user,
+                                       test_base_name,
                                        test_base_info.info.base)
         else:
-            raise src.SatException(_("unknown source type '%(type)s' for testb"
-                                     "ase '%(grid)s' ...\n") % {
+            raise src.SatException(_("unknown source type '%(type)s' for test b"
+                                     "ase '%(base)s' ...\n") % {
                                         'type': test_base_info.get_sources,
-                                        'grid': grid_name })
+                                        'base': test_base_name })
 
-        self.currentGrid = grid_name
+        self.currentTestBase = test_base_name
 
     ##
     # Searches if the script is declared in known errors pyconf.
@@ -398,11 +398,11 @@ class Test:
                                                       "KERNEL").install_dir
 
         # Case where there the appli option is called (with path to launcher)
-        if len(self.appli) > 0:
+        if len(self.launcher) > 0:
             # There are two cases : The old application (runAppli) 
             # and the new one
-            launcherName = os.path.basename(self.appli)
-            launcherDir = os.path.dirname(self.appli)
+            launcherName = os.path.basename(self.launcher)
+            launcherDir = os.path.dirname(self.launcher)
             if launcherName == 'runAppli':
                 # Old application
                 cmd = "for i in " + launcherDir + "/env.d/*.sh; do source ${i};"
@@ -410,7 +410,7 @@ class Test:
             else:
                 # New application
                 cmd = "echo -e 'import os\nprint os.environ[\"KERNEL_ROOT_DIR\""
-                "]' > tmpscript.py; %s shell tmpscript.py" % self.appli
+                "]' > tmpscript.py; %s shell tmpscript.py" % self.launcher
             root_dir = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
                             shell=True,
@@ -418,7 +418,7 @@ class Test:
         
         # import module salome_utils from KERNEL that gives 
         # the right getTmpDir function
-        import imp
+        
         (file_, pathname, description) = imp.find_module("salome_utils",
                                                          [os.path.join(root_dir,
                                                                     'bin',
@@ -465,14 +465,14 @@ class Test:
             return binSalome, binPython, killSalome
         
         # Case where there the appli option is called (with path to launcher)
-        if len(self.appli) > 0:
+        if len(self.launcher) > 0:
             # There are two cases : The old application (runAppli) 
             # and the new one
-            launcherName = os.path.basename(self.appli)
-            launcherDir = os.path.dirname(self.appli)
+            launcherName = os.path.basename(self.launcher)
+            launcherDir = os.path.dirname(self.launcher)
             if launcherName == 'runAppli':
                 # Old application
-                binSalome = self.appli
+                binSalome = self.launcher
                 binPython = ("for i in " +
                              launcherDir +
                              "/env.d/*.sh; do source ${i}; done ; python")
@@ -482,9 +482,9 @@ class Test:
                 return binSalome, binPython, killSalome
             else:
                 # New application
-                binSalome = self.appli
-                binPython = self.appli + ' context'
-                killSalome = self.appli + ' killall'
+                binSalome = self.launcher
+                binPython = self.launcher + ' shell'
+                killSalome = self.launcher + ' killall'
                 return binSalome, binPython, killSalome
 
         # SALOME version detection and APPLI repository detection
@@ -520,7 +520,7 @@ class Test:
             if src.architecture.is_windows():
                 binSalome += '.bat'
 
-            binPython = binSalome + ' context'
+            binPython = binSalome + ' shell'
             killSalome = binSalome + ' killall'
             return binSalome, binPython, killSalome
                 
@@ -557,10 +557,10 @@ class Test:
         logWay = os.path.join(self.sessionDir, "WORK", "log_cxx")
 
         status = False
-        ellapsed = -1
+        elapsed = -1
         if self.currentType.startswith("NOGUI_"):
             # runSalome -t (bash)
-            status, ellapsed = fork.batch(binSalome, self.logger,
+            status, elapsed = fork.batch(binSalome, self.logger,
                                         os.path.join(self.sessionDir, "WORK"),
                                         [ "-t",
                                          "--shutdown-server=1",
@@ -570,7 +570,7 @@ class Test:
 
         elif self.currentType.startswith("PY_"):
             # python script.py
-            status, ellapsed = fork.batch(binPython, self.logger,
+            status, elapsed = fork.batch(binPython, self.logger,
                                           os.path.join(self.sessionDir, "WORK"),
                                           [script_path],
                                           delai=time_out, log=logWay)
@@ -578,7 +578,7 @@ class Test:
         else:
             opt = "-z 0"
             if self.show_desktop: opt = "--show-desktop=0"
-            status, ellapsed = fork.batch_salome(binSalome,
+            status, elapsed = fork.batch_salome(binSalome,
                                                  self.logger,
                                                  os.path.join(self.sessionDir,
                                                               "WORK"),
@@ -591,17 +591,17 @@ class Test:
                                                  log=logWay,
                                                  delaiapp=time_out_salome)
 
-        self.logger.write("status = %s, ellapsed = %s\n" % (status, ellapsed),
+        self.logger.write("status = %s, elapsed = %s\n" % (status, elapsed),
                           5)
 
         # create the test result to add in the config object
         test_info = src.pyconf.Mapping(self.config)
-        test_info.grid = self.currentGrid
+        test_info.testbase = self.currentTestBase
         test_info.module = self.currentModule
         test_info.type = self.currentType
         test_info.script = src.pyconf.Sequence(self.config)
 
-        script_results = self.read_results(listTest, ellapsed == time_out)
+        script_results = self.read_results(listTest, elapsed == time_out)
         for sr in sorted(script_results.keys()):
             self.nb_run += 1
 
@@ -665,13 +665,8 @@ class Test:
 
     ##
     # Runs all tests of a type.
-    def run_type_tests(self, light_test):
-        if self.light:
-            if not any(map(lambda l: l.startswith(self.currentType),
-                           light_test)):
-                # no test to run => skip
-                return
-        
+    def run_type_tests(self):
+       
         self.logger.write(self.write_test_margin(2), 3)
         self.logger.write("Type = %s\n" % src.printcolors.printcLabel(
                                                     self.currentType), 3, False)
@@ -682,10 +677,6 @@ class Test:
                                         self.currentType))
         tests = filter(lambda l: l.endswith(".py"), tests)
         tests = sorted(tests, key=str.lower)
-
-        if self.light:
-            tests = filter(lambda l: os.path.join(self.currentType,
-                                                  l) in light_test, tests)
 
         # build list of known failures
         cat = "%s/%s/" % (self.currentModule, self.currentType)
@@ -715,23 +706,6 @@ class Test:
             types = filter(lambda l: os.path.isdir(os.path.join(module_path,
                                                                 l)), types)
 
-        # in batch mode keep only modules with NOGUI or PY
-        if self.mode == "batch":
-            types = filter(lambda l: ("NOGUI" in l or "PY" in l), types)
-
-        light_test = []
-        if self.light:
-            light_path = os.path.join(module_path, C_TESTS_LIGHT_FILE)
-            if not os.path.exists(light_path):
-                types = []
-                msg = src.printcolors.printcWarning(_("List of light tests not"
-                                                    " found: %s") % light_path)
-                self.logger.write(msg + "\n")
-            else:
-                # read the file
-                light_file = open(light_path, "r")
-                light_test = map(lambda l: l.strip(), light_file.readlines())
-
         types = sorted(types, key=str.lower)
         for type_ in types:
             if not os.path.exists(os.path.join(module_path, type_)):
@@ -740,11 +714,11 @@ class Test:
                                             "found" % type_) + "\n", 3, False)
             else:
                 self.currentType = type_
-                self.run_type_tests(light_test)
+                self.run_type_tests()
 
     ##
-    # Runs test grid.
-    def run_grid_tests(self):
+    # Runs test testbase.
+    def run_testbase_tests(self):
         res_dir = os.path.join(self.currentDir, "RESSOURCES")
         os.environ['PYTHONPATH'] =  (res_dir + 
                                      os.pathsep + 
@@ -757,10 +731,10 @@ class Test:
         self.logger.write("\n", 4, False)
 
         self.logger.write(self.write_test_margin(0), 3)
-        grid_label = "Grid = %s\n" % src.printcolors.printcLabel(
-                                                            self.currentGrid)
-        self.logger.write(grid_label, 3, False)
-        self.logger.write("-" * len(src.printcolors.cleancolor(grid_label)), 3)
+        testbase_label = "Test base = %s\n" % src.printcolors.printcLabel(
+                                                            self.currentTestBase)
+        self.logger.write(testbase_label, 3, False)
+        self.logger.write("-" * len(src.printcolors.cleancolor(testbase_label)), 3)
         self.logger.write("\n", 3, False)
 
         # load settings
@@ -838,8 +812,8 @@ class Test:
         self.logger.write("\n", 2, False)
         self.currentDir = os.path.join(self.sessionDir,
                                        'BASES',
-                                       self.currentGrid)
-        self.run_grid_tests()
+                                       self.currentTestBase)
+        self.run_testbase_tests()
 
         # calculate total execution time
         totalTime = datetime.datetime.now() - initTime

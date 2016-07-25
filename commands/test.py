@@ -34,25 +34,20 @@ from src.xmlManager import add_simple_node
 
 # Define all possible option for the test command :  sat test <options>
 parser = src.options.Options()
-parser.add_option('a', 'appli', 'string', 'appli',
-    _('Use this option to specify the path to an installed application.'))
-parser.add_option('g', 'grid', 'string', 'grid',
-    _("Indicate the name of the grid to test.\n\tThis name has to be registered"
-      " in sat. If your test base is not known by sat, use the option --dir."))
+parser.add_option('b', 'base', 'string', 'base',
+    _("Indicate the name of the test base to use.\n\tThis name has to be "
+      "registered in your application and in a project.\n\tA path to a test "
+      "base can also be used."))
+parser.add_option('l', 'launcher', 'string', 'launcher',
+    _("Use this option to specify the path to a SALOME launcher to use to "
+      "launch the test scripts of the test base."))
 parser.add_option('m', 'module', 'list', 'modules',
-    _('Indicate which module(s) to test (subdirectory of the grid).'))
+    _('Indicate which module(s) to test (subdirectory of the test base).'))
 parser.add_option('t', 'type', 'list', 'types',
     _('Indicate which type(s) to test (subdirectory of the module).'))
-parser.add_option('d', 'dir', 'string', 'dir',
-    _('Indicate the directory containing the test base.'), "")
-parser.add_option('', 'mode', 'string', 'mode',
-    _("Indicate which kind of test to run. If MODE is 'batch' only python and"
-      " NO_GUI tests are run."), "normal")
 parser.add_option('', 'display', 'string', 'display',
     _("Set the display where to launch SALOME."
 "\tIf value is NO then option --show-desktop=0 will be used to launch SALOME."))
-parser.add_option('', 'light', 'boolean', 'light',
-    _('Only run minimal tests declared in TestsLight.txt.'), False)
 
 def description():
     '''method that is called when salomeTools is called with --help option.
@@ -72,17 +67,17 @@ def parse_option(args, config):
     """
     (options, args) = parser.parse_args(args)
 
-    if not options.appli:
-        options.appli = ""
-    elif not os.path.isabs(options.appli):
+    if not options.launcher:
+        options.launcher = ""
+    elif not os.path.isabs(options.launcher):
         if not src.config_has_application(config):
             raise src.SatException(_("An application is required to use a "
                                      "relative path with option --appli"))
-        options.appli = os.path.join(config.APPLICATION.workdir, options.appli)
+        options.launcher = os.path.join(config.APPLICATION.workdir, options.launcher)
 
-        if not os.path.exists(options.appli):
-            raise src.SatException(_("Application not found: %s") % 
-                                   options.appli)
+        if not os.path.exists(options.launcher):
+            raise src.SatException(_("Launcher not found: %s") % 
+                                   options.launcher)
 
     return (options, args)
 
@@ -153,26 +148,26 @@ def move_test_results(in_dir, what, out_dir, logger):
         shutil.copy2(os.path.join(in_dir, what, 'env_info.py'),
                      os.path.join(finalPath, what, 'env_info.py'))
 
-        # for all sub directory (ie grid) in the BASES directory
-        for grid in os.listdir(os.path.join(in_dir, what, 'BASES')):
-            outgrid = os.path.join(finalPath, what, 'BASES', grid)
-            ingrid = os.path.join(in_dir, what, 'BASES', grid)
+        # for all sub directory (ie testbase) in the BASES directory
+        for testbase in os.listdir(os.path.join(in_dir, what, 'BASES')):
+            outtestbase = os.path.join(finalPath, what, 'BASES', testbase)
+            intestbase = os.path.join(in_dir, what, 'BASES', testbase)
 
             # ignore files in root dir
-            if not os.path.isdir(ingrid):
+            if not os.path.isdir(intestbase):
                 continue
 
-            os.makedirs(outgrid)
-            #logger.write("  copy grid %s\n" % grid, 5)
+            os.makedirs(outtestbase)
+            #logger.write("  copy testbase %s\n" % testbase, 5)
 
-            for module_ in [m for m in os.listdir(ingrid) if os.path.isdir(
-                                                    os.path.join(ingrid, m))]:
+            for module_ in [m for m in os.listdir(intestbase) if os.path.isdir(
+                                                    os.path.join(intestbase, m))]:
                 # ignore source configuration directories
                 if module_[:4] == '.git' or module_ == 'CVS':
                     continue
 
-                outmodule = os.path.join(outgrid, module_)
-                inmodule = os.path.join(ingrid, module_)
+                outmodule = os.path.join(outtestbase, module_)
+                inmodule = os.path.join(intestbase, module_)
                 os.makedirs(outmodule)
                 #logger.write("    copy module %s\n" % module_, 5)
 
@@ -222,7 +217,8 @@ def check_remote_machine(machine_name, logger):
     if p.returncode != 0:
         logger.write(src.printcolors.printc(src.KO_STATUS) + "\n", 1)
         logger.write("    " + src.printcolors.printcError(p.stderr.read()), 2)
-        raise src.SatException("No ssh access to the display machine.")
+        logger.write(src.printcolors.printcWarning((
+                                    "No ssh access to the display machine.")),1)
     else:
         logger.write(src.printcolors.printcSuccess(src.OK_STATUS) + "\n\n", 4)
 
@@ -264,18 +260,18 @@ def create_test_report(config, dest_path, stylesheet, xmlname=""):
         amend = add_simple_node(prod_node, "amend")
         tt = {}
         for test in config.TESTS:
-            if not tt.has_key(test.grid):
-                tt[test.grid] = [test]
+            if not tt.has_key(test.testbase):
+                tt[test.testbase] = [test]
             else:
-                tt[test.grid].append(test)
+                tt[test.testbase].append(test)
 
-        for grid in tt.keys():
-            gn = add_simple_node(tests, "grid")
-            gn.attrib['name'] = grid
+        for testbase in tt.keys():
+            gn = add_simple_node(tests, "testbase")
+            gn.attrib['name'] = testbase
             nb, nb_pass, nb_failed, nb_timeout, nb_not_run = 0, 0, 0, 0, 0
             modules = {}
             types = {}
-            for test in tt[grid]:
+            for test in tt[testbase]:
                 #print test.module
                 if not modules.has_key(test.module):
                     mn = add_simple_node(gn, "module")
@@ -391,21 +387,15 @@ def run(args, runner, logger):
     '''
     (options, args) = parse_option(args, runner.cfg)
 
-    if options.grid and options.dir:
-        raise src.SatException(_("The options --grid and --dir are not "
-                                 "compatible!"))
-
     with_application = False
     if runner.cfg.VARS.application != 'None':
         logger.write(_('Running tests on application %s\n') % 
                             src.printcolors.printcLabel(
                                                 runner.cfg.VARS.application), 1)
         with_application = True
-    elif options.dir:
-        logger.write(_('Running tests from directory %s\n') % 
-                            src.printcolors.printcLabel(options.dir), 1)
-    elif not options.grid:
-        raise src.SatException(_('a grid or a directory is required'))
+    elif not options.base:
+        raise src.SatException(_('A test base is required. Use the --base '
+                                 'option'))
 
     if with_application:
         # check if environment is loaded
@@ -414,16 +404,15 @@ def run(args, runner, logger):
                             "SALOME environment already sourced")) + "\n", 1)
             
         
-    elif options.appli:
+    elif options.launcher:
         logger.write(src.printcolors.printcWarning(_("Running SALOME "
                                                 "application.")) + "\n\n", 1)
     else:
-        logger.write(src.printcolors.printcWarning(_("WARNING running "
-                                            "without a product.")) + "\n\n", 1)
-
-        # check if environment is loaded
-        if not 'KERNEL_ROOT_DIR' in os.environ:
-            raise src.SatException(_("SALOME environment not found") + "\n")
+        msg = _("Impossible to find any launcher.\nPlease specify an "
+                "application or a launcher")
+        logger.write(src.printcolors.printcError(msg))
+        logger.write("\n")
+        return 1
 
     # set the display
     show_desktop = (options.display and options.display.upper() == "NO")
@@ -476,19 +465,19 @@ def run(args, runner, logger):
 
     # create hash from session information
     dirname = sha1(content.encode()).hexdigest()
-    session_dir = os.path.join(tmp_dir, dirname)
-    os.makedirs(session_dir)
-    os.environ['TT_TMP_RESULT'] = session_dir
+    base_dir = os.path.join(tmp_dir, dirname)
+    os.makedirs(base_dir)
+    os.environ['TT_TMP_RESULT'] = base_dir
 
     # create env_info file
-    f = open(os.path.join(session_dir, 'env_info.py'), "w")
+    f = open(os.path.join(base_dir, 'env_info.py'), "w")
     f.write(content)
     f.close()
 
     # create working dir and bases dir
-    working_dir = os.path.join(session_dir, 'WORK')
+    working_dir = os.path.join(base_dir, 'WORK')
     os.makedirs(working_dir)
-    os.makedirs(os.path.join(session_dir, 'BASES'))
+    os.makedirs(os.path.join(base_dir, 'BASES'))
     os.chdir(working_dir)
 
     if 'PYTHONPATH' not in os.environ:
@@ -500,34 +489,26 @@ def run(args, runner, logger):
 
     # launch of the tests
     #####################
-    grid = ""
-    if options.grid:
-        grid = options.grid
-    elif (not options.dir and with_application and 
-                                        "test_base" in runner.cfg.APPLICATION):
-        grid = runner.cfg.APPLICATION.test_base.name
+    test_base = ""
+    if options.base:
+        test_base = options.base
+    elif with_application and "test_base" in runner.cfg.APPLICATION:
+        test_base = runner.cfg.APPLICATION.test_base.name
 
     src.printcolors.print_value(logger, _('Display'), os.environ['DISPLAY'], 2)
     src.printcolors.print_value(logger, _('Timeout'),
                                 runner.cfg.SITE.test.timeout, 2)
-    if 'timeout_app' in runner.cfg.SITE.test:
-        src.printcolors.print_value(logger, _('Timeout Salome'),
-                                    runner.cfg.SITE.test.timeout_app, 2)
-    src.printcolors.print_value(logger, _('Light mode'), options.light, 2)
-    src.printcolors.print_value(logger, _("Working dir"), session_dir, 3)
+    src.printcolors.print_value(logger, _("Working dir"), base_dir, 3)
 
     # create the test object
     test_runner = src.test_module.Test(runner.cfg,
                                   logger,
-                                  session_dir,
-                                  grid=grid,
+                                  base_dir,
+                                  testbase=test_base,
                                   modules=options.modules,
                                   types=options.types,
-                                  appli=options.appli,
-                                  mode=options.mode,
-                                  dir_=options.dir,
-                                  show_desktop=show_desktop,
-                                  light=options.light)
+                                  launcher=options.launcher,
+                                  show_desktop=show_desktop)
     
     # run the test
     logger.allowPrintLevel = False

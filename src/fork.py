@@ -22,14 +22,25 @@ import time
 import pickle
 import subprocess
 
-# Display progress
-# ----------------
 def show_progress(logger, top, delai, ss=""):
+    """shortcut function to display the progression
+    
+    :param logger Logger: The logging instance
+    :param top int: the number to display
+    :param delai int: the number max
+    :param ss str: the string to display
+    """
     logger.write("\r%s\r%s %s / %s " % ((" " * 30), ss, top, (delai - top)), 4,
                  False)
     logger.flush()
 
 def write_back(logger, message, level):
+    """shortcut function to write at the begin of the line
+    
+    :param logger Logger: The logging instance
+    :param message str: the text to display
+    :param level int: the level of verbosity
+    """
     logger.write("\r%s\r%s" % ((" " * 40), message), level)
 
 # Launch command

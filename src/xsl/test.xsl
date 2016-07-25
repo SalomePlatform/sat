@@ -74,7 +74,7 @@
                   background: #bbbbbb;
                 }
     span.zero   { color: #A0A0A0; }
-    a.node      { color:#0000FF; text-decoration: none; visited: #FF0000; }
+    a.node      { color: #0000FF }
 
 </style>
 <script language="JavaScript"><![CDATA[
@@ -121,15 +121,15 @@
 
   <h3>Tests</h3>
     
-  <xsl:for-each select="tests/grid">
-    <b>grid <xsl:value-of select="@name" /></b><br/><br/>
+  <xsl:for-each select="tests/testbase">
+    <b>test base <xsl:value-of select="@name" /></b><br/><br/>
     <a name="test"/>
-    <xsl:apply-templates select="." mode="test-grid" />
+    <xsl:apply-templates select="." mode="test-base" />
   </xsl:for-each>
 
 </xsl:template>
 
-<xsl:template match="grid" mode="test-grid">
+<xsl:template match="testbase" mode="test-base">
   <table>
     <!-- Header -->
     <tr bgcolor="#9acd32">
@@ -291,13 +291,13 @@
             <tr>
               <td align="left">
 		    <xsl:attribute name="class"><xsl:value-of select="@res" /></xsl:attribute>
-		    <a href="#content">
+		    <a href="#content" class="node">
 			    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>')</xsl:attribute>
 			    <xsl:attribute name="title">Click to see the script content</xsl:attribute>
 			    <xsl:value-of select="@script" />
 		    </a>
 		    &#160;
-		    <a href="#content">
+		    <a href="#content" class="node">
 			    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>log')</xsl:attribute>
 			    <xsl:attribute name="title">Click to see the execution log</xsl:attribute>
 			    log
@@ -313,13 +313,13 @@
           <xsl:otherwise>
             <tr>
               <td align="left">
-		    <a href="#content">
+		    <a href="#content" class="node">
 			    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>')</xsl:attribute>
 			    <xsl:attribute name="title">Click to see the script content</xsl:attribute>
 			    <xsl:value-of select="@script" />
 		    </a>
 		    &#160;
-		    <a href="#content">
+		    <a href="#content" class="node">
 			    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>log')</xsl:attribute>
 			    <xsl:attribute name="title">Click to see the execution log</xsl:attribute>
 			    log

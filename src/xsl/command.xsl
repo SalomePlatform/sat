@@ -4,30 +4,40 @@
 <xsl:template match="/">
 
 <head>  
-    <title>SAlomeTools log</title>
-    <style type="text/css">
-        table       { width : 100%;
-                      margin:1px;
-                      padding:1px;
-                      border-collapse:collapse;
-                      empty-cells : show;
-                    }
-        td          { vertical-align : center; padding: 15px; }
-        h1          { text-align : center; }
-        .legend     { font-weight : bold;
-                      text-align : center;
-                    } 
-        .def        { font-family: Arial, Verdana, "Times New Roman", Times, serif;}
-        hr.note     { color: #BFBFBF; }
-        .note       { text-align : right; font-style: italic; font-size: small; }
-        div.release { -moz-column-count: 2;
-                      overflow: auto;
-                      max-height: 250px;
-                    }
-        .OK2        { color:#00AA00; }
-	.KO2        { color:#FF0000; }
-    </style>
-       
+      <title>SAlomeTools log</title>
+      <style type="text/css">
+	  table       { width : 100%;
+			margin:1px;
+			padding:1px;
+			border-collapse:collapse;
+			empty-cells : show;
+		      }
+	  td          { vertical-align : center; padding: 15px; }
+	  h1          { text-align : center; }
+	  .legend     { font-weight : bold;
+			text-align : center;
+		      } 
+	  .def        { font-family: Arial, Verdana, "Times New Roman", Times, serif;}
+	  hr.note     { color: #BFBFBF; }
+	  .note       { text-align : right; font-style: italic; font-size: small; }
+	  div.release { -moz-column-count: 2;
+			overflow: auto;
+			max-height: 250px;
+		      }
+	  .OK2        { color:#00AA00; }
+	  .KO2        { color:#FF0000; }
+      </style>
+      <script language="JavaScript"><![CDATA[
+	    function Toggle(id) {
+	      var element = document.getElementById(id);
+
+	      if ( element.style.display == "none" )
+		  element.style.display = "block";
+	      else 
+		  element.style.display = "none";
+	    }
+	  ]]>
+      </script>
 </head>
 	<body class="def" bgcolor="aliceblue">
 		<h1><img src="LOGO-SAT.png"/></h1>
@@ -46,8 +56,17 @@
 			</tr>
 		</table>
 		
-		<h1>command's internal traces</h1>
-		<PRE><xsl:value-of select="SATcommand/Log"/></PRE>
+		<h1>command's internal traces
+		<a href="#">
+		      <xsl:attribute name="onclick">javascript:Toggle('log')</xsl:attribute>
+		      <xsl:attribute name="title">Click to see the command log</xsl:attribute>
+		      collapse / expand
+		</a>
+		</h1>
+		
+		<div style="display:block"><xsl:attribute name="id">log</xsl:attribute>
+		    <PRE><xsl:value-of select="SATcommand/Log"/></PRE>
+		</div>
 		
 		<h1>Links</h1>
 		<table border="1">

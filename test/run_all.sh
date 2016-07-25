@@ -43,6 +43,7 @@ coverage run --source=../commands/config.py,../commands/compile.py,../commands/c
 coverage run --source=../commands/shell.py -a shell/test_shell.py >> test_res.html
 coverage run --source=../commands/job.py -a job/test_job.py >> test_res.html
 coverage run --source=../commands/jobs.py -a jobs/test_jobs.py >> test_res.html
+coverage run --source=../commands/test.py,../src/test_module.py,../src/fork.py -a test/test_command.py >> test_res.html
 echo "****************************"
 echo
 echo "building html coverage"
