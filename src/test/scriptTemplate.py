@@ -8,7 +8,7 @@ import time as THEBIGTIME
 # set path
 toolsWay = r'${toolsWay}'
 resourcesWay = r'${resourcesWay}'
-outWay = r'${typeDir}'
+outWay = r'${sessionDir}'
 tmpDir = r'${tmpDir}'
 
 listTest = ${listTest}
@@ -85,7 +85,7 @@ for test in listTest:
 exec_result.write('Close\n')
 exec_result.close()
 
-if 'PY' not in '${typeName}':
+if 'PY' not in '${sessionName}':
     import salome_utils
     killScript = os.path.join(os.environ['KERNEL_ROOT_DIR'],
                               'bin',

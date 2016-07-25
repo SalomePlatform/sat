@@ -41,10 +41,10 @@ parser.add_option('b', 'base', 'string', 'base',
 parser.add_option('l', 'launcher', 'string', 'launcher',
     _("Use this option to specify the path to a SALOME launcher to use to "
       "launch the test scripts of the test base."))
-parser.add_option('m', 'module', 'list', 'modules',
-    _('Indicate which module(s) to test (subdirectory of the test base).'))
-parser.add_option('t', 'type', 'list', 'types',
-    _('Indicate which type(s) to test (subdirectory of the module).'))
+parser.add_option('g', 'grid', 'list', 'grids',
+    _('Indicate which grid(s) to test (subdirectory of the test base).'))
+parser.add_option('s', 'session', 'list', 'sessions',
+    _('Indicate which session(s) to test (subdirectory of the grid).'))
 parser.add_option('', 'display', 'string', 'display',
     _("Set the display where to launch SALOME."
 "\tIf value is NO then option --show-desktop=0 will be used to launch SALOME."))
@@ -161,43 +161,43 @@ def move_test_results(in_dir, what, out_dir, logger):
             os.makedirs(outtestbase)
             #logger.write("  copy testbase %s\n" % testbase, 5)
 
-            for module_ in [m for m in os.listdir(intestbase) if os.path.isdir(
+            for grid_ in [m for m in os.listdir(intestbase) if os.path.isdir(
                                                 os.path.join(intestbase, m))]:
                 # ignore source configuration directories
-                if module_[:4] == '.git' or module_ == 'CVS':
+                if grid_[:4] == '.git' or grid_ == 'CVS':
                     continue
 
-                outmodule = os.path.join(outtestbase, module_)
-                inmodule = os.path.join(intestbase, module_)
-                os.makedirs(outmodule)
-                #logger.write("    copy module %s\n" % module_, 5)
+                outgrid = os.path.join(outtestbase, grid_)
+                ingrid = os.path.join(intestbase, grid_)
+                os.makedirs(outgrid)
+                #logger.write("    copy grid %s\n" % grid_, 5)
 
-                if module_ == 'RESSOURCES':
-                    for file_name in os.listdir(inmodule):
-                        if not os.path.isfile(os.path.join(inmodule,
+                if grid_ == 'RESSOURCES':
+                    for file_name in os.listdir(ingrid):
+                        if not os.path.isfile(os.path.join(ingrid,
                                                            file_name)):
                             continue
-                        f = open(os.path.join(outmodule, file_name), "w")
-                        f.write(save_file(os.path.join(inmodule, file_name),
+                        f = open(os.path.join(outgrid, file_name), "w")
+                        f.write(save_file(os.path.join(ingrid, file_name),
                                           finalPath))
                         f.close()
                 else:
-                    for type_name in [t for t in os.listdir(inmodule) if 
-                                      os.path.isdir(os.path.join(inmodule, t))]:
-                        outtype = os.path.join(outmodule, type_name)
-                        intype = os.path.join(inmodule, type_name)
-                        os.makedirs(outtype)
+                    for session_name in [t for t in os.listdir(ingrid) if 
+                                      os.path.isdir(os.path.join(ingrid, t))]:
+                        outsession = os.path.join(outgrid, session_name)
+                        insession = os.path.join(ingrid, session_name)
+                        os.makedirs(outsession)
                         
-                        for file_name in os.listdir(intype):
-                            if not os.path.isfile(os.path.join(intype,
+                        for file_name in os.listdir(insession):
+                            if not os.path.isfile(os.path.join(insession,
                                                                file_name)):
                                 continue
                             if file_name.endswith('result.py'):
-                                shutil.copy2(os.path.join(intype, file_name),
-                                             os.path.join(outtype, file_name))
+                                shutil.copy2(os.path.join(insession, file_name),
+                                             os.path.join(outsession, file_name))
                             else:
-                                f = open(os.path.join(outtype, file_name), "w")
-                                f.write(save_file(os.path.join(intype,
+                                f = open(os.path.join(outsession, file_name), "w")
+                                f.write(save_file(os.path.join(insession,
                                                                file_name),
                                                   finalPath))
                                 f.close()
@@ -270,24 +270,24 @@ def create_test_report(config, dest_path, stylesheet, xmlname=""):
             gn = add_simple_node(tests, "testbase")
             gn.attrib['name'] = testbase
             nb, nb_pass, nb_failed, nb_timeout, nb_not_run = 0, 0, 0, 0, 0
-            modules = {}
-            types = {}
+            grids = {}
+            sessions = {}
             for test in tt[testbase]:
-                #print test.module
-                if not modules.has_key(test.module):
-                    mn = add_simple_node(gn, "module")
-                    mn.attrib['name'] = test.module
-                    modules[test.module] = mn
+                #print test.grid
+                if not grids.has_key(test.grid):
+                    mn = add_simple_node(gn, "grid")
+                    mn.attrib['name'] = test.grid
+                    grids[test.grid] = mn
 
-                if not types.has_key("%s/%s" % (test.module, test.type)):
-                    tyn = add_simple_node(mn, "type")
-                    tyn.attrib['name'] = test.type
-                    types["%s/%s" % (test.module, test.type)] = tyn
+                if not sessions.has_key("%s/%s" % (test.grid, test.session)):
+                    tyn = add_simple_node(mn, "session")
+                    tyn.attrib['name'] = test.session
+                    sessions["%s/%s" % (test.grid, test.session)] = tyn
 
                 for script in test.script:
-                    tn = add_simple_node(types[
-                                    "%s/%s" % (test.module, test.type)], "test")
-                    tn.attrib['type'] = test.type
+                    tn = add_simple_node(sessions[
+                                    "%s/%s" % (test.grid, test.session)], "test")
+                    tn.attrib['session'] = test.session
                     tn.attrib['script'] = script.name
                     if 'callback' in script:
                         try:
@@ -327,8 +327,8 @@ def create_test_report(config, dest_path, stylesheet, xmlname=""):
 
                     if "amend" in script:
                         amend_test = add_simple_node(amend, "atest")
-                        amend_test.attrib['name'] = os.path.join(test.module,
-                                                                 test.type,
+                        amend_test.attrib['name'] = os.path.join(test.grid,
+                                                                 test.session,
                                                                  script.name)
                         amend_test.attrib['reason'] = script.amend.decode(
                                                                         "UTF-8")
@@ -342,8 +342,8 @@ def create_test_report(config, dest_path, stylesheet, xmlname=""):
 
                     if "known_error" in script:
                         kf_script = add_simple_node(known_errors, "error")
-                        kf_script.attrib['name'] = os.path.join(test.module,
-                                                                test.type,
+                        kf_script.attrib['name'] = os.path.join(test.grid,
+                                                                test.session,
                                                                 script.name)
                         kf_script.attrib['date'] = script.known_error.date
                         kf_script.attrib[
@@ -359,8 +359,8 @@ def create_test_report(config, dest_path, stylesheet, xmlname=""):
                         
                     elif script.res == src.KO_STATUS:
                         new_err = add_simple_node(new_errors, "new_error")
-                        script_path = os.path.join(test.module,
-                                                   test.type, script.name)
+                        script_path = os.path.join(test.grid,
+                                                   test.session, script.name)
                         new_err.attrib['name'] = script_path
                         new_err.attrib['cmd'] = ("sat testerror %s -s %s -c 'my"
                                                  " comment' -p %s" % \
@@ -506,8 +506,8 @@ def run(args, runner, logger):
                                   logger,
                                   base_dir,
                                   testbase=test_base,
-                                  modules=options.modules,
-                                  types=options.types,
+                                  grids=options.grids,
+                                  sessions=options.sessions,
                                   launcher=options.launcher,
                                   show_desktop=show_desktop)
     

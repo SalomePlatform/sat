@@ -133,7 +133,7 @@
   <table>
     <!-- Header -->
     <tr bgcolor="#9acd32">
-      <th width="150">module</th>
+      <th width="150">grid</th>
       <th width="100">success</th>
       <th width="200"></th>
       <th width="100">total</th>
@@ -146,7 +146,7 @@
       <th width="100">Time</th>
     </tr>
         
-    <xsl:for-each select="./module">
+    <xsl:for-each select="./grid">
       <xsl:variable name="total" select="count(.//test)"/>
       <xsl:variable name="failureCount" select="count(.//test[@res='KO'])"/>
       <xsl:variable name="successCount" select="count(.//test[@res='OK'])"/>
@@ -259,21 +259,21 @@
     
   <br/>
   <!-- Show details -->
-  <xsl:for-each select="./module">
+  <xsl:for-each select="./grid">
     <xsl:sort select="@name" />
-    <xsl:sort select="@type" />
+    <xsl:sort select="@session" />
 
     <div style="display:none" name="mod"><xsl:attribute name="id">mod_<xsl:value-of select="../@name"/>.<xsl:value-of select="@name"/></xsl:attribute>
-    Tests of module <b><xsl:value-of select="@name"/></b>
+    Tests of grid <b><xsl:value-of select="@name"/></b>
     <table width="100%">
       <tr bgcolor="#9acd32">
-        <th width="100">type</th>
+        <th width="100">session</th>
         <th>script</th>
         <th width="100">result</th>
         <th width="100">time</th>
       </tr>
 
-      <xsl:for-each select="./type">
+      <xsl:for-each select="./session">
         <xsl:sort select="@name" />
 
         <tr>
@@ -343,8 +343,8 @@
     </div>
   </xsl:for-each>
   
-  <xsl:for-each select="./module">
-    <xsl:for-each select="./type">
+  <xsl:for-each select="./grid">
+    <xsl:for-each select="./session">
       <xsl:for-each select="./test">
 	  <div style="display:none" name="text"><xsl:attribute name="id"><xsl:value-of select="@script"/></xsl:attribute>
 	    <PRE><xsl:value-of select="./content"/></PRE>

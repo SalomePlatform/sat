@@ -37,10 +37,8 @@ import subprocess
 from . import fork
 import src
 
-# directories not considered as test modules
-C_IGNORE_MODULES = ['.git', '.svn', 'RESSOURCES']
-
-C_TESTS_LIGHT_FILE = "TestsLight.txt"
+# directories not considered as test grids
+C_IGNORE_GRIDS = ['.git', '.svn', 'RESSOURCES']
 
 # Get directory to be used for the temporary files.
 #
@@ -58,15 +56,15 @@ class Test:
                  logger,
                  tmp_working_dir,
                  testbase="",
-                 modules=None,
-                 types=None,
+                 grids=None,
+                 sessions=None,
                  launcher="",
                  show_desktop=True):
-        self.modules = modules
+        self.grids = grids
         self.config = config
         self.logger = logger
         self.tmp_working_dir = tmp_working_dir
-        self.types = types
+        self.sessions = sessions
         self.launcher = launcher
         self.show_desktop = show_desktop
 
@@ -253,8 +251,8 @@ class Test:
     ##
     # Searches if the script is declared in known errors pyconf.
     # Update the status if needed.
-    def search_known_errors(self, status, test_module, test_type, test):
-        test_path = os.path.join(test_module, test_type, test)
+    def search_known_errors(self, status, test_grid, test_session, test):
+        test_path = os.path.join(test_grid, test_session, test)
         if not src.config_has_application(self.config):
             return status, []
 
@@ -298,8 +296,8 @@ class Test:
         results = {}
         for test in listTest:
             resfile = os.path.join(self.currentDir,
-                                   self.currentModule,
-                                   self.currentType,
+                                   self.currentgrid,
+                                   self.currentsession,
                                    test[:-3] + ".result.py")
 
             # check if <test>.result.py file exists
@@ -319,8 +317,8 @@ class Test:
                 expected = []
                 if status == src.KO_STATUS or status == src.OK_STATUS:
                     status, expected = self.search_known_errors(status,
-                                                            self.currentModule,
-                                                            self.currentType,
+                                                            self.currentgrid,
+                                                            self.currentsession,
                                                             test)
 
                 callback = ""
@@ -340,8 +338,8 @@ class Test:
             
             # check if <test>.py file exists
             testfile = os.path.join(self.currentDir,
-                                   self.currentModule,
-                                   self.currentType,
+                                   self.currentgrid,
+                                   self.currentsession,
                                    test)
             
             if not os.path.exists(testfile):
@@ -352,8 +350,8 @@ class Test:
 
             # check if <test>.out.py file exists
             outfile = os.path.join(self.currentDir,
-                                   self.currentModule,
-                                   self.currentType,
+                                   self.currentgrid,
+                                   self.currentsession,
                                    test[:-3] + ".out.py")
             
             if not os.path.exists(outfile):
@@ -374,20 +372,20 @@ class Test:
                                           "test",
                                           "scriptTemplate.py"), 'r')
         template = string.Template(template_file.read())
-
+        
         # create substitution dictionary
         d = dict()
         d['resourcesWay'] = os.path.join(self.currentDir, 'RESSOURCES')
         d['tmpDir'] = os.path.join(self.tmp_working_dir, 'WORK')
         d['toolsWay'] = os.path.join(self.config.VARS.srcDir, "test")
-        d['typeDir'] = os.path.join(self.currentDir,
-                                    self.currentModule,
-                                    self.currentType)
+        d['sessionDir'] = os.path.join(self.currentDir,
+                                    self.currentgrid,
+                                    self.currentsession)
         d['resultFile'] = os.path.join(self.tmp_working_dir,
                                        'WORK',
                                        'exec_result')
         d['listTest'] = listTest
-        d['typeName'] = self.currentType
+        d['sessionName'] = self.currentsession
         d['ignore'] = ignoreList
 
         # create script with template
@@ -398,7 +396,7 @@ class Test:
     # Find the getTmpDir function that gives access to *pidict file directory.
     # (the *pidict file exists when SALOME is launched) 
     def get_tmp_dir(self):
-        # Rare case where there is no KERNEL in module list 
+        # Rare case where there is no KERNEL in grid list 
         # (for example MED_STANDALONE)
         if ('APPLICATION' in self.config 
                 and 'KERNEL' not in self.config.APPLICATION.products 
@@ -433,7 +431,7 @@ class Test:
                             shell=True,
                             executable='/bin/bash').communicate()[0].split()[-1]
         
-        # import module salome_utils from KERNEL that gives 
+        # import grid salome_utils from KERNEL that gives 
         # the right getTmpDir function
         
         (file_, pathname, description) = imp.find_module("salome_utils",
@@ -441,17 +439,17 @@ class Test:
                                                                     'bin',
                                                                     'salome')])
         try:
-            module = imp.load_module("salome_utils",
+            grid = imp.load_module("salome_utils",
                                      file_,
                                      pathname,
                                      description)
-            return module.getLogDir
+            return grid.getLogDir
         except:
-            module = imp.load_module("salome_utils",
+            grid = imp.load_module("salome_utils",
                                      file_,
                                      pathname,
                                      description)
-            return module.getTmpDir
+            return grid.getTmpDir
         finally:
             if file_:
                 file_.close()
@@ -464,14 +462,14 @@ class Test:
 
         return default_value
 
-    def generate_launching_commands(self, typename):
+    def generate_launching_commands(self):
         # Case where "sat test" is launched in an existing SALOME environment
         if 'KERNEL_ROOT_DIR' in os.environ:
             binSalome = "runSalome"
             binPython = "python"
             killSalome = "killSalome.py"
         
-        # Rare case where there is no KERNEL in module list 
+        # Rare case where there is no KERNEL in grid list 
         # (for example MED_STANDALONE)
         if ('APPLICATION' in self.config and 
                 'KERNEL' not in self.config.APPLICATION.products):
@@ -512,7 +510,7 @@ class Test:
         
         # Case where SALOME has NOT the launcher that uses the SalomeContext API
         if VersionSalome < 730:
-            binSalome = os.path.join(self.config.APPLI.module_appli_install_dir,
+            binSalome = os.path.join(self.config.APPLI.grid_appli_install_dir,
                                      appdir,
                                      "runAppli")
             binPython = "python"
@@ -545,13 +543,13 @@ class Test:
         
 
     ##
-    # Runs tests of a type (using a single instance of Salome).
+    # Runs tests of a session (using a single instance of Salome).
     def run_tests(self, listTest, ignoreList):
         out_path = os.path.join(self.currentDir,
-                                self.currentModule,
-                                self.currentType)
-        typename = "%s/%s" % (self.currentModule, self.currentType)
-        time_out = self.get_test_timeout(typename,
+                                self.currentgrid,
+                                self.currentsession)
+        sessionname = "%s/%s" % (self.currentgrid, self.currentsession)
+        time_out = self.get_test_timeout(sessionname,
                                          self.config.SITE.test.timeout)
 
         time_out_salome = src.get_cfg_param(self.config.SITE.test,
@@ -564,18 +562,17 @@ class Test:
 
         tmpDir = self.get_tmp_dir()
 
-        binSalome, binPython, killSalome = self.generate_launching_commands(
-                                                                    typename)
-        if self.settings.has_key("run_with_modules") \
-           and self.settings["run_with_modules"].has_key(typename):
+        binSalome, binPython, killSalome = self.generate_launching_commands()
+        if self.settings.has_key("run_with_grids") \
+           and self.settings["run_with_grids"].has_key(sessionname):
             binSalome = (binSalome +
-                         " -m %s" % self.settings["run_with_modules"][typename])
+                         " -m %s" % self.settings["run_with_grids"][sessionname])
 
         logWay = os.path.join(self.tmp_working_dir, "WORK", "log_cxx")
 
         status = False
         elapsed = -1
-        if self.currentType.startswith("NOGUI_"):
+        if self.currentsession.startswith("NOGUI_"):
             # runSalome -t (bash)
             status, elapsed = fork.batch(binSalome, self.logger,
                                         os.path.join(self.tmp_working_dir,
@@ -586,7 +583,7 @@ class Test:
                                         delai=time_out,
                                         log=logWay)
 
-        elif self.currentType.startswith("PY_"):
+        elif self.currentsession.startswith("PY_"):
             # python script.py
             status, elapsed = fork.batch(binPython, self.logger,
                                           os.path.join(self.tmp_working_dir,
@@ -617,8 +614,8 @@ class Test:
         # create the test result to add in the config object
         test_info = src.pyconf.Mapping(self.config)
         test_info.testbase = self.currentTestBase
-        test_info.module = self.currentModule
-        test_info.type = self.currentType
+        test_info.grid = self.currentgrid
+        test_info.session = self.currentsession
         test_info.script = src.pyconf.Sequence(self.config)
 
         script_results = self.read_results(listTest, elapsed == time_out)
@@ -684,22 +681,22 @@ class Test:
         self.config.TESTS.append(test_info, '')
 
     ##
-    # Runs all tests of a type.
-    def run_type_tests(self):
+    # Runs all tests of a session.
+    def run_session_tests(self):
        
         self.logger.write(self.write_test_margin(2), 3)
-        self.logger.write("Type = %s\n" % src.printcolors.printcLabel(
-                                                    self.currentType), 3, False)
+        self.logger.write("Session = %s\n" % src.printcolors.printcLabel(
+                                                    self.currentsession), 3, False)
 
         # prepare list of tests to run
         tests = os.listdir(os.path.join(self.currentDir,
-                                        self.currentModule,
-                                        self.currentType))
+                                        self.currentgrid,
+                                        self.currentsession))
         tests = filter(lambda l: l.endswith(".py"), tests)
         tests = sorted(tests, key=str.lower)
 
         # build list of known failures
-        cat = "%s/%s/" % (self.currentModule, self.currentType)
+        cat = "%s/%s/" % (self.currentgrid, self.currentsession)
         ignoreDict = {}
         for k in self.ignore_tests.keys():
             if k.startswith(cat):
@@ -708,33 +705,33 @@ class Test:
         self.run_tests(tests, ignoreDict)
 
     ##
-    # Runs all tests of a module.
-    def run_module_tests(self):
+    # Runs all tests of a grid.
+    def run_grid_tests(self):
         self.logger.write(self.write_test_margin(1), 3)
-        self.logger.write("Module = %s\n" % src.printcolors.printcLabel(
-                                                self.currentModule), 3, False)
+        self.logger.write("grid = %s\n" % src.printcolors.printcLabel(
+                                                self.currentgrid), 3, False)
 
-        module_path = os.path.join(self.currentDir, self.currentModule)
+        grid_path = os.path.join(self.currentDir, self.currentgrid)
 
-        types = []
-        if self.types is not None:
-            types = self.types # user choice
+        sessions = []
+        if self.sessions is not None:
+            sessions = self.sessions # user choice
         else:
-            # use all scripts in module
-            types = filter(lambda l: l not in C_IGNORE_MODULES,
-                           os.listdir(module_path))
-            types = filter(lambda l: os.path.isdir(os.path.join(module_path,
-                                                                l)), types)
+            # use all scripts in grid
+            sessions = filter(lambda l: l not in C_IGNORE_GRIDS,
+                           os.listdir(grid_path))
+            sessions = filter(lambda l: os.path.isdir(os.path.join(grid_path,
+                                                                l)), sessions)
 
-        types = sorted(types, key=str.lower)
-        for type_ in types:
-            if not os.path.exists(os.path.join(module_path, type_)):
+        sessions = sorted(sessions, key=str.lower)
+        for session_ in sessions:
+            if not os.path.exists(os.path.join(grid_path, session_)):
                 self.logger.write(self.write_test_margin(2), 3)
-                self.logger.write(src.printcolors.printcWarning("Type %s not "
-                                            "found" % type_) + "\n", 3, False)
+                self.logger.write(src.printcolors.printcWarning("Session %s not"
+                                        " found" % session_) + "\n", 3, False)
             else:
-                self.currentType = type_
-                self.run_type_tests()
+                self.currentsession = session_
+                self.run_session_tests()
 
     ##
     # Runs test testbase.
@@ -784,25 +781,25 @@ class Test:
         else:
             self.known_errors = None
 
-        if self.modules is not None:
-            modules = self.modules # given by user
+        if self.grids is not None:
+            grids = self.grids # given by user
         else:
-            # select all the modules (i.e. directories) in the directory
-            modules = filter(lambda l: l not in C_IGNORE_MODULES,
+            # select all the grids (i.e. directories) in the directory
+            grids = filter(lambda l: l not in C_IGNORE_GRIDS,
                              os.listdir(self.currentDir))
-            modules = filter(lambda l: os.path.isdir(
+            grids = filter(lambda l: os.path.isdir(
                                         os.path.join(self.currentDir, l)),
-                             modules)
+                             grids)
 
-        modules = sorted(modules, key=str.lower)
-        for module in modules:
-            if not os.path.exists(os.path.join(self.currentDir, module)):
+        grids = sorted(grids, key=str.lower)
+        for grid in grids:
+            if not os.path.exists(os.path.join(self.currentDir, grid)):
                 self.logger.write(self.write_test_margin(1), 3)
                 self.logger.write(src.printcolors.printcWarning(
-                            "Module %s does not exist\n" % module), 3, False)
+                            "grid %s does not exist\n" % grid), 3, False)
             else:
-                self.currentModule = module
-                self.run_module_tests()
+                self.currentgrid = grid
+                self.run_grid_tests()
 
     def run_script(self, script_name):
         if ('APPLICATION' in self.config and 
