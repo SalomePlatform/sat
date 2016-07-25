@@ -73,7 +73,8 @@ def parse_option(args, config):
         if not src.config_has_application(config):
             raise src.SatException(_("An application is required to use a "
                                      "relative path with option --appli"))
-        options.launcher = os.path.join(config.APPLICATION.workdir, options.launcher)
+        options.launcher = os.path.join(config.APPLICATION.workdir,
+                                        options.launcher)
 
         if not os.path.exists(options.launcher):
             raise src.SatException(_("Launcher not found: %s") % 
@@ -161,7 +162,7 @@ def move_test_results(in_dir, what, out_dir, logger):
             #logger.write("  copy testbase %s\n" % testbase, 5)
 
             for module_ in [m for m in os.listdir(intestbase) if os.path.isdir(
-                                                    os.path.join(intestbase, m))]:
+                                                os.path.join(intestbase, m))]:
                 # ignore source configuration directories
                 if module_[:4] == '.git' or module_ == 'CVS':
                     continue
@@ -463,7 +464,7 @@ def run(args, runner, logger):
 
     content = "\n".join(lines)
 
-    # create hash from session information
+    # create hash from context information
     dirname = sha1(content.encode()).hexdigest()
     base_dir = os.path.join(tmp_dir, dirname)
     os.makedirs(base_dir)
@@ -510,6 +511,10 @@ def run(args, runner, logger):
                                   launcher=options.launcher,
                                   show_desktop=show_desktop)
     
+    if not test_runner.test_base_found:
+        # Fail 
+        return 1
+        
     # run the test
     logger.allowPrintLevel = False
     retcode = test_runner.run_all_tests()

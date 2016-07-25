@@ -33,6 +33,7 @@ import shutil
 import string
 import imp
 import subprocess
+
 from . import fork
 import src
 
@@ -55,7 +56,7 @@ class Test:
     def __init__(self,
                  config,
                  logger,
-                 sessionDir,
+                 tmp_working_dir,
                  testbase="",
                  modules=None,
                  types=None,
@@ -64,13 +65,17 @@ class Test:
         self.modules = modules
         self.config = config
         self.logger = logger
-        self.sessionDir = sessionDir
+        self.tmp_working_dir = tmp_working_dir
         self.types = types
         self.launcher = launcher
         self.show_desktop = show_desktop
 
-        self.prepare_testbase(testbase)
-
+        res = self.prepare_testbase(testbase)
+        self.test_base_found = True
+        if res == 1:
+            # Fail
+            self.test_base_found = False
+        
         self.settings = {}
         self.known_errors = None
 
@@ -101,13 +106,16 @@ class Test:
                                                        'dir': testbase_dir })
 
         self._copy_dir(testbase_dir,
-                       os.path.join(self.sessionDir, 'BASES', testbase_name))
+                       os.path.join(self.tmp_working_dir, 'BASES', testbase_name))
 
-    def prepare_testbase_from_git(self, testbase_name, testbase_base, testbase_tag):
+    def prepare_testbase_from_git(self,
+                                  testbase_name,
+                                  testbase_base,
+                                  testbase_tag):
         self.logger.write(
             _("get test base '%(testbase)s' with '%(tag)s' tag from git\n") % {
-                               "testbase" : src.printcolors.printcLabel(testbase_name),
-                               "tag" : src.printcolors.printcLabel(testbase_tag)},
+                        "testbase" : src.printcolors.printcLabel(testbase_name),
+                        "tag" : src.printcolors.printcLabel(testbase_tag)},
                           3)
         try:
             def set_signal(): # pragma: no cover
@@ -130,13 +138,13 @@ class Test:
             if src.architecture.is_windows():
                 # preexec_fn not supported on windows platform
                 res = subprocess.call(cmd,
-                                cwd=os.path.join(self.sessionDir, 'BASES'),
+                                cwd=os.path.join(self.tmp_working_dir, 'BASES'),
                                 shell=True,
                                 stdout=self.logger.logTxtFile,
                                 stderr=subprocess.PIPE)
             else:
                 res = subprocess.call(cmd,
-                                cwd=os.path.join(self.sessionDir, 'BASES'),
+                                cwd=os.path.join(self.tmp_working_dir, 'BASES'),
                                 shell=True,
                                 preexec_fn=set_signal,
                                 stdout=self.logger.logTxtFile,
@@ -144,7 +152,8 @@ class Test:
             if res != 0:
                 raise src.SatException(_("Error: unable to get test base "
                                          "'%(name)s' from git '%(repo)s'.") % \
-                                       { 'name': testbase_name, 'repo': testbase_base })
+                                       { 'name': testbase_name,
+                                        'repo': testbase_base })
 
         except OSError:
             self.logger.error(_("git is not installed. exiting...\n"))
@@ -160,19 +169,21 @@ class Test:
                 signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 
             cmd = "svn checkout --username %(user)s %(base)s %(dir)s"
-            cmd = cmd % { 'user': user, 'base': testbase_base, 'dir': testbase_name }
+            cmd = cmd % { 'user': user,
+                         'base': testbase_base,
+                         'dir': testbase_name }
 
             self.logger.write("> %s\n" % cmd, 5)
             if src.architecture.is_windows():
                 # preexec_fn not supported on windows platform
                 res = subprocess.call(cmd,
-                                cwd=os.path.join(self.sessionDir, 'BASES'),
+                                cwd=os.path.join(self.tmp_working_dir, 'BASES'),
                                 shell=True,
                                 stdout=self.logger.logTxtFile,
                                 stderr=subprocess.PIPE)
             else:
                 res = subprocess.call(cmd,
-                                cwd=os.path.join(self.sessionDir, 'BASES'),
+                                cwd=os.path.join(self.tmp_working_dir, 'BASES'),
                                 shell=True,
                                 preexec_fn=set_signal,
                                 stdout=self.logger.logTxtFile,
@@ -181,7 +192,8 @@ class Test:
             if res != 0:
                 raise src.SatException(_("Error: unable to get test base '%(nam"
                                          "e)s' from svn '%(repo)s'.") % \
-                                       { 'name': testbase_name, 'repo': testbase_base })
+                                       { 'name': testbase_name,
+                                        'repo': testbase_base })
 
         except OSError:
             self.logger.error(_("svn is not installed. exiting...\n"))
@@ -211,11 +223,14 @@ class Test:
                 return 0
         
         if not test_base_info:
-            message = _("########## WARNING: base '%s' not found\n") % test_base_name
-            raise src.SatException(message)
+            message = (_("########## ERROR: test base '%s' not found\n") % 
+                       test_base_name)
+            self.logger.write("%s\n" % src.printcolors.printcError(message))
+            return 1
 
         if test_base_info.get_sources == "dir":
-            self.prepare_testbase_from_dir(test_base_name, test_base_info.info.dir)
+            self.prepare_testbase_from_dir(test_base_name,
+                                           test_base_info.info.dir)
         elif test_base_info.get_sources == "git":
             self.prepare_testbase_from_git(test_base_name,
                                        test_base_info.info.base,
@@ -363,12 +378,14 @@ class Test:
         # create substitution dictionary
         d = dict()
         d['resourcesWay'] = os.path.join(self.currentDir, 'RESSOURCES')
-        d['tmpDir'] = os.path.join(self.sessionDir, 'WORK')
+        d['tmpDir'] = os.path.join(self.tmp_working_dir, 'WORK')
         d['toolsWay'] = os.path.join(self.config.VARS.srcDir, "test")
         d['typeDir'] = os.path.join(self.currentDir,
                                     self.currentModule,
                                     self.currentType)
-        d['resultFile'] = os.path.join(self.sessionDir, 'WORK', 'exec_result')
+        d['resultFile'] = os.path.join(self.tmp_working_dir,
+                                       'WORK',
+                                       'exec_result')
         d['listTest'] = listTest
         d['typeName'] = self.currentType
         d['ignore'] = ignoreList
@@ -554,14 +571,15 @@ class Test:
             binSalome = (binSalome +
                          " -m %s" % self.settings["run_with_modules"][typename])
 
-        logWay = os.path.join(self.sessionDir, "WORK", "log_cxx")
+        logWay = os.path.join(self.tmp_working_dir, "WORK", "log_cxx")
 
         status = False
         elapsed = -1
         if self.currentType.startswith("NOGUI_"):
             # runSalome -t (bash)
             status, elapsed = fork.batch(binSalome, self.logger,
-                                        os.path.join(self.sessionDir, "WORK"),
+                                        os.path.join(self.tmp_working_dir,
+                                                     "WORK"),
                                         [ "-t",
                                          "--shutdown-server=1",
                                          script_path ],
@@ -571,7 +589,8 @@ class Test:
         elif self.currentType.startswith("PY_"):
             # python script.py
             status, elapsed = fork.batch(binPython, self.logger,
-                                          os.path.join(self.sessionDir, "WORK"),
+                                          os.path.join(self.tmp_working_dir,
+                                                       "WORK"),
                                           [script_path],
                                           delai=time_out, log=logWay)
 
@@ -580,8 +599,9 @@ class Test:
             if self.show_desktop: opt = "--show-desktop=0"
             status, elapsed = fork.batch_salome(binSalome,
                                                  self.logger,
-                                                 os.path.join(self.sessionDir,
-                                                              "WORK"),
+                                                 os.path.join(
+                                                        self.tmp_working_dir,
+                                                        "WORK"),
                                                  [ opt,
                                                   "--shutdown-server=1",
                                                   script_path ],
@@ -732,9 +752,10 @@ class Test:
 
         self.logger.write(self.write_test_margin(0), 3)
         testbase_label = "Test base = %s\n" % src.printcolors.printcLabel(
-                                                            self.currentTestBase)
+                                                        self.currentTestBase)
         self.logger.write(testbase_label, 3, False)
-        self.logger.write("-" * len(src.printcolors.cleancolor(testbase_label)), 3)
+        self.logger.write("-" * len(src.printcolors.cleancolor(testbase_label)),
+                          3)
         self.logger.write("\n", 3, False)
 
         # load settings
@@ -784,7 +805,8 @@ class Test:
                 self.run_module_tests()
 
     def run_script(self, script_name):
-        if 'APPLICATION' in self.config and script_name in self.config.APPLICATION:
+        if ('APPLICATION' in self.config and 
+                script_name in self.config.APPLICATION):
             script = self.config.APPLICATION[script_name]
             if len(script) == 0:
                 return
@@ -810,7 +832,7 @@ class Test:
         self.logger.write(src.printcolors.printcHeader(
                                             _("=== STARTING TESTS")) + "\n", 2)
         self.logger.write("\n", 2, False)
-        self.currentDir = os.path.join(self.sessionDir,
+        self.currentDir = os.path.join(self.tmp_working_dir,
                                        'BASES',
                                        self.currentTestBase)
         self.run_testbase_tests()
