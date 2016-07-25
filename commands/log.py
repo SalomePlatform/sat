@@ -19,6 +19,7 @@
 import os
 import shutil
 import re
+import glob
 
 # Compatibility python 2/3 for input function
 # input stays input for python 3 and input = raw_input for python 2
@@ -139,7 +140,13 @@ def run(args, runner, logger):
 
     # get the log directory. 
     logDir = runner.cfg.SITE.log.log_dir
-
+    
+    # Print a header
+    nb_files_log_dir = len(glob.glob(os.path.join(logDir, "*")))
+    info = [("log directory", logDir), 
+            ("number of log files", nb_files_log_dir)]
+    src.print_info(logger, info)
+    
     # If the clean options is invoked, 
     # do nothing but deleting the concerned files.
     if options.clean:
