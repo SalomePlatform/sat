@@ -167,7 +167,7 @@ class SalomeEnviron:
     """Class to manage the environment of SALOME.
     """
 
-    def __init__(self, cfg, environ, forBuild=False):
+    def __init__(self, cfg, environ, forBuild=False, for_package=None):
         '''Initialization.
 
         :param cfg Config: the global config
@@ -175,10 +175,13 @@ class SalomeEnviron:
                                 to store the environment variables
         :param forBuild bool: If true, it is a launch environment, 
                               else a build one
+        :param for_package str: If not None, produce a relative environment 
+                                designed for a package. 
         '''
         self.environ = environ
         self.cfg = cfg
         self.forBuild = forBuild
+        self.for_package = for_package
         self.silent = False
 
     def __repr__(self):
@@ -372,12 +375,13 @@ class SalomeEnviron:
             elif not self.silent:
                 logger.write("  " + _("No install_dir for product %s\n") %
                               product_info.name, 5)
-
-        # set source dir, unless no source dir
-        if not src.product.product_is_fixed(product_info):
-            src_dir = product_info.name + "_SRC_DIR"
-            if not self.is_defined(src_dir):
-                self.set(src_dir, product_info.source_dir)
+        
+        if not self.for_package:
+            # set source dir, unless no source dir
+            if not src.product.product_is_fixed(product_info):
+                src_dir = product_info.name + "_SRC_DIR"
+                if not self.is_defined(src_dir):
+                    self.set(src_dir, product_info.source_dir)
 
     def set_salome_generic_product_env(self, product):
         """Sets the generic environment for a SALOME product.
@@ -478,6 +482,9 @@ class SalomeEnviron:
         # Get the informations corresponding to the product
         pi = src.product.get_product_config(self.cfg, product)
         
+        if self.for_package:
+            pi.install_dir = os.path.join(self.for_package, pi.name)
+                    
         # Do not define environment if the product is native
         if src.product.product_is_native(pi):
             return
@@ -669,24 +676,32 @@ class FileEnvWriter:
 
         return env_file.name
    
-    def write_cfgForPy_file(self, filename, additional_env = {}):
+    def write_cfgForPy_file(self,
+                            filename,
+                            additional_env = {},
+                            for_package = None):
         """Append to current opened aFile a cfgForPy 
            environment (SALOME python launcher).
            
         :param filename str: the file path
         :param additional_env dict: a dictionary of additional variables 
                                     to add to the environment
+        :param for_package str: If not None, produce a relative environment 
+                                designed for a package. 
         """
         if not self.silent:
             self.logger.write(_("Create configuration file %s\n") % 
-                              src.printcolors.printcLabel(aFile.name), 3)
+                              src.printcolors.printcLabel(filename.name), 3)
 
         # create then env object
         tmp = src.fileEnviron.get_file_environ(filename, 
                                                "cfgForPy", 
                                                {})
         # environment for launch
-        env = SalomeEnviron(self.config, tmp, forBuild=False)
+        env = SalomeEnviron(self.config,
+                            tmp,
+                            forBuild=False,
+                            for_package=for_package)
         env.silent = self.silent
 
         if self.env_info is not None:

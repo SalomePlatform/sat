@@ -164,6 +164,7 @@ class Logger(object):
         else:
             if self.default_level <= current_output_verbose_level and not self.silentSysStd:
                 sys.stdout.write(message)
+        self.flush()
 
     def error(self, message):
         '''Print an error.

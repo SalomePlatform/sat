@@ -96,7 +96,7 @@ def generate_launch_file(config,
         # Write the launcher file
         logger.write(_("Generating launcher for %s :\n") % 
                      src.printcolors.printcLabel(config.VARS.application), 1)
-        logger.write("  %s\n" %src.printcolors.printcLabel(filepath), 1)
+        logger.write("  %s\n" % src.printcolors.printcLabel(filepath), 1)
     
     # open the file and write into it
     launch_file = open(filepath, "w")

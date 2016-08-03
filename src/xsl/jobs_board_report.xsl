@@ -189,7 +189,7 @@
 				    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
 				    <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
 				    <xsl:attribute name="class">OK2day</xsl:attribute>
-				    j
+				    job
 			      </a>
 			    </xsl:when>
 			    <xsl:when test="contains(state/., 'Timeout')">

@@ -15,7 +15,7 @@
 #  You should have received a copy of the GNU Lesser General Public
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-'''In this file are implemented the classes and methods 
+'''In this file are implemented the methods 
    relative to the product notion of salomeTools
 '''
 
@@ -77,11 +77,13 @@ def get_product_config(config, product_name):
         # If it exists, get the information of the product_version
         if "version_" + vv in config.PRODUCTS[product_name]:
             # returns specific information for the given version
-            prod_info = config.PRODUCTS[product_name]["version_" + vv]    
+            prod_info = config.PRODUCTS[product_name]["version_" + vv]
+            prod_info.section = "version_" + vv
         # Get the standard informations
         elif "default" in config.PRODUCTS[product_name]:
             # returns the generic information (given version not found)
             prod_info = config.PRODUCTS[product_name].default
+            prod_info.section = "default"
         
         # merge opt_depend in depend
         if prod_info is not None and 'opt_depend' in prod_info:
@@ -155,9 +157,9 @@ def get_product_config(config, product_name):
         else:
             if (os.path.basename(prod_info.archive_info.archive_name) == 
                                         prod_info.archive_info.archive_name):
-            
+                arch_name = prod_info.archive_info.archive_name
                 arch_path = src.find_file_in_lpath(
-                                            prod_info.archive_info.archive_name,
+                                            arch_name,
                                             config.PATHS.ARCHIVEPATH)
                 if not arch_path:
                     msg = _("Archive %(arch_name)s for %(prod_name)s not found:"
@@ -217,7 +219,7 @@ def get_product_config(config, product_name):
                     prod_info.compil_script)
     
     # Get the full paths of all the patches
-    if "patches" in prod_info:
+    if product_has_patches(prod_info):
         patches = []
         for patch in prod_info.patches:
             patch_path = patch
@@ -236,7 +238,7 @@ def get_product_config(config, product_name):
         prod_info.patches = patches
 
     # Get the full paths of the environment scripts
-    if "environ" in prod_info and "env_script" in prod_info.environ:
+    if product_has_env_script(prod_info):
         env_script_path = prod_info.environ.env_script
         # If only a filename, then search for the environment script 
         # in the PRODUCTPATH/env_scripts
@@ -428,3 +430,23 @@ def product_has_script(product_info):
         return False
     build_src = product_info.build_source
     return build_src.lower() == 'script'
+
+def product_has_env_script(product_info):
+    '''Know if a product has an environment script
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product it has an environment script, else False
+    :rtype: boolean
+    '''
+    return "environ" in product_info and "env_script" in product_info.environ
+
+def product_has_patches(product_info):
+    '''Know if a product has one or more patches
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product has one or more patches
+    :rtype: boolean
+    '''
+    return "patches" in product_info and len(product_info.patches) > 0
