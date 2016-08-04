@@ -1078,6 +1078,9 @@ class Gui(object):
         for board in list(self.d_input_boards.keys()):
             if board not in self.d_xml_board_files:
                 self.add_xml_board(board)
+            root_node = self.d_xml_board_files[board].xmlroot
+            src.xmlManager.append_node_attrib(root_node, 
+                                              {"input_file" : self.file_boards})
         
         # Loop over all jobs in order to get the lines and columns for each 
         # xml file

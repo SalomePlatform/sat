@@ -259,8 +259,8 @@
     </xsl:choose>
     </h3>
     </div>
+    <span class="note">input file: <xsl:value-of select="//JobsReport/@input_file" /></span>
 
-    
     <!-- Loop over the jobs in order to find what job was called in the link "onclick". Display information about that job -->
     <xsl:for-each select="//JobsReport/jobs/job">
       <xsl:variable name="curr_job_name" select="@name" />
