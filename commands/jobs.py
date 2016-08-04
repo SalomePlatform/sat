@@ -21,19 +21,13 @@ import datetime
 import time
 import csv
 import shutil
+import itertools
 import paramiko
 
 import src
 
 STYLESHEET_GLOBAL = "jobs_global_report.xsl"
 STYLESHEET_BOARD = "jobs_board_report.xsl"
-d_INT_DAY = {0 : "monday",
-             1 : "tuesday",
-             2 : "wednesday",
-             3 : "thursday",
-             4 : "friday",
-             5 : "saturday",
-             6 : "sunday"}
 
 parser = src.options.Options()
 
@@ -52,9 +46,9 @@ parser.add_option('p', 'publish', 'boolean', 'publish',
                   _("Optional: generate an xml file that can be read in a "
                     "browser to display the jobs status."),
                   False)
-parser.add_option('i', 'input_boards', 'list2', 'input_boards', _("Optional: "
-                                "the list of path to csv files that contain "
-                                "the expected boards."),[])
+parser.add_option('i', 'input_boards', 'string', 'input_boards', _("Optional: "
+                                "the path to csv file that contain "
+                                "the expected boards."),"")
 parser.add_option('n', 'completion', 'boolean', 'no_label',
                   _("Optional (internal use): do not print labels, Works only "
                     "with --list."),
@@ -1023,20 +1017,20 @@ class Gui(object):
        see the jobs states
     '''
    
-    def __init__(self, xml_dir_path, l_jobs, l_jobs_not_today, l_file_boards = []):
+    def __init__(self, xml_dir_path, l_jobs, l_jobs_not_today, file_boards=""):
         '''Initialization
         
         :param xml_dir_path str: The path to the directory where to put 
                                  the xml resulting files
         :param l_jobs List: the list of jobs that run today
         :param l_jobs_not_today List: the list of jobs that do not run today
-        :param l_file_boards List: the list of file path from which to read the
+        :param file_boards str: the file path from which to read the
                                    expected boards
         '''
         # The path of the csv files to read to fill the expected boards
-        self.l_file_boards = l_file_boards
+        self.file_boards = file_boards
         
-        today = d_INT_DAY[datetime.date.weekday(datetime.date.today())]
+        today = datetime.date.weekday(datetime.date.today())
         self.parse_csv_boards(today)
         
         # The path of the global xml file
@@ -1216,18 +1210,20 @@ class Gui(object):
         """ Parse the csv files that describes the boards to produce and fill 
             the dict d_input_boards that contain the csv file contain
         
-        :param today str: the current day of the week 
+        :param today int: the current day of the week 
         """
         # loop over each csv file and read its content
-        l_boards = []
-        for file_path in self.l_file_boards:
-            l_read = []
-            with open(file_path, 'r') as f:
-                reader = csv.reader(f)
-                for row in reader:
-                    l_read.append(row)
-            l_boards.append(l_read)
-    
+        l_read = []
+        with open(self.file_boards, 'r') as f:
+            reader = csv.reader(f,delimiter=';')
+            for row in reader:
+                l_read.append(row)
+        # get the delimiter for the boards (empty line)
+        boards_delimiter = [''] * len(l_read[0])
+        # Make the list of boards, by splitting with the delimiter
+        l_boards = [list(y) for x, y in itertools.groupby(l_read,
+                                    lambda z: z == boards_delimiter) if not x]
+           
         # loop over the csv lists of lines and get the rows, columns and jobs
         d_boards = {}
         for input_board in l_boards:
@@ -1243,14 +1239,18 @@ class Gui(object):
             for line in input_board[1:]:
                 row = line[0]
                 for i, square in enumerate(line[1:]):
-                    if today in square:
+                    if square=='':
+                        continue
+                    days = square.split(',')
+                    days = [int(day) for day in days]
+                    if today in days:
                         if row not in rows:
                             rows.append(row)
                         if columns[i] not in columns_out:
                             columns_out.append(columns[i])
                         job = (row, columns[i])
                         jobs.append(job)
-            
+
             d_boards[board_name] = {"rows" : rows,
                                     "columns" : columns_out,
                                     "jobs" : jobs}
@@ -1485,7 +1485,7 @@ def run(args, runner, logger):
         gui = Gui(runner.cfg.SITE.log.log_dir,
                   today_jobs.ljobs,
                   today_jobs.ljobs_not_today,
-                  l_file_boards = options.input_boards)
+                  file_boards = options.input_boards)
         
         # Display the list of the xml files
         logger.write(src.printcolors.printcInfo(("Here is the list of published"
