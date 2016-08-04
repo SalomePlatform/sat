@@ -20,16 +20,21 @@
 '''
 
 import os
+import re
 
 import src
 
 AVAILABLE_VCS = ['git', 'svn', 'cvs']
+config_expression = "^config-\d+$"
 
-def get_product_config(config, product_name):
+def get_product_config(config, product_name, with_install_dir=True):
     '''Get the specific configuration of a product from the global configuration
     
     :param config Config: The global configuration
     :param product_name str: The name of the product
+    :param with_install_dir boolean: If false, do not provide an install 
+                                     directory (at false only for internal use 
+                                     of the function get_install_dir)
     :return: the specific configuration of the product
     :rtype: Config
     '''
@@ -167,28 +172,7 @@ def get_product_config(config, product_name):
                                          "prod_name" : prod_info.name}) 
                     raise src.SatException(msg)
                 prod_info.archive_info.archive_name = arch_path
-    
-    # Set the install_dir key
-    if "no_base" in config.APPLICATION and config.APPLICATION.no_base == "yes":
-        # Set it to the default value (in application directory)
-        prod_info.install_dir = os.path.join(config.APPLICATION.workdir,
-                                            "INSTALL",
-                                            prod_info.name)
-    else:
-        if base == "yes":
-            prod_info.install_dir = "base"
-        if "install_dir" not in prod_info:
-            # Set it to the default value (in application directory)
-            prod_info.install_dir = os.path.join(config.APPLICATION.workdir,
-                                                "INSTALL",
-                                                prod_info.name)
-        else:
-            if prod_info.install_dir == "base":
-                # Get the product base of the application
-                base_path = src.get_base_path(config) 
-                prod_info.install_dir = os.path.join(base_path,
-                                                prod_info.name + "-" + version)
-    
+        
     # If the product compiles with a script, check the script existence
     # and if it is executable
     if product_has_script(prod_info):
@@ -255,9 +239,141 @@ def get_product_config(config, product_name):
                 raise src.SatException(msg)
 
         prod_info.environ.env_script = env_script_path
-                    
+    
+    if with_install_dir: 
+        # The variable with_install_dir is at false only for internal use 
+        # of the function get_install_dir
+        
+        # Set the install_dir key
+        prod_info.install_dir = get_install_dir(config, base, version, prod_info)
+                
     return prod_info
 
+def get_install_dir(config, base, version, prod_info):
+    '''Compute the installation directory of a given product 
+    
+    :param config Config: The global configuration
+    :param base str: This corresponds to the value given by user in its 
+                     application.pyconf for the specific product. If "yes", the
+                    user wants the product to be in base. If "no", he wants the
+                    product to be in the application workdir
+    :param version str: The version of the product
+    :param product_info Config: The configuration specific to 
+                               the product
+    
+    :return: The path of the product installation
+    :rtype: str
+    '''
+    install_dir = ""
+    in_base = False
+    if (("install_dir" in prod_info and prod_info.install_dir == "base") 
+                                                            or base == "yes"):
+        in_base = True
+    if (base == "no" or ("no_base" in config.APPLICATION 
+                         and config.APPLICATION.no_base == "yes")):
+        in_base = False
+    
+    if in_base:
+        install_dir = get_base_install_dir(config, prod_info, version)
+    else:
+        if "install_dir" not in prod_info:
+            # Set it to the default value (in application directory)
+            install_dir = os.path.join(config.APPLICATION.workdir,
+                                                "INSTALL",
+                                                prod_info.name)
+        else:
+            install_dir = prod_info.install_dir
+
+    return install_dir
+
+def get_base_install_dir(config, prod_info, version):
+    '''Compute the installation directory of a product in base 
+    
+    :param config Config: The global configuration
+    :param product_info Config: The configuration specific to 
+                               the product
+    :param version str: The version of the product    
+    :return: The path of the product installation
+    :rtype: str
+    '''    
+    base_path = src.get_base_path(config) 
+    prod_dir = os.path.join(base_path, prod_info.name + "-" + version)
+    if not os.path.exists(prod_dir):
+        return os.path.join(prod_dir, "config-1")
+    
+    exists, install_dir = check_config_exists(config, prod_dir, prod_info)
+    if exists:
+        return install_dir
+    
+    # Find the first config-<i> directory that is available in the product
+    # directory
+    found = False 
+    label = 1
+    while not found:
+        install_dir = os.path.join(prod_dir, "config-%i" % label)
+        if os.path.exists(install_dir):
+            label+=1
+        else:
+            found = True
+            
+    return install_dir
+
+def check_config_exists(config, prod_dir, prod_info):
+    '''Verify that the installation directory of a product in a base exists
+       Check all the config-<i> directory and verify the sat-config.pyconf file
+       that is in it 
+    
+    :param config Config: The global configuration
+    :param prod_dir str: The product installation directory path 
+                         (without config-<i>)
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True or false is the installation is found or not 
+             and if it is found, the path of the found installation
+    :rtype: (boolean, str)
+    '''   
+    # check if the directories or files of the directory corresponds to the 
+    # directory installation of the product
+    l_dir_and_files = os.listdir(prod_dir)
+    for dir_or_file in l_dir_and_files:
+        oExpr = re.compile(config_expression)
+        if not(oExpr.search(dir_or_file)):
+            # not config-<i>, not interesting
+            continue
+        # check if there is the file sat-config.pyconf file in the installation
+        # directory    
+        config_file = os.path.join(prod_dir, dir_or_file, src.CONFIG_FILENAME)
+        if not os.path.exists(config_file):
+            continue
+        
+        # If there is no dependency, it is the right path
+        if len(prod_info.depend)==0:
+            return True, os.path.join(prod_dir, dir_or_file)
+        
+        # check if there is the config described in the file corresponds the 
+        # dependencies of the product
+        config_corresponds = True    
+        compile_cfg = src.pyconf.Config(config_file)
+        for prod_dep in prod_info.depend:
+            # if the dependency is not in the config, 
+            # the config does not correspond
+            if prod_dep not in compile_cfg:
+                config_corresponds = False
+                break
+            else:
+                prod_dep_info = get_product_config(config, prod_dep, False)
+                # If the version of the dependency does not correspond, 
+                # the config does not correspond
+                if prod_dep_info.version != compile_cfg[prod_dep]:
+                    config_corresponds = False
+                    break
+        if config_corresponds:
+            return True, os.path.join(prod_dir, dir_or_file)
+    
+    return False, None
+            
+            
+    
 def get_products_infos(lproducts, config):
     '''Get the specific configuration of a list of products
     
@@ -311,7 +427,7 @@ def check_installation(product_info):
                                the product
     :return: True if it is well installed
     :rtype: boolean
-    '''
+    '''       
     install_dir = product_info.install_dir
     if not os.path.exists(install_dir):
         return False

@@ -432,11 +432,36 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
             log_res_step(logger, res_mi)
             res += res_mi
             
-            if res_m > 0:
+            if res_mi > 0:
                 error_step = "MAKE INSTALL"
-
+    
+    # Add the config file corresponding to the dependencies/versions of the 
+    # product that have been successfully compiled
+    if res==0:
+        logger.write(_("Add the config file in installation directory\n"), 5)
+        add_compile_config_file(p_info, config)
+    
     return res, len_end_line, error_step
 
+def add_compile_config_file(p_info, config):
+    '''Execute the proper configuration command(s) 
+       in the product build directory.
+    
+    :param p_info Config: The specific config of the product
+    :param config Config: The global configuration
+    '''
+    # Create the compile config
+    compile_cfg = src.pyconf.Config()
+    for prod_name in p_info.depend:
+        compile_cfg.addMapping(prod_name, src.pyconf.Mapping(compile_cfg), "")
+        prod_dep_info = src.product.get_product_config(config, prod_name, False)
+        compile_cfg[prod_name] = prod_dep_info.version
+    # Write it in the install directory of the product
+    compile_cfg_path = os.path.join(p_info.install_dir, src.CONFIG_FILENAME)
+    f = open(compile_cfg_path, 'w')
+    compile_cfg.__save__(f)
+    f.close()
+    
 def description():
     '''method that is called when salomeTools is called with --help option.
     
