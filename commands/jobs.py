@@ -29,6 +29,9 @@ import src
 STYLESHEET_GLOBAL = "jobs_global_report.xsl"
 STYLESHEET_BOARD = "jobs_board_report.xsl"
 
+DAYS_SEPARATOR = ","
+CSV_DELIMITER = ";"
+
 parser = src.options.Options()
 
 parser.add_option('n', 'name', 'string', 'jobs_cfg', 
@@ -1215,7 +1218,7 @@ class Gui(object):
         # loop over each csv file and read its content
         l_read = []
         with open(self.file_boards, 'r') as f:
-            reader = csv.reader(f,delimiter=';')
+            reader = csv.reader(f,delimiter=CSV_DELIMITER)
             for row in reader:
                 l_read.append(row)
         # get the delimiter for the boards (empty line)
@@ -1241,7 +1244,7 @@ class Gui(object):
                 for i, square in enumerate(line[1:]):
                     if square=='':
                         continue
-                    days = square.split(',')
+                    days = square.split(DAYS_SEPARATOR)
                     days = [int(day) for day in days]
                     if today in days:
                         if row not in rows:
