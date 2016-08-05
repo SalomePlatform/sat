@@ -1241,7 +1241,6 @@ class Gui(object):
             columns = input_board[0][1:]
             
             rows = []
-            columns_out = []
             jobs = []
             for line in input_board[1:]:
                 row = line[0]
@@ -1253,13 +1252,11 @@ class Gui(object):
                     if today in days:
                         if row not in rows:
                             rows.append(row)
-                        if columns[i] not in columns_out:
-                            columns_out.append(columns[i])
                         job = (row, columns[i])
                         jobs.append(job)
 
             d_boards[board_name] = {"rows" : rows,
-                                    "columns" : columns_out,
+                                    "columns" : columns,
                                     "jobs" : jobs}
         
         self.d_input_boards = d_boards

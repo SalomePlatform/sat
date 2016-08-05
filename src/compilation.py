@@ -291,9 +291,9 @@ CC=\\"hack_libtool\\"%g" libtool'''
         if src.architecture.is_windows():
             command = 'msbuild RUN_TESTS.vcxproj'
         else :
-            if self.use_autotools :
+            if self.product_info.build_source=="autotools" :
                 command = 'make check'
-            else :
+            else:
                 command = 'make test'
             
         self.log_command(command)
