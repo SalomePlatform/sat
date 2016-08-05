@@ -33,7 +33,13 @@ C_COMPILE_ENV_LIST = ["CC",
 class Builder:
     """Class to handle all construction steps, like cmake, configure, make, ...
     """
-    def __init__(self, config, logger, product_info, options = src.options.OptResult(), debug_mode=False, check_src=True):
+    def __init__(self,
+                 config,
+                 logger,
+                 product_info,
+                 options = src.options.OptResult(),
+                 debug_mode=False,
+                 check_src=True):
         self.config = config
         self.logger = logger
         self.options = options

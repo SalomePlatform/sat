@@ -342,7 +342,8 @@ class SalomeEnviron:
                 self.add_line(1)
         
         # If there is profile (SALOME), then define additional variables
-        if 'profile' in self.cfg.APPLICATION:
+        if ('profile' in self.cfg.APPLICATION and 
+                                    "product" in self.cfg.APPLICATION.profile):
             profile_product = self.cfg.APPLICATION.profile.product
             product_info_profile = src.product.get_product_config(self.cfg,
                                                             profile_product)

@@ -415,7 +415,8 @@ class Job(object):
                 self.remote_log_files.append(local_path)
             except Exception as e:
                 self.err += _("Unable to get %s log file from remote: %s" % 
-                                                    (job_path_remote, str(e)))
+                                                    (str(job_path_remote),
+                                                     str(e)))
 
     def has_failed(self):
         '''Returns True if the job has failed. 
@@ -1498,7 +1499,10 @@ def run(args, runner, logger):
                                                  " files :\n")), 4)
         logger.write("%s\n" % gui.xml_global_file.logFile, 4)
         for board in gui.d_xml_board_files.keys():
-            logger.write("%s\n" % gui.d_xml_board_files[board].logFile, 4)
+            file_path = gui.d_xml_board_files[board].logFile
+            file_name = os.path.basename(file_path)
+            logger.write("%s\n" % file_path, 4)
+            logger.add_link(file_name, "board", 0, board)
         
         logger.write("\n", 4)
     
