@@ -1214,12 +1214,12 @@ class Gui(object):
                                                         job.machine.sat_path)
 
     def parse_csv_boards(self, today):
-        """ Parse the csv files that describes the boards to produce and fill 
+        """ Parse the csv file that describes the boards to produce and fill 
             the dict d_input_boards that contain the csv file contain
         
         :param today int: the current day of the week 
         """
-        # loop over each csv file and read its content
+        # open the csv file and read its content
         l_read = []
         with open(self.file_boards, 'r') as f:
             reader = csv.reader(f,delimiter=CSV_DELIMITER)
