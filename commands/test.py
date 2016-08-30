@@ -524,7 +524,7 @@ def run(args, runner, logger):
     logger.write("\n", 2, False)
     
     logger.write(_("\nGenerate the specific test log\n"), 5)
-    out_dir = os.path.join(runner.cfg.SITE.log.log_dir, "TEST")
+    out_dir = os.path.join(runner.cfg.USER.log_dir, "TEST")
     src.ensure_path_exists(out_dir)
     name_xml_board = logger.logFileName.split(".")[0] + "board" + ".xml"
     create_test_report(runner.cfg,

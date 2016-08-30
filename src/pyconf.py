@@ -621,6 +621,8 @@ class Mapping(Container):
                 skey = repr(key)
             if comment:
                 stream.write('%s#%s' % (indstr, comment))
+            if skey.startswith("u'"):
+                skey = skey[1:]
             stream.write('%s%-*s :' % (indstr, maxlen, skey))
             value = data[key]
             if isinstance(value, Container):

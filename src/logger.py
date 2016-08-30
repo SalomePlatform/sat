@@ -45,11 +45,11 @@ class Logger(object):
         
         # Construct xml log file location for sat prints.
         logFileName = config.VARS.datehour + "_" + config.VARS.command + ".xml"
-        logFilePath = os.path.join(config.SITE.log.log_dir, logFileName)
+        logFilePath = os.path.join(config.USER.log_dir, logFileName)
         # Construct txt file location in order to log 
         # the external commands calls (cmake, make, git clone, etc...)
         txtFileName = config.VARS.datehour + "_" + config.VARS.command + ".txt"
-        txtFilePath = os.path.join(config.SITE.log.log_dir, "OUT", txtFileName)
+        txtFilePath = os.path.join(config.USER.log_dir, "OUT", txtFileName)
         
         src.ensure_path_exists(os.path.dirname(logFilePath))
         src.ensure_path_exists(os.path.dirname(txtFilePath))
@@ -219,7 +219,7 @@ class Logger(object):
         self.xmlFile.write_tree(stylesheet = "command.xsl")
         
         # Dump the config in a pyconf file in the log directory
-        logDir = self.config.SITE.log.log_dir
+        logDir = self.config.USER.log_dir
         dumpedPyconfFileName = (self.config.VARS.datehour 
                                 + "_" 
                                 + self.config.VARS.command 

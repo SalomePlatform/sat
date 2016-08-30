@@ -270,31 +270,36 @@ class ConfigManager:
         
         # =====================================================================
         # Load the PROJECTS
-        if "PROJECTS" in cfg:
-            cfg.PROJECTS.addMapping("projects",
-                                    src.pyconf.Mapping(cfg.PROJECTS),
-                                    "The projects definition\n")
-            for project_pyconf_path in cfg.PROJECTS.project_file_paths:
-                if not os.path.exists(project_pyconf_path):
-                    #msg = _("WARNING: The project file %s cannot be found. "
-                    #        "It will be ignored\n" % project_pyconf_path)
-                    #sys.stdout.write(src.printcolors.printcWarning(msg))
-                    continue
-                project_name = os.path.basename(
-                                        project_pyconf_path)[:-len(".pyconf")]
-                try:
-                    project_cfg = src.pyconf.Config(open(project_pyconf_path))
-                except Exception as e:
-                    raise src.SatException(_("Error in configuration file: "
-                                     "%(file_path)s\n  %(error)s") % \
-                                {'file_path' : project_cfg, 'error': str(e) })
-                cfg.PROJECTS.projects.addMapping(project_name,
-                                 src.pyconf.Mapping(cfg.PROJECTS.projects),
-                                 "The %s project\n" % project_name)
-                cfg.PROJECTS.projects[project_name]=project_cfg
-                cfg.PROJECTS.projects[project_name]["file_path"] = \
-                                                            project_pyconf_path
-                     
+        projects_cfg = src.pyconf.Config()
+        projects_cfg.addMapping("PROJECTS",
+                                src.pyconf.Mapping(projects_cfg),
+                                "The projects\n")
+        projects_cfg.PROJECTS.addMapping("projects",
+                                src.pyconf.Mapping(cfg.PROJECTS),
+                                "The projects definition\n")
+        
+        for project_pyconf_path in cfg.PROJECTS.project_file_paths:
+            if not os.path.exists(project_pyconf_path):
+                msg = _("WARNING: The project file %s cannot be found. "
+                        "It will be ignored\n" % project_pyconf_path)
+                sys.stdout.write(src.printcolors.printcWarning(msg))
+                continue
+            project_name = os.path.basename(
+                                    project_pyconf_path)[:-len(".pyconf")]
+            try:
+                project_cfg = src.pyconf.Config(open(project_pyconf_path))
+            except Exception as e:
+                raise src.SatException(_("Error in configuration file: "
+                                 "%(file_path)s\n  %(error)s") % \
+                            {'file_path' : project_pyconf_path, 'error': str(e) })
+            projects_cfg.PROJECTS.projects.addMapping(project_name,
+                             src.pyconf.Mapping(projects_cfg.PROJECTS.projects),
+                             "The %s project\n" % project_name)
+            projects_cfg.PROJECTS.projects[project_name]=project_cfg
+            projects_cfg.PROJECTS.projects[project_name]["file_path"] = \
+                                                        project_pyconf_path
+                   
+        merger.merge(cfg, projects_cfg)
 
         # apply overwrite from command line if needed
         for rule in self.get_command_line_overrides(options, ["PROJECTS"]):
@@ -479,6 +484,13 @@ class ConfigManager:
                                  "The products installation base (could be "
                                  "ignored if this key exists in the site.pyconf"
                                  " file of salomTools).\n")
+        
+        user_cfg.USER.addMapping("log_dir",
+                                 src.pyconf.Reference(
+                                            user_cfg,
+                                            src.pyconf.DOLLAR,
+                                            'workdir  + $VARS.sep + "LOGS"'),
+                                 "The log reposotory\n")
         
         # 
         src.ensure_path_exists(config.VARS.personalDir)

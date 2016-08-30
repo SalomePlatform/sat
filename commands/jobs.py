@@ -1475,7 +1475,7 @@ def run(args, runner, logger):
     gui = None
     if options.publish:
         # Copy the stylesheets in the log directory 
-        log_dir = runner.cfg.SITE.log.log_dir
+        log_dir = runner.cfg.USER.log_dir
         xsl_dir = os.path.join(runner.cfg.VARS.srcDir, 'xsl')
         files_to_copy = []
         files_to_copy.append(os.path.join(xsl_dir, STYLESHEET_GLOBAL))
@@ -1486,7 +1486,7 @@ def run(args, runner, logger):
         
         # Instanciate the Gui in order to produce the xml files that contain all
         # the boards
-        gui = Gui(runner.cfg.SITE.log.log_dir,
+        gui = Gui(runner.cfg.USER.log_dir,
                   today_jobs.ljobs,
                   today_jobs.ljobs_not_today,
                   file_boards = options.input_boards)
