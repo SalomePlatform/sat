@@ -343,7 +343,7 @@ def compile_all_products(sat, config, options, products_infos, logger):
             res += 1
             
         # Log the result
-        if res > 0:
+        if res_prod > 0:
             logger.write("\r%s%s" % (header, " " * len_end_line), 3)
             logger.write("\r" + header + src.printcolors.printcError("KO ") + error_step)
             logger.write("\n==== %(KO)s in compile of %(name)s \n" %
