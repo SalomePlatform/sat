@@ -79,13 +79,11 @@ project_file_paths : [$VARS.salometoolsway + $VARS.sep + \"..\" + $VARS.sep"""
 parser = src.options.Options()
 parser.add_option('b', 'binaries', 'boolean', 'binaries',
     _('Produce a binary package.'), False)
-parser.add_option('f', 'force_creation', 'boolean', 'force_creation',
-    _('Create the archive even if there are missing products.'), False)
 parser.add_option('s', 'sources', 'boolean', 'sources',
     _('Produce a compilable archive of the sources of the application.'), False)
 parser.add_option('p', 'project', 'string', 'project',
     _('Produce an archive that contains a project.'), "")
-parser.add_option('', 'sat', 'boolean', 'sat',
+parser.add_option('', 'salometools', 'boolean', 'sat',
     _('Produce an archive that contains salomeTools.'), False)
 parser.add_option('n', 'name', 'string', 'name',
     _('The name or full path of the archive.'), None)
