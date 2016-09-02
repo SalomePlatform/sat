@@ -132,7 +132,7 @@
       <tr bgcolor="#9acd32">
       <th></th>
       <xsl:for-each select="//JobsReport/applications/application">
-        <xsl:sort select="@name" />
+        <!--<xsl:sort select="@name" />-->
 	<th><xsl:value-of select="@name" /></th>
       </xsl:for-each>
       </tr>

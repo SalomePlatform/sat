@@ -13,5 +13,5 @@ SITE :
 
 PROJECTS :
 {
-project_file_paths : ["/home/salome/SPN_PRIVATE/SAT5/SALOME-PROJECT/salome.pyconf"]
+project_file_paths : ["/home/salome/SPN_PRIVATE/SAT5/SALOME-PROJECT/salome.pyconf", "/tmp/test.pyconf"]
 }

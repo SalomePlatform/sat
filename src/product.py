@@ -276,7 +276,7 @@ def get_install_dir(config, base, version, prod_info):
     if in_base:
         install_dir = get_base_install_dir(config, prod_info, version)
     else:
-        if "install_dir" not in prod_info:
+        if "install_dir" not in prod_info or prod_info.install_dir == "base":
             # Set it to the default value (in application directory)
             install_dir = os.path.join(config.APPLICATION.workdir,
                                                 "INSTALL",
@@ -532,6 +532,16 @@ def product_is_cmake(product_info):
     '''
     build_src = product_info.build_source
     return build_src.lower() == 'cmake'
+
+def product_is_vcs(product_info):
+    '''Know if a product is download using git, svn or cvs (not archive)
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is vcs, else False
+    :rtype: boolean
+    '''
+    return product_info.get_source in AVAILABLE_VCS
 
 def product_has_script(product_info):
     '''Know if a product has a compilation script

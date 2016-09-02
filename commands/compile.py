@@ -453,7 +453,10 @@ def add_compile_config_file(p_info, config):
     # Create the compile config
     compile_cfg = src.pyconf.Config()
     for prod_name in p_info.depend:
-        compile_cfg.addMapping(prod_name, src.pyconf.Mapping(compile_cfg), "")
+        if prod_name not in compile_cfg:
+            compile_cfg.addMapping(prod_name,
+                                   src.pyconf.Mapping(compile_cfg),
+                                   "")
         prod_dep_info = src.product.get_product_config(config, prod_name, False)
         compile_cfg[prod_name] = prod_dep_info.version
     # Write it in the install directory of the product

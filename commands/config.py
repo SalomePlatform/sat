@@ -490,7 +490,7 @@ class ConfigManager:
                                             user_cfg,
                                             src.pyconf.DOLLAR,
                                             'workdir  + $VARS.sep + "LOGS"'),
-                                 "The log reposotory\n")
+                                 "The log repository\n")
         
         # 
         src.ensure_path_exists(config.VARS.personalDir)
