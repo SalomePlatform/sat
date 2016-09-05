@@ -22,6 +22,7 @@
 # python imports
 import os
 import sys
+import tempfile
 import imp
 import types
 import gettext
@@ -143,7 +144,11 @@ class Sat(object):
             # Exception for the jobs command that requires the paramiko module
             if nameCmd == "jobs":
                 try:
+                    saveout = sys.stderr
+                    ff = tempfile.TemporaryFile()
+                    sys.stderr = ff
                     import paramiko
+                    sys.stderr = saveout
                 except:
                     continue
 
