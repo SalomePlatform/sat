@@ -646,7 +646,7 @@ class Config(Mapping):
             self.sys = sys
             self.os = os
 
-    def __init__(self, streamOrFile=None, parent=None):
+    def __init__(self, streamOrFile=None, parent=None, PWD = None):
         """
         Initializes an instance.
 
@@ -675,6 +675,13 @@ class Config(Mapping):
                 streamOrFile = streamOpener(streamOrFile)
             load = object.__getattribute__(self, "load")
             load(streamOrFile)
+            # Specific add for salomeTools : PWD
+            if PWD:
+                key, pwd = PWD
+                if key == "":
+                    self.PWD = pwd
+                else:
+                    self[key].PWD = pwd
 
     def load(self, stream):
         """

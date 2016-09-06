@@ -247,7 +247,8 @@ class ConfigManager:
         src.pyconf.streamOpener = ConfigOpener([cfg.VARS.datadir])
         try:
             site_cfg = src.pyconf.Config(open(os.path.join(cfg.VARS.datadir, 
-                                                           'site.pyconf')))
+                                                           'site.pyconf')),
+                                         PWD = ('SITE', cfg.VARS.datadir) )
         except src.pyconf.ConfigError as e:
             raise src.SatException(_("Error in configuration file: "
                                      "site.pyconf\n  %(error)s") % \
@@ -261,7 +262,6 @@ class ConfigManager:
                   + cfg.VARS.sep 
                   + "site.pyconf and edit the file")
             raise src.SatException( e );
-        
         merger.merge(cfg, site_cfg)
 
         # apply overwrite from command line if needed
@@ -287,7 +287,9 @@ class ConfigManager:
             project_name = os.path.basename(
                                     project_pyconf_path)[:-len(".pyconf")]
             try:
-                project_cfg = src.pyconf.Config(open(project_pyconf_path))
+                project_pyconf_dir = os.path.dirname(project_pyconf_path)
+                project_cfg = src.pyconf.Config(open(project_pyconf_path),
+                                                PWD=("", project_pyconf_dir))
             except Exception as e:
                 raise src.SatException(_("Error in configuration file: "
                                  "%(file_path)s\n  %(error)s") % \
@@ -354,7 +356,8 @@ class ConfigManager:
                     try:
                         prod_cfg = src.pyconf.Config(open(
                                                     os.path.join(products_dir,
-                                                                 fName)))
+                                                                 fName)),
+                                                     PWD=("", products_dir))
                     except src.pyconf.ConfigError as e:
                         raise src.SatException(_(
                             "Error in configuration file: %(prod)s\n  %(error)s") % \

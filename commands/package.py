@@ -35,9 +35,9 @@ PROJECT_TEMPLATE = """#!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
 # The path to the archive root directory
-root_path : ""
+root_path : $PWD + "/../"
 # path to the PROJECT
-project_path : $root_path + "PROJECT/"
+project_path : $PWD + "/"
 
 # Where to search the archives of the products
 ARCHIVEPATH : $root_path + "ARCHIVES"
@@ -123,7 +123,7 @@ def add_files(tar, name_archive, d_content, logger):
             logger.write(src.printcolors.printcSuccess(_("OK")), 3)
         except Exception as e:
             logger.write(src.printcolors.printcError(_("KO ")), 3)
-            logger.write(e, 3)
+            logger.write(str(e), 3)
             success = 1
         logger.write("\n", 3)
     return success
@@ -149,8 +149,13 @@ def produce_relative_launcher(config,
     # Get the launcher template
     profile_install_dir = os.path.join(binaries_dir_name,
                                        config.APPLICATION.profile.product)
-    withProfile = src.fileEnviron.withProfile.replace( "PROFILE_INSTALL_DIR",
-                                                       profile_install_dir )
+    withProfile = src.fileEnviron.withProfile   
+    withProfile = withProfile.replace(
+        "ABSOLUTE_APPLI_PATH'] = 'PROFILE_INSTALL_DIR'",
+        "ABSOLUTE_APPLI_PATH'] = out_dir_Path + '/" + profile_install_dir + "'")
+    withProfile = withProfile.replace(
+        "os.path.join( 'PROFILE_INSTALL_DIR'",
+        "os.path.join( out_dir_Path, '" + profile_install_dir + "'")
 
     before, after = withProfile.split(
                                 "# here your local standalone environment\n")
@@ -169,6 +174,9 @@ def produce_relative_launcher(config,
     writer.write_cfgForPy_file(launch_file, for_package = binaries_dir_name)
     launch_file.write(after)
     launch_file.close()
+    
+    # Little hack to put out_dir_Path outside the strings
+    src.replace_in_file(filepath, 'r"out_dir_Path', 'out_dir_Path + r"' )
     
     # change the rights in order to make the file executable for everybody
     os.chmod(filepath,
@@ -648,7 +656,9 @@ def project_package(project_file_path, tmp_working_dir):
         project_pyconf_cfg.addMapping("project_path",
                                       src.pyconf.Mapping(project_pyconf_cfg),
                                       "")
-    project_pyconf_cfg.project_path = ""
+    project_pyconf_cfg.project_path = src.pyconf.Reference(project_pyconf_cfg,
+                                                           src.pyconf.DOLLAR,
+                                                           'PWD')
     
     # Write the project pyconf file
     project_file_name = os.path.basename(project_file_path)

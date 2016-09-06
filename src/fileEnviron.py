@@ -634,9 +634,7 @@ import sys
 
 # Add the pwdPath to able to run the launcher after unpacking a package
 # Used only in case of a salomeTools package
-out_dir_Path=os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname((os.path.abspath(os.path.dirname(__file__)))))))
-prereq_install_Path=os.path.join(out_dir_Path , 'PREREQUISITES', 'INSTALL')
-prereq_build_Path=os.path.join(out_dir_Path , 'PREREQUISITES', 'BUILD')
+out_dir_Path=os.path.abspath(os.path.dirname(__file__))
 
 # Preliminary work to initialize path to SALOME Python modules
 def __initialize():

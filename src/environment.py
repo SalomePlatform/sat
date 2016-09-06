@@ -484,7 +484,9 @@ class SalomeEnviron:
         pi = src.product.get_product_config(self.cfg, product)
         
         if self.for_package:
-            pi.install_dir = os.path.join(self.for_package, pi.name)
+            pi.install_dir = os.path.join("out_dir_Path",
+                                          self.for_package,
+                                          pi.name)
                     
         # Do not define environment if the product is native
         if src.product.product_is_native(pi):

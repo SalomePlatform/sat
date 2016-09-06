@@ -342,3 +342,14 @@ def merge_dicts(*dict_args):
     for dictionary in dict_args:
         result.update(dictionary)
     return result
+
+def replace_in_file(filein, strin, strout):
+    '''Replace <strin> by <strout> in file <filein>
+    '''
+    shutil.move(filein, filein + "_old")
+    fileout= filein
+    filein = filein + "_old"
+    fin = open(filein, "r")
+    fout = open(fileout, "w")
+    for line in fin:
+        fout.write(line.replace(strin, strout))
