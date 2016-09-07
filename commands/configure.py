@@ -117,7 +117,14 @@ def configure_product(p_name_info, conf_option, config, logger):
     logger.write(header, 3)
     logger.write("\n", 4, False)
     logger.flush()
-    
+
+    # Do nothing if he product is not compilable
+    if ("properties" in p_info and "compilation" in p_info.properties and 
+                                        p_info.properties.compilation == "no"):
+        log_step(logger, header, "ignored")
+        logger.write("\n", 3, False)
+        return 0
+
     # Instantiate the class that manages all the construction commands
     # like cmake, make, make install, make test, environment management, etc...
     builder = src.compilation.Builder(config, logger, p_info)

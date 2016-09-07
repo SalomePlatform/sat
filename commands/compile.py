@@ -289,7 +289,14 @@ def compile_all_products(sat, config, options, products_infos, logger):
         logger.write(header, 3)
         logger.write("\n", 4, False)
         logger.flush()
-        
+
+        # Do nothing if he product is not compilable
+        if ("properties" in p_info and "compilation" in p_info.properties and 
+                                            p_info.properties.compilation == "no"):
+            log_step(logger, header, "ignored")
+            logger.write("\n", 3, False)
+            continue
+
         # Clean the build and the install directories 
         # if the corresponding options was called
         if options.clean_all:
