@@ -19,6 +19,7 @@
 import os
 import stat
 import shutil
+import datetime
 import tarfile
 
 import src
@@ -79,16 +80,22 @@ project_file_paths : [$VARS.salometoolsway + $VARS.sep + \"..\" + $VARS.sep"""
 parser = src.options.Options()
 parser.add_option('b', 'binaries', 'boolean', 'binaries',
     _('Produce a binary package.'), False)
+parser.add_option('f', 'force_creation', 'boolean', 'force_creation',
+    _('Only binary package: produce the archive even if there are some missing '
+      'products.'), False)
+parser.add_option('', 'with_sources', 'boolean', 'with_sources',
+    _('Only binary package: produce and and a source archive in the binary '
+      'package.'), False)
 parser.add_option('s', 'sources', 'boolean', 'sources',
     _('Produce a compilable archive of the sources of the application.'), False)
+parser.add_option('', 'with_vcs', 'boolean', 'with_vcs',
+    _('Only source package: do not make archive of vcs products.'), False)
 parser.add_option('p', 'project', 'string', 'project',
     _('Produce an archive that contains a project.'), "")
-parser.add_option('', 'salometools', 'boolean', 'sat',
+parser.add_option('t', 'salometools', 'boolean', 'sat',
     _('Produce an archive that contains salomeTools.'), False)
 parser.add_option('n', 'name', 'string', 'name',
     _('The name or full path of the archive.'), None)
-parser.add_option('', 'with_vcs', 'boolean', 'with_vcs',
-    _('Only source package: do not make archive of vcs products.'), False)
 
 def add_files(tar, name_archive, d_content, logger):
     '''Create an archive containing all directories and files that are given in
@@ -149,10 +156,10 @@ def produce_relative_launcher(config,
     # Get the launcher template
     profile_install_dir = os.path.join(binaries_dir_name,
                                        config.APPLICATION.profile.product)
-    withProfile = src.fileEnviron.withProfile   
+    withProfile = src.fileEnviron.withProfile
     withProfile = withProfile.replace(
         "ABSOLUTE_APPLI_PATH'] = 'PROFILE_INSTALL_DIR'",
-        "ABSOLUTE_APPLI_PATH'] = out_dir_Path + '/" + profile_install_dir + "'")
+        "ABSOLUTE_APPLI_PATH'] = out_dir_Path + '" + config.VARS.sep + profile_install_dir + "'")
     withProfile = withProfile.replace(
         "os.path.join( 'PROFILE_INSTALL_DIR'",
         "os.path.join( out_dir_Path, '" + profile_install_dir + "'")
@@ -671,6 +678,51 @@ def project_package(project_file_path, tmp_working_dir):
     
     return d_project
 
+def add_readme(config, package_type, where):
+    readme_path = os.path.join(where, "README")
+    f = open(readme_path, 'w')
+    # prepare substitution dictionary
+    d = dict()
+    if package_type == BINARY:
+        d['application'] = config.VARS.application
+        d['user'] = config.VARS.user
+        d['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        d['version'] = config.INTERNAL.sat_version
+        d['dist'] = config.VARS.dist
+        if 'profile' in config.APPLICATION:
+            d['launcher'] = config.APPLICATION.profile.launcher_name
+        readme_template_path = os.path.join(config.VARS.internal_dir,
+                                            "README_BIN.template")
+    if package_type == SOURCE:
+        d['application'] = config.VARS.application
+        d['user'] = config.VARS.user
+        d['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        d['version'] = config.INTERNAL.sat_version
+        if 'profile' in config.APPLICATION:
+            d['profile'] = config.APPLICATION.profile.product
+            d['launcher'] = config.APPLICATION.profile.launcher_name
+        readme_template_path = os.path.join(config.VARS.internal_dir,
+                                    "README_SRC.template")
+
+    if package_type == PROJECT:
+        d['user'] = config.VARS.user
+        d['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        d['version'] = config.INTERNAL.sat_version
+        readme_template_path = os.path.join(config.VARS.internal_dir,
+                                    "README_PROJECT.template")
+
+    if package_type == SAT:
+        d['user'] = config.VARS.user
+        d['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        d['version'] = config.INTERNAL.sat_version
+        readme_template_path = os.path.join(config.VARS.internal_dir,
+                                    "README_SAT.template")
+    
+    f.write(src.template.substitute(readme_template_path, d))
+    
+    return readme_path
+        
+
 def description():
     '''method that is called when salomeTools is called with --help option.
     
@@ -695,7 +747,7 @@ def run(args, runner, logger):
     # Check that a type of package is called, and only one
     all_option_types = (options.binaries,
                         options.sources,
-                        options.project != "",
+                        options.project not in ["", None],
                         options.sat)
 
     # Check if no option for package type
@@ -784,6 +836,12 @@ def run(args, runner, logger):
             archive_name = (runner.cfg.APPLICATION.name +
                             "-" +
                             "SRC")
+            if options.with_vcs:
+                archive_name = (runner.cfg.APPLICATION.name +
+                            "-" +
+                            "SRC" +
+                            "-" +
+                            "VCS")
 
         if package_type == PROJECT:
             project_name, __ = os.path.splitext(
@@ -807,6 +865,8 @@ def run(args, runner, logger):
     tmp_working_dir = os.path.join(runner.cfg.VARS.tmp_root,
                                    runner.cfg.VARS.datehour)
     src.ensure_path_exists(tmp_working_dir)
+    logger.write("\n", 5)
+    logger.write(_("The temporary working directory: %s\n" % tmp_working_dir),5)
     
     logger.write("\n", 3)
 
@@ -814,13 +874,32 @@ def run(args, runner, logger):
     logger.write(src.printcolors.printcLabel(msg), 2)
     logger.write("\n", 2)
 
-    if package_type == BINARY:
+    if package_type == BINARY:           
         d_files_to_add = binary_package(runner.cfg,
                                         logger,
                                         options,
                                         tmp_working_dir)
         if not(d_files_to_add):
             return 1
+        
+        # Create and add the source package 
+        # if the option "with_sources" is called
+        if options.with_sources:
+            logger.write(_("Create a source archive (can be long) ... "), 3)
+            tmp_pkg_src_name = runner.cfg.APPLICATION.name + "-" + "SRC.tgz"
+            tmp_pkg_src_path = os.path.join(tmp_working_dir, tmp_pkg_src_name)
+            package_options = runner.cfg.VARS.application
+            package_options += " --sources --with_vcs --name "
+            package_options += tmp_pkg_src_path
+            # sat package <package_options>
+            runner.package(package_options,
+                           batch = True,
+                           verbose = 0,
+                           logger_add_link = logger)
+            d_files_to_add["SOURCES PACKAGE"] = (tmp_pkg_src_path,
+                                                 tmp_pkg_src_name)
+            logger.write(src.printcolors.printc("OK"), 3)
+            logger.write("\n", 3)
 
     if package_type == SOURCE:
         d_files_to_add = source_package(runner,
@@ -835,19 +914,34 @@ def run(args, runner, logger):
     if package_type == SAT:
         d_files_to_add = {"salomeTools" : (runner.cfg.VARS.salometoolsway, "")}
     
+    # Add the README file in the package
+    local_readme_tmp_path = add_readme(runner.cfg,
+                                       package_type,
+                                       tmp_working_dir)
+    d_files_to_add["README"] = (local_readme_tmp_path, "README")
+    
     logger.write("\n", 2)
 
     logger.write(src.printcolors.printcLabel(_("Actually do the package")), 2)
     logger.write("\n", 2)
     
-    # Creating the object tarfile
-    tar = tarfile.open(path_targz, mode='w:gz')
+    try:
+        # Creating the object tarfile
+        tar = tarfile.open(path_targz, mode='w:gz')
+        
+        # Add the files to the tarfile object
+        res = add_files(tar, archive_name, d_files_to_add, logger)
+        tar.close()
+    except KeyboardInterrupt:
+        logger.write(src.printcolors.printcError("\nERROR: forced interruption\n"), 1)
+        logger.write(_("Removing the temporary working directory ... "), 1)
+        # remove the working directory
+        shutil.rmtree(tmp_working_dir)
+        logger.write(_("OK"), 1)
+        logger.write(_("\n"), 1)
+        return 1
     
-    # Add the files to the tarfile object
-    res = add_files(tar, archive_name, d_files_to_add, logger)
-    tar.close()
-    
-    # remove the working directory
+    # remove the working directory    
     shutil.rmtree(tmp_working_dir)
     
     # Print again the path of the package

@@ -33,6 +33,7 @@ from . import environment
 from . import fileEnviron
 from . import compilation
 from . import test_module
+from . import template
 
 OK_STATUS = "OK"
 KO_STATUS = "KO"

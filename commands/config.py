@@ -98,6 +98,7 @@ class ConfigManager:
         var['salometoolsway'] = os.path.dirname(
                                     os.path.dirname(os.path.abspath(__file__)))
         var['srcDir'] = os.path.join(var['salometoolsway'], 'src')
+        var['internal_dir'] = os.path.join(var['srcDir'], 'internal_config')
         var['sep']= os.path.sep
         
         # datadir has a default location

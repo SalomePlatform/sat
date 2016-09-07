@@ -1,0 +1,14 @@
+# This package was generated with sat ¤{version}
+# Date: ¤{date}
+# User: ¤{user}
+
+In the following, $ROOT represents the directory where this file is located.
+
+This package includes salomeTools.
+
+You can add a project to salomeTools by editing the file $ROOT/data/site.pyconf
+and add a project file in the section PROJECTS:
+PROJECTS :
+{
+    project_file_paths : ["HERE"]
+}
