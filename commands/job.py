@@ -116,18 +116,26 @@ def run(args, runner, logger):
                      src.printcolors.printcLabel(command) + " ", 3)
         logger.write("." * (len_max_command - len(command)) + " ", 3)
         logger.flush()
-        # Execute the command
-        code = sat_command(end_cmd,
-                           batch = True,
-                           verbose = 0,
-                           logger_add_link = logger)
+        
+        error = ""
+        try:
+            # Execute the command
+            code = sat_command(end_cmd,
+                               batch = True,
+                               verbose = 0,
+                               logger_add_link = logger)
+        except Exception as e:
+            code = 1
+            error = str(e)
+
         # Print the status of the command
         if code == 0:
             nb_pass += 1
             logger.write('%s\n' % src.printcolors.printc(src.OK_STATUS), 3)
         else:
             res = 1
-            logger.write('%s\n' % src.printcolors.printc(src.KO_STATUS), 3)
+            logger.write('%s %s\n' % (src.printcolors.printc(src.KO_STATUS),
+                                      error), 3)
     
     # Print the final state
     if res == 0:
