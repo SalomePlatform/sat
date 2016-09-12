@@ -576,3 +576,46 @@ def product_has_patches(product_info):
     :rtype: boolean
     '''
     return "patches" in product_info and len(product_info.patches) > 0
+
+def product_is_mpi(product_info):
+    '''Know if a product has openmpi in its dependencies
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product has openmpi inits dependencies
+    :rtype: boolean
+    '''
+    return "openmpi" in product_info.depend
+
+def product_is_generated(product_info):
+    '''Know if a product is generated (YACSGEN)
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is generated
+    :rtype: boolean
+    '''
+    return ("properties" in product_info and
+            "generated" in product_info.properties and
+            product_info.properties.generated == "yes")
+
+def get_product_components(product_info):
+    '''Get the component list to generate with the product
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: The list of names of the components
+    :rtype: List
+    
+    '''
+    if not product_is_generated(product_info):
+        return []
+    
+    compo_list = []
+    if "component_name" in product_info:
+        compo_list = product_info.component_name
+    
+        if isinstance(compo_list, str):
+            compo_list = [ compo_list ]
+
+    return compo_list
