@@ -371,8 +371,9 @@ CC=\\"hack_libtool\\"%g" libtool'''
     # Performs a build with a script.
     def do_python_script_build(self, script):
         # script found
-        self.logger.write(_("Compile %(module)s using script %(script)s\n") % \
-            { 'module': self.module, 'script': src.printcolors.printcLabel(script) }, 4)
+        self.logger.write(_("Compile %(product)s using script %(script)s\n") % \
+            { 'product': self.product_info.name,
+             'script': src.printcolors.printcLabel(script) }, 4)
         try:
             import imp
             pymodule = imp.load_source(self.product + "_compile_script", script)
