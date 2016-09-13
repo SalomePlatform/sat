@@ -345,6 +345,8 @@ def compile_all_products(sat, config, options, products_infos, logger):
         
         if res_prod != 0:
             # Clean the install directory if there is any
+            logger.write(_("Cleaning the install directory if there is any\n"),
+                         5)
             sat.clean(config.VARS.application + 
                       " --products " + p_name + 
                       " --install", batch=True, verbose=0)
