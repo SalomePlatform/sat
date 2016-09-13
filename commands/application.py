@@ -66,8 +66,6 @@ def add_module_to_appli(out, module, has_gui, module_path, logger, flagline):
 ##
 # Creates the config file to create an application with the list of modules.
 def create_config_file(config, modules, env_file, logger):
-    if len(modules) == 0:
-        modules = config.APPLICATION.products
 
     samples = ""
     if 'SAMPLES' in config.APPLICATION.products:
@@ -84,11 +82,11 @@ def create_config_file(config, modules, env_file, logger):
     flagline = False
     for m in modules:
         mm = src.product.get_product_config(config, m)
-        if src.product.module_is_smesh_plugin(mm):
+        if src.product.product_is_smesh_plugin(mm):
             continue
 
         if 'install_dir' in mm and bool(mm.install_dir) :
-            if src.product.module_is_cpp(mm):
+            if src.product.product_is_cpp(mm):
                 # cpp module
                 for aa in src.product.get_product_components(mm):
                     install_dir = os.path.join(config.APPLICATION.workdir,
@@ -211,62 +209,47 @@ def write_step(logger, message, level=3, pad=50):
 ##
 # Creates a SALOME application.
 def create_application(config, appli_dir, catalog, logger, display=True):
+      
+    SALOME_modules = get_SALOME_modules(config)
     
-    # check modules to add to installation
-    modules = []
-    if 'modules' in config.APPLI:
-        modules = config.APPLI.modules
-        # add prerequisites for the module and its dependencies
-        products = {}
-        for module in modules:
-            prelist = config.TOOLS.common.module_info[module].pre_depend
-            for prereq in prelist:
-                # add prerequisites define in module_info AND product.prerequis
-                if prereq in config.PRODUCT.prerequis and not prerequis.has_key(prereq):
-                    prerequis[prereq] = config.PRODUCT.prerequis[prereq]
-    
-    if len(modules) == 0:
-        modules = src.get_cfg_param(config.PRODUCT, "all_modules", config.PRODUCT.modules)
-        prerequis = config.PRODUCT.prerequis
-
-    env_info = { 'modules': modules, 'prerequis': prerequis }
-
-    cmd_old, cmd_new = "", ""
+    prerequis = config.PRODUCT.prerequis
 
     warn = ['KERNEL', 'GUI']
     if display:
         for w in warn:
-            if w not in env_info['modules']:
+            if w not in SALOME_modules:
                 msg = _("WARNING: module %s is required to create application\n") % w
                 logger.write(src.printcolors.printcWarning(msg), 2)
 
-    # old way for application
-    retcode = generate_launch_file_old(config, appli_dir, catalog, logger, env_info=env_info)
+    # generate the launch file
+    retcode = generate_launch_file(config,
+                                   appli_dir,
+                                   catalog,
+                                   logger,
+                                   SALOME_modules)
+    
     if retcode == 0:
-        cmd_old = src.printcolors.printcLabel("%s/runAppli" % appli_dir)
-
-    # new way for application
-    VersionSalome = src.get_salome_version(config)
-           
-    if VersionSalome >= 751 :
-        filename = generate_launch_file(config, appli_dir, catalog, logger, env_info)
-        cmd_new = src.printcolors.printcLabel(filename)
+        cmd = src.printcolors.printcLabel("%s/runAppli" % appli_dir)
 
     if display:
         logger.write("\n", 3, False)
         logger.write(_("To launch the application, type:\n"), 3, False)
-        if len(cmd_old) > 0:
-            logger.write("  %s" % (cmd_old), 3, False)
-            logger.write("\n", 3, False)
-        if len(cmd_new) > 0:
-            logger.write("  %s (%s)" % (cmd_new, _("new command")), 3, False)
-            logger.write("\n", 3, False)    
+        logger.write("  %s" % (cmd), 3, False)
+        logger.write("\n", 3, False)
     return retcode
+
+def get_SALOME_modules(config):
+    l_modules = []
+    for product in config.APPLICATION.products:
+        product_info = src.product.get_product_config(config, product)
+        if src.product.product_is_SALOME(product_info):
+            l_modules.append(product)
+    return l_modules
 
 ##
 # Obsolescent way of creating the application.
 # This method will use appli_gen to create the application directory.
-def generate_launch_file_old(config, appli_dir, catalog, logger, env_info=None):
+def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
     retcode = -1
 
     if len(catalog) > 0 and not os.path.exists(catalog):
@@ -292,7 +275,7 @@ def generate_launch_file_old(config, appli_dir, catalog, logger, env_info=None):
     # build the application
     env_file = os.path.join(config.PRODUCT.out_dir, "env_launch.sh")
     write_step(logger, _("Building application"), level=2)
-    cf = create_config_file(config, env_info['modules'], env_file, logger)
+    cf = create_config_file(config, l_SALOME_modules, env_file, logger)
 
     # create the application directory
     os.makedirs(appli_dir)
@@ -350,48 +333,7 @@ def generate_sourcing_launcher(config, appli_dir, logger) :
     f.close()
     os.chmod(launcher_name, stat.S_IRWXU| stat.S_IRWXG| stat.S_IRWXO) # 0777
 
-##
-# New method to create an application
-def generate_launch_file(config,
-                         appli_dir,
-                         catalog,
-                         logger,
-                         env_info=None):
-    
-    out_dir = config.PRODUCT.out_dir
-
-    basefilename = config.APPLI.name
-    if "launch_alias_name" in config.APPLI :
-        basefilename = config.APPLI.launch_alias_name
-    filename = os.path.join(appli_dir, "bin/salome", basefilename)
-    if os.path.exists(filename): os.remove(filename)
-    before, after = src.fileEnviron.withProfile.split(
-                                   "# here your local standalone environment\n")
-
-    # create an environment file writer
-    writer = src.environment.FileEnvWriter(config,
-                                           logger,
-                                           out_dir,
-                                           src_root=None,
-                                           single_dir=False,
-                                           env_info=env_info)
-    #writer.silent = False
-
-    # create the command file
-    launch_file = open(filename, "w")
-    launch_file.write(before)
-    writer.write_cfgForPy_file(launch_file)
-    launch_file.write(after)
-    launch_file.close()
-    os.chmod(filename, stat.S_IRWXU| stat.S_IRWXG| stat.S_IRWXO) # 0777
-      
-    # If native python < 2.6, write a launcher that sources Salome's 
-    # python before calling the original launcher
-    if config.VARS.python < "2.6" :
-        generate_sourcing_launcher(config, appli_dir, logger)
-
-    return filename
-    
+   
 
 ##
 # Generates the catalog from a list of machines.
@@ -484,6 +426,7 @@ def run(args, runner, logger):
     if "APPLI" not in runner.cfg:
         msg = _("The section APPLI is not defined in the product.")
         logger.write(src.printcolors.printcError(msg), 1)
+        logger.write("\n", 1)
         return 1
 
     # get application dir
