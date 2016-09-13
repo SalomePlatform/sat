@@ -376,7 +376,8 @@ CC=\\"hack_libtool\\"%g" libtool'''
              'script': src.printcolors.printcLabel(script) }, 4)
         try:
             import imp
-            pymodule = imp.load_source(self.product + "_compile_script", script)
+            product = self.product_info.name
+            pymodule = imp.load_source(product + "_compile_script", script)
             retcode = pymodule.compil(self.config, self, self.logger)
         except:
             __, exceptionValue, exceptionTraceback = sys.exc_info()
