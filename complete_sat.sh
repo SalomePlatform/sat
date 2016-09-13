@@ -49,6 +49,9 @@ _show_applications()
         package)
             opts2=$(echo --name --project --salometools $opts2)
             ;;
+        find_duplicates)
+            opts2=$(echo --path --exclude-file --exclude-extension --exclude-path $opts2)
+            ;;
     esac
 
     COMPREPLY=( $(compgen -W "${opts2}" -- ${cur}) )
@@ -95,7 +98,7 @@ _salomeTools_complete()
     # first argument => show available commands
     if [[ ${argc} == 1 ]]
     then
-        opts="config log testcommand source patch prepare environ clean configure make makeinstall compile launcher run jobs job shell test package generate --help"
+        opts="config log testcommand source patch prepare environ clean configure make makeinstall compile launcher run jobs job shell test package generate find_duplicates --help"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     fi
@@ -231,6 +234,11 @@ _salomeTools_complete()
             ;;
         generate)
             opts="--products --yacsgen"
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        find_duplicates)
+            opts="--path --sources --exclude-file --exclude-extension --exclude-path"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
