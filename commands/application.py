@@ -177,7 +177,7 @@ def generate_application(config, appli_dir, config_file, logger):
     
     # Add SALOME python in the environment in order to avoid python version 
     # problems at appli_gen.py call
-    if 'Python' in config.APPLICATIONS.products:
+    if 'Python' in config.APPLICATION.products:
         envi = src.environment.SalomeEnviron(config,
                                              src.environment.Environ(
                                                               dict(os.environ)),
