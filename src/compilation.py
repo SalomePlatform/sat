@@ -380,10 +380,11 @@ CC=\\"hack_libtool\\"%g" libtool'''
             retcode = pymodule.compil(self.config, self, self.logger)
         except:
             __, exceptionValue, exceptionTraceback = sys.exc_info()
-            print(exceptionValue)
+            self.logger.write(exceptionValue, 1)
             import traceback
             traceback.print_tb(exceptionTraceback)
             traceback.print_exc()
+            retcode = 1
 
         return retcode
 
