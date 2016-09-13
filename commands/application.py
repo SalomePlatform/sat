@@ -192,7 +192,7 @@ def generate_application(config, appli_dir, config_file, logger):
                     shell=True,
                     cwd=target_dir,
                     env=envi.environ.environ,
-                    stdout=logger.log_file,
+                    stdout=logger.logTxtFile,
                     stderr=subprocess.STDOUT)
     
     if res != 0:
