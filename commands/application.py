@@ -258,20 +258,17 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
     try:
         import environ
         # generate only shells the user wants (by default bash, csh, batch)
-        # the environ command will only generate file compatible with the current system.
-        shells = src.get_cfg_param(config.TOOLS.environ,
-                                   "shells",
-                                   [ "bash", "batch"])
+        # the environ command will only generate file compatible 
+        # with the current system.
         environ.write_all_source_files(config,
                                        logger,
-                                       silent=True,
-                                       shells=shells)
+                                       silent=True)
         status = src.OK_STATUS
     finally:
         logger.write(src.printcolors.printc(status) + "\n", 2, False)
 
     # build the application
-    env_file = os.path.join(config.PRODUCT.out_dir, "env_launch.sh")
+    env_file = os.path.join(config.APPLICATION.workdir, "env_launch.sh")
     write_step(logger, _("Building application"), level=2)
     cf = create_config_file(config, l_SALOME_modules, env_file, logger)
 
