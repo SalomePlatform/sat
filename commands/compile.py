@@ -326,6 +326,7 @@ def compile_all_products(sat, config, options, products_infos, logger):
         # Check if the dependencies are installed
         l_depends_not_installed = check_dependencies(config, p_name_info)
         if len(l_depends_not_installed) > 0:
+            log_step(logger, header, "")
             logger.write(src.printcolors.printcError(
                     _("ERROR : the following product(s) is(are) mandatory: ")))
             for prod_name in l_depends_not_installed:
