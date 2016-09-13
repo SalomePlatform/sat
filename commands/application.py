@@ -212,8 +212,6 @@ def create_application(config, appli_dir, catalog, logger, display=True):
       
     SALOME_modules = get_SALOME_modules(config)
     
-    prerequis = config.PRODUCT.prerequis
-
     warn = ['KERNEL', 'GUI']
     if display:
         for w in warn:

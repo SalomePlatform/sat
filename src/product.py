@@ -543,6 +543,42 @@ def product_is_vcs(product_info):
     '''
     return product_info.get_source in AVAILABLE_VCS
 
+def product_is_SALOME(product_info):
+    '''Know if a product is a SALOME module
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is a SALOME module, else False
+    :rtype: boolean
+    '''
+    return ("properties" in product_info and
+            "is_SALOME_module" in product_info.properties and
+            product_info.properties.is_SALOME_module == "yes")
+
+def product_is_smesh_plugin(product_info):
+    '''Know if a product is a SMESH plugin
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is a SMESH plugin, else False
+    :rtype: boolean
+    '''
+    return ("properties" in product_info and
+            "smesh_plugin" in product_info.properties and
+            product_info.properties.smesh_plugin == "yes")
+
+def product_is_cpp(product_info):
+    '''Know if a product is cpp
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is a cpp, else False
+    :rtype: boolean
+    '''
+    return ("properties" in product_info and
+            "cpp" in product_info.properties and
+            product_info.properties.cpp == "yes")
+
 def product_has_script(product_info):
     '''Know if a product has a compilation script
     
