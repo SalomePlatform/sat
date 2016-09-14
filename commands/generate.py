@@ -281,7 +281,8 @@ def check_yacsgen(config, directory, logger):
     
     pv = os.getenv("PYTHON_VERSION")
     if pv is None:
-        pv = '.'.join(config.PRODUCT.prerequis["Python"].split('.')[:2])
+        python_info = src.product.get_product_config(config, "Python")
+        pv = '.'.join(python_info.version.split('.')[:2])
     assert pv is not None, "$PYTHON_VERSION not defined"
     yacsgen_dir = os.path.join(yacsgen_dir, "lib", "python%s" % pv,
                                "site-packages")
