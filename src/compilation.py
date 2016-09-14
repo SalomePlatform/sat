@@ -401,6 +401,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
         self.build_environ.set("DIST_NAME", self.config.VARS.dist_name)
         self.build_environ.set("DIST_VERSION", self.config.VARS.dist_version)
         self.build_environ.set("DIST", self.config.VARS.dist)
+        self.build_environ.set("VERSION", self.product_info.version)
 
     def do_batch_script_build(self, script):
         # define make options (may not be used by the script)
