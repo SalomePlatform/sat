@@ -255,14 +255,14 @@ def check_yacsgen(config, directory, logger):
     yacs_src = "?"
     if directory is not None:
         yacsgen_dir = directory
-        yacs_src = _("Using YACSGEN form command line")
+        yacs_src = _("Using YACSGEN from command line")
     elif 'YACSGEN' in config.APPLICATION.products:
         yacsgen_info = src.product.get_product_config(config, 'YACSGEN')
         yacsgen_dir = yacsgen_info.install_dir
-        yacs_src = _("Using YACSGEN form application")
+        yacs_src = _("Using YACSGEN from application")
     elif os.environ.has_key("YACSGEN_ROOT_DIR"):
         yacsgen_dir = os.getenv("YACSGEN_ROOT_DIR")
-        yacs_src = _("Using YACSGEN form environment")
+        yacs_src = _("Using YACSGEN from environment")
 
     if yacsgen_dir is None:
         return (False, _("The generate command requires YACSGEN."))
@@ -291,7 +291,7 @@ def check_yacsgen(config, directory, logger):
         return c
 
     return (False,
-            _("The python module mosule_generator was not found in YACSGEN"))
+            _("The python module module_generator was not found in YACSGEN"))
 
 
 def description():
