@@ -145,7 +145,7 @@
 	<td align="center"><xsl:value-of select="$curr_distname" /></td>
 	<!-- for all jobs -->
 	<xsl:for-each select="//JobsReport/applications/application">
-	  <xsl:sort select="@name" />
+	  <!--<xsl:sort select="@name" />-->
 	  <xsl:variable name="curr_appli" select="@name" />
 	  <td align="center" class="small">
 	      <!-- get the job for current host and current appli -->
