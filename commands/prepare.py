@@ -27,7 +27,7 @@ parser.add_option('p', 'products', 'list2', 'products',
     ' passed several time to prepare several products.'))
 parser.add_option('f', 'force', 'boolean', 'force', 
     _("force to prepare the products in development mode."))
-parser.add_option('f', 'force_patch', 'boolean', 'force_patch', 
+parser.add_option('', 'force_patch', 'boolean', 'force_patch', 
     _("force to apply patch to the products in development mode."))
 
 def get_products_list(options, cfg, logger):

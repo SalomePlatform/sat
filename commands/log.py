@@ -160,7 +160,7 @@ def run(args, runner, logger):
             nbClean = nbLogFiles
         # Get the list to delete and do the removing
         lLogsToDelete = sorted(lLogs)[:nbClean]
-        for filePath, _, _, _, _, _ in lLogsToDelete:
+        for filePath, __, __, __, __, __ in lLogsToDelete:
             # remove the xml log file
             remove_log_file(filePath, logger)
             # remove also the corresponding txt file in OUT directory
@@ -218,7 +218,7 @@ def run(args, runner, logger):
         lLogs = src.logger.list_log_file(logDir, 
                                          src.logger.logCommandFileExpression)
         lLogsFiltered = []
-        for filePath, _, date, _, hour, cmd in lLogs:
+        for filePath, __, date, __, hour, cmd in lLogs:
             showLog, cmdAppli = src.logger.show_command_log(filePath, cmd, 
                                 runner.cfg.VARS.application, notShownCommands)
             if showLog:
@@ -228,7 +228,7 @@ def run(args, runner, logger):
         nb_logs = len(lLogsFiltered)
         index = 0
         # loop on all files and print it with date, time and command name 
-        for _, date, hour, cmd, cmdAppli in lLogsFiltered:          
+        for __, date, hour, cmd, cmdAppli in lLogsFiltered:          
             num = src.printcolors.printcLabel("%2d" % (nb_logs - index))
             logger.write("%s: %13s %s %s %s\n" % 
                          (num, cmd, date, hour, cmdAppli), 1, False)
@@ -247,11 +247,15 @@ def run(args, runner, logger):
         return 0
                     
     # Create or update the hat xml that gives access to all the commands log files
+    logger.write(_("Generating the hat log file (can be long) ... "), 3)
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
     src.logger.update_hat_xml(runner.cfg.USER.log_dir, 
                               application = runner.cfg.VARS.application, 
                               notShownCommands = notShownCommands)
+    logger.write(src.printcolors.printc("OK"), 3)
+    logger.write("\n", 3)
     
     # open the hat xml in the user editor
+    logger.write(_("\nOpening the log file\n"), 3)
     src.system.show_in_editor(runner.cfg.USER.browser, xmlHatFilePath, logger)
     return 0

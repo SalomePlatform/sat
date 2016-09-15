@@ -503,6 +503,20 @@ def run(args, runner, logger):
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
 
+    # Print some informations
+    logger.write(_('Executing the compile commands in the build '
+                                'directories of the products of '
+                                'the application %s\n') % 
+                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
+    
+    info = [
+            (_("SOURCE directory"),
+             os.path.join(runner.cfg.APPLICATION.workdir, 'SOURCES')),
+            (_("BUILD directory"),
+             os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))
+            ]
+    src.print_info(logger, info)
+
     # Get the list of products to treat
     products_infos = get_products_list(options, runner.cfg, logger)
 
@@ -517,19 +531,6 @@ def run(args, runner, logger):
     # Sort the list regarding the dependencies of the products
     products_infos = sort_products(runner.cfg, products_infos)
 
-    # Print some informations
-    logger.write(_('Executing the compile commands in the build '
-                                'directories of the products of '
-                                'the application %s\n') % 
-                src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
-    
-    info = [
-            (_("SOURCE directory"),
-             os.path.join(runner.cfg.APPLICATION.workdir, 'SOURCES')),
-            (_("BUILD directory"),
-             os.path.join(runner.cfg.APPLICATION.workdir, 'BUILD'))
-            ]
-    src.print_info(logger, info)
     
     # Call the function that will loop over all the products and execute
     # the right command(s)
