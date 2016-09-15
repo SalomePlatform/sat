@@ -1,0 +1,50 @@
+#! /bin/bash
+
+run() {
+    local logfile=$ORIG_DIR/build_configure.log
+    printf "%-50s" "$1 ... "
+    eval $1 > $logfile 2>&1
+    if test $? != 0 ; then
+	echo "[FAILED]"
+	echo "see file build_configure.log ..."
+	exit 1
+    fi
+    echo "[  OK  ]"
+}
+
+# --
+ORIG_DIR=`pwd`
+
+########################################################################
+# Test if the KERNEL_ROOT_DIR and MED_ROOT_DIR are set correctly
+
+if test ! -d "${KERNEL_ROOT_DIR}"; then
+        echo "failed : KERNEL_ROOT_DIR variable is not correct !"
+	exit
+fi
+if test ! -d "${MED_ROOT_DIR}"; then
+        echo "failed : MED_ROOT_DIR variable is not correct !"
+	exit
+fi
+
+# --
+# -- goto build_configure dir
+CONF_DIR=`echo $0 | sed -e "s,[^/]*$,,;s,/$,,;s,^$,.,"`
+cd ${CONF_DIR}
+# --
+# -- list all Makefile.am in Makefile.am.list
+./rfind . Makefile.am > Makefile.am.list
+# --
+# -- configure.in construction
+cp configure.in.base configure.in
+chmod +w configure.in
+echo "AC_OUTPUT([ \\" >> configure.in
+sed -e 's,\.am, \\,' -e 's,\.\/,,' Makefile.am.list >> configure.in
+echo  "])" >> configure.in
+
+# --
+run "libtoolize"
+run "aclocal -I adm/unix/config_files -I ${KERNEL_ROOT_DIR}/salome_adm/unix/config_files -I ${MED_ROOT_DIR}/adm_local/unix/config_files"
+run "autoconf"
+run "automake --add-missing --copy"
+

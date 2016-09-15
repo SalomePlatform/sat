@@ -1,0 +1,4 @@
+This directory contains the test bases to be used with salomeTools.
+See the documentation of salomeTools for the description of salomeTools' test bases.
+
+It should contains only the tests specific to the application.

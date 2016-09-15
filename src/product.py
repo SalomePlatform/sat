@@ -613,6 +613,20 @@ def product_has_patches(product_info):
     '''
     return "patches" in product_info and len(product_info.patches) > 0
 
+def product_has_logo(product_info):
+    '''Know if a product has a logo (YACSGEN generate)
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: The path of the logo if the product has a logo, else False
+    :rtype: Str
+    '''
+    if ("properties" in product_info and
+            "logo" in product_info.properties):
+        return product_info.properties.logo
+    else:
+        return False
+
 def product_is_mpi(product_info):
     '''Know if a product has openmpi in its dependencies
     

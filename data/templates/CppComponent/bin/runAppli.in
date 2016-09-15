@@ -1,0 +1,65 @@
+#!/bin/bash
+# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
+
+if [ -z "${KERNEL_ROOT_DIR}" ] ; then
+export KERNEL_ROOT_DIR=@KERNEL_ROOT_DIR@
+fi
+if [ -z "${:sat:{CPPCMP}_ROOT_DIR}" ] ; then
+export :sat:{CPPCMP}_ROOT_DIR=@prefix@
+fi
+
+searchFreePort() {
+    echo -n "Searching for a free port for naming service: "
+    export NSPORT=2810
+    local limit=$NSPORT
+    let limit=limit+100
+    while [ 1 ]
+    do
+        aRes=`netstat -ltn | grep -E :${NSPORT}`
+        if [ -z "$aRes" ]; then
+            echo ${NSPORT} - Ok
+            local myhost=`hostname`
+            export OMNIORB_CONFIG=${HOME}/.omniORB_${myhost}_${NSPORT}.cfg
+            local initref="NameService=corbaname::"`hostname`":$NSPORT"
+            if [[ `python -c "import CORBA; print CORBA.ORB_ID"` = "omniORB4" ]]; then
+                echo "InitRef = $initref" > $OMNIORB_CONFIG
+            else
+                echo "ORBInitRef $initref" > $OMNIORB_CONFIG
+            fi
+            break
+        fi
+        echo -n "${NSPORT} "
+        if [[ $NSPORT -eq $limit ]] ; then
+            echo
+            echo "Can't find a free port to launch omniNames"
+            echo "Try to kill the running servers and then launch SALOME again."
+            exit
+        fi
+        let NSPORT=NSPORT+1
+    done
+}
+
+searchFreePort
+
+
+${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python -i $:sat:{CPPCMP}_ROOT_DIR/bin/salome/myrunSalome.py --modules=:sat:{CPPCMP} --killall

@@ -1,0 +1,112 @@
+<?xml version='1.0' encoding='us-ascii' ?>
+<!--
+  Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+
+  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+
+  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+
+-->
+
+<!-- XML component catalog -->
+<begin-catalog>
+    <!-- Path prefix information -->
+    <path-prefix-list></path-prefix-list>
+    <!-- Type information -->
+    <type-list>
+      <type name="status" kind="int"/>
+    </type-list>
+    <!-- Component list -->
+    <component-list>
+        <!-- Component -->
+        <component>
+            <!-- Component identification -->
+            <component-name>:sat:{CPPCMP}</component-name>
+            <component-username>:sat:{CPPCMP}</component-username>
+            <component-type>OTHER</component-type>
+            <component-author>Vadim SANDLER</component-author>
+            <component-version>@VERSION@</component-version>
+            <component-comment>Sample module</component-comment>
+            <component-multistudy>1</component-multistudy>
+            <component-impltype>1</component-impltype>
+            <component-icone>:sat:{CPPCMP}.png</component-icone>
+            <constraint></constraint>
+            <!-- Component interface -->
+            <component-interface-list>
+                <component-interface-name>:sat:{CPPCMP}_Gen</component-interface-name>
+                <component-interface-comment>:sat:{CPPCMP} engine</component-interface-comment>
+                <component-service-list>
+                    <component-service>
+                        <service-name>hello</service-name>
+                        <service-author>Vadim SANDLER</service-author>
+                        <service-version>@VERSION@</service-version>
+                        <service-comment>Hello function</service-comment>
+                        <service-by-default>1</service-by-default>
+                        <inParameter-list>
+                            <inParameter>
+                                <inParameter-name>study</inParameter-name>
+                                <inParameter-type>Study</inParameter-type>
+                                <inParameter-comment>study</inParameter-comment>
+                            </inParameter>
+                            <inParameter>
+                                <inParameter-name>name</inParameter-name>
+                                <inParameter-type>string</inParameter-type>
+                                <inParameter-comment>user name</inParameter-comment>
+                            </inParameter>
+                        </inParameter-list>
+                        <outParameter-list>
+                            <outParameter>
+                                <outParameter-name>return</outParameter-name>
+                                <outParameter-type>status</outParameter-type>
+                                <outParameter-comment>operation status</outParameter-comment>
+                            </outParameter>
+                        </outParameter-list>
+                        <DataStream-list></DataStream-list>
+                    </component-service>
+                    <component-service>
+                        <service-name>goodbye</service-name>
+                        <service-author>Vadim SANDLER</service-author>
+                        <service-version>@VERSION@</service-version>
+                        <service-comment>Goodbye function</service-comment>
+                        <service-by-default>0</service-by-default>
+                        <inParameter-list>
+                            <inParameter>
+                                <inParameter-name>study</inParameter-name>
+                                <inParameter-type>Study</inParameter-type>
+                                <inParameter-comment>study</inParameter-comment>
+                            </inParameter>
+                            <inParameter>
+                                <inParameter-name>name</inParameter-name>
+                                <inParameter-type>string</inParameter-type>
+                                <inParameter-comment>user name</inParameter-comment>
+                            </inParameter>
+                        </inParameter-list>
+                        <outParameter-list>
+                            <outParameter>
+                                <outParameter-name>return</outParameter-name>
+                                <outParameter-type>status</outParameter-type>
+                                <outParameter-comment>operation status</outParameter-comment>
+                            </outParameter>
+                        </outParameter-list>
+                        <DataStream-list></DataStream-list>
+                    </component-service>
+                </component-service-list>
+            </component-interface-list>
+        </component>
+    </component-list>
+</begin-catalog>

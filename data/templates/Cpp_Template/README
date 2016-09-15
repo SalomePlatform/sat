@@ -1,0 +1,16 @@
+This directory contains the tree directories to compile a C++ components linked with MED library.
+
+
+Component is based on automake. 
+
+To INSTALL it : source salome environement file (for MED), then
+
+ mkdir ../:sat:{Cpp_Template_}CPP_BUILD
+ mkdir ../:sat:{Cpp_Template_}CPP_INSTALL
+ ./build_configure
+ cd ../:sat:{Cpp_Template_}CPP_BUILD
+ ../:sat:{Cpp_Template_}CPP_SRC/configure --prefix=<absolute path of :sat:{Cpp_Template_}CPP_INSTALL>
+ make
+ make install
+
+

@@ -169,10 +169,11 @@ def generate_component(config, compo, product_info, context, header, logger):
     # copy specified logo in generated component install directory
     # rem : logo is not copied in source dir because this would require
     #       to modify the generated makefile
-    if "logo" in product_info:
+    logo_path = src.product.product_has_logo(product_info)
+    if logo_path:
         destlogo = os.path.join(pp.install_dir, "share", "salome",
             "resources", compo.lower(), compo + ".png")
-        src.Path(product_info.logo).copyfile(destlogo)
+        src.Path(logo_path).copyfile(destlogo)
 
     return result
 

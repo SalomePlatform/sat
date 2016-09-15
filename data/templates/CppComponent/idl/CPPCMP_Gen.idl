@@ -1,0 +1,89 @@
+// Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+
+#ifndef __:sat:{CPPCMP}_GEN__
+#define __:sat:{CPPCMP}_GEN__
+
+/*!
+  \defgroup EXAMPLES SALOME EXAMPLES components
+*/
+
+#include "SALOME_Component.idl"
+#include "SALOME_Exception.idl"
+
+/*!
+  \ingroup EXAMPLES
+  This package contains the interface :sat:{CPPCMP}_ORB used
+  for %:sat:{CPPCMP} component as an example in %SALOME application.
+*/
+module :sat:{CPPCMP}_ORB
+{
+    typedef sequence<SALOMEDS::SObject> object_list;
+
+    /*!
+      \brief Operation result codes
+    */
+    enum status {
+        OP_OK,                         //!< OK result
+        OP_ERR_ALREADY_MET,            //!< ERROR: already met
+        OP_ERR_DID_NOT_MEET,           //!< ERROR: did not meet yet
+        OP_ERR_UNKNOWN                 //!< ERROR: other problems
+    };
+
+    /*!
+      \brief Interface of the %:sat:{CPPCMP} component
+    */
+    interface :sat:{CPPCMP}_Gen : Engines::EngineComponent
+    {
+        /*!
+          \brief Say hello to \a name
+          \param study SALOME study
+          \param name person's name
+          \return operation status
+        */
+        status hello(in SALOMEDS::Study study, in string name)
+            raises(SALOME::SALOME_Exception);
+
+        /*!
+          \brief Say goodbye to \a name
+          \param study SALOME study
+          \param name person's name
+          \return operation status
+        */
+        status goodbye(in SALOMEDS::Study study, in string name)
+            raises (SALOME::SALOME_Exception);
+
+        /*!
+          \brief Copy or move objects to the specified position
+
+          This function is used in the drag-n-drop functionality.
+
+          \param what objects being copied/moved
+          \param where parent object where objects are copied/moved to
+          \param row position in the parent object's children list at which objects are copied/moved
+          \param isCopy \c true if object are copied or \c false otherwise
+        */
+        void copyOrMove(in object_list what, in SALOMEDS::SObject where, in long row, in boolean isCopy);
+    };
+};
+
+#endif

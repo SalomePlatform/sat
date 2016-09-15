@@ -1,0 +1,1065 @@
+/*!
+
+\mainpage Introduction to :sat:{CPPCMP} sample module
+
+The purpose of the \b :sat:{CPPCMP} module is to describe briefly the different
+steps in the development of a SALOME module in C++.
+
+Contents:
+- \subpage dev_steps
+- \subpage tree_structure
+- \subpage build_proc_files
+- \subpage idl_dir
+- \subpage src_dir
+- \subpage bin_dir
+- \subpage doc_dir
+- \subpage build_procedure
+- \subpage run_procedure
+- \subpage load_module
+- \subpage catalog_def
+- \subpage load_lcc
+- \subpage load_iapp
+
+\ref dev_steps ">> Next"
+
+\page dev_steps Steps in construction of the example module
+
+The example module chosen to illustrate the process of SALOME module
+development is very simple. The module contains a single
+component and this component provides several services called \b
+hello and \b goodbye.
+Each of these functions accepts a reference to the SALOME study and
+a character string as the arguments and returns the status of the operation.
+The component also provides a simple GUI.
+
+The steps in the development are as follows:
+- create a module tree structure
+- create a SALOME component that can be loaded by a C++ SALOME container
+- configure the module so that the component is known to SALOME
+- add a GUI
+
+\ref index "<< Previous"<br>\ref tree_structure ">> Next"
+
+\page tree_structure Create the module tree structure
+
+The first step in the development process is the creation of the
+module tree file hierarchy. The typical SALOME module usually includes
+some set of the configuration files (used in the build procedure of a
+module), Makefiles, IDL file that provides a definition of a CORBA
+services implemented in a module and a set of source files which are
+compiled by the build procedure to the module CORBA engine library and
+(optionally) GUI library.
+
+The following file structure is typical for the SALOME module:
+
+<pre>
++ :sat:{CPPCMP}1_SRC
+   + build_configure
+   + clean_configure
+   + configure.ac
+   + Makefile.am
+   + :sat:{CPPCMP}_version.h.in
+   + AUTHORS
+   + COPYING
+   + ChangeLog
+   + INSTALL
+   + NEWS
+   + README
+   + adm_local
+     + Makefile.am
+     + unix
+       + Makefile.am
+       + make_common_starter.am
+       + config_files
+         + Makefile.am
+         + check_GUI.m4
+         + check_:sat:{CPPCMP}.m4
+   + bin
+     + Makefile.am
+     + VERSION.in
+     + runAppli.in
+     + myrunSalome.py
+   + idl
+     + Makefile.am
+     + :sat:{CPPCMP}_Gen.idl
+   + src
+     + Makefile.am
+     + :sat:{CPPCMP}
+       + Makefile.am
+       + :sat:{CPPCMP}.hxx
+       + :sat:{CPPCMP}.cxx
+     + :sat:{CPPCMP}GUI
+       + Makefile.am
+       + :sat:{CPPCMP}GUI.h
+       + :sat:{CPPCMP}GUI.cxx
+       + :sat:{CPPCMP}_msg_en.ts
+       + :sat:{CPPCMP}_icons.ts
+   + resources
+     + Makefile.am
+     + :sat:{CPPCMP}.png
+     + goodbye.png
+     + handshake.png
+     + testme.png
+     + :sat:{CPPCMP}Catalog.xml.in
+     + SalomeApp.xml.in
+   + doc
+     + Makefile.am
+     + doxyfile.in
+     + index.doc
+     + images
+       + head.png
+     + static
+       + doxygen.css
+       + footer.html
+       + header.html.in
+</pre>
+
+Note that other files can be optionally present.
+
+The usual way of the sources directory tree structure initial creation
+is to copy it from the existing SALOME module.
+
+\warning The files of the platform base module (KERNEL) must not be
+copied to initialise a module tree structure. It is usually preferable
+to copy files from another module such as GEOM or MED.
+
+The module name is :sat:{CPPCMP}, the component name is :sat:{CPPCMP} and all the
+files are put in a directory named :sat:{CPPCMP}1_SRC.
+Below is a short description of these files. Note, that files with .in
+suffix are the autoconf templates from which the actual files are
+generated during the build procedure.
+
+- \c build_configure
+- \c configure.ac
+- \c Makefile.am
+- \c make_common_starter.am
+- \c clean_configure
+
+These files are a part of the build system based on GNU
+automake/autoconf auto-tools. These files define the build procedure,
+namely, compilation and installation rules like compiler and linker
+options, installation destination folder, package version etc.
+
+- \c AUTHORS
+- \c COPYING
+- \c ChangeLog
+- \c INSTALL
+- \c NEWS
+- \c README
+
+These files are also a usual part of the GNU auto-tools based build
+procedure. These files are used by developers to provide an additional
+information on a product, like license, authors and distribution
+information, change log between versions of a product, installation
+hints, etc.
+
+- \c :sat:{CPPCMP}_version.h.in
+
+This is an optional C++ header file, specifying the version
+macro-definitions which can be used, for example, in other modules to
+check the version of the SALOME module (:sat:{CPPCMP} module in this
+case).
+
+- \c adm_local
+
+This directory contains additional administrative files used by the
+build procedure.
+
+- \c adm_local/unix/config_files/check_GUI.m4
+- \c adm_local/unix/config_files/check_:sat:{CPPCMP}.m4
+
+These files are another part of the GNU auto-tools based build
+procedure. The scripts written in m4 language are usually used to test
+an availability of some 3rd-party pre-requisite product, compiler
+feature, different configuration options. For example, check_GUI.m4
+file provides a procedure to test availability of SALOME GUI
+module and thus specify if GUI library of :sat:{CPPCMP} module should be built
+or no.
+
+- \c bin
+
+This directory usually contains different scripts.
+
+- \c bin/VERSION.in
+
+This file is used to document the module, it must give its version (at
+least) and (optionally) compatibilities or incompatibilities with
+other modules. This file is strongly recommended but is not essential
+for operation of the module.
+
+- \c bin/runAppli.in
+- \c bin/myrunSalome.py
+
+These files are not essential but make the example easier to
+use. These are scripts that can be used to run SALOME session with
+:sat:{CPPCMP} module.
+
+- \c idl
+
+This directory contains IDL files that specify the CORBA services
+supplied by SALOME module.
+
+- \c idl/:sat:{CPPCMP}_Gen.idl
+
+This is the CORBA IDL definition of the services implemented by SALOME
+:sat:{CPPCMP} module.
+
+- \c src
+
+This is a root directory of the module source codes. Usually it contains
+one or more sub-directories that provide an implementation of module
+libraries, executables, Python API modules, etc. The hierarchy of the
+sources tree is arbitrary; it follows the specific module needs.
+
+- \c src/:sat:{CPPCMP}
+
+This directory provides implementation of engine library.
+
+- \c src/:sat:{CPPCMP}/:sat:{CPPCMP}.hxx
+- \c src/:sat:{CPPCMP}/:sat:{CPPCMP}.cxx
+
+These files provide the implementation of a CORBA engine library of
+the :sat:{CPPCMP} module. In particular, this is an implementation of the
+services defined in the \c :sat:{CPPCMP}_Gen.idl file.
+
+- \c :sat:{CPPCMP}GUI
+
+It is an optional directory that provides an implementation of :sat:{CPPCMP}
+module's GUI library.
+
+Strictly speaking, the GUI library is optional for each SALOME module.
+In some cases it's enough to implement CORBA engine only. Then,
+the services of the module will be avaiable in a CORBA environment.
+The module can be loaded to the SALOME container and its services
+can be used in the SALOME supervision computation schemas, in Python
+scripts or/and in C++ implementation of other modules.
+
+A GUI library is necessary only if it is planned to access the module
+functionality from the SALOME GUI session via menu actions, dialog boxes
+and so on.
+
+- \c src/:sat:{CPPCMP}GUI/:sat:{CPPCMP}GUI.h
+- \c src/:sat:{CPPCMP}GUI/:sat:{CPPCMP}GUI.cxx
+
+These files provide the implementation of a GUI library of
+the :sat:{CPPCMP} module. In particular, these files specify menus, toolbars,
+dialog boxes and other such staff.
+
+- \c src/:sat:{CPPCMP}GUI/:sat:{CPPCMP}_msg_en.ts
+- \c src/:sat:{CPPCMP}GUI/:sat:{CPPCMP}_icons.ts
+
+These files provide a description (internationalization) of GUI
+resources of the :sat:{CPPCMP} module. \c :sat:{CPPCMP}_msg_en.ts provides an English
+translation of the string resources used in a module (there can be also
+translation files for other languages, for instance French; these files
+are distinguished by the language suffix). \c :sat:{CPPCMP}_icons.ts
+defines images and icons resources used within the GUI library of
+:sat:{CPPCMP} module. Please refer to Qt linguist documentation for more
+details.
+
+- \c resources
+
+This optional directory usually contains different resources files
+required for the correct operation of SALOME module.
+
+- \c resources/:sat:{CPPCMP}.png
+- \c resources/handshake.png
+- \c resources/goodbye.png
+- \c resources/testme.png
+
+These are different module icon files. \c :sat:{CPPCMP}.png file provides main icon
+of :sat:{CPPCMP} module to be shown in the SALOME GUI desktop. Other files are
+the icons for the functions implemented by the module; they are used
+in the menus and toolbars.
+
+- \c resources/:sat:{CPPCMP}Catalog.xml.in
+
+The XML description of the CORBA services provided by the :sat:{CPPCMP}
+module. This file is parsed by SALOME supervision module (YACS) to generate
+the list of service nodes to be used in the calculation schemas. The
+simplest way to create this file is to use Catalog Generator utility
+provided by the SALOME KERNEL module, that can automatically generate
+XML description file from the IDL file. In GUI, this utility is available
+via the Tools main menu.
+
+- \c resources/SalomeApp.xml.in
+
+This file is essential for each SALOME module. It provides some parameters of
+the module which define its behavior in SALOME. In particular it
+should provide a section with the name corresponding to the name of a
+module (":sat:{CPPCMP}" in our case) with the following parameters:
+\code
+  <section name=":sat:{CPPCMP}">
+    <parameter name="name"          value=":sat:{CPPCMP}"/>
+    <parameter name="icon"          value=":sat:{CPPCMP}.png"/>
+    <parameter name="version"       value="@VERSION@"/>
+    <parameter name="documentation" value=":sat:{CPPCMP}_help"/>
+  </section>
+\endcode
+
+The \a "name" parameter defines GUI name of a module. The \a "icon"
+parameter defines a GUI icon of a module. Optional \a "version" parameter
+defines the version fo the module. The \a "documentation" parameter
+provides a name for the help-related resource section (see below).
+
+The section \a "resources" of a file specifies the directory that contains
+resources of a module (icons, translation files, etc).
+
+\code
+  <section name="resources">
+    <parameter name=":sat:{CPPCMP}" value="%:sat:{CPPCMP}_ROOT_DIR%/share/salome/resources/:sat:{CPPCMP}"/>
+  </section>
+\endcode
+
+The section \a ":sat:{CPPCMP}_help" provides information on the location of
+the help page(s) and the eventual sub-menu in the Help menu. The name of this section
+can be arbitrary, in such a case it should be specified in the main module's resources
+section (see above). Alternatively, this section's name can have syntax
+\a "<module_name>_documentation", where \a module_name is a name of the module.
+If such section is present in the resource file, it is not necessary to specify it
+in the module's main section.
+
+Parameter \a "sub_menu" of the documentation section allows sepecifying the name of the
+sub-menu in the Help main menu where the documentation materials of a module should be
+put.
+
+\code
+  <section name=":sat:{CPPCMP}_help" >
+    <parameter name="sub_menu"        value="Samples"/>
+    <parameter name="%1 User's Guide" value="%:sat:{CPPCMP}_ROOT_DIR%/share/doc/salome/gui/:sat:{CPPCMP}/index.html"/>
+  </section>
+\endcode
+
+- \c doc
+
+This directory containes the files related to the module's documentation.
+
+- \c doc/doxyfile.in
+
+The \b Doxygen configuration file. The Doxygen is used to build this
+documentation. The file \c doxyfile.in provides a rules for the
+generation of module documentation.
+
+- \c doc/index.doc
+
+An input file for the Doxygen, which provides a source of this documentation.
+
+- \c doc/images
+
+This sub-folder contains images used in the documentation.
+
+- \c doc/static
+
+This sub-folder contains auxiliary files used when generating documentation
+by Doxygen, like header (\c header.html.in) and footer (\c footer.html)
+of the HTML pages, style sheet (\c doxygen.css) etc.
+
+\ref dev_steps "<< Previous"<br>\ref build_proc_files ">> Next"
+
+\page build_proc_files Build procedure input files
+
+In most cases SALOME uses \b autoconf, \b automake and other GNU auto-tools
+to build the modules. The \c configure script is used for the build procedure
+to test the system configuration and to pre-configure the module construction
+\c Makefile files.
+
+The \c build_configure script provides a procedure that uses
+\c configure.ac and set of \c Makefile.am files as input and uses \b autoconf
+to generate the \c configure script and \b automake to generate \c Makefile.in
+files.
+
+The files with an \c .in extension are the skeletons that are the input
+of the \c configure script (to be more precise, these files should be
+listed in the end of the \c configure.ac file in the \c AC_OUTPUT()
+autoconf macro) and are transformed to the resulting files during the
+configuration process.
+
+Almost all files used for this process are located in SALOME
+base module KERNEL that is referenced by the \c KERNEL_ROOT_DIR
+environment variable, namely in its \c salome_adm sub-folder.
+Similarly, the \c GUI_ROOT_DIR environment variable is used for the
+graphical user interface (GUI) module of SALOME; this module also
+provides a set of configuration utilities (m4 files) in its
+\c adm_local folder. However, some files must be modified as a
+function of the target module. This is the case for \c build_configure
+and \c configure.ac files which usually need to be adapted to the module needs.
+
+The file \c make_common_starter.am file in the \c adm_local directory of
+the :sat:{CPPCMP} module provides basic build rules to be used in other
+\c Makefile.am files. To refer to this file in any \c Makefile.am it is
+necessary to use \a "include" clause:
+
+\code
+include $(top_srcdir)/adm_local/unix/make_common_starter.am
+\endcode
+
+The \c adm_local/unix/config_files is a directory in which the m4 files
+that are used to test the configuration of the system in the configuration
+process can be placed. If the \c salome_adm files are not sufficient,
+additional configuration files can be put to the \c adm_local directory.
+
+\ref tree_structure "<< Previous"<br>\ref idl_dir ">> Next"
+
+\page idl_dir The idl directory
+
+The \c idl directory requires a \c Makefile.am that must make the
+compilation of the CORBA IDL \c :sat:{CPPCMP}_Gen.idl file and install all the
+generated files into the correct module installation directories. The
+\a BASEIDL_FILES target has to be modified to reach this goal.
+
+The IDL file itself must define a CORBA component for which the name must
+be different from the module name to avoid name conflicts and define a
+CORBA interface that is derived at least from the \a EngineComponent interface
+of the \a Engines module. In case of :sat:{CPPCMP} module, the name of the CORBA
+component is \b :sat:{CPPCMP}_ORB and the name of the interface is \b :sat:{CPPCMP}_Gen.
+
+\ref build_proc_files "<< Previous"<br>\ref src_dir ">> Next"
+
+\page src_dir The src directory
+
+The \c src directory contains all source files required to build CORBA engine and
+(optionally) GUI libraries of the module. Each of these entities usually
+has (but this is not actually obligatory) its own directory.
+
+The \c Makefile.am simply triggers the path of sub-directories described
+by the \a SUBDIRS target.
+
+- \c src/:sat:{CPPCMP} sub-directory
+
+This sub-directory contains the C++ source files that implement the engine
+library of the module. The \c Makefile.am defines the rules used to build
+the engine library from these source files. The name of the module
+engine library is predefined and should be set as \c lib\<MODULE\>Engine.so
+where \c MODULE is a name of the module. In the case of the :sat:{CPPCMP}
+module, the name of the engine library should be \c lib:sat:{CPPCMP}Engine.so.
+
+The \c :sat:{CPPCMP}.h, \c :sat:{CPPCMP}.cxx files implement \a :sat:{CPPCMP} class that is derived
+from the \a :sat:{CPPCMP}_Gen interface of the \a POA_:sat:{CPPCMP}_ORB CORBA module and the
+\a SALOME_Component_i class (base implementation of SALOME module engine
+exported by the KERNEL module).
+
+In particular, \a :sat:{CPPCMP} class implements \a hello() and \a goodbye() functions
+that are defined in the IDL interface \a :sat:{CPPCMP}_ORB:::sat:{CPPCMP}_Gen.
+
+\code
+:sat:{CPPCMP}_ORB::status :sat:{CPPCMP}::hello( SALOMEDS::Study_ptr study, const char* name )
+{
+...
+}
+:sat:{CPPCMP}_ORB::status :sat:{CPPCMP}::goodbye( SALOMEDS::Study_ptr study, const char* name )
+{
+...
+}
+\endcode
+
+In addition, \c :sat:{CPPCMP}.cxx implements a factory function which is used by
+the SALOME container to create an instance of the :sat:{CPPCMP} CORBA engine
+by demand:
+
+\code
+extern "C"
+{
+  PortableServer::ObjectId* :sat:{CPPCMP}Engine_factory(
+    CORBA::ORB_ptr orb,
+    PortableServer::POA_ptr poa,
+    PortableServer::ObjectId* contId,
+    const char* instanceName,
+    const char* interfaceName)
+  {
+    :sat:{CPPCMP}* my:sat:{CPPCMP} = new :sat:{CPPCMP}(orb, poa, contId, instanceName, interfaceName);
+    return my:sat:{CPPCMP}->getId();
+  }
+}
+\endcode
+
+- \c src/:sat:{CPPCMP}GUI sub-directory
+
+This directory contains the C++ source files that implement the GUI
+library of :sat:{CPPCMP} module. By default, the name of the module
+GUI library is predefined and should be set as \c lib\<MODULE\>.so
+where \c MODULE is a name of the module. In the case of the :sat:{CPPCMP}
+module, the name of the GUI library should be \c lib:sat:{CPPCMP}.so. It is
+also possible to use custom name of the GUI library of a module, but
+in this case, in order to be possible to use this module in SALOME GUI
+desktop, the name of the GUI library should be defined in the
+\c SalomeApp.xml file, in the module's main section, using \a "library"
+parameter, for example:
+
+\code
+  <section name=":sat:{CPPCMP}">
+    <parameter name="name" value=":sat:{CPPCMP}"/>
+    <parameter name="icon" value=":sat:{CPPCMP}.png"/>
+    <parameter name="library" value="libMy:sat:{CPPCMP}GUIlibrary.so"/>
+  </section>
+\endcode
+
+The implementation of GUI library of the :sat:{CPPCMP} module should be done
+according to the architecture and rules specified by the SALOME GUI
+module. The main GUI module class (a\ :sat:{CPPCMP}GUI in our case) should be
+derived from the \a SalomeApp_Module class.
+
+The developer has to redefine a set of methods which define the
+module behavior in GUI, for example, create menus, toolbars, define
+context popup menus, objects selection behavior, implement dialog
+boxes etc.
+
+Here below is a short description of these methods. For more details
+please refer to the SALOME GUI module documentation.
+
+- \a initialize() - module initialization; usually used to create
+  GUI actions, menus, toolbars and so on;
+- \a activateModule() - module activation; perform actions which should
+  be done when the module is activated by the user, for example, show
+  related menus and toolbars;
+- \a deactivateModule() - module deactivation; perform actions which should
+  be done when the module is deactivated by the user, for example,
+  hide related menus and toolbars;
+- \a windows() - get a list and a position of the dockable windows to be
+  associated with the module; these windows will be automatically
+  opened and positioned according to the settings defined by the value
+  returned by this function;
+- \a viewManagers() - get a list of the compatible viewers; these viewers
+  will be automatically opened/raised on the module activation;
+- \a contextMenuPopup() - create and return context popup menu according
+  to the current selection;
+- \a createPreferences() - initialize module's preferences;
+- \a preferencesChanged() - callback function that is called when some
+  module's preference is changed by the user; allows to perform the
+  corresponding actions;
+- \a createSelection() - create and return menu selection object; this is
+  a part of the context popup menu definition API;
+- \a engineIOR() - get the reference to the module CORBA engine;
+- \a moduleIcon() and \a iconName() - these methods can be used to customize
+  the module's main icon;
+- \a displayer() - get the reference to the module's \a Displayer class; this
+  is the part of common Show/Hide functionality mechanism;
+- \a storeVisualParameters() and \a restoreVisualParameters() - these methods
+  can be redefined to store/restore different visualization attributes of the
+  presentable data if it is supported by the module, for example transparency,
+  colors, display mode and other presentable parameters;
+- \a canCopy(), \a copy(), \a canPaste(), \a paste() - these methods are the
+  part of the common Copy/Paste functionality;
+- \a isDraggable(), \a isDropAccepted(), \a dropObjects() - these methods
+  are the part of the common Drag-n-Drop functionality;
+- \a createOperation() - this function can be used as a part of the
+  transaction-based operations mechanism.
+- \a renameAllowed(), \a renameObject() - can be used for in-place (Object
+  browser) renaming of the data entities, if it is supported by the module.
+
+Note, that all of these methods are optional and need not be
+obligatory implemented because \a SalomeApp_Module class provides a
+base implementation of these functions. It's sometimes enough to
+implement only some of them, depending on the module needs.
+
+In the case of :sat:{CPPCMP} module, only the following methods are
+implemented (other ones are just stubs, added for sample reasons):
+
+- \a engineIOR() that initializes :sat:{CPPCMP} module's engine:
+
+\code
+QString :sat:{CPPCMP}GUI::engineIOR() const
+{
+  init(); // initialize engine, if necessary
+  CORBA::String_var anIOR = getApp()->orb()->object_to_string( myEngine.in() );
+  return QString( anIOR.in() );
+}
+\endcode
+
+- \a initialize() that creates actions, menus and toolbars for module's services
+  service:
+
+\code
+void :sat:{CPPCMP}GUI::initialize( CAM_Application* app )
+{
+  // call the parent implementation
+  SalomeApp_Module::initialize( app );
+
+  // get reference to the desktop (used as a parent for actions)
+  QWidget* dsk = app->desktop();
+  // get resources manager
+  SUIT_ResourceMgr* resMgr = app->resourceMgr();
+
+  // create actions
+  // ... Test me operation
+  createAction( OpTestMe,                                               // operation id
+                tr( "TLT_OP_TESTME" ),                                  // tooltip
+                resMgr->loadPixmap( ":sat:{CPPCMP}",tr( "ICON_OP_TESTME" ) ),   // icon
+                tr( "MEN_OP_TESTME" ),                                  // menu title
+                tr( "STS_OP_TESTME" ),                                  // status tip
+                0,                                                      // accelerator (not set)
+                dsk,                                                    // parent
+                false,                                                  // togglable flag (no)
+                this,                                                   // action receiver
+                SLOT( testMe() ) );                                     // action slot
+  // create other actions ............
+
+  // create menus
+  int menuId;
+  menuId = createMenu( tr( "MEN_FILE" ), -1, -1 );                      // File menu
+  createMenu( separator(), menuId, -1, 10 );                            // add separator to File menu
+  menuId = createMenu( tr( "MEN_FILE_:sat:{CPPCMP}" ), menuId, -1, 10 );        // File - :sat:{CPPCMP} submenu
+  createMenu( OpTestMe, menuId );                                       // File - :sat:{CPPCMP} - Test me
+  // create other menus ............
+
+  // create toolbars
+  int aToolId;
+  aToolId = createTool ( tr( "TOOL_TEST" ) );                           // Test toolbar
+  createTool( OpTestMe, aToolId );                                      // Test - Test me
+  // create other toolbars ............
+
+  // set-up popup menu
+  QtxPopupMgr* mgr = popupMgr();
+  mgr->insert( action( Op:sat:{CPPCMP} ),   -1, -1 );                           // :sat:{CPPCMP}
+  mgr->setRule( action( Op:sat:{CPPCMP} ),   baseRule + " and isComponent",  QtxPopupMgr::VisibleRule );
+  // create other popup menu commands ............
+}
+\endcode
+
+- \a activateModule() that activates menus and toolbars
+
+\code
+bool :sat:{CPPCMP}GUI::activateModule( SUIT_Study* theStudy )
+{
+  // call parent implementation
+  bool bOk = SalomeApp_Module::activateModule( theStudy );
+
+  // show own menus
+  setMenuShown( true );
+  // show own toolbars
+  setToolShown( true );
+
+  // return the activation status
+  return bOk;
+}
+\endcode
+
+- \a deactivateModule() that deactivates menus and toolbars
+
+\code
+bool :sat:{CPPCMP}GUI::deactivateModule( SUIT_Study* theStudy )
+{
+  // hide own menus
+  setMenuShown( false );
+  // hide own toolbars
+  setToolShown( false );
+
+  // call parent implementation and return the activation status
+  return SalomeApp_Module::deactivateModule( theStudy );
+}
+\endcode
+
+- \a windows() that set-ups dockable windows requested by the module
+
+\code
+void :sat:{CPPCMP}GUI::windows( QMap<int, int>& theMap ) const
+{
+  // want Object browser, in the left area
+  theMap.insert( SalomeApp_Application::WT_ObjectBrowser,
+		 Qt::LeftDockWidgetArea );
+  // want Python console, in the bottom area
+  theMap.insert( SalomeApp_Application::WT_PyConsole,
+		 Qt::BottomDockWidgetArea );
+}
+\endcode
+
+- \a isDragable(), \a isDropAccepted() and \a dropObjects() methods that handle
+the Drag-n-Drop operation
+
+\code
+bool :sat:{CPPCMP}GUI::isDragable( const SUIT_DataObject* what ) const
+{
+  // we allow dragging any :sat:{CPPCMP} object, except the top-level component
+  const SalomeApp_ModuleObject* aModObj = dynamic_cast<const SalomeApp_ModuleObject*>( what );
+  return ( aModObj == 0 );
+}
+
+bool :sat:{CPPCMP}GUI::isDropAccepted( const SUIT_DataObject* where ) const
+{
+  // we allow dropping of all objects
+  return true;
+}
+
+void :sat:{CPPCMP}GUI::dropObjects( const DataObjectList& what, SUIT_DataObject* where,
+			    const int row, Qt::DropAction action )
+{
+  if (action != Qt::CopyAction && action != Qt::MoveAction)
+    return; // unsupported action
+
+  // get parent object
+  SalomeApp_DataObject* dataObj = dynamic_cast<SalomeApp_DataObject*>( where );
+  if ( !dataObj ) return; // wrong parent
+  _PTR(SObject) parentObj = dataObj->object();
+
+  // collect objects being dropped
+  :sat:{CPPCMP}_ORB::object_list_var objects = new :sat:{CPPCMP}_ORB::object_list();
+  objects->length( what.count() );
+  int count = 0;
+  for ( int i = 0; i < what.count(); i++ ) {
+    dataObj = dynamic_cast<SalomeApp_DataObject*>( what[i] );
+    if ( !dataObj ) continue;  // skip wrong objects
+    _PTR(SObject) sobj = dataObj->object();
+    objects[i] = _CAST(SObject, sobj)->GetSObject();
+    count++;
+  }
+  objects->length( count );
+
+  // call engine function
+  engine()->copyOrMove( objects.in(),                              // what
+			_CAST(SObject, parentObj)->GetSObject(),   // where
+			row,                                       // row
+			action == Qt::CopyAction );                // isCopy
+
+  // update Object browser
+  getApp()->updateObjectBrowser( false );
+}
+\endcode
+
+An implemention of the \a hello() and \a goodbye() methods is quite simple.
+These operations show the dialog box proposing the user to enter the name and
+pass the name entered by the user to the engine side, using the corresponding
+CORBA service.
+
+\code
+void :sat:{CPPCMP}GUI::hello()
+{
+  SalomeApp_Study* study = dynamic_cast<SalomeApp_Study*>( application()->activeStudy() );
+  _PTR(Study) studyDS = study->studyDS();
+
+  // request user name
+  bool ok;
+  QString name = QInputDialog::getText( getApp()->desktop(), tr( "QUE_:sat:{CPPCMP}_TITLE" ), tr( "QUE_ENTER_NAME" ),
+					QLineEdit::Normal, QString::null, &ok );
+
+  if ( ok && !name.trimmed().isEmpty() ) {
+    // say :sat:{CPPCMP} to SALOME
+    :sat:{CPPCMP}_ORB::status status = engine()->:sat:{CPPCMP}( _CAST(Study, studyDS)->GetStudy(), (const char*)name.toLatin1() );
+
+    // update Object browser
+    getApp()->updateObjectBrowser(true);
+
+    // process operation status
+    switch( status ) {
+    case :sat:{CPPCMP}_ORB::OP_OK:
+      // everything's OK
+      SUIT_MessageBox::information( getApp()->desktop(),
+				    tr( "INF_:sat:{CPPCMP}_TITLE" ),
+				    tr( "INF_:sat:{CPPCMP}_MSG" ).arg( name ),
+				    tr( "BUT_OK" ) );
+      break;
+    case :sat:{CPPCMP}_ORB::OP_ERR_ALREADY_MET:
+      // error: already said :sat:{CPPCMP}
+      SUIT_MessageBox::warning( getApp()->desktop(),
+				tr( "INF_:sat:{CPPCMP}_TITLE" ),
+				tr( "ERR_:sat:{CPPCMP}_ALREADY_MET" ).arg( name ),
+				tr( "BUT_OK" ) );
+      break;
+    case :sat:{CPPCMP}_ORB::OP_ERR_UNKNOWN:
+    default:
+      // other errors
+      SUIT_MessageBox::critical( getApp()->desktop(),
+				 tr( "INF_:sat:{CPPCMP}_TITLE" ),
+				 tr( "ERR_ERROR" ),
+				 tr( "BUT_OK" ) );
+      break;
+    }
+  }
+}
+
+void :sat:{CPPCMP}GUI::goodbye()
+{
+  SalomeApp_Application* app = dynamic_cast<SalomeApp_Application*>( application() );
+  SalomeApp_Study* study = dynamic_cast<SalomeApp_Study*>( application()->activeStudy() );
+  _PTR(Study) studyDS = study->studyDS();
+  LightApp_SelectionMgr* aSelMgr = app->selectionMgr();
+
+  QString name;
+
+  // get selection
+  SALOME_ListIO selected;
+  aSelMgr->selectedObjects( selected );
+  if ( selected.Extent() == 1 ) {
+    Handle(SALOME_InteractiveObject) io = selected.First();
+    _PTR(SObject) so = studyDS->FindObjectID( io->getEntry() );
+    if ( so ) {
+      _PTR(SComponent) comp = so->GetFatherComponent();
+      if ( comp && comp->ComponentDataType() == ":sat:{CPPCMP}" && io->getEntry() != comp->GetID() ) {
+	name = so->GetName().c_str();
+      }
+    }
+  }
+
+  // request user name if not specified
+  if ( name.isEmpty() ) {
+    bool ok;
+    name = QInputDialog::getText( getApp()->desktop(), tr( "QUE_GOODBYE_TITLE" ), tr( "QUE_ENTER_NAME" ),
+				  QLineEdit::Normal, QString::null, &ok );
+  }
+
+  if ( !name.trimmed().isEmpty() ) {
+    // say goodby to SALOME
+    :sat:{CPPCMP}_ORB::status status = engine()->goodbye( _CAST(Study, studyDS)->GetStudy(), (const char*)name.toLatin1() );
+
+    // update Object browser
+    getApp()->updateObjectBrowser(true);
+
+    // process operation status
+    switch( status ) {
+    case :sat:{CPPCMP}_ORB::OP_OK:
+      // everything's OK
+      SUIT_MessageBox::information( getApp()->desktop(),
+				    tr( "INF_GOODBYE_TITLE" ),
+				    tr( "INF_GOODBYE_MSG" ).arg( name ),
+				    tr( "BUT_OK" ) );
+      break;
+    case :sat:{CPPCMP}_ORB::OP_ERR_DID_NOT_MEET:
+      // error: did not say :sat:{CPPCMP} yet
+      SUIT_MessageBox::warning( getApp()->desktop(),
+				tr( "INF_GOODBYE_TITLE" ),
+				tr( "ERR_GOODBYE_DID_NOT_MEET" ).arg( name ),
+				tr( "BUT_OK" ) );
+      break;
+    case :sat:{CPPCMP}_ORB::OP_ERR_UNKNOWN:
+    default:
+      // other errors
+      SUIT_MessageBox::critical( getApp()->desktop(),
+				 tr( "INF_GOODBYE_TITLE" ),
+				 tr( "ERR_ERROR" ),
+				 tr( "BUT_OK" ) );
+      break;
+    }
+  }
+}
+\endcode
+
+Also, \c :sat:{CPPCMP}GUI.cxx provide an implementation of a factory function that is used
+by the SALOME GUI to create an instance of the :sat:{CPPCMP} GUI class by demand.
+It implements also another factory function to retrieve the
+version number of the module (in the About dialog box for example):
+
+\code
+extern "C" {
+  CAM_Module* createModule()
+  {
+    return new :sat:{CPPCMP}GUI();
+  }
+
+  char* getModuleVersion()
+  {
+    return (char*):sat:{CPPCMP}_VERSION_STR;
+  }
+}
+\endcode
+
+\ref idl_dir "<< Previous"<br>\ref bin_dir ">> Next"
+
+\page bin_dir The bin directory
+
+The file \c VERSION.in is used to document the module, it must define its
+version and (optionally) its compatibilities or incompatibilities with
+other modules. Therefore, it is strongly recommended but is not
+essential for correct operation of the module.
+
+The \c runAppli.in file is the equivalent of the \c runSalome script
+distributed by the KERNEL module but configured to start SALOME
+session with :sat:{CPPCMP} module only.
+
+The \c myrunSalome.py file reuses part of functionality provided by the
+KERNEL's \c runSalome.py script. It is used to run SALOME session and
+start :sat:{CPPCMP} module in this session.
+
+\ref src_dir "<< Previous"<br>\ref doc_dir ">> Next"
+
+\page doc_dir The doc directory
+
+This directory provides documentation files of the module. The
+documentation of the module can be implemented in the arbitrary
+way. But if you want your documentation to appear in the SALOME GUI
+desktop's Help menu, some specific actions should be done as follows.
+
+The documentation should be generated in the HTML format. For example,
+the documentation of the :sat:{CPPCMP} module is generated using Doxygen
+tool. It allows to generate structured set of HTML pages from the set
+of input plain text files. Input source files should include Doxygen
+tags and optionally direct HTML tags. For more details please refer to
+the Doxygen documentation.
+
+The resulting documentation of a module should include at least one
+file \c index.html. All the HTML and image files should be exported by
+the build procedure to the following directory:
+\c \<module_installation_dir\>/share/doc/salome/gui/\<MODULE\>
+where \c module_installation_dir is a module installation folder and
+\c MODULE is its name. For example, for :sat:{CPPCMP} module, at least one file
+should exist:
+\c \<:sat:{CPPCMP}_module_installation_dir\>/share/doc/salome/gui/:sat:{CPPCMP}/index.html.
+
+The SALOME GUI automatically searches for the index.html file in the
+mentioned module directory. If the file is found, the corresponding
+menu command is automatically added to the Help menu of the SALOME GUI
+desktop.
+
+\ref bin_dir "<< Previous"<br>\ref build_procedure ">> Next"
+
+\page build_procedure Construction, installation
+
+Before building :sat:{CPPCMP} module, please ensure that SALOME environment is
+set properly. Assume that SALOME environment is set in env_products.sh
+script. In order to build and install :sat:{CPPCMP} module, you have to
+perform several steps:
+
+<pre>
+[bash% ] source env_products.sh
+[bash% ] mkdir :sat:{CPPCMP}_BUILD
+[bash% ] cd :sat:{CPPCMP}_BUILD
+[bash% ] ../:sat:{CPPCMP}1_SRC/build_configure
+[bash% ] ../:sat:{CPPCMP}1_SRC/configure --prefix=\<:sat:{CPPCMP}_module_installation_dir\>
+[bash% ] make
+[bash% ] make install
+</pre>
+
+The first command creates a build directory for the :sat:{CPPCMP} module. Then
+next step is to cd to this build directory. From this directory you
+sequentially invoke \c build_configure, \c configure, \c make and \c make install
+commands. On each step, you have to ensure that the operation is
+finished correctly (no errors raised).
+
+The \c \<:sat:{CPPCMP}_module_installation_dir\> variable above defines the
+destination directory to which the :sat:{CPPCMP} module should be
+installed. After the last step is finished, the :sat:{CPPCMP} module is built
+and installed to the \c \<:sat:{CPPCMP}_module_installation_dir\> directory.
+
+\ref doc_dir "<< Previous"<br>\ref run_procedure ">> Next"
+
+\page run_procedure Running SALOME
+
+Go to the the \c \<:sat:{CPPCMP}_module_installation_dir\> directory and type:
+
+<pre>
+[bash% ] ./bin/salome/runAppli
+</pre>
+
+This command runs SALOME session configured for KERNEL and the :sat:{CPPCMP}
+module. At the end of running, the user will be prompted by the
+Python interpreter command line configured for SALOME that provides
+access to SALOME Python API (including CORBA interfaces).
+
+The \c runAppli file is a shell script that executes a Python commands
+running SALOME session by passing arguments to it in a command line:
+
+<pre>
+${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python -i $:sat:{CPPCMP}_ROOT_DIR/bin/salome/myrunSalome.py --modules=:sat:{CPPCMP} --killall
+</pre>
+
+These arguments state that the \c myrunSalome.py script located in the
+:sat:{CPPCMP} module will be used, that the :sat:{CPPCMP} component will be
+activated and all previously running SALOME sessions should be
+shutdowned.
+
+This command will not function unless the following environment
+variables have previously been set:
+
+<pre>
+export KERNEL_ROOT_DIR=\<KERNEL_module_installation_dir\>
+export :sat:{CPPCMP}_ROOT_DIR=\<:sat:{CPPCMP}_module_installation_dir\>
+</pre>
+
+\warning It is possible that the SALOME run will not reach the end.
+In some circumstances, the time to start CORBA servers may be long and
+could exceed the timeout. If the reasons is that the time to
+load dynamic libraries is long, it is possible that a second run
+immediately afterwards will be successful.
+
+\ref build_procedure "<< Previous"<br>\ref load_module ">> Next"
+
+\page load_module Loading :sat:{CPPCMP} component
+
+The \a :sat:{CPPCMP}_ORB module has to be imported before making a request to
+load the component into the container, to obtain access to methods of
+the component.  This container is made accessible in the \c myrunSalome.py
+by means of the \a container variable:
+
+<pre>
+>> import salome
+>> salome.salome_init()
+>> import :sat:{CPPCMP}_ORB
+>> c = container.load_impl(":sat:{CPPCMP}", ":sat:{CPPCMP}")
+>> c.:sat:{CPPCMP}(salome.myStudy, "Christian")
+</pre>
+
+The last instruction invokes :sat:{CPPCMP} module's service \a :sat:{CPPCMP}(). Proceed as
+follows to see the CORBA objects created by these actions:
+
+<pre>
+>> clt.showNS()
+</pre>
+
+\ref run_procedure "<< Previous"<br>\ref catalog_def ">> Next"
+
+\page catalog_def :sat:{CPPCMP} module catalog definition
+
+In the example from the previous chapter, the :sat:{CPPCMP} component was
+loaded by making a direct request to the SALOME container. This is not
+the standard method for loading of a component. The normal way uses
+the SALOME LifeCycle service that invokes SALOME Module Catalog
+services to identify the component and its properties and then calls
+the requested container to load the component.
+
+Before this method can be used, the component must be declared in a
+catalog in the XML format, for which the name must be
+\c \<MODULE\>Catalog.xml. In our case, it will be \c :sat:{CPPCMP}Catalog.xml.
+Usually this catalog is put to the resources sub-directory of the
+directory tree. The simplest way to create this file is to use Catalog
+Generator utility provided by the SALOME KERNEL module, that can
+automatically generate XML description file from the IDL file.
+
+\ref load_module "<< Previous"<br>\ref load_lcc ">> Next"
+
+\page load_lcc Loading :sat:{CPPCMP} component via LifeCycle service
+
+The method of loading the component is not very different from that
+is described above. The services of the LifeCycle module are used in
+this case instead of calling the container directly. The call sequence
+is contained in the \c myrunSalome.py \a test() function.
+
+<pre>
+    import salome
+    salome.salome_init()
+    c = test(clt)
+    c.:sat:{CPPCMP}(salome.myStudy, "Christian")
+</pre>
+
+The test function creates the LifeCycle object. It then asks for the
+:sat:{CPPCMP} component to be loaded in the \a FactoryServer container:
+
+\code
+def test(clt):
+    """
+    Test function that creates an instance of :sat:{CPPCMP} component
+    usage : :sat:{CPPCMP}=test(clt)
+    """
+    import LifeCycleCORBA
+    lcc = LifeCycleCORBA.LifeCycleCORBA(clt.orb)
+    import :sat:{CPPCMP}_ORB
+    :sat:{CPPCMP} = lcc.FindOrLoadComponent("FactoryServer", ":sat:{CPPCMP}")
+    return :sat:{CPPCMP}
+\endcode
+
+\ref catalog_def "<< Previous"<br>\ref load_iapp ">> Next"
+
+\page load_iapp Loading from the GUI (IAPP)
+
+In order to activate :sat:{CPPCMP} module in the SALOME GUI desktop, the user
+should press the :sat:{CPPCMP} module's button on the \a Modules toolbar or
+select the name of the module in the combo box on this toolbar.
+
+The image file to be used as an icon of a module should be exported by
+the module build procedure. The icon file name is defined in \c SalomeApp.xml:
+\code
+  <section name=":sat:{CPPCMP}">
+    <parameter name="name" value=":sat:{CPPCMP}"/>
+    <parameter name="icon" value=":sat:{CPPCMP}.png"/>
+  </section>
+\endcode
+
+\ref load_lcc "<< Previous"
+
+*/

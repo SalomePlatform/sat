@@ -1,0 +1,32 @@
+#!/bin/bash
+
+
+CONF_DIR=`echo $0 | sed -e "s,[^/]*$,,;s,/$,,;s,^$,.,"`
+cd ${CONF_DIR}
+
+TO_CLEAN=
+TO_CLEAN=${TO_CLEAN}' aclocal.m4'
+TO_CLEAN=${TO_CLEAN}' autom4te*'
+TO_CLEAN=${TO_CLEAN}' configure'
+TO_CLEAN=${TO_CLEAN}' configure.in'
+TO_CLEAN=${TO_CLEAN}' install-sh missing mkinstalldirs'
+TO_CLEAN=${TO_CLEAN}' py-compile'
+TO_CLEAN=${TO_CLEAN}' build_configure.log'
+TO_CLEAN=${TO_CLEAN}' depcomp'
+TO_CLEAN=${TO_CLEAN}' config.guess config.sub ltmain.sh'
+TO_CLEAN=${TO_CLEAN}' Makefile.am.list'
+# TO_CLEAN=${TO_CLEAN}' COPYING INSTALL'
+
+rm -rf $TO_CLEAN > /dev/null
+
+l=`find . -name "Makefile.in"`
+
+if test X"$l" != X ; then
+    rm -f $l
+fi
+
+l=`find . -name "*~"`
+
+if test X"$l" != X ; then
+    rm -f $l
+fi

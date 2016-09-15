@@ -1,0 +1,3 @@
+This directory can contains patches for SALOME's sources.
+The patches should be applied using salomeTools.
+See the documentation of salomeTools to know how to create the patches.

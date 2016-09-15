@@ -1,0 +1,100 @@
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+
+# description of the template to be displayed with option --info
+info = """
+Author: CEA
+Description: This template can be used to create an application based on SALOME.
+"""
+
+# code to substitute with component name
+file_subst = "Application"
+
+# delimiter used in the template (default is ':sat:')
+#delimiter = ":sat:"
+
+# filter of files to ignore for substitution
+# if not defined all files will be parsed
+ignore_filters = '*.png'
+
+# list of parameters
+# a string = parameter name
+# a tuple = (parameter name, default value, prompt, validation method)
+parameters = [
+    (file_subst, "%(NAME)s"),
+    ("Version", "1.0", "Version of the application"),
+    ("get_method", "archive", "get method for prepare", lambda l: l in ['cvs', 'git', 'archive'])
+    ]
+
+# script to execute after the generation
+# create icon_splash.pgn etc...
+post_command = "config/splash_generator/splash2.py ./resources %(NAME)s %(Version)s 'Powered by SALOME'"
+
+# configuration to use this component with sat
+pyconf = """
+PRODUCTS : {
+    default :
+    {
+        name : "%(NAME)s"
+        get_sources : '%(get_method)s'
+        build_sources : 'autotools'
+        compile_method : $source_dir + '/config/compile.py'
+        cvs_info:
+        {
+            server : $TOOLS.prepare.cvs_server
+            module_base : $TOOLS.prepare.cvs_dir + $name
+            source : 'COMPONENT_SRC'
+            tag : $PRODUCT.default_version_to_download
+        }
+        git_info:
+        {
+            repo : 'to be filled'
+            tag : 'to be filled'
+        }
+        archive_info:
+        {
+            archive_name : '%(target)s.tar.gz'
+        }
+
+        nb_proc : 1
+        source_dir : $TOOLS.common.source_root + '/' + $name
+        build_dir : $TOOLS.common.build_root + '/' + $name
+        depend : ['qt']
+        opt_depend : []
+		properties :
+		{
+			environment : "salome"
+			has_salome_gui : "yes"
+		}
+    }
+}
+
+APPLI:
+{
+    # The name of the application (overrides $PRODUCT.name)
+    # This name will be used to generate packages.
+    #name : "%(Name)s"
+    # The name for the application directory (default is APPLI)
+    application_name : "%(NAME)s"
+    # (optional) list of modules if different than PRODUCT.modules
+    #modules: []
+    module_appli: "%(NAME)s"
+    module_appli_install_dir: $TOOLS.common.module_info.%(NAME)s.install_dir
+    launch_alias_name: "%(name)s"
+    configure :
+    {
+        "launch": { "splash": "yes" }
+        "splash":
+        {
+            "image" : $module_appli_install_dir + "/resources/icon_splash.png"
+            "text_colors" : "#ffffff|#000000"
+            "show_percents" : "yes"
+            "show_progress" : "yes"
+            "show_message"  : "yes"
+            #suppose to be installed... and no need if show_message=no
+            "font" : "Xirod,12,normal"
+        }
+        "resources": { "LightApp" : $module_appli_install_dir + "/resources" }
+    }
+}
+"""

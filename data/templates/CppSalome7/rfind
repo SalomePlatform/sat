@@ -1,0 +1,46 @@
+#! /bin/bash
+
+#
+# Usage : rfind dir suffix ...
+# 
+# find all files *suffix in dir in a recursive way
+# different of the usual command find ...
+#
+
+if test $# != 2 ; then
+    echo "Usage : $0 dir suffix"
+    exit
+fi
+
+local_find() {
+    # if the first argument is not a directory, returns
+    if test ! -d $1 ; then 
+	# echo "$1 is not a directory"
+	return 
+    fi
+    # dont look in the CVS directories
+    # dont look in the autom4te* directories
+    case "$1" in
+	*/CVS) return ;;
+	*/autom4te*) return ;;
+	*) ;;
+    esac
+    # for each regular file contained in the directory
+    # test if it's a *"$2" file
+    for i in $1/*
+    do
+	if test -f $i ; then
+	    case `basename $i` in 
+		*$2) echo "	"$i ;;
+		*) ;;
+ 	    esac
+	fi
+    done
+    # for each subdirectory of the first argument, proceeds recursively
+    for i in $1/*
+    do
+	local_find $i $2
+    done
+}
+
+local_find $1 $2

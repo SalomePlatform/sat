@@ -1,0 +1,102 @@
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+
+# This is a PRODUCT configuration file example.
+# See salomeTools documentation for more information on the parameters.
+
+PRODUCT:
+{
+    # name of the application
+    name : 'TODO'
+    # version of SALOME V5, V6...
+    version_maj : 'V6'
+    
+    out_dir : $USER.workDir + '/' + $PRODUCT.name + '_' + $VARS.arch
+    # default prepare method: cvs, git, dir, archive
+    get_method : 'cvs'
+    # default version for SALOME's modules (cvs tag: V6_main)
+    default_version_to_download : 'TODO'
+    
+    # steps for product and maintenance commands
+    etapes :
+    [
+        # steps 
+        'save'
+        'prepare'
+        'environ'
+        'compile'
+        'application'
+        'test'
+    ]
+
+    # list the required prerequisites with their versions
+    prerequis :
+    {
+        "Python" : "2.4.4"
+        TODO
+    }
+
+    # list the modules
+    modules :
+    [
+        "<application>" # name of this application module
+        "KERNEL"
+        "GUI"
+        TODO
+    ]
+    
+    # compilation flags
+    compil_in_debug_mode : "no" # yes, non all, none or list
+    # list of modules to compile in debug when compil_in_debug_mode = 'list'
+    #debug_modules : [ 'KERNEL', 'GUI' ]
+    compil_in_single_dir : "no"
+    ignore_step_errors : [ 'compile', 'application' ]
+    with_mpi : "no"
+    make_flags : ''
+    
+    # name of the default test grid
+    grid_to_test : ''
+}
+
+APPLI :
+{
+    configure :
+    {
+        "splash":
+        {
+            "image" : $TOOLS.common.module_info.%(NAME)s.install_dir + "/resources/splash.png"
+        }
+        "resources":
+        {
+            "LightApp" : $TOOLS.common.module_info.%(NAME)s.install_dir + "/resources"
+        }
+    }
+}
+
+# add definition for new modules
+
+TOOLS: { common: {
+
+    # add definition of new prerequisites
+    #prereq_info : {
+    #}
+
+    # add definition of new modules
+    module_info : {
+
+        # insert the pyconf generated for this module here
+        '<module>' :
+        {
+            name : ''
+        ...
+        }
+
+    }
+
+}}
+
+
+# Overwrite definitions of standard modules or prerequisites.
+#__overwrite__ :
+#[
+#]
