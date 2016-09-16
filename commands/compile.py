@@ -444,10 +444,19 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
             
             if res_mi > 0:
                 error_step = "MAKE INSTALL"
+
+    # Check that the install directory exists
+    if not(os.path.exists(p_info.install_dir)):
+        res = 1
+        error_step = "NO INSTALL DIR"
+        msg = _("Error: despite the fact that all the steps ended successfully,"
+                " no install directory was found !")
+        logger.write(src.printcolors.printcError(msg), 4)
+        logger.write("\n", 4)
     
     # Add the config file corresponding to the dependencies/versions of the 
     # product that have been successfully compiled
-    if res==0:
+    if res==0:       
         logger.write(_("Add the config file in installation directory\n"), 5)
         add_compile_config_file(p_info, config)
     
