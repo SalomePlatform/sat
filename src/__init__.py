@@ -120,12 +120,14 @@ def get_base_path(config):
     :return: The path of the product base.
     :rtype: str
     '''
-    if "base" in config.SITE:
-        base_path = config.SITE.base
-    else:
-        # default base
-        base_path = config.USER.base
-    return base_path
+    if "base" not in config.SITE:
+        site_file_path = os.path.join(config.VARS.salometoolsway,
+                                      "data",
+                                      "site.pyconf")
+        msg = _("Please define a base path in the file %s" % site_file_path)
+        raise SatException(msg)
+
+    return config.SITE.base
 
 def get_salome_version(config):
     if hasattr(config.APPLICATION, 'version_salome'):
