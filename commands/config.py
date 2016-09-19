@@ -788,7 +788,7 @@ def run(args, runner, logger):
         if 'APPLICATION' not in runner.cfg: # edit user pyconf
             usercfg = os.path.join(runner.cfg.VARS.personalDir, 
                                    'salomeTools.pyconf')
-            logger.write(_("Openning %s" % usercfg), 3)
+            logger.write(_("Openning %s\n" % usercfg), 3)
             src.system.show_in_editor(editor, usercfg, logger)
         else:
             # search for file <application>.pyconf and open it
@@ -796,7 +796,7 @@ def run(args, runner, logger):
                 pyconf_path = os.path.join(path, 
                                     runner.cfg.VARS.application + ".pyconf")
                 if os.path.exists(pyconf_path):
-                    logger.write(_("Openning %s" % pyconf_path), 3)
+                    logger.write(_("Openning %s\n" % pyconf_path), 3)
                     src.system.show_in_editor(editor, pyconf_path, logger)
                     break
     

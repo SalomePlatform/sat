@@ -446,7 +446,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
                 error_step = "MAKE INSTALL"
 
     # Check that the install directory exists
-    if not(os.path.exists(p_info.install_dir)):
+    if res==0 and not(os.path.exists(p_info.install_dir)):
         res = 1
         error_step = "NO INSTALL DIR"
         msg = _("Error: despite the fact that all the steps ended successfully,"
