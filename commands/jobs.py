@@ -640,7 +640,10 @@ class Jobs(object):
         '''
         name = job_def.name
         cmmnds = job_def.commands
-        timeout = job_def.timeout
+        if not "timeout" in job_def:
+            timeout = 4*60*60 # default timeout = 4h
+        else:
+            timeout = job_def.timeout
         after = None
         if 'after' in job_def:
             after = job_def.after
