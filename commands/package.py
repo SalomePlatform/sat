@@ -257,12 +257,13 @@ def binary_package(config, logger, options, tmp_working_dir):
         d_products[prod_name] = (install_dir, path_in_archive)
     
     # create the relative launcher and add it to the files to add
-    launcher_name = config.APPLICATION.profile.launcher_name
-    launcher_package = produce_relative_launcher(config,
-                                                 logger,
-                                                 tmp_working_dir,
-                                                 launcher_name,
-                                                 binaries_dir_name)
+    if "profile" in config.APPLICATION:
+        launcher_name = config.APPLICATION.profile.launcher_name
+        launcher_package = produce_relative_launcher(config,
+                                                     logger,
+                                                     tmp_working_dir,
+                                                     launcher_name,
+                                                     binaries_dir_name)
     
     d_products["launcher"] = (launcher_package, launcher_name)
     
