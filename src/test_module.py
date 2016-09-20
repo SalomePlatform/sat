@@ -210,6 +210,8 @@ class Test:
         test_base_info = None
         for project_name in self.config.PROJECTS.projects:
             project_info = self.config.PROJECTS.projects[project_name]
+            if "test_bases" not in project_info:
+                continue
             for t_b_info in project_info.test_bases:
                 if t_b_info.name == test_base_name:
                     test_base_info = t_b_info
