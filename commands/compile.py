@@ -80,7 +80,6 @@ def get_products_list(options, cfg, logger):
     products_infos = src.product.get_products_infos(products, cfg)
     
     products_infos = [pi for pi in products_infos if not(
-                                     src.product.product_is_native(pi[1]) or 
                                      src.product.product_is_fixed(pi[1]))]
     
     return products_infos
@@ -290,10 +289,16 @@ def compile_all_products(sat, config, options, products_infos, logger):
         logger.write("\n", 4, False)
         logger.flush()
 
-        # Do nothing if he product is not compilable
+        # Do nothing if the product is not compilable
         if ("properties" in p_info and "compilation" in p_info.properties and 
                                             p_info.properties.compilation == "no"):
             log_step(logger, header, "ignored")
+            logger.write("\n", 3, False)
+            continue
+
+        # Do nothing if the product is native
+        if src.product.product_is_native(p_info):
+            log_step(logger, header, "native")
             logger.write("\n", 3, False)
             continue
 
