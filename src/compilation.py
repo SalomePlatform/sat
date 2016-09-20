@@ -76,7 +76,8 @@ class Builder:
         self.log('\n', 4)
 
         # add products in depend and opt_depend list recursively
-        environ_info = src.product.get_product_dependencies(self.config, self.product_info)
+        environ_info = src.product.get_product_dependencies(self.config,
+                                                            self.product_info)
         #environ_info.append(self.product_info.name)
 
         # create build environment
@@ -369,7 +370,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
     ##
     # Performs a build with a script.
-    def do_python_script_build(self, script):
+    def do_python_script_build(self, script, nb_proc):
         # script found
         self.logger.write(_("Compile %(product)s using script %(script)s\n") % \
             { 'product': self.product_info.name,
@@ -378,6 +379,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
             import imp
             product = self.product_info.name
             pymodule = imp.load_source(product + "_compile_script", script)
+            self.nb_proc = nb_proc
             retcode = pymodule.compil(self.config, self, self.logger)
         except:
             __, exceptionValue, exceptionTraceback = sys.exc_info()
@@ -403,11 +405,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
         self.build_environ.set("DIST", self.config.VARS.dist)
         self.build_environ.set("VERSION", self.product_info.version)
 
-    def do_batch_script_build(self, script):
-        # define make options (may not be used by the script)
-        nb_proc = src.get_cfg_param(self.product_info,"nb_proc", 0)
-        if nb_proc == 0: 
-            nb_proc = self.config.VARS.nb_proc
+    def do_batch_script_build(self, script, nb_proc):
 
         if src.architecture.is_windows():
             make_options = "/maxcpucount:%s" % nb_proc
@@ -429,11 +427,16 @@ CC=\\"hack_libtool\\"%g" libtool'''
             return 1
     
     def do_script_build(self, script):
+        # define make options (may not be used by the script)
+        nb_proc = src.get_cfg_param(self.product_info,"nb_proc", 0)
+        if nb_proc == 0: 
+            nb_proc = self.config.VARS.nb_proc
+            
         extension = script.split('.')[-1]
         if extension in ["bat","sh"]:
-            return self.do_batch_script_build(script)
+            return self.do_batch_script_build(script, nb_proc)
         if extension == "py":
-            return self.do_python_script_build(script)
+            return self.do_python_script_build(script, nb_proc)
         
         msg = _("The script %s must have .sh, .bat or .py extension." % script)
         raise src.SatException(msg)
