@@ -265,7 +265,7 @@ def binary_package(config, logger, options, tmp_working_dir):
                                                      launcher_name,
                                                      binaries_dir_name)
     
-    d_products["launcher"] = (launcher_package, launcher_name)
+        d_products["launcher"] = (launcher_package, launcher_name)
     
     return d_products
 
