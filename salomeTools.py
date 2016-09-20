@@ -150,6 +150,7 @@ class Sat(object):
                     import paramiko
                     sys.stderr = saveout
                 except:
+                    sys.stderr = saveout
                     continue
 
             # load the module that has name nameCmd in dirPath
