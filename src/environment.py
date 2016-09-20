@@ -356,10 +356,6 @@ class SalomeEnviron:
                                    "resources",
                                    profile_product.lower() ) )
         
-        # The list of products to launch
-        lProductsName = self.get_names(self.cfg.APPLICATION.products.keys())
-        
-        self.set( "SALOME_MODULES",    ','.join(lProductsName))
 
     def set_salome_minimal_product_env(self, product_info, logger):
         """Sets the minimal environment for a SALOME product.
@@ -669,6 +665,11 @@ class FileEnvWriter:
         else:
             # set env from the APPLICATION
             env.set_application_env(self.logger)
+            
+            # The list of products to launch
+            lProductsName = env.get_names(self.cfg.APPLICATION.products.keys())
+            env.set( "SALOME_MODULES",    ','.join(lProductsName))
+            
             # set the products
             env.set_products(self.logger,
                             src_root=self.src_root)
@@ -712,6 +713,10 @@ class FileEnvWriter:
         else:
             # set env from PRODUCT
             env.set_application_env(self.logger)
+
+            # The list of products to launch
+            lProductsName = env.get_names(self.cfg.APPLICATION.products.keys())
+            env.set( "SALOME_MODULES",    ','.join(lProductsName))
 
             # set the products
             env.set_products(self.logger,
