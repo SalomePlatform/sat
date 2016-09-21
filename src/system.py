@@ -51,13 +51,15 @@ def show_in_editor(editor, filePath, logger):
                                              % filePath), 1)
 
 
-def git_extract(from_what, tag, where, logger):
+def git_extract(from_what, tag, where, logger, environment=None):
     '''Extracts sources from a git repository.
     
     :param from_what str: The remote git repository.
     :param tag str: The tag.
     :param where str: The path where to extract.
     :param logger Logger: The logger instance to use.
+    :param environment src.environment.Environ: The environment to source when
+                                                extracting.
     :return: True if the extraction is successful
     :rtype: boolean
     '''
@@ -81,8 +83,12 @@ def git_extract(from_what, tag, where, logger):
 
     logger.logTxtFile.write("\n" + command + "\n")
     logger.logTxtFile.flush()
-    res = subprocess.call(command, cwd=str(where.dir()), shell=True,
-                          stdout=logger.logTxtFile, stderr=subprocess.STDOUT)
+    res = subprocess.call(command,
+                          cwd=str(where.dir()),
+                          env=environment.environ.environ,
+                          shell=True,
+                          stdout=logger.logTxtFile,
+                          stderr=subprocess.STDOUT)
     return (res == 0)
 
 def archive_extract(from_what, where, logger):
@@ -104,7 +110,7 @@ def archive_extract(from_what, where, logger):
         return False, None
 
 def cvs_extract(protocol, user, server, base, tag, product, where,
-                logger, checkout=False):
+                logger, checkout=False, environment=None):
     '''Extracts sources from a cvs repository.
     
     :param protocol str: The cvs protocol.
@@ -116,6 +122,8 @@ def cvs_extract(protocol, user, server, base, tag, product, where,
     :param where str: The path where to extract.
     :param logger Logger: The logger instance to use.
     :param checkout boolean: If true use checkout cvs.
+    :param environment src.environment.Environ: The environment to source when
+                                                extracting.
     :return: True if the extraction is successful
     :rtype: boolean
     '''
@@ -147,11 +155,21 @@ def cvs_extract(protocol, user, server, base, tag, product, where,
 
     logger.logTxtFile.write("\n" + command + "\n")
     logger.logTxtFile.flush()        
-    res = subprocess.call(command, cwd=str(where.dir()), shell=True,
-                          stdout=logger.logTxtFile, stderr=subprocess.STDOUT)
+    res = subprocess.call(command,
+                          cwd=str(where.dir()),
+                          env=environment.environ.environ,
+                          shell=True,
+                          stdout=logger.logTxtFile,
+                          stderr=subprocess.STDOUT)
     return (res == 0)
 
-def svn_extract(user, from_what, tag, where, logger, checkout=False):
+def svn_extract(user,
+                from_what,
+                tag,
+                where,
+                logger,
+                checkout=False,
+                environment=None):
     '''Extracts sources from a svn repository.
     
     :param user str: The user to be used.
@@ -160,6 +178,8 @@ def svn_extract(user, from_what, tag, where, logger, checkout=False):
     :param where str: The path where to extract.
     :param logger Logger: The logger instance to use.
     :param checkout boolean: If true use checkout svn.
+    :param environment src.environment.Environ: The environment to source when
+                                                extracting.
     :return: True if the extraction is successful
     :rtype: boolean
     '''
@@ -187,6 +207,10 @@ def svn_extract(user, from_what, tag, where, logger, checkout=False):
     logger.write(command + "\n", 5)
     logger.logTxtFile.write("\n" + command + "\n")
     logger.logTxtFile.flush()
-    res = subprocess.call(command, cwd=str(where.dir()), shell=True,
-                          stdout=logger.logTxtFile, stderr=subprocess.STDOUT)
+    res = subprocess.call(command,
+                          cwd=str(where.dir()),
+                          env=environment.environ.environ,
+                          shell=True,
+                          stdout=logger.logTxtFile,
+                          stderr=subprocess.STDOUT)
     return (res == 0)

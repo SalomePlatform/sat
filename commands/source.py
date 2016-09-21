@@ -60,7 +60,12 @@ def get_source_for_dev(config, product_info, source_dir, logger, pad):
     
     return retcode
 
-def get_source_from_git(product_info, source_dir, logger, pad, is_dev=False):
+def get_source_from_git(product_info,
+                        source_dir,
+                        logger,
+                        pad,
+                        is_dev=False,
+                        environ = None):
     '''The method called if the product is to be get in git mode
     
     :param product_info Config: The configuration specific to 
@@ -70,6 +75,8 @@ def get_source_from_git(product_info, source_dir, logger, pad, is_dev=False):
     :param logger Logger: The logger instance to use for the display and logging
     :param pad int: The gap to apply for the terminal display
     :param is_dev boolean: True if the product is in development mode
+    :param environ src.environment.Environ: The environment to source when
+                                                extracting.
     :return: True if it succeed, else False
     :rtype: boolean
     '''
@@ -99,7 +106,7 @@ def get_source_from_git(product_info, source_dir, logger, pad, is_dev=False):
     # Call the system function that do the extraction in git mode
     retcode = src.system.git_extract(repo_git,
                                  product_info.git_info.tag,
-                                 source_dir, logger)
+                                 source_dir, logger, environ)
     return retcode
 
 def get_source_from_archive(product_info, source_dir, logger):
@@ -138,7 +145,13 @@ def get_source_from_archive(product_info, source_dir, logger):
     
     return retcode
 
-def get_source_from_cvs(user, product_info, source_dir, checkout, logger, pad):
+def get_source_from_cvs(user,
+                        product_info,
+                        source_dir,
+                        checkout,
+                        logger,
+                        pad,
+                        environ = None):
     '''The method called if the product is to be get in cvs mode
     
     :param user str: The user to use in for the cvs command
@@ -149,6 +162,8 @@ def get_source_from_cvs(user, product_info, source_dir, checkout, logger, pad):
     :param checkout boolean: If True, get the source in checkout mode
     :param logger Logger: The logger instance to use for the display and logging
     :param pad int: The gap to apply for the terminal display
+    :param environ src.environment.Environ: The environment to source when
+                                                extracting.
     :return: True if it succeed, else False
     :rtype: boolean
     '''
@@ -196,10 +211,15 @@ def get_source_from_cvs(user, product_info, source_dir, checkout, logger, pad):
                                  product_info.cvs_info.product_base,
                                  product_info.cvs_info.tag,
                                  product_info.cvs_info.source,
-                                 source_dir, logger, checkout)
+                                 source_dir, logger, checkout, environ)
     return retcode
 
-def get_source_from_svn(user, product_info, source_dir, checkout, logger):
+def get_source_from_svn(user,
+                        product_info,
+                        source_dir,
+                        checkout,
+                        logger,
+                        environ = None):
     '''The method called if the product is to be get in svn mode
     
     :param user str: The user to use in for the svn command
@@ -209,6 +229,8 @@ def get_source_from_svn(user, product_info, source_dir, checkout, logger):
                             directory where to put the sources
     :param checkout boolean: If True, get the source in checkout mode
     :param logger Logger: The logger instance to use for the display and logging
+    :param environ src.environment.Environ: The environment to source when
+                                                extracting.
     :return: True if it succeed, else False
     :rtype: boolean
     '''
@@ -228,7 +250,8 @@ def get_source_from_svn(user, product_info, source_dir, checkout, logger):
                                      product_info.svn_info.tag,
                                      source_dir, 
                                      logger, 
-                                     checkout)
+                                     checkout,
+                                     environ)
     return retcode
 
 def get_product_sources(config, 
@@ -252,6 +275,14 @@ def get_product_sources(config,
     :return: True if it succeed, else False
     :rtype: boolean
     '''
+    
+    # Get the application environment
+    logger.write(_("Set the application environment\n"), 5)
+    env_appli = src.environment.SalomeEnviron(config,
+                                      src.environment.Environ(dict(os.environ)))
+    env_appli.set_application_env(logger)
+    
+    # Call the right function to get sources regarding the product settings
     if not checkout and is_dev:
         return get_source_for_dev(config, 
                                    product_info, 
@@ -261,7 +292,7 @@ def get_product_sources(config,
 
     if product_info.get_source == "git":
         return get_source_from_git(product_info, source_dir, logger, pad, 
-                                    is_dev)
+                                    is_dev,env_appli)
 
     if product_info.get_source == "archive":
         return get_source_from_archive(product_info, source_dir, logger)
@@ -273,13 +304,15 @@ def get_product_sources(config,
                                     source_dir, 
                                     checkout, 
                                     logger,
-                                    pad)
+                                    pad,
+                                    env_appli)
 
     if product_info.get_source == "svn":
         svn_user = config.USER.svn_user
         return get_source_from_svn(svn_user, product_info, source_dir, 
                                     checkout,
-                                    logger)
+                                    logger,
+                                    env_appli)
 
     if product_info.get_source == "native":
         # skip
