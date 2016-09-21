@@ -427,7 +427,9 @@ def check_installation(product_info):
                                the product
     :return: True if it is well installed
     :rtype: boolean
-    '''       
+    '''
+    if not product_compiles(product_info):
+        return True
     install_dir = product_info.install_dir
     if not os.path.exists(install_dir):
         return False
@@ -578,6 +580,19 @@ def product_is_cpp(product_info):
     return ("properties" in product_info and
             "cpp" in product_info.properties and
             product_info.properties.cpp == "yes")
+
+def product_compiles(product_info):
+    '''Know if a product compiles or not (some products do not have a 
+       compilation procedure)
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product compiles, else False
+    :rtype: boolean
+    '''
+    return not("properties" in product_info and
+            "compilation" in product_info.properties and
+            product_info.properties.compilation == "no")
 
 def product_has_script(product_info):
     '''Know if a product has a compilation script
