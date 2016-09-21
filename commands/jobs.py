@@ -1037,8 +1037,11 @@ class Gui(object):
         # The path of the csv files to read to fill the expected boards
         self.file_boards = file_boards
         
-        today = datetime.date.weekday(datetime.date.today())
-        self.parse_csv_boards(today)
+        if file_boards != "":
+            today = datetime.date.weekday(datetime.date.today())
+            self.parse_csv_boards(today)
+        else:
+            self.d_input_boards = {}
         
         # The path of the global xml file
         self.xml_dir_path = xml_dir_path
