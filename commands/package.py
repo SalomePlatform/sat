@@ -290,7 +290,7 @@ def source_package(sat, config, logger, options, tmp_working_dir):
     d_archives, l_pinfo_vcs = get_archives(config, logger)
     logger.write("Done\n")
     d_archives_vcs = {}
-    if not options.with_vcs:
+    if not options.with_vcs and len(l_pinfo_vcs) > 0:
         # Make archives with the products that are not prepared using an archive
         # (git, cvs, svn, etc)
         logger.write("Construct archives for vcs products ... ")
