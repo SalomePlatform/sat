@@ -667,7 +667,7 @@ class FileEnvWriter:
             env.set_application_env(self.logger)
             
             # The list of products to launch
-            lProductsName = env.get_names(self.cfg.APPLICATION.products.keys())
+            lProductsName = env.get_names(self.config.APPLICATION.products.keys())
             env.set( "SALOME_MODULES",    ','.join(lProductsName))
             
             # set the products
