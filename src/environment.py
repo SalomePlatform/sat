@@ -584,8 +584,6 @@ class SalomeEnviron:
         self.add_line(1)
         self.add_comment('setting environ for all products')
 
-        self.set_python_libdirs()
-
         # Set the application working directory
         if src_root is None:
             src_root = self.cfg.APPLICATION.workdir
@@ -598,8 +596,15 @@ class SalomeEnviron:
         self.set("SALOME_APPLI_ROOT",
                  os.path.join(self.cfg.APPLICATION.workdir, appli_name))
 
+        # Make sure that the python lib dirs are set after python
+        if "Python" in self.cfg.APPLICATION.products:
+            self.set_a_product("Python", logger)
+            self.set_python_libdirs()
+
         # The loop on the products
         for product in self.cfg.APPLICATION.products.keys():
+            if product == "Python":
+                continue
             self.set_a_product(product, logger)
             self.finish(False)
  
@@ -715,7 +720,7 @@ class FileEnvWriter:
             env.set_application_env(self.logger)
 
             # The list of products to launch
-            lProductsName = env.get_names(self.cfg.APPLICATION.products.keys())
+            lProductsName = env.get_names(self.config.APPLICATION.products.keys())
             env.set( "SALOME_MODULES",    ','.join(lProductsName))
 
             # set the products
