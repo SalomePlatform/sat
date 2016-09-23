@@ -72,9 +72,6 @@
 		<table border="1">
 			<xsl:for-each select="SATcommand/Links/link">
 				<tr>
-					<td bgcolor="LightBlue">
-						<xsl:value-of select="@launchedCommand"/>
-					</td>
 					<td bgcolor="Beige">
 						<xsl:if test="@passed='0'">
 							<a>
@@ -92,6 +89,9 @@
 								<xsl:value-of select="@command"/>
 							</a>
 						</xsl:if>
+					</td>
+					<td bgcolor="LightBlue">
+						<xsl:value-of select="@launchedCommand"/>
 					</td>
 				</tr>
 			</xsl:for-each>
