@@ -32,7 +32,11 @@ logCommandFileExpression = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
 class Logger(object):
     '''Class to handle log mechanism.
     '''
-    def __init__(self, config, silent_sysstd=False, all_in_terminal=False):
+    def __init__(self,
+                 config,
+                 silent_sysstd=False,
+                 all_in_terminal=False,
+                 micro_command = False):
         '''Initialization
         
         :param config pyconf.Config: The global configuration.
@@ -44,11 +48,15 @@ class Logger(object):
         self.silentSysStd = silent_sysstd
         
         # Construct xml log file location for sat prints.
-        logFileName = config.VARS.datehour + "_" + config.VARS.command + ".xml"
+        prefix = ""
+        if micro_command:
+            prefix = "micro_"
+        hour_command = config.VARS.datehour + "_" + config.VARS.command
+        logFileName = prefix + hour_command + ".xml"
         logFilePath = os.path.join(config.USER.log_dir, logFileName)
         # Construct txt file location in order to log 
         # the external commands calls (cmake, make, git clone, etc...)
-        txtFileName = config.VARS.datehour + "_" + config.VARS.command + ".txt"
+        txtFileName = prefix + hour_command + ".txt"
         txtFilePath = os.path.join(config.USER.log_dir, "OUT", txtFileName)
         
         src.ensure_path_exists(os.path.dirname(logFilePath))

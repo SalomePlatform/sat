@@ -213,9 +213,13 @@ class Sat(object):
                 silent = (self.cfg.USER.output_verbose_level == 0)
 
                 # create log file
+                micro_command = False
+                if logger_add_link:
+                    micro_command = True
                 logger_command = src.logger.Logger(self.cfg, 
                                                    silent_sysstd=silent,
-                                                   all_in_terminal=self.options.all_in_terminal)
+                                                   all_in_terminal=self.options.all_in_terminal,
+                                                   micro_command=micro_command)
                 
                 # Check that the path given by the logs_paths_in_file option
                 # is a file path that can be written
