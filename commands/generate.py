@@ -178,15 +178,13 @@ def generate_component(config, compo, product_info, context, header, logger):
     return result
 
 def build_context(config, logger):
-    environ_info = {}
     products_list = [ 'KERNEL', 'GUI' ]
-    environ_info['products'] = config.APPLICATION.products
     ctxenv = src.environment.SalomeEnviron(config,
                                            src.environment.Environ(dict(
                                                                    os.environ)),
                                            True)
     ctxenv.silent = True
-    ctxenv.set_full_environ(logger, environ_info)
+    ctxenv.set_full_environ(logger, config.APPLICATION.products.keys())
 
     dicdir = {}
     for p in products_list:
@@ -227,7 +225,7 @@ def check_module_generator(directory=None):
     """
     undo = False
     if directory is not None and directory not in sys.path:
-        sys.path.insert(0, dir)
+        sys.path.insert(0, directory)
         undo = True
     
     res = None
@@ -237,7 +235,7 @@ def check_module_generator(directory=None):
         res = info[1]
     except ImportError:
         if undo:
-            sys.path.remove(dir)
+            sys.path.remove(directory)
         res = None
 
     return res

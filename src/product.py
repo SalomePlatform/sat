@@ -661,8 +661,8 @@ def product_is_generated(product_info):
     :rtype: boolean
     '''
     return ("properties" in product_info and
-            "generated" in product_info.properties and
-            product_info.properties.generated == "yes")
+            "generate" in product_info.properties and
+            product_info.properties.generate == "yes")
 
 def get_product_components(product_info):
     '''Get the component list to generate with the product
