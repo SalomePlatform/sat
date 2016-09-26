@@ -410,6 +410,8 @@ def get_product_dependencies(config, product_info):
         return []
     res = []
     for prod in product_info.depend:
+        if prod == product_info.name:
+            continue
         if prod not in res:
             res.append(prod)
         prod_info = get_product_config(config, prod)
@@ -641,6 +643,18 @@ def product_has_logo(product_info):
         return product_info.properties.logo
     else:
         return False
+
+def product_has_salome_gui(product_info):
+    '''Know if a product has a SALOME gui
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product has a SALOME gui, else False
+    :rtype: Boolean
+    '''
+    return ("properties" in product_info and
+            "has_salome_gui" in product_info.properties and
+            product_info.properties.has_salome_gui == "yes")
 
 def product_is_mpi(product_info):
     '''Know if a product has openmpi in its dependencies

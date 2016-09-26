@@ -59,22 +59,23 @@ def generate_component(config, compo, product_info, context, header, logger):
     src.printcolors.print_value(logger, "cpp_path", cpp_path, 4)
 
     # create a product_info at runtime
-    pp = src.pyconf.Mapping(config)
-    pp.name = compo
-    pp.nb_proc = 1
+    compo_info = src.pyconf.Mapping(config)
+    compo_info.name = compo
+    compo_info.nb_proc = 1
     generate_dir = os.path.join(config.APPLICATION.workdir, "GENERATED")
     install_dir = os.path.join(config.APPLICATION.workdir, "INSTALL")
     build_dir = os.path.join(config.APPLICATION.workdir, "BUILD")
-    pp.source_dir = os.path.join(generate_dir, compo + "_SRC")
-    pp.install_dir = os.path.join(install_dir, compo)
-    pp.build_dir = os.path.join(build_dir, compo)
-    pp.depend = product_info.depend
-    pp.depend.append(product_info.name, "") # add cpp module
-    pp.opt_depend = product_info.opt_depend
+    compo_info.source_dir = os.path.join(generate_dir, compo + "_SRC")
+    compo_info.install_dir = os.path.join(install_dir, compo)
+    compo_info.build_dir = os.path.join(build_dir, compo)
+    compo_info.depend = product_info.depend
+    compo_info.depend.append(product_info.name, "") # add cpp module
+    compo_info.opt_depend = product_info.opt_depend
 
-    config.PRODUCTS[compo].default = pp
+    config.PRODUCTS.addMapping(compo, src.pyconf.Mapping(config), "")
+    config.PRODUCTS[compo].default = compo_info
 
-    builder = src.compilation.Builder(config, logger, pp, check_src=False)
+    builder = src.compilation.Builder(config, logger, compo_info, check_src=False)
     builder.header = header
 
     # generate the component
@@ -83,9 +84,9 @@ def generate_component(config, compo, product_info, context, header, logger):
         os.mkdir(generate_dir)
 
     # delete previous generated directory if it already exists
-    if os.path.exists(pp.source_dir):
-        logger.write("  delete %s\n" % pp.source_dir, 4)
-        shutil.rmtree(pp.source_dir)
+    if os.path.exists(compo_info.source_dir):
+        logger.write("  delete %s\n" % compo_info.source_dir, 4)
+        shutil.rmtree(compo_info.source_dir)
 
     # generate generates in the current directory => change for generate dir
     curdir = os.curdir
@@ -108,14 +109,14 @@ def generate_component(config, compo, product_info, context, header, logger):
     VersionSalome = src.get_salome_version(config)
     if VersionSalome >= 750 :
         use_autotools=False
-        builder.log_step('USE CMAKE')
+        builder.log('USE CMAKE', 3)
     else:
         use_autotools=True
-        builder.log_step('USE AUTOTOOLS')
+        builder.log('USE AUTOTOOLS', 3)
 
     result = "GENERATE"
-    builder.log_step('GENERATE')
-
+    builder.log('GENERATE', 3)
+    
     prevstdout = sys.stdout
     prevstderr = sys.stderr
 
@@ -132,7 +133,7 @@ def generate_component(config, compo, product_info, context, header, logger):
                                                                 cpplib,
                                                                 cpp_path)
 
-        if product_info.has_gui == "yes":
+        if src.product.product_has_salome_gui(product_info):
             # get files to build a template GUI
             gui_files = salome_compo.getGUIfilesTemplate()
         else:
@@ -145,8 +146,8 @@ def generate_component(config, compo, product_info, context, header, logger):
 
         if use_autotools:
             result = "BUID_CONFIGURE"
-            builder.log_step('BUID_CONFIGURE (no bootstrap)')
-            g.bootstrap(pp.source_dir, logger.logTxtFile)
+            builder.log('BUID_CONFIGURE (no bootstrap)', 3)
+            g.bootstrap(compo_info.source_dir, logger.logTxtFile)
 
         result = src.OK_STATUS
     finally:
@@ -157,21 +158,21 @@ def generate_component(config, compo, product_info, context, header, logger):
     os.chdir(curdir)
 
     # do the compilation using the builder object
-    if not builder.prepare(): return "Error in prepare"
+    if builder.prepare()!= 0: return "Error in prepare"
     if use_autotools:
-        if not builder.configure(): return "Error in configure"
+        if builder.configure()!= 0: return "Error in configure"
     else:
-        if not builder.cmake(): return "Error in cmake"
+        if builder.cmake()!= 0: return "Error in cmake"
 
-    if not builder.make(): return "Error in make"
-    if not builder.install(): return "Error in make install"
+    if builder.make(config.VARS.nb_proc, "")!=0: return "Error in make"
+    if builder.install()!=0: return "Error in make install"
 
     # copy specified logo in generated component install directory
     # rem : logo is not copied in source dir because this would require
     #       to modify the generated makefile
     logo_path = src.product.product_has_logo(product_info)
     if logo_path:
-        destlogo = os.path.join(pp.install_dir, "share", "salome",
+        destlogo = os.path.join(compo_info.install_dir, "share", "salome",
             "resources", compo.lower(), compo + ".png")
         src.Path(logo_path).copyfile(destlogo)
 
