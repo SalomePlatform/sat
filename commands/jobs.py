@@ -441,6 +441,8 @@ class Job(object):
         """In case of a failing job, one has to cancel every job that depend 
            on it. This method put the job as failed and will not be executed.
         """
+        if self.cancelled:
+            return
         self._has_begun = True
         self._has_finished = True
         self.cancelled = True
@@ -1024,7 +1026,7 @@ class Gui(object):
        see the jobs states
     '''
    
-    def __init__(self, xml_dir_path, l_jobs, l_jobs_not_today, file_boards=""):
+    def __init__(self, xml_dir_path, l_jobs, l_jobs_not_today, prefix, file_boards=""):
         '''Initialization
         
         :param xml_dir_path str: The path to the directory where to put 
@@ -1034,6 +1036,9 @@ class Gui(object):
         :param file_boards str: the file path from which to read the
                                    expected boards
         '''
+        # The prefix to add to the xml files : date_hour
+        self.prefix = prefix
+        
         # The path of the csv files to read to fill the expected boards
         self.file_boards = file_boards
         
@@ -1391,14 +1396,26 @@ class Gui(object):
                         attrib={"JobsCommandStatus" : finish_status})
         # Write the file
         self.write_xml_files()
-    
+
+    def write_xml_file(self, xml_file, stylesheet):
+        ''' Write one xml file and the same file with prefix
+        '''
+        xml_file.write_tree(stylesheet)
+        file_path = xml_file.logFile
+        file_dir = os.path.dirname(file_path)
+        file_name = os.path.basename(file_path)
+        file_name_with_prefix = self.prefix + "_" + file_name
+        xml_file.write_tree(stylesheet, os.path.join(file_dir,
+                                                     file_name_with_prefix))
+        
     def write_xml_files(self):
         ''' Write the xml files   
         '''
-        self.xml_global_file.write_tree(STYLESHEET_GLOBAL)
+        self.write_xml_file(self.xml_global_file, STYLESHEET_GLOBAL)
         for xml_file in self.d_xml_board_files.values():
-            xml_file.write_tree(STYLESHEET_BOARD)
-        
+            self.write_xml_file(xml_file, STYLESHEET_BOARD)
+
+
 ##
 # Describes the command
 def description():
@@ -1495,6 +1512,7 @@ def run(args, runner, logger):
         gui = Gui(runner.cfg.USER.log_dir,
                   today_jobs.ljobs,
                   today_jobs.ljobs_not_today,
+                  runner.cfg.VARS.datehour,
                   file_boards = options.input_boards)
         
         # Display the list of the xml files

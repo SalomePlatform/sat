@@ -292,7 +292,7 @@ class Sat(object):
                     logger_command.end_write(
                                         {"launchedCommand" : launchedCommand})
                     
-                    if res is None:
+                    if res != 0:
                         res = 1
                     # If the logs_paths_in_file was called, write the result
                     # and log files in the given file path

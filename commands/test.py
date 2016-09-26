@@ -537,9 +537,6 @@ def run(args, runner, logger):
                     "board",
                     retcode,
                     "Click on the link to get the detailed test results")
-    
-    if retcode != 0:
-        retcode = 1
-    
+
     return retcode
 
