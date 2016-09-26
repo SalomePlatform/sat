@@ -197,7 +197,7 @@
 				    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
 				    <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
 				    <xsl:attribute name="class">TO2day</xsl:attribute>
-				    <xsl:value-of select="@name"/>
+				    job
 			      </a>
 			    </xsl:when>
 			    <xsl:when test="state/.='Not today'">
