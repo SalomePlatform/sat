@@ -72,7 +72,8 @@ def get_build_directories(products_infos):
     l_dir_build = []
     for __, product_info in products_infos:
         if product_has_dir(product_info):
-            l_dir_build.append(src.Path(product_info.build_dir))
+            if "build_dir" in product_info:
+                l_dir_build.append(src.Path(product_info.build_dir))
     return l_dir_build
 
 def get_install_directories(products_infos):
@@ -166,7 +167,6 @@ def run(args, runner, logger):
     
     if len(l_dir_to_suppress) == 0:
         logger.write(src.printcolors.printcWarning(_("Nothing to suppress\n")))
-        logger.write(src.printcolors.printcWarning("\n"))
         sat_command = (runner.cfg.VARS.salometoolsway +
                        runner.cfg.VARS.sep +
                        "sat -h clean") 

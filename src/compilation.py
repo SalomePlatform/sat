@@ -207,7 +207,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
     ##
     # Runs make to build the module.
-    def make(self, nb_proc, make_opt):
+    def make(self, nb_proc, make_opt=""):
 
         # make
         command = 'make'

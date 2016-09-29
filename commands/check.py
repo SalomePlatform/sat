@@ -89,6 +89,10 @@ def check_all_products(config, products_infos, logger):
     '''
     res = 0
     for p_name_info in products_infos:
+        __, p_info = p_name_info
+        if ("build_dir" not in  "build_dir" or 
+            not src.product.product_compiles(p_info)):
+            continue
         res_prod = check_product(p_name_info, config, logger)
         if res_prod != 0:
             res += 1 
