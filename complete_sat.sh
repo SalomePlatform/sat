@@ -164,7 +164,7 @@ _salomeTools_complete()
             return 0
             ;;
         clean)
-            opts="--products --sources --build --install --all --sources_without_dev"
+            opts="--products --sources --build --install --all --sources_without_dev --properties"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
