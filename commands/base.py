@@ -26,6 +26,15 @@ parser.add_option('s', 'set', 'string', 'base_path',
     _('The path directory to use as base.'), None)
 
 def set_base(config, path, site_file_path, logger):
+    """ Edit the site.pyconf file and change the base path
+
+    :param config Config: The global configuration.    
+    :param path src.Path: The path to put in the site.pyconf file.
+    :param site_file_path Str: The path to the site.pyconf file.
+    :param logger Logger: The logger instance.
+    :return: 0 if all is OK, else 1
+    :rtype: int
+    """
     # Update the site.pyconf file
     try:
         site_pyconf_cfg = src.pyconf.Config(site_file_path)
@@ -46,6 +55,11 @@ def set_base(config, path, site_file_path, logger):
 
 
 def display_base_path(config, logger):
+    """ Display the base path
+
+    :param config Config: The global configuration.    
+    :param logger Logger: The logger instance.
+    """
     info = [(_("Base path"), config.SITE.base)]
     src.print_info(logger, info)
 
