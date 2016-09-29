@@ -308,7 +308,10 @@ def compile_all_products(sat, config, options, products_infos, logger):
             log_step(logger, header, "CLEAN BUILD AND INSTALL")
             sat.clean(config.VARS.application + 
                       " --products " + p_name + 
-                      " --build --install", batch=True, verbose=0)
+                      " --build --install",
+                      batch=True,
+                      verbose=0,
+                      logger_add_link = logger)
         
         # Clean the the install directory 
         # if the corresponding option was called
@@ -316,7 +319,10 @@ def compile_all_products(sat, config, options, products_infos, logger):
             log_step(logger, header, "CLEAN INSTALL")
             sat.clean(config.VARS.application + 
                       " --products " + p_name + 
-                      " --install", batch=True, verbose=0)
+                      " --install",
+                      batch=True,
+                      verbose=0,
+                      logger_add_link = logger)
         
         # Check if it was already successfully installed
         if src.product.check_installation(p_info):
@@ -354,7 +360,10 @@ def compile_all_products(sat, config, options, products_infos, logger):
                          5)
             sat.clean(config.VARS.application + 
                       " --products " + p_name + 
-                      " --install", batch=True, verbose=0)
+                      " --install",
+                      batch=True,
+                      verbose=0,
+                      logger_add_link = logger)
             res += 1
             
         # Log the result

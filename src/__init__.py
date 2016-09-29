@@ -193,6 +193,9 @@ class Path:
     def isdir(self):
         return os.path.isdir(self.path)
 
+    def isfile(self):
+        return os.path.isfile(self.path)
+
     def list(self):
         return [Path(p) for p in os.listdir(self.path)]
 
