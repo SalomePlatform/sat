@@ -55,6 +55,9 @@ _show_applications()
         template)
             opts2=$(echo --name --template --target --param --info $opts2)
             ;;
+        base)
+            opts2=$(echo --set $opts2)
+            ;;
     esac
 
     COMPREPLY=( $(compgen -W "${opts2}" -- ${cur}) )
@@ -101,7 +104,7 @@ _salomeTools_complete()
     # first argument => show available commands
     if [[ ${argc} == 1 ]]
     then
-        opts="config log testcommand source patch prepare environ clean configure make makeinstall compile launcher run jobs job shell test package generate find_duplicates application template --help"
+        opts="config log testcommand source patch prepare environ clean configure make makeinstall compile launcher run jobs job shell test package generate find_duplicates application template base --help"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     fi
@@ -252,6 +255,11 @@ _salomeTools_complete()
             ;;
         template)
             opts="--name --template --target --param --info"
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        base)
+            opts="--set"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
