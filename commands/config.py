@@ -607,39 +607,44 @@ def show_product_info(config, name, logger):
         return
     
     # information on compilation
-    logger.write("\n", 2)
-    logger.write(src.printcolors.printcLabel("compile:") + "\n", 2)
-    src.printcolors.print_value(logger, 
-                                "compilation method", 
-                                pinfo.build_source, 
-                                2)
+    if src.product.product_compiles(pinfo):
+        logger.write("\n", 2)
+        logger.write(src.printcolors.printcLabel("compile:") + "\n", 2)
+        src.printcolors.print_value(logger, 
+                                    "compilation method", 
+                                    pinfo.build_source, 
+                                    2)
+        
+        if pinfo.build_source == "script" and "compil_script" in pinfo:
+            src.printcolors.print_value(logger, 
+                                        "Compilation script", 
+                                        pinfo.compil_script, 
+                                        2)
+        
+        if 'nb_proc' in pinfo:
+            src.printcolors.print_value(logger, "make -j", pinfo.nb_proc, 2)
     
-    if pinfo.build_source == "script" and "compil_script" in pinfo:
         src.printcolors.print_value(logger, 
-                                    "Compilation script", 
-                                    pinfo.compil_script, 
+                                    "source dir", 
+                                    check_path(pinfo.source_dir), 
                                     2)
-    
-    if 'nb_proc' in pinfo:
-        src.printcolors.print_value(logger, "make -j", pinfo.nb_proc, 2)
-
-    src.printcolors.print_value(logger, 
-                                "source dir", 
-                                check_path(pinfo.source_dir), 
-                                2)
-    if 'install_dir' in pinfo:
-        src.printcolors.print_value(logger, 
-                                    "build dir", 
-                                    check_path(pinfo.build_dir), 
-                                    2)
-        src.printcolors.print_value(logger, 
-                                    "install dir", 
-                                    check_path(pinfo.install_dir), 
-                                    2)
+        if 'install_dir' in pinfo:
+            src.printcolors.print_value(logger, 
+                                        "build dir", 
+                                        check_path(pinfo.build_dir), 
+                                        2)
+            src.printcolors.print_value(logger, 
+                                        "install dir", 
+                                        check_path(pinfo.install_dir), 
+                                        2)
+        else:
+            logger.write("  " + 
+                         src.printcolors.printcWarning(_("no install dir")) + 
+                         "\n", 2)
     else:
-        logger.write("  " + 
-                     src.printcolors.printcWarning(_("no install dir")) + 
-                     "\n", 2)
+        logger.write("\n", 2)
+        msg = _("This product does not compile")
+        logger.write("%s\n" % msg, 2)
 
     # information on environment
     logger.write("\n", 2)

@@ -146,7 +146,7 @@ class ReadXmlFile(object):
         :rtype: str
         '''
         return self.xmlroot.find(node).text
-
+    
 def add_simple_node(root_node, node_name, text=None, attrib={}):
     '''Add a node with some attibutes and text to the root node.
 
@@ -170,6 +170,26 @@ def append_node_attrib(root_node, attrib):
     '''
     root_node.attrib.update(attrib)
 
+def find_node_by_attrib(xmlroot, name_node, key, value):
+    '''Find the nfirst ode from xmlroot that has name name_node and that has in 
+       its attributes {key : value}. Return the node
+    
+    :param xmlroot etree.Element: the Etree element where to search
+    :param name_node str: the name of node to search
+    :param key str: the key to search
+    :param value str: the value to search
+    :return: the found node
+    :rtype: xmlroot etree.Element
+    '''
+    l_nodes =  xmlroot.findall(name_node)
+    for node in l_nodes:
+        if key not in node.attrib.keys():
+            continue
+        if node.attrib[key] == value:
+            return node
+    return None
+    
+
 def write_report(filename, xmlroot, stylesheet):
     """Writes a report file from a XML tree.
     
@@ -185,4 +205,5 @@ def write_report(filename, xmlroot, stylesheet):
     if len(stylesheet) > 0:
         f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % stylesheet)
     f.write(etree.tostring(xmlroot, encoding='utf-8'))
-    f.close()
+    f.close()   
+    

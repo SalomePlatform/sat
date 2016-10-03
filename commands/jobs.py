@@ -22,9 +22,11 @@ import time
 import csv
 import shutil
 import itertools
+import re
 import paramiko
 
 import src
+from _ast import Expression
 
 STYLESHEET_GLOBAL = "jobs_global_report.xsl"
 STYLESHEET_BOARD = "jobs_board_report.xsl"
@@ -800,8 +802,8 @@ class Jobs(object):
                     self.logger.write('\r%s%s%s %s' % 
                         (begin_line,
                          endline,
-                         src.printcolors.printc(src.OK_STATUS),
-                         _("Copy of SAT failed")), 3)
+                         src.printcolors.printc(src.KO_STATUS),
+                         _("Copy of SAT failed: %s" % res_copy)), 3)
             else:
                 self.logger.write('\r%s' % 
                                   ((len(begin_line)+len(endline)+20) * " "), 3)
@@ -1051,7 +1053,9 @@ class Gui(object):
         # The path of the global xml file
         self.xml_dir_path = xml_dir_path
         # Initialize the xml files
-        xml_global_path = os.path.join(self.xml_dir_path, "global_report.xml")
+        self.global_name = "global_report"
+        xml_global_path = os.path.join(self.xml_dir_path,
+                                       self.global_name + ".xml")
         self.xml_global_file = src.xmlManager.XmlLogFile(xml_global_path,
                                                          "JobsReport")
         # The xml files that corresponds to the boards.
@@ -1059,11 +1063,17 @@ class Gui(object):
         self.d_xml_board_files = {}
         # Create the lines and columns
         self.initialize_boards(l_jobs, l_jobs_not_today)
+        # Find history for each job
+        self.history = {}
+        self.find_history(l_jobs, l_jobs_not_today)
         
         # Write the xml file
         self.update_xml_files(l_jobs)
     
     def add_xml_board(self, name):
+        '''Add a board to the board list   
+        :param name str: the board name
+        '''
         xml_board_path = os.path.join(self.xml_dir_path, name + ".xml")
         self.d_xml_board_files[name] =  src.xmlManager.XmlLogFile(
                                                     xml_board_path,
@@ -1197,7 +1207,46 @@ class Gui(object):
                                             "job",
                                             attrib={"distribution" : row,
                                                     "application" : column })
-    
+
+    def find_history(self, l_jobs, l_jobs_not_today):
+        """find, for each job, in the existent xml boards the results for the 
+           job. Store the results in the dictionnary self.history = {name_job : 
+           list of (date, status, list links)}
+        
+        :param l_jobs List: the list of jobs to run today   
+        :param l_jobs_not_today List: the list of jobs that do not run today
+        """
+        # load the all the history
+        expression = "^[0-9]{8}_+[0-9]{6}_" + self.global_name + ".xml$"
+        oExpr = re.compile(expression)
+        # Get the list of global xml that are in the log directory
+        l_globalxml = []
+        for file_name in os.listdir(self.xml_dir_path):
+            if oExpr.search(file_name):
+                file_path = os.path.join(self.xml_dir_path, file_name)
+                global_xml = src.xmlManager.ReadXmlFile(file_path)
+                l_globalxml.append(global_xml)
+
+        # Construct the dictionnary self.history 
+        for job in l_jobs + l_jobs_not_today:
+            l_links = []
+            for global_xml in l_globalxml:
+                date = os.path.basename(global_xml.filePath).split("_")[0]
+                global_root_node = global_xml.xmlroot.find("jobs")
+                job_node = src.xmlManager.find_node_by_attrib(
+                                                              global_root_node,
+                                                              "job",
+                                                              "name",
+                                                              job.name)
+                if job_node:
+                    if job_node.find("remote_log_file_path") is not None:
+                        link = job_node.find("remote_log_file_path").text
+                        res_job = job_node.find("res").text
+                        if link != "nothing":
+                            l_links.append((date, res_job, link))
+                            
+            self.history[job.name] = l_links
+  
     def put_jobs_not_today(self, l_jobs_not_today, xml_node_jobs):
         '''Get all the first information needed for each file and write the 
            first version of the files   
@@ -1223,6 +1272,13 @@ class Gui(object):
             src.xmlManager.add_simple_node(xmlj, "user", job.machine.user)
             src.xmlManager.add_simple_node(xmlj, "sat_path",
                                                         job.machine.sat_path)
+            xml_history = src.xmlManager.add_simple_node(xmlj, "history")
+            for date, res_job, link in self.history[job.name]:
+                src.xmlManager.add_simple_node(xml_history,
+                                               "link",
+                                               text=link,
+                                               attrib={"date" : date,
+                                                       "res" : res_job})
 
     def parse_csv_boards(self, today):
         """ Parse the csv file that describes the boards to produce and fill 
@@ -1317,6 +1373,14 @@ class Gui(object):
             src.xmlManager.add_simple_node(xmlj, "host", job.machine.host)
             src.xmlManager.add_simple_node(xmlj, "port", str(job.machine.port))
             src.xmlManager.add_simple_node(xmlj, "user", job.machine.user)
+            xml_history = src.xmlManager.add_simple_node(xmlj, "history")
+            for date, res_job, link in self.history[job.name]:
+                src.xmlManager.add_simple_node(xml_history,
+                                               "link",
+                                               text=link,
+                                               attrib={"date" : date,
+                                                       "res" : res_job})
+
             src.xmlManager.add_simple_node(xmlj, "sat_path",
                                            job.machine.sat_path)
             src.xmlManager.add_simple_node(xmlj, "application", job.application)
