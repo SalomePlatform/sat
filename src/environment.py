@@ -302,13 +302,16 @@ class SalomeEnviron:
         """Get the products name to add in SALOME_MODULES environment variable
            It is the name of the product, except in the case where the is a 
            component name. And it has to be in SALOME_MODULES variable only 
-           if has_gui = "yes"
+           if the product has the property has_salome_hui = "yes"
         
         :param lProducts list: List of products to potentially add
         """
-        lProdHasGui = [p for p in lProducts if 'type ' in 
-                    src.product.get_product_config(self.cfg, p) and 
-                    src.product.get_product_config(self.cfg, p).type=='salome']
+        lProdHasGui = [p for p in lProducts if 'properties' in 
+            src.product.get_product_config(self.cfg, p) and
+            'has_salome_gui' in 
+            src.product.get_product_config(self.cfg, p).properties and
+            src.product.get_product_config(self.cfg,
+                                           p).properties.has_salome_gui=='yes']
         lProdName = []
         for ProdName in lProdHasGui:
             pi = src.product.get_product_config(self.cfg, ProdName)
@@ -428,6 +431,35 @@ class SalomeEnviron:
                 ]
             self.prepend('PYTHONPATH', l)
 
+    def set_cpp_env(self, product_info):
+        """Sets the generic environment for a SALOME product.
+        
+        :param product_info Config: The product description
+        """
+        # Construct XXX_ROOT_DIR
+        env_root_dir = self.get(product_info.name + "_ROOT_DIR")
+        l_binpath_libpath = []
+
+        # Construct the paths to prepend to PATH and LD_LIBRARY_PATH and 
+        # PYTHONPATH
+        bin_path = os.path.join(env_root_dir, 'bin')
+        lib_path = os.path.join(env_root_dir, 'lib')
+        l_binpath_libpath.append( (bin_path, lib_path) )
+
+        for bin_path, lib_path in l_binpath_libpath:
+            if not self.forBuild:
+                self.prepend('PATH', bin_path)
+                if src.architecture.is_windows():
+                    self.prepend('PATH', lib_path)
+                else :
+                    self.prepend('LD_LIBRARY_PATH', lib_path)
+
+            l = [ bin_path, lib_path,
+                  os.path.join(env_root_dir, self.python_lib0),
+                  os.path.join(env_root_dir, self.python_lib1)
+                ]
+            self.prepend('PYTHONPATH', l)
+
     def load_cfg_environment(self, cfg_env):
         """Loads environment defined in cfg_env 
         
@@ -499,7 +531,12 @@ class SalomeEnviron:
             # set environment using definition of the product
             self.set_salome_minimal_product_env(pi, logger)
             self.set_salome_generic_product_env(product)
-
+        
+        if src.product.product_is_cpp(pi):
+            # set a specific environment for cpp modules
+            self.set_salome_minimal_product_env(pi, logger)
+            self.set_cpp_env(pi)
+        
         # Put the environment define in the configuration of the product
         if "environ" in pi:
             self.load_cfg_environment(pi.environ)
