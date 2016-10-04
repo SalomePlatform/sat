@@ -79,7 +79,7 @@ def generate_component(config, compo, product_info, context, header, logger):
     builder.header = header
 
     # generate the component
-    # create GENERETE dir if necessary
+    # create GENERATE dir if necessary
     if not os.path.exists(generate_dir):
         os.mkdir(generate_dir)
 
