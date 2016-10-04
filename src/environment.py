@@ -537,10 +537,13 @@ class SalomeEnviron:
             
             if src.product.product_is_generated(pi):
                 if "component_name" in pi:
-                    # hack the install directory in order to point on the 
-                    # generated product install directory
+                    # hack the source and install directories in order to point  
+                    # on the generated product source install directories
                     pi.install_dir = os.path.join(self.cfg.APPLICATION.workdir,
                                                   "INSTALL",
+                                                  pi.component_name)
+                    pi.source_dir = os.path.join(self.cfg.APPLICATION.workdir,
+                                                  "GENERATED",
                                                   pi.component_name)
                     pi.name = pi.component_name
                     self.set_salome_minimal_product_env(pi, logger)
