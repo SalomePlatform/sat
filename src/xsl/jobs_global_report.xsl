@@ -244,6 +244,26 @@
 		  <br/>
 		  <h4>User : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/user"/>
 		  <br/>
+		  <!-- Display history -->
+		  <h4>History : </h4>
+		  <br/>
+		  <xsl:for-each select="//JobsReport/jobs/job[@name=$curr_job_name]/history/link">
+		    <xsl:sort select="@date" order="descending" />
+		    <h4>
+		      <a>
+		        <xsl:attribute name="title">remote log</xsl:attribute>
+		        <xsl:attribute name="href"><xsl:value-of select="."/></xsl:attribute>
+			<xsl:if test="@res='0'">
+			    <xsl:attribute name="class">OK2</xsl:attribute>
+			</xsl:if>
+			<xsl:if test="@res!='0'">
+			    <xsl:attribute name="class">KO2</xsl:attribute>
+			</xsl:if>
+			<xsl:value-of select="@date"/>
+		      </a>
+		    </h4>
+		    <br/>
+		  </xsl:for-each>
 		  <h4>salomeTools path : </h4><xsl:value-of select="//JobsReport/jobs/job[@name=$curr_job_name]/sat_path"/>
 		  <br/>
 		  <h4>After : </h4>

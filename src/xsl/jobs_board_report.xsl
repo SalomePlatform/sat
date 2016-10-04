@@ -278,6 +278,7 @@
 		  <h4>History : </h4>
 		  <br/>
 		  <xsl:for-each select="//JobsReport/jobs/job[@name=$curr_job_name]/history/link">
+		    <xsl:sort select="@date" order="descending" />
 		    <h4>
 		      <a>
 		        <xsl:attribute name="title">remote log</xsl:attribute>
