@@ -383,13 +383,11 @@ class SalomeEnviron:
                 if not self.is_defined(src_dir):
                     self.set(src_dir, product_info.source_dir)
 
-    def set_salome_generic_product_env(self, product):
+    def set_salome_generic_product_env(self, pi):
         """Sets the generic environment for a SALOME product.
         
-        :param product str: The product name    
+        :param pi Config: The product description
         """
-        # get the product descritption
-        pi = src.product.get_product_config(self.cfg, product)
         # Construct XXX_ROOT_DIR
         env_root_dir = self.get(pi.name + "_ROOT_DIR")
         l_binpath_libpath = []
@@ -397,7 +395,7 @@ class SalomeEnviron:
         # create additional ROOT_DIR for CPP components
         if 'component_name' in pi:
             compo_name = pi.component_name
-            if compo_name + "CPP" == product:
+            if compo_name + "CPP" == pi.name:
                 compo_root_dir = compo_name + "_ROOT_DIR"
                 envcompo_root_dir = os.path.join(
                             self.cfg.TOOLS.common.install_root, compo_name )
@@ -432,7 +430,7 @@ class SalomeEnviron:
             self.prepend('PYTHONPATH', l)
 
     def set_cpp_env(self, product_info):
-        """Sets the generic environment for a SALOME product.
+        """Sets the generic environment for a SALOME cpp product.
         
         :param product_info Config: The product description
         """
@@ -530,12 +528,24 @@ class SalomeEnviron:
         if src.product.product_is_salome(pi):
             # set environment using definition of the product
             self.set_salome_minimal_product_env(pi, logger)
-            self.set_salome_generic_product_env(product)
+            self.set_salome_generic_product_env(pi)
         
         if src.product.product_is_cpp(pi):
             # set a specific environment for cpp modules
             self.set_salome_minimal_product_env(pi, logger)
             self.set_cpp_env(pi)
+            
+            if src.product.product_is_generated(pi):
+                if "component_name" in pi:
+                    # hack the install directory in order to point on the 
+                    # generated product install directory
+                    pi.install_dir = os.path.join(self.cfg.APPLICATION.workdir,
+                                                  "INSTALL",
+                                                  pi.component_name)
+                    pi.name = pi.component_name
+                    self.set_salome_minimal_product_env(pi, logger)
+                    self.set_salome_generic_product_env(pi)
+                    
         
         # Put the environment define in the configuration of the product
         if "environ" in pi:
