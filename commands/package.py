@@ -224,7 +224,8 @@ def binary_package(config, logger, options, tmp_working_dir):
     for prod_name, prod_info in l_product_info:
         # ignore the native and fixed products
         if (src.product.product_is_native(prod_info) 
-                or src.product.product_is_fixed(prod_info)):
+                or src.product.product_is_fixed(prod_info)
+                or not src.product.product_compiles(prod_info)):
             continue
         if src.product.check_installation(prod_info):
             l_install_dir.append((prod_name, prod_info.install_dir))
