@@ -32,19 +32,19 @@ gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
 # Define all possible option for config command :  sat config <options>
 parser = src.options.Options()
 parser.add_option('v', 'value', 'string', 'value',
-    _("print the value of CONFIG_VARIABLE."))
+    _("Optional: print the value of CONFIG_VARIABLE."))
 parser.add_option('e', 'edit', 'boolean', 'edit',
-    _("edit the product configuration file."))
+    _("Optional: edit the product configuration file."))
 parser.add_option('i', 'info', 'string', 'info',
-    _("get information on a product."))
+    _("Optional: get information on a product."))
 parser.add_option('l', 'list', 'boolean', 'list',
-    _("list all available applications."))
+    _("Optional: list all available applications."))
 parser.add_option('c', 'copy', 'boolean', 'copy',
-    _("""copy a config file to the personal config files directory.
+    _("""Optional: copy a config file to the personal config files directory.
 \tWARNING the included files are not copied.
 \tIf a name is given the new config file takes the given name."""))
 parser.add_option('n', 'no_label', 'boolean', 'no_label',
-    _("do not print labels, Works only with --value and --list."))
+    _("Internal use: do not print labels, Works only with --value and --list."))
 parser.add_option('s', 'schema', 'boolean', 'schema',
     _("Internal use."))
 
@@ -763,7 +763,8 @@ def description():
     :rtype: str
     '''
     return _("The config command allows manipulation "
-             "and operation on config files.")
+             "and operation on config files.\n\nexample:\nsat config "
+             "SALOME-master --info ParaView")
     
 
 def run(args, runner, logger):

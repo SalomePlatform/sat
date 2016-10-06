@@ -32,13 +32,14 @@ import src
 
 # Define all possible option for log command :  sat log <options>
 parser = src.options.Options()
-parser.add_option('t', 'terminal', 'boolean', 'terminal', "Terminal log.")
+parser.add_option('t', 'terminal', 'boolean', 'terminal', "Optional: "
+                  "Terminal log.")
 parser.add_option('l', 'last', 'boolean', 'last', "Show the log of the last "
-                  "launched command.")
-parser.add_option('f', 'full', 'boolean', 'full', "Show the logs of ALL "
-                  "launched commands.")
-parser.add_option('c', 'clean', 'int', 'clean', "Erase the n most ancient "
-                  "log files.")
+                  "Optional: launched command.")
+parser.add_option('f', 'full', 'boolean', 'full', "Optional: Show the logs of "
+                  "ALL the launched commands.")
+parser.add_option('c', 'clean', 'int', 'clean', "Optional: Erase the n most "
+                  "ancient log files.")
 
 def get_last_log_file(logDir, notShownCommands):
     '''Used in case of last option. Get the last log command file path.
@@ -130,7 +131,8 @@ def description():
     :return: The text to display for the log command description.
     :rtype: str
     '''
-    return _("Gives access to the logs produced by the salomeTools commands.")    
+    return _("Gives access to the logs produced by the salomeTools commands.\n"
+             "\nexample:\nsat log")    
 
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with log parameter.

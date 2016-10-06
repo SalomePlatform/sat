@@ -28,16 +28,20 @@ import src
 
 parser = src.options.Options()
 parser.add_option('n', 'name', 'string', 'name',
-    _('The name of the application (default is APPLI.name or runAppli)'))
+    _('Optional: The name of the application (default is APPLI.name or '
+      'runAppli)'))
 parser.add_option('c', 'catalog', 'string', 'catalog',
-    _('The resources catalog to use'))
+    _('Optional: The resources catalog to use'))
 parser.add_option('t', 'target', 'string', 'target',
-    _('The directory where to create the application (default is PRODUCT.out_dir)'))
+    _('Optional: The directory where to create the application (default is '
+      'APPLICATION.workdir)'))
 parser.add_option('', 'gencat', 'string', 'gencat',
-    _("""Create a resources catalog for the specified machines (separated with ',')
-\tNOTICE: this command will ssh to retrieve information to each machine in the list"""))
+    _("Optional: Create a resources catalog for the specified machines "
+      "(separated with ',')\n\tNOTICE: this command will ssh to retrieve "
+      "information to each machine in the list"))
 parser.add_option('m', 'module', 'list2', 'modules',
-    _("module(s) to include in the application"))
+    _("Optional: the restricted list of module(s) to include in the "
+      "application"))
 
 ##
 # Creates an alias for runAppli.
@@ -398,9 +402,10 @@ def description():
     :return: The text to display for the application command description.
     :rtype: str
     '''
-    return _("""The application command creates a SALOME application.\n"""
-             """WARNING: it works only for SALOME 6. Use the "launcher" """
-             """command for newer versions of SALOME""")
+    return _("The application command creates a SALOME application.\n"
+             "WARNING: it works only for SALOME 6. Use the \"launcher\" "
+             "command for newer versions of SALOME\n\nexample:\nsat application"
+             " SALOME-6.6.0")
 
 ##
 # Runs the command.

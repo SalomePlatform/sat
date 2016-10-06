@@ -23,7 +23,7 @@ import src
 # Define all possible option for the check command :  sat check <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('products to configure. This option can be'
+    _('Optional: products to configure. This option can be'
     ' passed several time to configure several products.'))
 
 def get_products_list(options, cfg, logger):
@@ -163,7 +163,10 @@ def description():
     :rtype: str
     '''
     return _("The check command executes the \"check\" command in"
-             " the build directory")
+             " the build directory of all the products of the application."
+             "\nIt is possible to reduce the list of products to check by using"
+             " the --products option\n\nexample\nsat check SALOME-master "
+             "--products KERNEL,GUI,GEOM")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with check parameter.

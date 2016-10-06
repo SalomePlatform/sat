@@ -32,21 +32,21 @@ PROPERTY_EXPRESSION = "^.+:.+$"
 # Define all possible option for the clean command :  sat clean <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('Products to clean. This option can be'
+    _('Optional: Products to clean. This option can be'
     ' passed several time to clean several products.'))
 parser.add_option('', 'properties', 'string', 'properties',
-    _('Filter the products by their properties.\n\tSyntax: '
+    _('Optional: Filter the products by their properties.\n\tSyntax: '
       '--properties <property>:<value>'))
 parser.add_option('s', 'sources', 'boolean', 'sources', 
-    _("Clean the product source directories."))
+    _("Optional: Clean the product source directories."))
 parser.add_option('b', 'build', 'boolean', 'build', 
-    _("Clean the product build directories."))
+    _("Optional: Clean the product build directories."))
 parser.add_option('i', 'install', 'boolean', 'install', 
-    _("Clean the product install directories."))
+    _("Optional: Clean the product install directories."))
 parser.add_option('a', 'all', 'boolean', 'all', 
-    _("Clean the product source, build and install directories."))
+    _("Optional: Clean the product source, build and install directories."))
 parser.add_option('', 'sources_without_dev', 'boolean', 'sources_without_dev', 
-    _("do not clean the products in development mode."))
+    _("Optional: do not clean the products in development mode."))
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
@@ -177,7 +177,10 @@ def description():
     :rtype: str
     '''
     return _("The clean command suppress the source, build, or install "
-             "directories of the application products.")
+             "directories of the application products.\nUse the options to"
+             " define what directories you want to suppress and to reduce "
+             "the list of products\n\nexample:\nsat clean SALOME-master "
+             "--build --install --properties is_salome_module:yes")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with clean parameter.

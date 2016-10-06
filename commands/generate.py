@@ -26,9 +26,9 @@ import src
 
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-                  _("the list of products to generate"))
+                  _("Optional: the list of products to generate"))
 parser.add_option('', 'yacsgen', 'string', 'yacsgen',
-                  _("path to YACSGEN's module_generator package"))
+                  _("Optional: path to YACSGEN's module_generator package"))
 
 def generate_component_list(config, product_info, context, logger):
     res = "?"
@@ -301,7 +301,8 @@ def description():
     :rtype: str
     '''
     return _("The generate command generates SALOME modules from 'pure cpp' "
-             "products.\nWARNING this command NEEDS YACSGEN to run!")
+             "products.\nWARNING this command NEEDS YACSGEN to run!\n\nexample:"
+             "\nsat generate SALOME-master --products FLICACPP")
 
 
 def run(args, runner, logger):

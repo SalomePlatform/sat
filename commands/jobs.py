@@ -37,7 +37,7 @@ CSV_DELIMITER = ";"
 parser = src.options.Options()
 
 parser.add_option('n', 'name', 'string', 'jobs_cfg', 
-                  _('The name of the config file that contains'
+                  _('Mandatory: The name of the config file that contains'
                   ' the jobs configuration'))
 parser.add_option('o', 'only_jobs', 'list2', 'only_jobs',
                   _('Optional: the list of jobs to launch, by their name. '))
@@ -54,7 +54,7 @@ parser.add_option('p', 'publish', 'boolean', 'publish',
 parser.add_option('i', 'input_boards', 'string', 'input_boards', _("Optional: "
                                 "the path to csv file that contain "
                                 "the expected boards."),"")
-parser.add_option('n', 'completion', 'boolean', 'no_label',
+parser.add_option('', 'completion', 'boolean', 'no_label',
                   _("Optional (internal use): do not print labels, Works only "
                     "with --list."),
                   False)
@@ -1484,7 +1484,8 @@ class Gui(object):
 # Describes the command
 def description():
     return _("The jobs command launches maintenances that are described"
-             " in the dedicated jobs configuration file.")
+             " in the dedicated jobs configuration file.\n\nexample:\nsat "
+             "jobs --name my_jobs --publish")
 
 ##
 # Runs the command.

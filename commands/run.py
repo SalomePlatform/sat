@@ -29,7 +29,7 @@ def description():
     :rtype: str
     '''
     return _("This command runs the application launcher"
-             " with the given arguments.")
+             " with the given arguments.\n\nexample:\nsat run SALOME-master")
 
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with run parameter.

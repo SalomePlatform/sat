@@ -31,22 +31,24 @@ parser.add_option("p",
                   "path",
                   "string",
                   "path",
-                  _("Search the duplicate files in the given directory path."))
+                  _("Optional: Search the duplicate files in the given "
+                    "directory path."))
 parser.add_option("",
                   "exclude-file",
                   "list2",
                   "exclude_file",
-                  _("Override the default list of filtered files."))
+                  _("Optional: Override the default list of filtered files."))
 parser.add_option("",
                   "exclude-extension",
                   "list2",
                   "exclude_extension",
-                  _("Override the default list of filtered extensions."))
+                  _("Optional: Override the default list of filtered "
+                    "extensions."))
 parser.add_option("",
                   "exclude-path",
                   "list2",
                   "exclude_path",
-                  _("Override the default list of filtered pathes."))
+                  _("Optional: Override the default list of filtered paths."))
 
 default_extension_ignored = ['html', 'png', 'txt', 'js', 'xml', 'cmake', 'gif', 
                      'm4', 'in', 'pyo', 'pyc', 'doctree', 'css']
@@ -154,7 +156,8 @@ def description():
     '''
     return _("The find_duplicates command search recursively for all duplicates"
              " files in a the INSTALL directory (or the optionally given "
-             "directory) and prints the found files to the terminal.")
+             "directory) and prints the found files to the terminal.\n\n"
+             "example:\nsat find_duplicates --path /tmp")
 
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with find_duplicates 

@@ -22,14 +22,15 @@ import src
 
 parser = src.options.Options()
 parser.add_option('', 'shell', 'list2', 'shell',
-    _("Generates the environment files for the given format: "
+    _("Optional: Generates the environment files for the given format: "
       "bash (default), bat (for windows) or all."), [])
 parser.add_option('p', 'products', 'list2', 'products',
-    _("Includes only the specified products."))
+    _("Optional: Includes only the specified products."))
 parser.add_option('', 'prefix', 'string', 'prefix',
-    _("Specifies the prefix for the environment files."), "env")
+    _("Optional: Specifies the prefix for the environment files."), "env")
 parser.add_option('t', 'target', 'string', 'out_dir',
-    _("Specifies the directory path where to put the environment files."),
+    _("Optional: Specifies the directory path where to put the environment "
+      "files."),
     None)
 
 # list of available shells with extensions
@@ -115,8 +116,8 @@ def write_all_source_files(config,
 ##
 # Describes the command
 def description():
-    return _("The environ command generates the "
-                "environment files of your application.")
+    return _("The environ command generates the environment files of your "
+             "application.\n\nexample:\nsat environ SALOME-master")
 
 ##
 # Runs the command.

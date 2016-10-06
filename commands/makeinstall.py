@@ -23,8 +23,8 @@ import src
 # Define all possible option for the makeinstall command : sat makeinstall <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('products to configure. This option can be'
-    ' passed several time to configure several products.'))
+    _('Optional: products to install. This option can be'
+    ' passed several time to install several products.'))
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
@@ -164,7 +164,10 @@ def description():
     :rtype: str
     '''
     return _("The makeinstall command executes the \"make install\" command in"
-             " the build directory")
+             " the build directory.\nIn case of  product that is constructed "
+             "using a script (build_source :  \"script\"), then the "
+             "makeinstall command do nothing.\n\nexample:\nsat makeinstall "
+             "SALOME-master --products KERNEL,GUI")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with makeinstall parameter.

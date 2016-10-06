@@ -23,10 +23,10 @@ import src
 # Define all possible option for the make command :  sat make <options>
 parser = src.options.Options()
 parser.add_option('j', 'jobs_config', 'string', 'jobs_cfg', 
-                  _('The name of the config file that contains'
+                  _('Mandatory: The name of the config file that contains'
                   ' the jobs configuration'))
 parser.add_option('', 'name', 'string', 'job',
-    _('The job name from which to execute commands.'), "")
+    _('Mandatory: The job name from which to execute commands.'), "")
 
 def description():
     '''method that is called when salomeTools is called with --help option.
@@ -35,7 +35,8 @@ def description():
     :rtype: str
     '''
     return _("Executes the commands of the job defined"
-             " in the jobs configuration file")
+             " in the jobs configuration file\n\nexample:\nsat job "
+             "--jobs_config my_jobs --name my_job")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with job parameter.
@@ -49,6 +50,12 @@ def run(args, runner, logger):
     # Make sure the jobs_config option has been called
     if not options.jobs_cfg:
         message = _("The option --jobs_config is required\n")      
+        logger.write(src.printcolors.printcError(message))
+        return 1
+    
+    # Make sure the name option has been called
+    if not options.job:
+        message = _("The option --name is required\n")      
         logger.write(src.printcolors.printcError(message))
         return 1
     

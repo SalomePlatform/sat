@@ -43,7 +43,7 @@ class TestTest(unittest.TestCase):
         sat = Sat("-l " + tmp_file)
         
         # Execute the job command
-        sat.test(application + " --module GEOM --type light" )
+        sat.test(application + " --grid GEOM --session light" )
 
         ff = open(tmp_file, "r")
         log_files = ff.readlines()
@@ -53,7 +53,7 @@ class TestTest(unittest.TestCase):
         
         text = open(log_testboard[0], "r").read()
 
-        if '<type name="light">' in text:
+        if '<session name="light">' in text:
             OK = 'OK'         
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')
@@ -68,7 +68,7 @@ class TestTest(unittest.TestCase):
         sat = Sat("-l " + tmp_file)
         
         # Execute the job command
-        sat.test(application + " --module MED --type PY_test_withKernel" )
+        sat.test(application + " --grid MED --session PY_test_withKernel" )
 
         ff = open(tmp_file, "r")
         log_files = ff.readlines()
@@ -78,7 +78,7 @@ class TestTest(unittest.TestCase):
         
         text = open(log_testboard[0], "r").read()
 
-        if '<type name="light">' in text:
+        if '<session name="PY_test_withKernel">' in text:
             OK = 'OK'         
         # pyunit method to compare 2 str
         self.assertEqual(OK, 'OK')

@@ -30,24 +30,27 @@ except NameError:
 # Define all possible option for the compile command :  sat compile <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('products to configure. This option can be'
+    _('Optional: products to configure. This option can be'
     ' passed several time to configure several products.'))
 parser.add_option('', 'with_fathers', 'boolean', 'fathers',
-    _("build all necessary products to the given product (KERNEL is build before"
-      " building GUI)."), False)
+    _("Optional: build all necessary products to the given product (KERNEL is "
+      "build before building GUI)."), False)
 parser.add_option('', 'with_children', 'boolean', 'children',
-    _("build all products using the given product (all SMESH plugins are build "
-      "after SMESH)."), False)
+    _("Optional: build all products using the given product (all SMESH plugins"
+      " are build after SMESH)."), False)
 parser.add_option('', 'clean_all', 'boolean', 'clean_all',
-    _("clean BUILD dir and INSTALL dir before building product."), False)
+    _("Optional: clean BUILD dir and INSTALL dir before building product."),
+    False)
 parser.add_option('', 'clean_install', 'boolean', 'clean_install',
-    _("clean INSTALL dir before building product."), False)
+    _("Optional: clean INSTALL dir before building product."), False)
 parser.add_option('', 'make_flags', 'string', 'makeflags',
-    _("add extra options to the 'make' command."))
+    _("Optional: add extra options to the 'make' command."))
 parser.add_option('', 'show', 'boolean', 'no_compile',
-    _("DO NOT COMPILE just show if products are installed or not."), False)
-parser.add_option('', 'stop_first_fail', 'boolean', 'stop_first_fail', _("Stop"
-                    "s the command at first product compilation fail."), False)
+    _("Optional: DO NOT COMPILE just show if products are installed or not."),
+    False)
+parser.add_option('', 'stop_first_fail', 'boolean', 'stop_first_fail', _(
+                  "Optional: Stops the command at first product compilation"
+                  " fail."), False)
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
@@ -504,7 +507,9 @@ def description():
     :return: The text to display for the compile command description.
     :rtype: str
     '''
-    return _("The compile command constructs the products of the application")
+    return _("The compile command constructs the products of the application"
+             "\n\nexample:\nsat compile SALOME-master --products KERNEL,GUI,"
+             "MEDCOUPLING --clean_all")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with compile parameter.

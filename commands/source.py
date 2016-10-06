@@ -25,7 +25,7 @@ import prepare
 # Define all possible option for patch command :  sat patch <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('products from which to get the sources. This option can be'
+    _('Optional: products from which to get the sources. This option can be'
     ' passed several time to get the sources of several products.'))
 
 def get_source_for_dev(config, product_info, source_dir, logger, pad):
@@ -464,7 +464,8 @@ def description():
     :rtype: str
     '''
     return _("The source command gets the sources of the application products "
-             "from cvs, git, an archive or a directory..")
+             "from cvs, git or an archive.\n\nexample:"
+             "\nsat source SALOME-master --products KERNEL,GUI")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with source parameter.

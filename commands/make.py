@@ -24,10 +24,10 @@ import src
 # Define all possible option for the make command :  sat make <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('products to configure. This option can be'
+    _('Optional: products to configure. This option can be'
     ' passed several time to configure several products.'))
 parser.add_option('o', 'option', 'string', 'option',
-    _('Option to add to the make command.'), "")
+    _('Optional: Option to add to the make command.'), "")
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
@@ -208,7 +208,10 @@ def description():
     :rtype: str
     '''
     return _("The make command executes the \"make\" command in"
-             " the build directory")
+             " the build directory.\nIn case of a product that is constructed "
+             "using a script (build_source :  \"script\"), then the make "
+             "command executes the script.\n\nexample:\nsat make SALOME-master "
+             "--products Python,KERNEL,GUI")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with make parameter.

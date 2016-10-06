@@ -23,7 +23,7 @@ import src
 # Define all possible option for the shell command :  sat shell <options>
 parser = src.options.Options()
 parser.add_option('c', 'command', 'string', 'command',
-    _('The shell command to execute.'), "")
+    _('Mandatory: The shell command to execute.'), "")
 
 def description():
     '''method that is called when salomeTools is called with --help option.
@@ -31,7 +31,8 @@ def description():
     :return: The text to display for the shell command description.
     :rtype: str
     '''
-    return _("Executes the shell command passed as argument")
+    return _("Executes the shell command passed as argument.\n\nexample:"
+             "\nsat shell --command \"ls \\-l /tmp\"")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with shell parameter.
@@ -39,7 +40,13 @@ def run(args, runner, logger):
     
     # Parse the options
     (options, args) = parser.parse_args(args)
-      
+
+    # Make sure the command option has been called
+    if not options.command:
+        message = _("The option --command is required\n")      
+        logger.write(src.printcolors.printcError(message))
+        return 1
+
     res = subprocess.call(options.command,
                           shell=True,
                           stdout=logger.logTxtFile,

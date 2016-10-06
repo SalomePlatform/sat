@@ -23,10 +23,10 @@ import src
 # Define all possible option for configure command :  sat configure <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('products to configure. This option can be'
+    _('Optional: products to configure. This option can be'
     ' passed several time to configure several products.'))
 parser.add_option('o', 'option', 'string', 'option',
-    _('Option to add to the configure or cmake command.'), "")
+    _('Optional: Option to add to the configure or cmake command.'), "")
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
@@ -177,11 +177,12 @@ def description():
     :rtype: str
     '''
     return _("The configure command executes in the build directory"
-             " the configure commands corresponding to the compilation mode"
+             " the configure commands corresponding\nto the compilation mode"
              " of the application products.\nThe possible compilation modes"
              " are \"cmake\", \"autotools\", or a script.\n\nHere are the "
              "commands to be run :\nautotools: build_configure and configure\n"
-             "cmake: cmake\nscript: N\A")
+             "cmake: cmake\nscript: do nothing\n\nexample:\nsat configure "
+             "SALOME-master --products KERNEL,GUI,PARAVIS")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with make parameter.

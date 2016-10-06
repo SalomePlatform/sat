@@ -23,12 +23,12 @@ import src
 # Define all possible option for prepare command :  sat prepare <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('products to prepare. This option can be'
+    _('Optional: products to prepare. This option can be'
     ' passed several time to prepare several products.'))
 parser.add_option('f', 'force', 'boolean', 'force', 
-    _("force to prepare the products in development mode."))
+    _("Optional: force to prepare the products in development mode."))
 parser.add_option('', 'force_patch', 'boolean', 'force_patch', 
-    _("force to apply patch to the products in development mode."))
+    _("Optional: force to apply patch to the products in development mode."))
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
@@ -87,7 +87,8 @@ def description():
     :rtype: str
     '''
     return _("The prepare command gets the sources of "
-             "the application products and apply the patches if there is any.")
+             "the application products and apply the patches if there is any."
+             "\n\nexample:\nsat prepare SALOME-master --products KERNEL,GUI")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with prepare parameter.

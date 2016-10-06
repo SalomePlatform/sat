@@ -23,7 +23,7 @@ import src
 # Define all possible option for the shell command :  sat base <options>
 parser = src.options.Options()
 parser.add_option('s', 'set', 'string', 'base_path',
-    _('The path directory to use as base.'), None)
+    _('Optional: The path directory to use as base.'), None)
 
 def set_base(config, path, site_file_path, logger):
     """ Edit the site.pyconf file and change the base path
@@ -70,7 +70,7 @@ def description():
     :rtype: str
     '''
     return _("Display or set the base where to put installations of base "
-             "products")
+             "products\n\nexample\nsat base --set /tmp/BASE")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with base parameter.

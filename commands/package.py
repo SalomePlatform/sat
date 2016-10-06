@@ -79,23 +79,25 @@ project_file_paths : [$VARS.salometoolsway + $VARS.sep + \"..\" + $VARS.sep"""
 # Define all possible option for the package command :  sat package <options>
 parser = src.options.Options()
 parser.add_option('b', 'binaries', 'boolean', 'binaries',
-    _('Produce a binary package.'), False)
+    _('Optional: Produce a binary package.'), False)
 parser.add_option('f', 'force_creation', 'boolean', 'force_creation',
-    _('Only binary package: produce the archive even if there are some missing '
-      'products.'), False)
+    _('Optional: Only binary package: produce the archive even if '
+      'there are some missing products.'), False)
 parser.add_option('', 'with_sources', 'boolean', 'with_sources',
-    _('Only binary package: produce and and a source archive in the binary '
-      'package.'), False)
+    _('Optional: Only binary package: produce and and a source archive in the '
+      'binary package.'), False)
 parser.add_option('s', 'sources', 'boolean', 'sources',
-    _('Produce a compilable archive of the sources of the application.'), False)
+    _('Optional: Produce a compilable archive of the sources of the '
+      'application.'), False)
 parser.add_option('', 'with_vcs', 'boolean', 'with_vcs',
-    _('Only source package: do not make archive of vcs products.'), False)
+    _('Optional: Only source package: do not make archive of vcs products.'),
+    False)
 parser.add_option('p', 'project', 'string', 'project',
-    _('Produce an archive that contains a project.'), "")
+    _('Optional: Produce an archive that contains a project.'), "")
 parser.add_option('t', 'salometools', 'boolean', 'sat',
-    _('Produce an archive that contains salomeTools.'), False)
+    _('Optional: Produce an archive that contains salomeTools.'), False)
 parser.add_option('n', 'name', 'string', 'name',
-    _('The name or full path of the archive.'), None)
+    _('Optional: The name or full path of the archive.'), None)
 
 def add_files(tar, name_archive, d_content, logger):
     '''Create an archive containing all directories and files that are given in
@@ -736,7 +738,8 @@ def description():
              " It contains the products archives, a project corresponding to "
              "the application and salomeTools,\n  3- The project archive. It "
              "contains a project (give the project file path as argument),\n  4-"
-             " The salomeTools archive. It contains salomeTools.")
+             " The salomeTools archive. It contains salomeTools.\n\nexample:"
+             "\nsat package SALOME-master --sources")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with package parameter.
@@ -754,7 +757,8 @@ def run(args, runner, logger):
     # Check if no option for package type
     if all_option_types.count(True) == 0:
         msg = _("Error: Precise a type for the package\nUse one of the "
-                "following options: --binaries, --sources, --project or --sat")
+                "following options: --binaries, --sources, --project or"
+                " --salometools")
         logger.write(src.printcolors.printcError(msg), 1)
         logger.write("\n", 1)
         return 1

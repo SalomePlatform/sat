@@ -34,21 +34,21 @@ except NameError:
 
 parser = src.options.Options()
 parser.add_option('n', 'name', 'string', 'name',
-    _("""REQUIRED the name of the module to create.
+    _("""REQUIRED: the name of the module to create.
 \tThe name must be a single word in upper case with only alphanumeric characters.
 \tWhen generating a c++ component the module's """
 """name must be suffixed with 'CPP'."""))
 parser.add_option('t', 'template', 'string', 'template',
-    _('REQUIRED the template to use.'))
+    _('REQUIRED: the template to use.'))
 parser.add_option('', 'target', 'string', 'target',
-    _('REQUIRED where to create the module.'))
+    _('REQUIRED: where to create the module.'))
 parser.add_option('', 'param', 'string', 'param',
-    _('''dictionary to generate the configuration for salomeTools.
+    _('''Optional: dictionary to generate the configuration for salomeTools.
 \tFormat is: --param param1=value1,param2=value2... without spaces
 \tNote that when using this option you must supply all the '''
 '''values otherwise an error will be raised.'''))
 parser.add_option('', 'info', 'boolean', 'info',
-    _('Get information on the template.'), False)
+    _('Optional: Get information on the template.'), False)
 
 class TParam:
     def __init__(self, param_def, compo_name, dico=None):
@@ -431,8 +431,9 @@ def get_template_info(config, template_name, logger):
 ##
 # Describes the command
 def description():
-    return _("""The template command creates the sources for a SALOME """
-             """module from a template.""")
+    return _("The template command creates the sources for a SALOME "
+             "module from a template.\n\nexample\nsat template "
+             "--name my_product_name --template PythonComponent --target /tmp")
 
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with template parameter.

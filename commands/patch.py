@@ -25,7 +25,7 @@ import prepare
 # Define all possible option for patch command :  sat patch <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('products to get the sources. This option can be'
+    _('Optional: products to get the sources. This option can be'
     ' passed several time to get the sources of several products.'))
 
 def apply_patch(config, product_info, max_product_name_len, logger):
@@ -118,7 +118,8 @@ def description():
     :rtype: str
     '''
     return _("The patch command apply the patches on the sources of "
-             "the application products if there is any")
+             "the application products if there is any.\n\nexample:\nsat "
+             "patch SALOME-master --products qt,boost")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with patch parameter.

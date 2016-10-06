@@ -35,18 +35,20 @@ from src.xmlManager import add_simple_node
 # Define all possible option for the test command :  sat test <options>
 parser = src.options.Options()
 parser.add_option('b', 'base', 'string', 'base',
-    _("Indicate the name of the test base to use.\n\tThis name has to be "
-      "registered in your application and in a project.\n\tA path to a test "
-      "base can also be used."))
+    _("Optional: Indicate the name of the test base to use.\n\tThis name has to"
+      " be registered in your application and in a project.\n\tA path to a "
+      "test base can also be used."))
 parser.add_option('l', 'launcher', 'string', 'launcher',
-    _("Use this option to specify the path to a SALOME launcher to use to "
-      "launch the test scripts of the test base."))
+    _("Optional: Use this option to specify the path to a SALOME launcher to "
+      "use to launch the test scripts of the test base."))
 parser.add_option('g', 'grid', 'list', 'grids',
-    _('Indicate which grid(s) to test (subdirectory of the test base).'))
+    _('Optional: Indicate which grid(s) to test (subdirectory of the test '
+      'base).'))
 parser.add_option('s', 'session', 'list', 'sessions',
-    _('Indicate which session(s) to test (subdirectory of the grid).'))
+    _('Optional: indicate which session(s) to test (subdirectory of the '
+      'grid).'))
 parser.add_option('', 'display', 'string', 'display',
-    _("Set the display where to launch SALOME."
+    _("Optional: set the display where to launch SALOME."
 "\tIf value is NO then option --show-desktop=0 will be used to launch SALOME."))
 
 def description():
@@ -55,7 +57,8 @@ def description():
     :return: The text to display for the test command description.
     :rtype: str
     '''
-    return _("The test command runs a test base on a SALOME installation.")     
+    return _("The test command runs a test base on a SALOME installation.\n\n"
+             "example:\nsat test SALOME-master --grid GEOM --session light")     
 
 def parse_option(args, config):
     """ Parse the options and do some verifications about it
