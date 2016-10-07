@@ -26,7 +26,6 @@ import re
 import paramiko
 
 import src
-from _ast import Expression
 
 STYLESHEET_GLOBAL = "jobs_global_report.xsl"
 STYLESHEET_BOARD = "jobs_board_report.xsl"
@@ -1058,14 +1057,17 @@ class Gui(object):
                                        self.global_name + ".xml")
         self.xml_global_file = src.xmlManager.XmlLogFile(xml_global_path,
                                                          "JobsReport")
-        # The xml files that corresponds to the boards.
-        # {name_board : xml_object}}
-        self.d_xml_board_files = {}
-        # Create the lines and columns
-        self.initialize_boards(l_jobs, l_jobs_not_today)
+
         # Find history for each job
         self.history = {}
         self.find_history(l_jobs, l_jobs_not_today)
+
+        # The xml files that corresponds to the boards.
+        # {name_board : xml_object}}
+        self.d_xml_board_files = {}
+
+        # Create the lines and columns
+        self.initialize_boards(l_jobs, l_jobs_not_today)
         
         # Write the xml file
         self.update_xml_files(l_jobs)
@@ -1185,10 +1187,28 @@ class Gui(object):
             # that will not be launched today
             self.put_jobs_not_today(l_jobs_not_today, xml_jobs)
             
+            # add also the infos node
             xml_file.add_simple_node("infos",
                                      attrib={"name" : "last update",
                                              "JobsCommandStatus" : "running"})
-        
+            
+            # and put the history node
+            history_node = xml_file.add_simple_node("history")
+            name_board = os.path.basename(xml_file.logFile)[:-len(".xml")]
+            # serach for board files
+            expression = "^[0-9]{8}_+[0-9]{6}_" + name_board + ".xml$"
+            oExpr = re.compile(expression)
+            # Get the list of xml borad files that are in the log directory
+            for file_name in os.listdir(self.xml_dir_path):
+                if oExpr.search(file_name):
+                    date = os.path.basename(file_name).split("_")[0]
+                    file_path = os.path.join(self.xml_dir_path, file_name)
+                    src.xmlManager.add_simple_node(history_node,
+                                                   "link",
+                                                   text=file_path,
+                                                   attrib={"date" : date})      
+            
+                
         # Find in each board the squares that needs to be filled regarding the
         # input csv files but that are not covered by a today job
         for board in self.d_input_boards.keys():

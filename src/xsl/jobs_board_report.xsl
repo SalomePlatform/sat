@@ -124,6 +124,12 @@
 	legend
     </a>
     <br/>
+    <a href="#">
+	<xsl:attribute name="onclick">javascript:Toggle('history')</xsl:attribute>
+	<xsl:attribute name="title">history</xsl:attribute>
+	history
+    </a>
+    <br/>
     <br/>
     
     <div id="matrix">
@@ -335,6 +341,20 @@
 	    <tr>Missing job: <td> <xsl:attribute name="bgcolor">FFCCCC</xsl:attribute> </td></tr>
 	    <tr>Extra job: <td> <xsl:attribute name="bgcolor">FFCCCC</xsl:attribute> Job name </td></tr>
 	</td>
+    </div>
+
+    <div style="display:none"><xsl:attribute name="id">history</xsl:attribute>
+      <xsl:for-each select="//JobsReport/history/link">
+	<xsl:sort select="@date" order="descending" />
+	<h4>
+	  <a>
+	    <xsl:attribute name="title">old board</xsl:attribute>
+	    <xsl:attribute name="href"><xsl:value-of select="."/></xsl:attribute>
+	    <xsl:value-of select="@date"/>
+	  </a>
+	</h4>
+	<br/>
+      </xsl:for-each>
     </div>
     
 </body>
