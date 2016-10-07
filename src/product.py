@@ -26,6 +26,7 @@ import src
 
 AVAILABLE_VCS = ['git', 'svn', 'cvs']
 config_expression = "^config-\d+$"
+VERSION_DELIMITER = "_to_"
 
 def get_product_config(config, product_name, with_install_dir=True):
     '''Get the specific configuration of a product from the global configuration
@@ -51,6 +52,7 @@ def get_product_config(config, product_name, with_install_dir=True):
     debug = 'no'
     dev = 'no'
     base = 'maybe'
+    section = None
     if isinstance(version, src.pyconf.Mapping):
         dic_version = version
         # Get the version/tag
@@ -67,9 +69,13 @@ def get_product_config(config, product_name, with_install_dir=True):
         if 'dev' in dic_version:
             dev = dic_version.dev
         
-        # Get the dev if any
+        # Get the base if any
         if 'base' in dic_version:
             base = dic_version.base
+
+        # Get the section if any
+        if 'section' in dic_version:
+            section = dic_version.section
     
     vv = version
     # substitute some character with _ in order to get the correct definition
@@ -79,16 +85,8 @@ def get_product_config(config, product_name, with_install_dir=True):
     
     prod_info = None
     if product_name in config.PRODUCTS:
-        # If it exists, get the information of the product_version
-        if "version_" + vv in config.PRODUCTS[product_name]:
-            # returns specific information for the given version
-            prod_info = config.PRODUCTS[product_name]["version_" + vv]
-            prod_info.section = "version_" + vv
-        # Get the standard informations
-        elif "default" in config.PRODUCTS[product_name]:
-            # returns the generic information (given version not found)
-            prod_info = config.PRODUCTS[product_name].default
-            prod_info.section = "default"
+        # Search for the product description in the configuration
+        prod_info = get_product_section(config, product_name, vv, section)
         
         # merge opt_depend in depend
         if prod_info is not None and 'opt_depend' in prod_info:
@@ -249,6 +247,57 @@ def get_product_config(config, product_name, with_install_dir=True):
                 
     return prod_info
 
+def get_product_section(config, product_name, version, section=None):
+    '''Get the product description from the configuration
+    
+    :param config Config: The global configuration
+    :param product_name str: The product name
+    :param version str: The version of the product
+    :param section str: The searched section (if not None, the section is 
+                        explicitly given
+    :return: The product description
+    :rtype: Config
+    '''
+
+    # if section is not None, try to get the corresponding section
+    if section:
+        if section not in config.PRODUCTS[product_name]:
+            return None
+        # returns specific information for the given version
+        prod_info = config.PRODUCTS[product_name][section]
+        prod_info.section = section
+        return prod_info
+
+    # If it exists, get the information of the product_version
+    if "version_" + version in config.PRODUCTS[product_name]:
+        # returns specific information for the given version
+        prod_info = config.PRODUCTS[product_name]["version_" + version]
+        prod_info.section = "version_" + version
+        return prod_info
+    
+    # Else, check if there is a description for multiple versions
+    l_section_name = config.PRODUCTS[product_name].keys()
+    l_section_ranges = [section_name for section_name in l_section_name 
+                        if VERSION_DELIMITER in section_name]
+    for section_range in l_section_ranges:
+        minimum, maximum = section_range.split(VERSION_DELIMITER)
+        if (src.only_numbers(version) >= src.only_numbers(minimum)
+                    and src.only_numbers(version) <= src.only_numbers(maximum)):
+            # returns specific information for the versions
+            prod_info = config.PRODUCTS[product_name][section_range]
+            prod_info.section = section_range
+            return prod_info
+    
+    # Else, get the standard informations
+    if "default" in config.PRODUCTS[product_name]:
+        # returns the generic information (given version not found)
+        prod_info = config.PRODUCTS[product_name].default
+        prod_info.section = "default"
+        return prod_info
+    
+    # if noting was found, return None
+    return None
+    
 def get_install_dir(config, base, version, prod_info):
     '''Compute the installation directory of a given product 
     
