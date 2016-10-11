@@ -246,6 +246,9 @@ def get_SALOME_modules(config):
         product_info = src.product.get_product_config(config, product)
         if src.product.product_is_SALOME(product_info):
             l_modules.append(product)
+        if src.product.product_is_generated(product_info):
+            if "component_name" in product_info:
+                l_modules.append(product_info.component_name)
     return l_modules
 
 ##

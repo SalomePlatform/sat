@@ -157,14 +157,18 @@ class Sat(object):
             (file_, pathname, description) = imp.find_module(nameCmd, [dirPath])
             module = imp.load_module(nameCmd, file_, pathname, description)
             
-            def run_command(args='', batch = False, verbose = -1, logger_add_link = None):
+            def run_command(args='',
+                            batch = False,
+                            verbose = -1,
+                            logger_add_link = None):
                 '''The function that will load the configuration (all pyconf)
                 and return the function run of the command corresponding to module
                 
                 :param args str: The directory path containing the commands 
                 '''
                 # Make sure the internationalization is available
-                gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
+                gettext.install('salomeTools',
+                                os.path.join(satdir, 'src', 'i18n'))
                 
                 # Get the arguments in a list and remove the empty elements
                 argv_0 = args.split(" ")
@@ -217,9 +221,9 @@ class Sat(object):
                 if logger_add_link:
                     micro_command = True
                 logger_command = src.logger.Logger(self.cfg, 
-                                                   silent_sysstd=silent,
-                                                   all_in_terminal=self.options.all_in_terminal,
-                                                   micro_command=micro_command)
+                                   silent_sysstd=silent,
+                                   all_in_terminal=self.options.all_in_terminal,
+                                   micro_command=micro_command)
                 
                 # Check that the path given by the logs_paths_in_file option
                 # is a file path that can be written
@@ -237,7 +241,9 @@ class Sat(object):
                     except Exception as e:
                         msg = _("WARNING: the logs_paths_in_file option will "
                                 "not be taken into account.\nHere is the error:")
-                        logger_command.write("%s\n%s\n\n" % (src.printcolors.printcWarning(msg), str(e)))
+                        logger_command.write("%s\n%s\n\n" % (
+                                             src.printcolors.printcWarning(msg),
+                                             str(e)))
                         self.options.logs_paths_in_file = None
                 
                 try:
