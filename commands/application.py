@@ -89,7 +89,7 @@ def create_config_file(config, modules, env_file, logger):
         if src.product.product_is_smesh_plugin(mm):
             continue
 
-        if 'install_dir' in mm and bool(mm.install_dir) :
+        if 'install_dir' in mm and bool(mm.install_dir):
             if src.product.product_is_cpp(mm):
                 # cpp module
                 for aa in src.product.get_product_components(mm):
@@ -244,7 +244,8 @@ def get_SALOME_modules(config):
     l_modules = []
     for product in config.APPLICATION.products:
         product_info = src.product.get_product_config(config, product)
-        if src.product.product_is_SALOME(product_info):
+        if (src.product.product_is_SALOME(product_info) or 
+               src.product.product_is_generated(product_info)):
             l_modules.append(product)
     return l_modules
 
