@@ -51,12 +51,14 @@ class Logger(object):
         prefix = ""
         if micro_command:
             prefix = "micro_"
-        hour_command = config.VARS.datehour + "_" + config.VARS.command
-        logFileName = prefix + hour_command + ".xml"
+        hour_command_host = (config.VARS.datehour + "_" + 
+                             config.VARS.command + "_" + 
+                             config.VARS.hostname)
+        logFileName = prefix + hour_command_host + ".xml"
         logFilePath = os.path.join(config.USER.log_dir, logFileName)
         # Construct txt file location in order to log 
         # the external commands calls (cmake, make, git clone, etc...)
-        txtFileName = prefix + hour_command + ".txt"
+        txtFileName = prefix + hour_command_host + ".txt"
         txtFilePath = os.path.join(config.USER.log_dir, "OUT", txtFileName)
         
         src.ensure_path_exists(os.path.dirname(logFilePath))
@@ -324,18 +326,28 @@ def list_log_file(dirPath, expression):
         oExpr = re.compile(sExpr)
         if oExpr.search(fileName):
             # get date and hour and format it
-            date_hour_cmd = fileName.split('_')
-            date_not_formated = date_hour_cmd[0]
+            date_hour_cmd_host = fileName.split('_')
+            date_not_formated = date_hour_cmd_host[0]
             date = "%s/%s/%s" % (date_not_formated[6:8], 
                                  date_not_formated[4:6], 
                                  date_not_formated[0:4])
-            hour_not_formated = date_hour_cmd[1]
+            hour_not_formated = date_hour_cmd_host[1]
             hour = "%s:%s:%s" % (hour_not_formated[0:2], 
                                  hour_not_formated[2:4], 
                                  hour_not_formated[4:6])
-            cmd = date_hour_cmd[2][:-len('.xml')]
+            if len(date_hour_cmd_host) < 4:
+                cmd = date_hour_cmd_host[2][:-len('.xml')]
+                host = ""
+            else:
+                cmd = date_hour_cmd_host[2]
+                host = date_hour_cmd_host[3][:-len('.xml')]
             lRes.append((os.path.join(dirPath, fileName), 
-                         date_not_formated, date, hour_not_formated, hour, cmd))
+                         date_not_formated,
+                         date,
+                         hour_not_formated,
+                         hour,
+                         cmd,
+                         host))
     return lRes
 
 def update_hat_xml(logDir, application=None, notShownCommands = []):
@@ -352,7 +364,7 @@ def update_hat_xml(logDir, application=None, notShownCommands = []):
     # parse the log directory to find all the command logs, 
     # then add it to the xml file
     lLogFile = list_log_file(logDir, logCommandFileExpression)
-    for filePath, _, date, _, hour, cmd in lLogFile:
+    for filePath, __, date, __, hour, cmd, __ in lLogFile:
         showLog, cmdAppli = show_command_log(filePath, cmd,
                                               application, notShownCommands)
         #if cmd not in notShownCommands:
