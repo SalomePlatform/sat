@@ -38,7 +38,6 @@ class Builder:
                  logger,
                  product_info,
                  options = src.options.OptResult(),
-                 debug_mode=False,
                  check_src=True):
         self.config = config
         self.logger = logger
@@ -48,7 +47,9 @@ class Builder:
         self.source_dir = src.Path(self.product_info.source_dir)
         self.install_dir = src.Path(self.product_info.install_dir)
         self.header = ""
-        self.debug_mode = debug_mode
+        self.debug_mode = False
+        if "debug" in self.product_info and self.product_info.debug == "yes":
+            self.debug_mode = True
 
     ##
     # Shortcut method to log in log file.
