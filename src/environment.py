@@ -331,7 +331,22 @@ class SalomeEnviron:
         if 'environ' in self.cfg.APPLICATION:
             self.add_comment("APPLICATION environment")
             for p in self.cfg.APPLICATION.environ:
-                self.set(p, self.cfg.APPLICATION.environ[p])
+                val = self.cfg.APPLICATION.environ[p]
+                # "_" means that the value must be prepended
+                if p.startswith("_"):
+                    # separator exception for PV_PLUGIN_PATH
+                    if p[1:] == 'PV_PLUGIN_PATH':
+                        self.prepend(p[1:], val, ';')
+                    else:
+                        self.prepend(p[1:], val)
+                elif p.endswith("_"):
+                    # separator exception for PV_PLUGIN_PATH
+                    if p[:-1] == 'PV_PLUGIN_PATH':
+                        self.append(p[:-1], val, ';')
+                    else:
+                        self.append(p[:-1], val)
+                else:
+                    self.set(p, val)
             self.add_line(1)
 
         # If there is an "environ_script" section, load the scripts
