@@ -1331,14 +1331,13 @@ class Gui(object):
             jobs = []
             for line in input_board[1:]:
                 row = line[0]
+                rows.append(row)
                 for i, square in enumerate(line[1:]):
                     if square=='':
                         continue
                     days = square.split(DAYS_SEPARATOR)
                     days = [int(day) for day in days]
-                    if today in days:
-                        if row not in rows:
-                            rows.append(row)
+                    if today in days:                           
                         job = (row, columns[i])
                         jobs.append(job)
 
