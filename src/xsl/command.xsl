@@ -59,12 +59,12 @@
 		<h1>command's internal traces
 		<a href="#">
 		      <xsl:attribute name="onclick">javascript:Toggle('log')</xsl:attribute>
-		      <xsl:attribute name="title">Click to see the command log</xsl:attribute>
-		      collapse / expand
+		      <xsl:attribute name="title">Click to expand or collapse the command log</xsl:attribute>
+		      expand / collapse
 		</a>
 		</h1>
 		
-		<div style="display:block"><xsl:attribute name="id">log</xsl:attribute>
+		<div style="display:none"><xsl:attribute name="id">log</xsl:attribute>
 		    <PRE><xsl:value-of select="SATcommand/Log"/></PRE>
 		</div>
 		
