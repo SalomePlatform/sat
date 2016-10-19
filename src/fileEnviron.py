@@ -677,13 +677,19 @@ def main(args):
     # context.addToLdLibraryPath('myldlibrarypath')
     # context.addToPythonPath('mypythonpath')
     # context.setVariable('myvarname', 'value')
-    
+
+    # Logger level error
+    context.getLogger().setLevel(40)
+
     context.setVariable(r"PRODUCT_ROOT_DIR", out_dir_Path, overwrite=True)
     # here your local standalone environment
 
     # Start SALOME, parsing command line arguments
     context.runSalome(args)
     #print 'Thank you for using SALOME!'
+
+    # Logger level info
+    context.getLogger().setLevel(20)
 
   except SalomeContextException, e:
     import logging
