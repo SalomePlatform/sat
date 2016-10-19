@@ -426,8 +426,9 @@ class Test:
                 " done ; echo $KERNEL_ROOT_DIR"
             else:
                 # New application
-                cmd = "echo -e 'import os\nprint os.environ[\"KERNEL_ROOT_DIR\""
-                "]' > tmpscript.py; %s shell tmpscript.py" % self.launcher
+                cmd = ("echo -e 'import os\nprint os.environ[\"KERNEL_" + 
+                       "ROOT_DIR\"]' > tmpscript.py; %s shell" + 
+                       " tmpscript.py") % self.launcher
             root_dir = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
                             shell=True,
