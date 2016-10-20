@@ -1213,6 +1213,7 @@ class Gui(object):
         # input csv files but that are not covered by a today job
         for board in self.d_input_boards.keys():
             xml_root_board = self.d_xml_board_files[board].xmlroot
+            # Find the missing jobs for today
             xml_missing = src.xmlManager.add_simple_node(xml_root_board,
                                                  "missing_jobs")
             for row, column in self.d_input_boards[board]["jobs"]:
@@ -1224,6 +1225,22 @@ class Gui(object):
                         break
                 if not found:
                     src.xmlManager.add_simple_node(xml_missing,
+                                            "job",
+                                            attrib={"distribution" : row,
+                                                    "application" : column })
+            # Find the missing jobs not today
+            xml_missing_not_today = src.xmlManager.add_simple_node(
+                                                 xml_root_board,
+                                                 "missing_jobs_not_today")
+            for row, column in self.d_input_boards[board]["jobs_not_today"]:
+                found = False
+                for job in l_jobs_not_today:
+                    if (job.application == column and 
+                        job.machine.distribution == row):
+                        found = True
+                        break
+                if not found:
+                    src.xmlManager.add_simple_node(xml_missing_not_today,
                                             "job",
                                             attrib={"distribution" : row,
                                                     "application" : column })
@@ -1329,6 +1346,7 @@ class Gui(object):
             
             rows = []
             jobs = []
+            jobs_not_today = []
             for line in input_board[1:]:
                 row = line[0]
                 rows.append(row)
@@ -1337,13 +1355,16 @@ class Gui(object):
                         continue
                     days = square.split(DAYS_SEPARATOR)
                     days = [int(day) for day in days]
+                    job = (row, columns[i])
                     if today in days:                           
-                        job = (row, columns[i])
                         jobs.append(job)
+                    else:
+                        jobs_not_today.append(job)
 
             d_boards[board_name] = {"rows" : rows,
                                     "columns" : columns,
-                                    "jobs" : jobs}
+                                    "jobs" : jobs,
+                                    "jobs_not_today" : jobs_not_today}
         
         self.d_input_boards = d_boards
 
