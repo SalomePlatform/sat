@@ -513,7 +513,8 @@ class Test:
         
         # Case where SALOME has NOT the launcher that uses the SalomeContext API
         if VersionSalome < 730:
-            binSalome = os.path.join(self.config.APPLI.grid_appli_install_dir,
+            appdir_path = os.path.join(self.config.APPLICATION.workdir, appdir)
+            binSalome = os.path.join(appdir_path,
                                      appdir,
                                      "runAppli")
             binPython = "python"
