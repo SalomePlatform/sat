@@ -158,7 +158,7 @@
 	      <xsl:for-each select="//JobsReport/jobs/job">
 	      
 		  <xsl:sort select="@name" />
-		  
+		  <xsl:variable name="curr_job_name" select="@name" />
 		  <xsl:if test="application/.=$curr_appli and distribution/.=$curr_distname and board/.=//JobsReport/board/.">
 		      <!-- Change background color if it is an extra job (not defined in the input csv files) -->
 		      <xsl:if test="extra_job/.='yes'">
@@ -211,7 +211,7 @@
 				    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@name"/>')</xsl:attribute>
 				    <xsl:attribute name="title"><xsl:value-of select="state/."/></xsl:attribute>
 				    <xsl:attribute name="class">NA2</xsl:attribute>
-				    <xsl:value-of select="@name"/>
+				    job
 			      </a>
 			    </xsl:when>
 		      </xsl:choose>
@@ -232,6 +232,27 @@
 				 / <xsl:value-of select="port/."/>
 				</xsl:if>
 			    </a>
+		      </xsl:if>
+		      <xsl:if test="state/.='Not today'">
+			 - 
+			<xsl:for-each select="//JobsReport/jobs/job[@name=$curr_job_name]/history/link">
+			<xsl:sort select="@date" order="descending" />
+			<xsl:if test="@last='yes'">
+			  <h4>
+			    <a>
+			      <xsl:attribute name="title">remote log</xsl:attribute>
+			      <xsl:attribute name="href"><xsl:value-of select="."/></xsl:attribute>
+			      <xsl:if test="@res='0'">
+				  <xsl:attribute name="class">OK2</xsl:attribute>
+			      </xsl:if>
+			      <xsl:if test="@res!='0'">
+				  <xsl:attribute name="class">KO2</xsl:attribute>
+			      </xsl:if>
+			      <xsl:value-of select="@date"/>
+			    </a>
+			  </h4>
+			</xsl:if> 
+			</xsl:for-each>
 		      </xsl:if> 
 		      <br/>
 		      

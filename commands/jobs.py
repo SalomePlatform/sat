@@ -1281,7 +1281,7 @@ class Gui(object):
                         res_job = job_node.find("res").text
                         if link != "nothing":
                             l_links.append((date, res_job, link))
-                            
+            l_links = sorted(l_links, reverse=True)
             self.history[job.name] = l_links
   
     def put_jobs_not_today(self, l_jobs_not_today, xml_node_jobs):
@@ -1310,12 +1310,22 @@ class Gui(object):
             src.xmlManager.add_simple_node(xmlj, "sat_path",
                                                         job.machine.sat_path)
             xml_history = src.xmlManager.add_simple_node(xmlj, "history")
-            for date, res_job, link in self.history[job.name]:
-                src.xmlManager.add_simple_node(xml_history,
-                                               "link",
-                                               text=link,
-                                               attrib={"date" : date,
-                                                       "res" : res_job})
+            for i, (date, res_job, link) in enumerate(self.history[job.name]):
+                if i==0:
+                    # tag the first one (the last one)
+                    src.xmlManager.add_simple_node(xml_history,
+                                                   "link",
+                                                   text=link,
+                                                   attrib={"date" : date,
+                                                           "res" : res_job,
+                                                           "last" : "yes"})
+                else:
+                    src.xmlManager.add_simple_node(xml_history,
+                                                   "link",
+                                                   text=link,
+                                                   attrib={"date" : date,
+                                                           "res" : res_job,
+                                                           "last" : "no"})
 
     def parse_csv_boards(self, today):
         """ Parse the csv file that describes the boards to produce and fill 
