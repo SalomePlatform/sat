@@ -715,7 +715,7 @@ class FileEnvWriter:
         self.silent = True
         self.env_info = env_info
 
-    def write_env_file(self, filename, forBuild, shell):
+    def write_env_file(self, filename, forBuild, shell, for_package = None):
         """Create an environment file.
         
         :param filename str: the file path
@@ -733,7 +733,7 @@ class FileEnvWriter:
         tmp = src.fileEnviron.get_file_environ(env_file,
                                                shell,
                                                {})
-        env = SalomeEnviron(self.config, tmp, forBuild)
+        env = SalomeEnviron(self.config, tmp, forBuild, for_package=for_package)
         env.silent = self.silent
 
         # Set the environment

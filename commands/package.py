@@ -199,6 +199,49 @@ def produce_relative_launcher(config,
     
     return filepath
 
+def produce_relative_env_files(config,
+                              logger,
+                              file_dir,
+                              binaries_dir_name):
+    '''Create some specific environment files for the binary package. These 
+       files use relative paths.
+    
+    :param config Config: The global configuration.
+    :param logger Logger: the logging instance
+    :param file_dir str: the directory where to put the files
+    :param binaries_dir_name str: the name of the repository where the binaries
+                                  are, in the archive.
+    :return: the list of path of the produced environment files
+    :rtype: List
+    '''  
+    # create an environment file writer
+    writer = src.environment.FileEnvWriter(config,
+                                           logger,
+                                           file_dir,
+                                           src_root=None)
+    
+    # Write
+    filepath = writer.write_env_file("env_launch.sh",
+                          False, # for launch
+                          "bash",
+                          for_package = binaries_dir_name)
+
+    # Little hack to put out_dir_Path as environment variable
+    src.replace_in_file(filepath, '"out_dir_Path', '"${out_dir_Path}' )
+
+    # change the rights in order to make the file executable for everybody
+    os.chmod(filepath,
+             stat.S_IRUSR |
+             stat.S_IRGRP |
+             stat.S_IROTH |
+             stat.S_IWUSR |
+             stat.S_IXUSR |
+             stat.S_IXGRP |
+             stat.S_IXOTH)
+    
+    return filepath
+
+
 def binary_package(config, logger, options, tmp_working_dir):
     '''Prepare a dictionary that stores all the needed directories and files to
        add in a binary package.
@@ -258,7 +301,7 @@ def binary_package(config, logger, options, tmp_working_dir):
     for prod_name, install_dir in l_install_dir:
         path_in_archive = os.path.join(binaries_dir_name, prod_name)
         d_products[prod_name] = (install_dir, path_in_archive)
-    
+
     # create the relative launcher and add it to the files to add
     if "profile" in config.APPLICATION:
         launcher_name = config.APPLICATION.profile.launcher_name
@@ -269,6 +312,14 @@ def binary_package(config, logger, options, tmp_working_dir):
                                                      binaries_dir_name)
     
         d_products["launcher"] = (launcher_package, launcher_name)
+    else:
+        # No profile, it means that there has to be some environment files
+        env_file = produce_relative_env_files(config,
+                                               logger,
+                                               tmp_working_dir,
+                                               binaries_dir_name)
+
+        d_products["environment file"] = (env_file, "env_launch.sh")
     
     return d_products
 
