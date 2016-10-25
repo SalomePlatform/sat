@@ -264,13 +264,13 @@
 	      <!-- get the missing jobs -->
 	      <xsl:for-each select="//JobsReport/missing_jobs/job">    
 		    <xsl:if test="@distribution=$curr_distname and @application=$curr_appli">
-			<xsl:attribute name="bgcolor">FFCCCC</xsl:attribute>
+			<xsl:attribute name="bgcolor">ffb8b8</xsl:attribute>
 		    </xsl:if>
 	      </xsl:for-each>
 	      <!-- get the missing jobs not today -->
 	      <xsl:for-each select="//JobsReport/missing_jobs_not_today/job">    
 		    <xsl:if test="@distribution=$curr_distname and @application=$curr_appli">
-			<xsl:attribute name="bgcolor">FFEFEF</xsl:attribute>
+			<xsl:attribute name="bgcolor">ffdbdb</xsl:attribute>
 		    </xsl:if>
 	      </xsl:for-each>
 	      
