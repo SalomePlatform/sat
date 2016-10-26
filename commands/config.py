@@ -39,6 +39,8 @@ parser.add_option('i', 'info', 'string', 'info',
     _("Optional: get information on a product."))
 parser.add_option('l', 'list', 'boolean', 'list',
     _("Optional: list all available applications."))
+parser.add_option('', 'show_patchs', 'boolean', 'show_patchs',
+    _("Optional: synthetic view of all patches used in the application"))
 parser.add_option('c', 'copy', 'boolean', 'copy',
     _("""Optional: copy a config file to the personal config files directory.
 \tWARNING the included files are not copied.
@@ -661,7 +663,27 @@ def show_product_info(config, name, logger):
     zz.set_python_libdirs()
     zz.set_a_product(name, logger)
         
+def show_patchs(config, logger):
+    '''Prints all the used patchs in the application.
     
+    :param config Config: the global configuration.
+    :param logger Logger: The logger instance to use for the display
+    '''
+    len_max = max([len(p) for p in config.APPLICATION.products]) + 2
+    for product in config.APPLICATION.products:
+        product_info = src.product.get_product_config(config, product)
+        if src.product.product_has_patches(product_info):
+            logger.write("%s: " % product, 1)
+            logger.write(src.printcolors.printcInfo(
+                                            " " * (len_max - len(product) -2) +
+                                            "%s\n" % product_info.patches[0]),
+                         1)
+            if len(product_info.patches) > 1:
+                for patch in product_info.patches[1:]:
+                    logger.write(src.printcolors.printcInfo(len_max*" " +
+                                                            "%s\n" % patch), 1)
+            logger.write("\n", 1)
+
 def print_value(config, path, show_label, logger, level=0, show_full_path=False):
     '''Prints a value from the configuration. Prints recursively the values 
        under the initial path.
@@ -891,5 +913,13 @@ def run(args, runner, logger):
                             logger.write("%s\n" % appliname)
                             
             logger.write("\n")
-    
+    # case : give a synthetic view of all patches used in the application
+    elif options.show_patchs:
+        src.check_config_has_application(runner.cfg)
+        # Print some informations
+        logger.write(_('Show the patchs of application %s\n') % 
+                    src.printcolors.printcLabel(runner.cfg.VARS.application), 3)
+        logger.write("\n", 2, False)
+        show_patchs(runner.cfg, logger)
+        
     
