@@ -238,7 +238,7 @@ class Job(object):
     '''Class to manage one job
     '''
     def __init__(self, name, machine, application, board, 
-                 commands, timeout, config, logger, after=None):
+                 commands, timeout, config, logger, after=None, prefix=None):
 
         self.name = name
         self.machine = machine
@@ -277,6 +277,8 @@ class Job(object):
                         " job --jobs_config .jobs_command_file" +
                         " --name " +
                         self.name)
+        if prefix:
+            self.command = prefix + ' "' + self.command +'"'
     
     def get_pids(self):
         """ Get the pid(s) corresponding to the command that have been launched
@@ -656,6 +658,9 @@ class Jobs(object):
         board = None
         if 'board' in job_def:
             board = job_def.board
+        prefix = None
+        if "prefix" in job_def:
+            prefix = job_def.prefix
             
         return Job(name,
                    machine,
@@ -665,7 +670,8 @@ class Jobs(object):
                    timeout,
                    self.runner.cfg,
                    self.logger,
-                   after = after)
+                   after = after,
+                   prefix = prefix)
     
     def determine_jobs_and_machines(self):
         '''Function that reads the pyconf jobs definition and instantiates all
