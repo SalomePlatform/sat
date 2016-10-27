@@ -17,6 +17,9 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
+import sys
+import traceback
+import tempfile
 
 import src
 
@@ -133,7 +136,15 @@ def run(args, runner, logger):
                                logger_add_link = logger)
         except Exception as e:
             code = 1
+            # Get error
             error = str(e)
+            # get stack
+            __, __, exc_traceback = sys.exc_info()
+            fp = tempfile.TemporaryFile()
+            traceback.print_tb(exc_traceback, limit=1, file=fp)
+            fp.seek(0)
+            stack = fp.read()
+            
 
         # Print the status of the command
         if code == 0:
@@ -143,6 +154,7 @@ def run(args, runner, logger):
             res = 1
             logger.write('%s %s\n' % (src.printcolors.printc(src.KO_STATUS),
                                       error), 3)
+            logger.write('stack: %s\n' % stack, 3)
     
     # Print the final state
     if res == 0:
