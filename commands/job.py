@@ -128,6 +128,7 @@ def run(args, runner, logger):
         logger.flush()
         
         error = ""
+        stack = ""
         try:
             # Execute the command
             code = sat_command(end_cmd,

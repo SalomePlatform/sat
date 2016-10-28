@@ -70,8 +70,6 @@ export $1=$out_var
 export out_dir_Path=`dirname "${BASH_SOURCE[0]}"`
 export PRODUCT_OUT_DIR=${out_dir_Path}
 export PRODUCT_ROOT_DIR=${PRODUCT_OUT_DIR}
-export prereq_install_Path=${out_dir_Path}/PREREQUISITES/INSTALL
-export prereq_build_Path=${out_dir_Path}/PREREQUISITES/BUILD
 
 ###########################################################################
 """
