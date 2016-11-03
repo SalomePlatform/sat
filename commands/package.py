@@ -83,9 +83,6 @@ parser.add_option('b', 'binaries', 'boolean', 'binaries',
 parser.add_option('f', 'force_creation', 'boolean', 'force_creation',
     _('Optional: Only binary package: produce the archive even if '
       'there are some missing products.'), False)
-parser.add_option('', 'with_sources', 'boolean', 'with_sources',
-    _('Optional: Only binary package: produce and and a source archive in the '
-      'binary package.'), False)
 parser.add_option('s', 'sources', 'boolean', 'sources',
     _('Optional: Produce a compilable archive of the sources of the '
       'application.'), False)
@@ -938,25 +935,6 @@ def run(args, runner, logger):
                                         tmp_working_dir)
         if not(d_files_to_add):
             return 1
-        
-        # Create and add the source package 
-        # if the option "with_sources" is called
-        if options.with_sources:
-            logger.write(_("Create a source archive (can be long) ... "), 3)
-            tmp_pkg_src_name = runner.cfg.APPLICATION.name + "-" + "SRC.tgz"
-            tmp_pkg_src_path = os.path.join(tmp_working_dir, tmp_pkg_src_name)
-            package_options = runner.cfg.VARS.application
-            package_options += " --sources --with_vcs --name "
-            package_options += tmp_pkg_src_path
-            # sat package <package_options>
-            runner.package(package_options,
-                           batch = True,
-                           verbose = 0,
-                           logger_add_link = logger)
-            d_files_to_add["SOURCES PACKAGE"] = (tmp_pkg_src_path,
-                                                 tmp_pkg_src_name)
-            logger.write(src.printcolors.printc("OK"), 3)
-            logger.write("\n", 3)
 
     if package_type == SOURCE:
         d_files_to_add = source_package(runner,
