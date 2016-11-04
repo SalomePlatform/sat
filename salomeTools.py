@@ -223,7 +223,7 @@ class Sat(object):
                 
                 # Check that the path given by the logs_paths_in_file option
                 # is a file path that can be written
-                if self.options.logs_paths_in_file:
+                if self.options.logs_paths_in_file and not micro_command:
                     try:
                         self.options.logs_paths_in_file = os.path.abspath(
                                                 self.options.logs_paths_in_file)
@@ -296,7 +296,7 @@ class Sat(object):
                         res = 1
                     # If the logs_paths_in_file was called, write the result
                     # and log files in the given file path
-                    if self.options.logs_paths_in_file:
+                    if self.options.logs_paths_in_file and not micro_command:
                         file_res = open(self.options.logs_paths_in_file, "w")
                         file_res.write(str(res) + "\n")
                         for i, filepath in enumerate(logger_command.l_logFiles):
