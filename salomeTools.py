@@ -217,9 +217,9 @@ class Sat(object):
                 if logger_add_link:
                     micro_command = True
                 logger_command = src.logger.Logger(self.cfg, 
-                                                   silent_sysstd=silent,
-                                                   all_in_terminal=self.options.all_in_terminal,
-                                                   micro_command=micro_command)
+                                   silent_sysstd=silent,
+                                   all_in_terminal=self.options.all_in_terminal,
+                                   micro_command=micro_command)
                 
                 # Check that the path given by the logs_paths_in_file option
                 # is a file path that can be written
@@ -237,7 +237,9 @@ class Sat(object):
                     except Exception as e:
                         msg = _("WARNING: the logs_paths_in_file option will "
                                 "not be taken into account.\nHere is the error:")
-                        logger_command.write("%s\n%s\n\n" % (src.printcolors.printcWarning(msg), str(e)))
+                        logger_command.write("%s\n%s\n\n" % (
+                                             src.printcolors.printcWarning(msg),
+                                             str(e)))
                         self.options.logs_paths_in_file = None
                 
                 try:
@@ -303,6 +305,7 @@ class Sat(object):
                             file_res.write(filepath)
                             if i < len(logger_command.l_logFiles):
                                 file_res.write("\n")
+                                file_res.flush()
                 
                 return res
 

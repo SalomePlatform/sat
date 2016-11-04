@@ -142,7 +142,7 @@ def run(args, runner, logger):
             # get stack
             __, __, exc_traceback = sys.exc_info()
             fp = tempfile.TemporaryFile()
-            traceback.print_tb(exc_traceback, limit=1, file=fp)
+            traceback.print_tb(exc_traceback, file=fp)
             fp.seek(0)
             stack = fp.read()
             
@@ -155,7 +155,8 @@ def run(args, runner, logger):
             res = 1
             logger.write('%s %s\n' % (src.printcolors.printc(src.KO_STATUS),
                                       error), 3)
-            logger.write('stack: %s\n' % stack, 3)
+            if len(stack) > 0:
+                logger.write('stack: %s\n' % stack, 3)
     
     # Print the final state
     if res == 0:
