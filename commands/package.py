@@ -363,16 +363,21 @@ def source_package(sat, config, logger, options, tmp_working_dir):
     tmp_sat = add_salomeTools(config, tmp_working_dir)
     d_sat = {"salomeTools" : (tmp_sat, "salomeTools")}
     
-    # Add a sat symbolic link
-    tmp_satlink_path = os.path.join(tmp_working_dir, 'sat')
-    t = os.getcwd()
-    os.chdir(tmp_working_dir)
-    if os.path.lexists(tmp_satlink_path):
-        os.remove(tmp_satlink_path)
-    os.symlink(os.path.join('salomeTools', 'sat'), 'sat')
-    os.chdir(t)
-    
-    d_sat["sat link"] = (tmp_satlink_path, "sat")
+    # Add a sat symbolic link if not win
+    if not src.architecture.is_windows():
+        tmp_satlink_path = os.path.join(tmp_working_dir, 'sat')
+        try:
+            t = os.getcwd()
+        except:
+            # In the jobs, os.getcwd() can fail
+            t = config.USER.workdir
+        os.chdir(tmp_working_dir)
+        if os.path.lexists(tmp_satlink_path):
+            os.remove(tmp_satlink_path)
+        os.symlink(os.path.join('salomeTools', 'sat'), 'sat')
+        os.chdir(t)
+        
+        d_sat["sat link"] = (tmp_satlink_path, "sat")
     
     return src.merge_dicts(d_archives, d_archives_vcs, d_project, d_sat)
 
