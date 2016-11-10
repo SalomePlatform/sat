@@ -368,15 +368,6 @@ def compile_all_products(sat, config, options, products_infos, logger):
                       verbose=0,
                       logger_add_link = logger)
             res += 1
-        else:
-            if not src.product.product_is_dev(p_info):
-                log_step(logger, header, "CLEAN BUILD")
-                sat.clean(config.VARS.application + 
-                          " --products " + p_name + 
-                          " --build",
-                          batch=True,
-                          verbose=0,
-                          logger_add_link = logger)
             
         # Log the result
         if res_prod > 0:
