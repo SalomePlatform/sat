@@ -162,8 +162,7 @@ class Logger(object):
 
         # get user or option output level
         current_output_verbose_level = self.config.USER.output_verbose_level
-        if (src.architecture.is_windows() or 
-            not ('isatty' in dir(sys.stdout) and sys.stdout.isatty())):
+        if not ('isatty' in dir(sys.stdout) and sys.stdout.isatty()):
             # clean the message color if the terminal is redirected by user
             # ex: sat compile appli > log.txt
             message = printcolors.cleancolor(message)
