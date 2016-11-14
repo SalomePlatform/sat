@@ -21,7 +21,7 @@ In this file : all the stuff that can change with the architecture
 on which SAT is running
 '''
 
-import os, sys, platform, pwd
+import os, sys, platform
 
 def is_windows():
     '''method that checks windows OS
@@ -41,6 +41,7 @@ def get_user():
             raise Exception('USERNAME environment variable not set')
         return os.environ['USERNAME']
     else: # linux
+        import pwd
         return pwd.getpwuid(os.getuid())[0]
 
 def _lsb_release(args):
