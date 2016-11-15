@@ -1618,6 +1618,10 @@ def run(args, runner, logger):
     
     gui = None
     if options.publish:
+        logger.write(src.printcolors.printcInfo(
+                                        _("Initialize the xml boards : ")), 5)
+        logger.flush()
+        
         # Copy the stylesheets in the log directory 
         log_dir = runner.cfg.USER.log_dir
         xsl_dir = os.path.join(runner.cfg.VARS.srcDir, 'xsl')
@@ -1636,6 +1640,10 @@ def run(args, runner, logger):
                   runner.cfg.VARS.datehour,
                   file_boards = options.input_boards)
         
+        logger.write(src.printcolors.printcSuccess("OK"), 5)
+        logger.write("\n\n", 5)
+        logger.flush()
+        
         # Display the list of the xml files
         logger.write(src.printcolors.printcInfo(("Here is the list of published"
                                                  " files :\n")), 4)
@@ -1645,9 +1653,9 @@ def run(args, runner, logger):
             file_name = os.path.basename(file_path)
             logger.write("%s\n" % file_path, 4)
             logger.add_link(file_name, "board", 0, board)
-        
+              
         logger.write("\n", 4)
-    
+        
     today_jobs.gui = gui
     
     interruped = False

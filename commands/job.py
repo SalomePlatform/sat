@@ -145,8 +145,12 @@ def run(args, runner, logger):
             traceback.print_tb(exc_traceback, file=fp)
             fp.seek(0)
             stack = fp.read()
+            logger.add_link(_("Dead Link"),
+                            sat_command_name,
+                            code,
+                            "ERROR: %s TRACEBACK: %s" % (error,
+                                                    stack.replace('"',"'")))
             
-
         # Print the status of the command
         if code == 0:
             nb_pass += 1
