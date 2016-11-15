@@ -1667,7 +1667,9 @@ def run(args, runner, logger):
         logger.write("\n\n%s\n\n" % 
                 (src.printcolors.printcWarning(_("Forced interruption"))), 1)
     finally:
+        res = 0
         if interruped:
+            res = 1
             msg = _("Killing the running jobs and trying"
                     " to get the corresponding logs\n")
             logger.write(src.printcolors.printcWarning(msg))
@@ -1675,11 +1677,14 @@ def run(args, runner, logger):
         # find the potential not finished jobs and kill them
         for jb in today_jobs.ljobs:
             if not jb.has_finished():
+                res = 1
                 try:
                     jb.kill_remote_process()
                 except Exception as e:
                     msg = _("Failed to kill job %s: %s\n" % (jb.name, e))
                     logger.write(src.printcolors.printcWarning(msg))
+            if jb.res_job != "0":
+                res = 1
         if interruped:
             if today_jobs.gui:
                 today_jobs.gui.last_update(_("Forced interruption"))
@@ -1688,3 +1693,4 @@ def run(args, runner, logger):
                 today_jobs.gui.last_update()
         # Output the results
         today_jobs.write_all_results()
+        return res
