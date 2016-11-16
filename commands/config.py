@@ -387,29 +387,57 @@ class ConfigManager:
             # search APPLICATION file in all directories in configPath
             cp = cfg.PATHS.APPLICATIONPATH
             src.pyconf.streamOpener = ConfigOpener(cp)
+            do_merge = True
             try:
                 application_cfg = src.pyconf.Config(application + '.pyconf')
             except IOError as e:
                 raise src.SatException(_("%s, use 'config --list' to get the"
                                          " list of available applications.") %e)
             except src.pyconf.ConfigError as e:
-                raise src.SatException(_("Error in configuration file:"
-                                " %(application)s.pyconf\n  %(error)s") % \
-                    { 'application': application, 'error': str(e) } )
+                if (not ('-e' in parser.parse_args()[1]) 
+                                         or ('--edit' in parser.parse_args()[1]) 
+                                         and command == 'config'):
+                    raise src.SatException(_("Error in configuration file: "
+                                             "%(application)s.pyconf\n "
+                                             " %(error)s") % \
+                        { 'application': application, 'error': str(e) } )
+                else:
+                    sys.stdout.write(src.printcolors.printcWarning(
+                                        "There is an error in the file"
+                                        " %s.pyconf.\n" % cfg.VARS.application))
+                    do_merge = False
+            except:
+                if (not ('-e' in parser.parse_args()[1]) 
+                                        or ('--edit' in parser.parse_args()[1]) 
+                                        and command == 'config'):
+                    raise src.SatException(_("Error in configuration file:"
+                                             " %(application)s.pyconf\n") % \
+                        { 'application': application} )
+                else:
+                    sys.stdout.write(src.printcolors.printcWarning(
+                                    "There is an error in the file"
+                                    " %s.pyconf. Opening the file with the"
+                                    " default viewer\n" % cfg.VARS.application))
+                    do_merge = False
 
-            merger.merge(cfg, application_cfg)
-
-            # apply overwrite from command line if needed
-            for rule in self.get_command_line_overrides(options,
-                                                         ["APPLICATION"]):
-                # this cannot be factorized because of the exec
-                exec('cfg.' + rule)
-                
-            # default launcher name ('salome')
-            if ('profile' in cfg.APPLICATION and 
-                'launcher_name' not in cfg.APPLICATION.profile):
-                cfg.APPLICATION.profile.launcher_name = 'salome'
+            if do_merge:
+                merger.merge(cfg, application_cfg)
+            
+                # apply overwrite from command line if needed
+                for rule in self.get_command_line_overrides(options,
+                                                             ["APPLICATION"]):
+                    # this cannot be factorized because of the exec
+                    exec('cfg.' + rule)
+                    
+                # default launcher name ('salome')
+                if ('profile' in cfg.APPLICATION and 
+                    'launcher_name' not in cfg.APPLICATION.profile):
+                    cfg.APPLICATION.profile.launcher_name = 'salome'
         
+            else:
+                cfg['open_application'] = 'yes'
+                
+            
         # =====================================================================
         # load USER config
         self.set_user_config_file(cfg)
@@ -813,7 +841,8 @@ def run(args, runner, logger):
     # case : edit user pyconf file or application file
     elif options.edit:
         editor = runner.cfg.USER.editor
-        if 'APPLICATION' not in runner.cfg: # edit user pyconf
+        if ('APPLICATION' not in runner.cfg and
+                       'open_application' not in runner.cfg): # edit user pyconf
             usercfg = os.path.join(runner.cfg.VARS.personalDir, 
                                    'salomeTools.pyconf')
             logger.write(_("Openning %s\n" % usercfg), 3)

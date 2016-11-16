@@ -48,7 +48,7 @@ parser.add_option('s', 'session', 'list', 'sessions',
     _('Optional: indicate which session(s) to test (subdirectory of the '
       'grid).'))
 parser.add_option('', 'display', 'string', 'display',
-    _("Optional: set the display where to launch SALOME."
+    _("Optional: set the display where to launch SALOME.\n"
 "\tIf value is NO then option --show-desktop=0 will be used to launch SALOME."))
 
 def description():
