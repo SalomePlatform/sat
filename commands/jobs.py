@@ -780,6 +780,15 @@ class Jobs(object):
             
             # Copy salomeTools to the remote machine
             if machine.successfully_connected(self.logger):
+                step = _("Remove SAT")
+                self.logger.write('\r%s%s%s' % (begin_line, endline, 20 * " "),3)
+                self.logger.write('\r%s%s%s' % (begin_line, endline, step), 3)
+                (__, out_dist, __) = machine.exec_command(
+                                                "rm -rf %s" % machine.sat_path,
+                                                self.logger)
+                out_dist.read()
+                
+                self.logger.flush()
                 step = _("Copy SAT")
                 self.logger.write('\r%s%s%s' % (begin_line, endline, 20 * " "),3)
                 self.logger.write('\r%s%s%s' % (begin_line, endline, step), 3)
