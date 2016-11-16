@@ -132,8 +132,16 @@ def get_product_config(config, product_name, with_install_dir=True):
     # If prod_info is still None, it means that there is no product definition
     # in the config. The user has to provide it.
     if prod_info is None:
-        msg = _("No definition found for the product %s\n"
-            "Please create a %s.pyconf file." % (product_name, product_name))
+        prod_pyconf_path = src.find_file_in_lpath(product_name + ".pyconf",
+                                                  config.PATHS.PRODUCTPATH)
+        if not prod_pyconf_path:
+            msg = _("No definition found for the product %s\n"
+               "Please create a %s.pyconf file." % (product_name, product_name))
+        else:
+            msg = _("No definition corresponding to the version %(version)s was"
+                    " found in the file %(prod_file_path)s.\nPlease add a "
+                    "section in it." % {"version" : vv,
+                                        "prod_file_path" : prod_pyconf_path} )
         raise src.SatException(msg)
     
     # Set the debug, dev and version keys
