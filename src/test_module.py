@@ -236,7 +236,7 @@ class Test:
                                        test_base_info.info.base,
                                        self.config.APPLICATION.test_base.tag)
         elif test_base_info.get_sources == "svn":
-            svn_user = src.get_cfg_param(test_base_info.svn_info,
+            svn_user = src.get_cfg_param(test_base_info.info,
                                          "svn_user",
                                          self.config.USER.svn_user)
             self.prepare_testbase_from_svn(svn_user,
