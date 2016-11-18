@@ -170,7 +170,13 @@ class Test:
             cmd = cmd % { 'user': user,
                          'base': testbase_base,
                          'dir': testbase_name }
-
+            
+            # Get the application environment
+            self.logger.write(_("Set the application environment\n"), 5)
+            env_appli = src.environment.SalomeEnviron(self.config,
+                                      src.environment.Environ(dict(os.environ)))
+            env_appli.set_application_env(self.logger)
+            
             self.logger.write("> %s\n" % cmd, 5)
             if src.architecture.is_windows():
                 # preexec_fn not supported on windows platform
@@ -185,7 +191,8 @@ class Test:
                                 shell=True,
                                 preexec_fn=set_signal,
                                 stdout=self.logger.logTxtFile,
-                                stderr=subprocess.PIPE)
+                                stderr=subprocess.PIPE,
+                                env=env_appli.environ.environ,)
 
             if res != 0:
                 raise src.SatException(_("Error: unable to get test base '%(nam"
