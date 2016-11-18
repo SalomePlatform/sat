@@ -162,7 +162,7 @@ def run(args, runner, logger):
             nbClean = nbLogFiles
         # Get the list to delete and do the removing
         lLogsToDelete = sorted(lLogs)[:nbClean]
-        for filePath, __, __, __, __, __ in lLogsToDelete:
+        for filePath, __, __, __, __, __, __ in lLogsToDelete:
             # remove the xml log file
             remove_log_file(filePath, logger)
             # remove also the corresponding txt file in OUT directory
