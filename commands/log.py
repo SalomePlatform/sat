@@ -162,7 +162,6 @@ def run(args, runner, logger):
             nbClean = nbLogFiles
         # Get the list to delete and do the removing
         lLogsToDelete = sorted(lLogs)[:nbClean]
-        import pdb;pdb.set_trace()
         for filePath, __, __, __, __, __, __ in lLogsToDelete:
             # remove the xml log file
             remove_log_file(filePath, logger)
