@@ -52,7 +52,7 @@ def get_last_log_file(logDir, notShownCommands):
     last = (_, 0)
     for fileName in os.listdir(logDir):
         # YYYYMMDD_HHMMSS_namecmd.xml
-        sExpr = src.logger.logCommandFileExpression
+        sExpr = src.logger.log_macro_command_file_expression
         oExpr = re.compile(sExpr)
         if oExpr.search(fileName):
             # get date and hour and format it
@@ -155,13 +155,14 @@ def run(args, runner, logger):
         nbClean = options.clean
         # get the list of files to remove
         lLogs = src.logger.list_log_file(logDir, 
-                                         src.logger.logCommandFileExpression)
+                                   src.logger.log_all_command_file_expression)
         nbLogFiles = len(lLogs)
         # Delete all if the invoked number is bigger than the number of log files
         if nbClean > nbLogFiles:
             nbClean = nbLogFiles
         # Get the list to delete and do the removing
         lLogsToDelete = sorted(lLogs)[:nbClean]
+        import pdb;pdb.set_trace()
         for filePath, __, __, __, __, __, __ in lLogsToDelete:
             # remove the xml log file
             remove_log_file(filePath, logger)
@@ -218,7 +219,7 @@ def run(args, runner, logger):
         # Parse the log directory in order to find 
         # all the files corresponding to the commands
         lLogs = src.logger.list_log_file(logDir, 
-                                         src.logger.logCommandFileExpression)
+                                   src.logger.log_macro_command_file_expression)
         lLogsFiltered = []
         for filePath, __, date, __, hour, cmd in lLogs:
             showLog, cmdAppli = src.logger.show_command_log(filePath, cmd, 
