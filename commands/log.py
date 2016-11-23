@@ -223,7 +223,7 @@ def run(args, runner, logger):
         lLogs = src.logger.list_log_file(logDir, 
                                    src.logger.log_macro_command_file_expression)
         lLogsFiltered = []
-        for filePath, __, date, __, hour, cmd in lLogs:
+        for filePath, __, date, __, hour, cmd, __ in lLogs:
             showLog, cmdAppli = src.logger.show_command_log(filePath, cmd, 
                                 runner.cfg.VARS.application, notShownCommands)
             if showLog:
