@@ -38,9 +38,9 @@
 				  </h1>
 			  </xsl:otherwise>
 			</xsl:choose>
-			<table border="0">
+			<table border="1">
 				<tr>
-				<td width="100px">Command</td><td width="100px">date</td><td width="100px">time</td><td>application</td>
+				<td width="100px" bgcolor="Beige">Command</td><td width="100px" bgcolor="Beige">date</td><td width="100px" bgcolor="Beige">time</td><td bgcolor="Beige">application</td><td bgcolor="Beige">full command</td>
 				</tr>
 				<xsl:for-each select="LOGlist/LogCommand">
 					<xsl:sort select="." order="descending" />
@@ -54,6 +54,7 @@
 						<td><xsl:value-of select="@date"/></td>
 						<td><xsl:value-of select="@hour"/></td>
 						<td><xsl:value-of select="@application"/></td>
+						<td><xsl:value-of select="@full_command"/></td>
 					</tr>
 				</xsl:for-each>
 			</table>

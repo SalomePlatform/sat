@@ -225,7 +225,7 @@ def run(args, runner, logger):
                                    src.logger.log_macro_command_file_expression)
         lLogsFiltered = []
         for filePath, __, date, __, hour, cmd, __ in lLogs:
-            showLog, cmdAppli = src.logger.show_command_log(filePath, cmd, 
+            showLog, cmdAppli, __ = src.logger.show_command_log(filePath, cmd, 
                                 runner.cfg.VARS.application, notShownCommands)
             if showLog:
                 lLogsFiltered.append((filePath, date, hour, cmd, cmdAppli))
