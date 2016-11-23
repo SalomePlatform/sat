@@ -40,6 +40,9 @@ parser.add_option('f', 'full', 'boolean', 'full', "Optional: Show the logs of "
                   "ALL the launched commands.")
 parser.add_option('c', 'clean', 'int', 'clean', "Optional: Erase the n most "
                   "ancient log files.")
+parser.add_option('n', 'no_browser', 'boolean', 'no_browser', "Optional: Do not"
+                  " launch the browser at the end of the command. Only update "
+                  "the hat file.")
 
 def get_last_log_file(logDir, notShownCommands):
     '''Used in case of last option. Get the last log command file path.
@@ -258,6 +261,7 @@ def run(args, runner, logger):
     logger.write("\n", 3)
     
     # open the hat xml in the user editor
-    logger.write(_("\nOpening the log file\n"), 3)
-    src.system.show_in_editor(runner.cfg.USER.browser, xmlHatFilePath, logger)
+    if not options.no_browser:
+        logger.write(_("\nOpening the log file\n"), 3)
+        src.system.show_in_editor(runner.cfg.USER.browser, xmlHatFilePath, logger)
     return 0
