@@ -45,7 +45,7 @@
 			<tr>
 				<xsl:for-each select="SATcommand/Site/@*">
 					<td bgcolor="LightBlue">
-						<th><xsl:value-of select="name(.)"/></th>
+						<b><xsl:value-of select="name(.)"/></b>
 					</td>
 				</xsl:for-each>
 			</tr>
