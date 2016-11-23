@@ -61,7 +61,7 @@ def get_last_log_file(logDir, notShownCommands):
             # get date and hour and format it
             date_hour_cmd = fileName.split('_')
             datehour = date_hour_cmd[0] + date_hour_cmd[1]
-            cmd = date_hour_cmd[2][:-len('.xml')]
+            cmd = date_hour_cmd[2]
             if cmd in notShownCommands:
                 continue
             if int(datehour) > last[1]:
@@ -186,7 +186,7 @@ def run(args, runner, logger):
         return 0 
 
     # determine the commands to show in the hat log
-    notShownCommands = runner.cfg.INTERNAL.log.not_shown_commands
+    notShownCommands = list(runner.cfg.INTERNAL.log.not_shown_commands)
     if options.full:
         notShownCommands = []
 
@@ -206,7 +206,8 @@ def run(args, runner, logger):
 
     # If the last option is invoked, just, show the last log file
     if options.last:
-        lastLogFilePath = get_last_log_file(logDir, notShownCommands)        
+        lastLogFilePath = get_last_log_file(logDir,
+                                            notShownCommands + ["config"])        
         if options.terminal:
             # Show the log corresponding to the selected command call
             print_log_command_in_terminal(lastLogFilePath, logger)
