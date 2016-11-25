@@ -137,8 +137,7 @@ class Machine(object):
             self.put_dir(sat_local_path, self.sat_path, filters = ['.git'])
             # put the job configuration file in order to make it reachable 
             # on the remote machine
-            self.sftp.put(job_file, os.path.join(".salomeTools",
-                                                 "Jobs",
+            self.sftp.put(job_file, os.path.join(self.sat_path,
                                                  ".jobs_command_file.pyconf"))
         except Exception as e:
             res = str(e)
@@ -274,7 +273,9 @@ class Job(object):
                         " -l " +
                         os.path.join(self.machine.sat_path,
                                      "list_log_files.txt") +
-                        " job --jobs_config .jobs_command_file" +
+                        " job --jobs_config " + 
+                        os.path.join(self.machine.sat_path,
+                                     ".jobs_command_file.pyconf") +
                         " --name " +
                         self.name)
         if prefix:
@@ -1580,18 +1581,22 @@ def run(args, runner, logger):
         src.printcolors.printcError(message)
         return 1
     
-    # Find the file in the directories
+    # Find the file in the directories, unless it is a full path
     found = False
-    for cfg_dir in l_cfg_dir:
-        file_jobs_cfg = os.path.join(cfg_dir, options.jobs_cfg)
-        if not file_jobs_cfg.endswith('.pyconf'):
-            file_jobs_cfg += '.pyconf'
-        
-        if not os.path.exists(file_jobs_cfg):
-            continue
-        else:
-            found = True
-            break
+    if os.path.exists(options.jobs_cfg):
+        found = True
+        file_jobs_cfg = options.jobs_cfg
+    else:
+        for cfg_dir in l_cfg_dir:
+            file_jobs_cfg = os.path.join(cfg_dir, options.jobs_cfg)
+            if not file_jobs_cfg.endswith('.pyconf'):
+                file_jobs_cfg += '.pyconf'
+            
+            if not os.path.exists(file_jobs_cfg):
+                continue
+            else:
+                found = True
+                break
     
     if not found:
         msg = _("The file configuration %(name_file)s was not found."
