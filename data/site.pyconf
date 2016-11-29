@@ -13,5 +13,11 @@ SITE :
 
 PROJECTS :
 {
-project_file_paths : ["/home/salome/SPN_PRIVATE/SAT5/SALOME-PROJECT/salome.pyconf", "/data/tmpsalome/salome/SAT-PROJECTS/NUMODIS/numodis.pyconf", "/home/corpus/SAT5/CORPUS-PROJECT/corpus.pyconf"]
+project_file_paths : 
+[
+    "/home/salome/SPN_PRIVATE/SAT5/SALOME-PROJECT/salome.pyconf", 
+    "/data/tmpsalome/salome/SAT-PROJECTS/NUMODIS/numodis.pyconf", 
+    "/home/corpus/SAT5/CORPUS-PROJECT/corpus.pyconf",
+    "/home/salome/SPN_PRIVATE/SAT5/PPGP-PROJECT/ppgp.pyconf"
+]
 }
