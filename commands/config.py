@@ -285,7 +285,7 @@ class ConfigManager:
             if not os.path.exists(project_pyconf_path):
                 msg = _("WARNING: The project file %s cannot be found. "
                         "It will be ignored\n" % project_pyconf_path)
-                sys.stdout.write(src.printcolors.printcWarning(msg))
+                sys.stdout.write(msg)
                 continue
             project_name = os.path.basename(
                                     project_pyconf_path)[:-len(".pyconf")]

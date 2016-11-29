@@ -267,7 +267,8 @@ class Job(object):
 
         self.out = ""
         self.err = ""
-               
+        
+        name_remote_jobs_pyconf = ".jobs_command_file.pyconf"
         self.commands = commands
         self.command = (os.path.join(self.machine.sat_path, "sat") +
                         " -l " +
@@ -1043,7 +1044,13 @@ class Gui(object):
        see the jobs states
     '''
    
-    def __init__(self, xml_dir_path, l_jobs, l_jobs_not_today, prefix, file_boards=""):
+    def __init__(self,
+                 xml_dir_path,
+                 l_jobs,
+                 l_jobs_not_today,
+                 prefix,
+                 logger,
+                 file_boards=""):
         '''Initialization
         
         :param xml_dir_path str: The path to the directory where to put 
@@ -1053,6 +1060,9 @@ class Gui(object):
         :param file_boards str: the file path from which to read the
                                    expected boards
         '''
+        # The logging instance
+        self.logger = logger
+        
         # The prefix to add to the xml files : date_hour
         self.prefix = prefix
         
@@ -1084,7 +1094,7 @@ class Gui(object):
 
         # Create the lines and columns
         self.initialize_boards(l_jobs, l_jobs_not_today)
-        
+
         # Write the xml file
         self.update_xml_files(l_jobs)
     
@@ -1277,8 +1287,15 @@ class Gui(object):
         for file_name in os.listdir(self.xml_dir_path):
             if oExpr.search(file_name):
                 file_path = os.path.join(self.xml_dir_path, file_name)
-                global_xml = src.xmlManager.ReadXmlFile(file_path)
-                l_globalxml.append(global_xml)
+                try:
+                    global_xml = src.xmlManager.ReadXmlFile(file_path)
+                    l_globalxml.append(global_xml)
+                except Exception as e:
+                    msg = _("\nWARNING: the file %s can not be read, it will be "
+                            "ignored\n%s" % (file_path, e))
+                    self.logger.write("%s\n" % src.printcolors.printcWarning(
+                                                                        msg), 5)
+                    
 
         # Construct the dictionnary self.history 
         for job in l_jobs + l_jobs_not_today:
@@ -1652,6 +1669,7 @@ def run(args, runner, logger):
                   today_jobs.ljobs,
                   today_jobs.ljobs_not_today,
                   runner.cfg.VARS.datehour,
+                  logger,
                   file_boards = options.input_boards)
         
         logger.write(src.printcolors.printcSuccess("OK"), 5)
