@@ -528,17 +528,19 @@ class SalomeEnviron:
             pi.install_dir = os.path.join("out_dir_Path",
                                           self.for_package,
                                           pi.name)
-                    
-        # Do not define environment if the product is native
-        if src.product.product_is_native(pi):
-            return
-        
+
         if not self.silent:
             logger.write(_("Setting environment for %s\n") % product, 4)
 
         self.add_line(1)
         self.add_comment('setting environ for ' + product)
-        
+            
+        # Do not define environment if the product is native
+        if src.product.product_is_native(pi):
+            if src.product.product_has_env_script(pi):
+                self.run_env_script(pi, native=True)
+            return
+               
         # Set an additional environment for SALOME products
         if src.product.product_is_salome(pi):
             # set environment using definition of the product
@@ -586,11 +588,12 @@ class SalomeEnviron:
         
             
 
-    def run_env_script(self, product_info, logger=None):
+    def run_env_script(self, product_info, logger=None, native=False):
         """Runs an environment script. 
         
         :param product_info Config: The product description
         :param logger Logger: The logger instance to display messages
+        :param native Boolean: if True load set_native_env instead of set_env
         """
         env_script = product_info.environ.env_script
         # Check that the script exists
@@ -606,8 +609,13 @@ class SalomeEnviron:
             import imp
             pyproduct = imp.load_source(product_info.name + "_env_script",
                                         env_script)
-            pyproduct.set_env(self, product_info.install_dir,
-                              product_info.version)
+            if not native:
+                pyproduct.set_env(self,
+                                  product_info.install_dir,
+                                  product_info.version)
+            else:
+                if "set_nativ_env" in dir(pyproduct):
+                    pyproduct.set_nativ_env(self)
         except:
             __, exceptionValue, exceptionTraceback = sys.exc_info()
             print(exceptionValue)
