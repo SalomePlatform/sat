@@ -251,6 +251,7 @@ class Sat(object):
                                              str(e)))
                         self.options.logs_paths_in_file = None
                 
+                options_launched = ""
                 try:
                     res = None
                     # Execute the hooks (if there is any) 
@@ -264,7 +265,6 @@ class Sat(object):
                         res = 0
                     
                     # come back to the original global options
-                    options_launched = ""
                     if options:
                         options_launched = get_text_from_options(self.options)
                         self.options = options_save

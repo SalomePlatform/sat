@@ -322,6 +322,20 @@ def deepcopy_list(input_list):
         res.append(elem)
     return res
 
+def remove_item_from_list(input_list, item):
+    """ Remove all occurences of item from input_list
+    
+    :param input_list List: The list to modify
+    :return: The without any item
+    :rtype: List
+    """
+    res = []
+    for elem in input_list:
+        if elem == item:
+            continue
+        res.append(elem)
+    return res
+
 def parse_date(date):
     """Transform YYYYMMDD_hhmmss into YYYY-MM-DD hh:mm:ss.
     

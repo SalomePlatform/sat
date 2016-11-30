@@ -118,7 +118,8 @@ def run(args, runner, logger):
         if cmd_exe == "sat":
             # use the salomeTools parser to get the options of the command
             sat_parser = salomeTools.parser
-            (options, argus) = sat_parser.parse_args(command.split(' ')[1:])
+            input_parser = src.remove_item_from_list(command.split(' ')[1:], "")
+            (options, argus) = sat_parser.parse_args(input_parser)
             # Verify if there is a changed option
             for attr in dir(options):
                 if attr.startswith("__"):
@@ -135,8 +136,9 @@ def run(args, runner, logger):
         if not(specific_option):
             options = None
 
-        # Get dynamically the command function to call 
+        # Get dynamically the command function to call
         sat_command = runner.__getattr__(sat_command_name)
+
         logger.write("Executing " + 
                      src.printcolors.printcLabel(command) + " ", 3)
         logger.write("." * (len_max_command - len(command)) + " ", 3)
