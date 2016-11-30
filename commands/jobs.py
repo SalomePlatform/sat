@@ -1584,7 +1584,8 @@ def run(args, runner, logger):
             if not options.no_label:
                 logger.write("------ %s\n" % 
                                  src.printcolors.printcHeader(cfg_dir))
-    
+            if not os.path.exists(cfg_dir):
+                continue
             for f in sorted(os.listdir(cfg_dir)):
                 if not f.endswith('.pyconf'):
                     continue

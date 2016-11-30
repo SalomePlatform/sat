@@ -22,6 +22,7 @@ import traceback
 import tempfile
 
 import src
+import salomeTools
 
 # Define all possible option for the make command :  sat make <options>
 parser = src.options.Options()
@@ -111,15 +112,29 @@ def run(args, runner, logger):
     res = 0
     nb_pass = 0
     for command in commands:
+        specific_option = False
         # Determine if it is a sat command or a shell command
         cmd_exe = command.split(" ")[0] # first part
         if cmd_exe == "sat":
-            sat_command_name = command.split(" ")[1]
-            end_cmd = command.replace(cmd_exe + " " + sat_command_name, "")
+            # use the salomeTools parser to get the options of the command
+            sat_parser = salomeTools.parser
+            (options, argus) = sat_parser.parse_args(command.split(' ')[1:])
+            # Verify if there is a changed option
+            for attr in dir(options):
+                if attr.startswith("__"):
+                    continue
+                if options.__getattr__(attr) != None:
+                    specific_option = True
+            sat_command_name = argus[0]
+            end_cmd = " ".join(argus[1:])
         else:
             sat_command_name = "shell"
             end_cmd = "--command " + command
         
+        # Do not change the options if no option was called in the command
+        if not(specific_option):
+            options = None
+
         # Get dynamically the command function to call 
         sat_command = runner.__getattr__(sat_command_name)
         logger.write("Executing " + 
@@ -132,6 +147,7 @@ def run(args, runner, logger):
         try:
             # Execute the command
             code = sat_command(end_cmd,
+                               options = options,
                                batch = True,
                                verbose = 0,
                                logger_add_link = logger)

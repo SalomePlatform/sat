@@ -157,7 +157,11 @@ class Sat(object):
             (file_, pathname, description) = imp.find_module(nameCmd, [dirPath])
             module = imp.load_module(nameCmd, file_, pathname, description)
             
-            def run_command(args='', batch = False, verbose = -1, logger_add_link = None):
+            def run_command(args='',
+                            options=None,
+                            batch = False,
+                            verbose = -1,
+                            logger_add_link = None):
                 '''The function that will load the configuration (all pyconf)
                 and return the function run of the command corresponding to module
                 
@@ -187,14 +191,19 @@ class Sat(object):
                 if argv != [''] and argv[0][0] != "-":
                     appliToLoad = argv[0].rstrip('*')
                     argv = argv[1:]
-   
+                
+                # Check if the global options of salomeTools have to be changed
+                if options:
+                    options_save = self.options
+                    self.options = options  
+
                 # read the configuration from all the pyconf files    
                 cfgManager = config.ConfigManager()
                 self.cfg = cfgManager.get_config(datadir=self.datadir, 
                                                  application=appliToLoad, 
                                                  options=self.options, 
                                                  command=__nameCmd__)
-                
+                               
                 # Set the verbose mode if called
                 if verbose > -1:
                     verbose_save = self.options.output_verbose_level
@@ -254,6 +263,12 @@ class Sat(object):
                     if res is None:
                         res = 0
                     
+                    # come back to the original global options
+                    options_launched = ""
+                    if options:
+                        options_launched = get_text_from_options(self.options)
+                        self.options = options_save
+                    
                     # come back in the original batch mode if 
                     # batch argument was called
                     if batch:
@@ -269,6 +284,7 @@ class Sat(object):
                     launchedCommand = ' '.join([self.cfg.VARS.salometoolsway +
                                                 os.path.sep +
                                                 'sat',
+                                                options_launched,
                                                 __nameCmd__, 
                                                 args])
                     launchedCommand = launchedCommand.replace('"', "'")
@@ -285,6 +301,7 @@ class Sat(object):
                     launchedCommand = ' '.join([self.cfg.VARS.salometoolsway +
                                                 os.path.sep +
                                                 'sat',
+                                                options_launched,
                                                 __nameCmd__, 
                                                 args])
                     launchedCommand = launchedCommand.replace('"', "'")
@@ -419,7 +436,22 @@ class Sat(object):
         (file_, pathname, description) = imp.find_module(module, [cmdsdir])
         module = imp.load_module(module, file_, pathname, description)
         return module
- 
+
+def get_text_from_options(options):
+    text_options = ""
+    for attr in dir(options):
+        if attr.startswith("__"):
+            continue
+        if options.__getattr__(attr) != None:
+            option_contain = options.__getattr__(attr)
+            if type(option_contain)==type([]):
+                option_contain = ",".join(option_contain)
+            if type(option_contain)==type(True):
+                option_contain = ""
+            text_options+= "--%s %s " % (attr, option_contain)
+    return text_options
+                
+
 def print_version():
     '''prints salomeTools version (in src/internal_config/salomeTools.pyconf)
     '''
