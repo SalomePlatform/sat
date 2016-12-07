@@ -79,7 +79,7 @@
 </style>
 
 <xsl:if test="//JobsReport/infos/@JobsCommandStatus='running'">
-  <meta http-equiv="refresh" content="10"></meta>
+  <meta http-equiv="refresh" content="120"></meta>
 </xsl:if>
 
 <script language="JavaScript"><![CDATA[
