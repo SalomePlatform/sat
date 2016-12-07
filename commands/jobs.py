@@ -137,8 +137,9 @@ class Machine(object):
             self.put_dir(sat_local_path, self.sat_path, filters = ['.git'])
             # put the job configuration file in order to make it reachable 
             # on the remote machine
+            remote_job_file_name = ".%s" % os.path.basename(job_file)
             self.sftp.put(job_file, os.path.join(self.sat_path,
-                                                 ".jobs_command_file.pyconf"))
+                                                 remote_job_file_name))
         except Exception as e:
             res = str(e)
             self._connection_successful = False
@@ -236,8 +237,18 @@ class Machine(object):
 class Job(object):
     '''Class to manage one job
     '''
-    def __init__(self, name, machine, application, board, 
-                 commands, timeout, config, logger, after=None, prefix=None):
+    def __init__(self,
+                 name,
+                 machine,
+                 application,
+                 board, 
+                 commands,
+                 timeout,
+                 config,
+                 job_file_path,
+                 logger,
+                 after=None,
+                 prefix=None):
 
         self.name = name
         self.machine = machine
@@ -268,7 +279,7 @@ class Job(object):
         self.out = ""
         self.err = ""
         
-        name_remote_jobs_pyconf = ".jobs_command_file.pyconf"
+        self.name_remote_jobs_pyconf = ".%s" % os.path.basename(job_file_path)
         self.commands = commands
         self.command = (os.path.join(self.machine.sat_path, "sat") +
                         " -l " +
@@ -276,7 +287,7 @@ class Job(object):
                                      "list_log_files.txt") +
                         " job --jobs_config " + 
                         os.path.join(self.machine.sat_path,
-                                     ".jobs_command_file.pyconf") +
+                                     self.name_remote_jobs_pyconf) +
                         " --name " +
                         self.name)
         if prefix:
@@ -671,6 +682,7 @@ class Jobs(object):
                    cmmnds,
                    timeout,
                    self.runner.cfg,
+                   self.job_file_path,
                    self.logger,
                    after = after,
                    prefix = prefix)
