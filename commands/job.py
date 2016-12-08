@@ -17,9 +17,6 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
-import sys
-import traceback
-import tempfile
 
 import src
 import salomeTools
@@ -146,28 +143,12 @@ def run(args, runner, logger):
         
         error = ""
         stack = ""
-        try:
-            # Execute the command
-            code = sat_command(end_cmd,
-                               options = options,
-                               batch = True,
-                               verbose = 0,
-                               logger_add_link = logger)
-        except Exception as e:
-            code = 1
-            # Get error
-            error = str(e)
-            # get stack
-            __, __, exc_traceback = sys.exc_info()
-            fp = tempfile.TemporaryFile()
-            traceback.print_tb(exc_traceback, file=fp)
-            fp.seek(0)
-            stack = fp.read()
-            logger.add_link(_("Dead Link"),
-                            sat_command_name,
-                            code,
-                            "ERROR: %s TRACEBACK: %s" % (error,
-                                                    stack.replace('"',"'")))
+        # Execute the command
+        code = sat_command(end_cmd,
+                           options = options,
+                           batch = True,
+                           verbose = 0,
+                           logger_add_link = logger)
             
         # Print the status of the command
         if code == 0:
