@@ -151,7 +151,7 @@ def generate_profile_sources( config, options, logger ):
     if res != 0:
         raise src.SatException(_("Cannot create application, code = %d\n")%res)
     else:
-        logger.write(_("Profile sources were generated in directory %s."%prefix),
+        logger.write(_("Profile sources were generated in directory %s.\n"%prefix),
                      3)
     return res
 
