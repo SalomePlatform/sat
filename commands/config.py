@@ -24,6 +24,7 @@ import gettext
 import sys
 
 import src
+from cookielib import logger
 
 # internationalization
 satdir  = os.path.dirname(os.path.realpath(__file__))
@@ -406,18 +407,22 @@ class ConfigManager:
                                         "There is an error in the file"
                                         " %s.pyconf.\n" % cfg.VARS.application))
                     do_merge = False
-            except:
+            except Exception as e:
                 if (not ('-e' in parser.parse_args()[1]) 
                                         or ('--edit' in parser.parse_args()[1]) 
                                         and command == 'config'):
+                    sys.stdout.write(src.printcolors.printcWarning("%s\n" % str(e)))
                     raise src.SatException(_("Error in configuration file:"
                                              " %(application)s.pyconf\n") % \
                         { 'application': application} )
                 else:
                     sys.stdout.write(src.printcolors.printcWarning(
-                                    "There is an error in the file"
-                                    " %s.pyconf. Opening the file with the"
-                                    " default viewer\n" % cfg.VARS.application))
+                                "There is an error in the file"
+                                " %s.pyconf. Opening the file with the"
+                                " default viewer\n" % cfg.VARS.application))
+                    sys.stdout.write("The error:"
+                                 " %s\n" % src.printcolors.printcWarning(
+                                                                      str(e)))
                     do_merge = False
 
             if do_merge:
