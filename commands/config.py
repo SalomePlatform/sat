@@ -24,7 +24,6 @@ import gettext
 import sys
 
 import src
-from cookielib import logger
 
 # internationalization
 satdir  = os.path.dirname(os.path.realpath(__file__))
