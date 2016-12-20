@@ -1501,6 +1501,12 @@ class Gui(object):
                 src.xmlManager.add_simple_node(xmlj,
                                                "remote_log_file_path",
                                                "nothing")           
+            # Search for the test log if there is any
+            l_test_log_files = self.find_test_log(job.remote_log_files)
+            xml_test = src.xmlManager.add_simple_node(xmlj,
+                                                      "test_log_file_path")
+            for test_log_path in l_test_log_files:
+                src.xmlManager.add_simple_node(xml_test, "path", test_log_path)
             
             xmlafter = src.xmlManager.add_simple_node(xmlj, "after", job.after)
             # get the job father
@@ -1542,6 +1548,21 @@ class Gui(object):
                     datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
                
 
+    def find_test_log(self, l_remote_log_files):
+        '''Find if there is a test log (board) in the remote log files and 
+           the path to it. There can be several test command, so the result is
+           a list.
+
+        :param l_remote_log_files List: the list of all remote log files
+        :return: the list of test log files path
+        :rtype: List
+        '''
+        res = []
+        for file_path in l_remote_log_files:
+            dirname = os.path.basename(os.path.dirname(file_path))
+            if dirname == "TEST":
+                res.append(file_path)
+        return res
     
     def last_update(self, finish_status = "finished"):
         '''update information about the jobs for the file xml_file   

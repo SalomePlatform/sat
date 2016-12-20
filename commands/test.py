@@ -541,7 +541,8 @@ def run(args, runner, logger):
                     retcode,
                     "Click on the link to get the detailed test results")
 
-    logger.write(_("Removing the temporary directory: rm -rf %s\n" % test_runner.tmp_working_dir), 5)
+    logger.write(_("Removing the temporary directory: "
+                   "rm -rf %s\n" % test_runner.tmp_working_dir), 5)
     if os.path.exists(test_runner.tmp_working_dir):
         shutil.rmtree(test_runner.tmp_working_dir)
 

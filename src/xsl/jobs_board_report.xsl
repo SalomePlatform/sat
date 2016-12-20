@@ -233,7 +233,7 @@
 				</xsl:if>
 			    </a>
 		      </xsl:if>
-		      <xsl:if test="state/.='Not today'">
+		    <xsl:if test="state/.='Not today'">
 			 - 
 			<xsl:for-each select="//JobsReport/jobs/job[@name=$curr_job_name]/history/link">
 			<xsl:sort select="@date" order="descending" />
@@ -253,7 +253,18 @@
 			  </h4>
 			</xsl:if> 
 			</xsl:for-each>
-		      </xsl:if> 
+		      </xsl:if>
+              <!--Add the link to the tests if there is any -->
+              <xsl:if test="(test_log_file_path) and (test_log_file_path/*)">
+              -     
+                <xsl:for-each select="//JobsReport/jobs/job[@name=$curr_job_name]/test_log_file_path/path">
+                  <a>
+			          <xsl:attribute name="title">remote log test</xsl:attribute>
+			          <xsl:attribute name="href"><xsl:value-of select="."/></xsl:attribute>
+                      test
+                  </a>
+                </xsl:for-each>
+		      </xsl:if>              
 		      <br/>
 		      
 

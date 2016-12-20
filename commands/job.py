@@ -155,7 +155,8 @@ def run(args, runner, logger):
             nb_pass += 1
             logger.write('%s\n' % src.printcolors.printc(src.OK_STATUS), 3)
         else:
-            res = 1
+            if sat_command_name != "test":
+                res = 1
             logger.write('%s %s\n' % (src.printcolors.printc(src.KO_STATUS),
                                       error), 3)
             if len(stack) > 0:
