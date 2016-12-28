@@ -259,8 +259,14 @@
               -     
                 <xsl:for-each select="//JobsReport/jobs/job[@name=$curr_job_name]/test_log_file_path/path">
                   <a>
-			          <xsl:attribute name="title">remote log test</xsl:attribute>
+			          <xsl:attribute name="title"><xsl:value-of select="@nb_fails"/> fails</xsl:attribute>
 			          <xsl:attribute name="href"><xsl:value-of select="."/></xsl:attribute>
+			          <xsl:if test="@res='0'">
+				      <xsl:attribute name="class">OK2</xsl:attribute>
+			          </xsl:if>
+			          <xsl:if test="@res!='0'">
+				      <xsl:attribute name="class">KO2</xsl:attribute>
+			          </xsl:if>
                       test
                   </a>
                 </xsl:for-each>

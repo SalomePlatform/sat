@@ -26,6 +26,7 @@ import re
 import paramiko
 
 import src
+import src.ElementTree as etree
 
 STYLESHEET_GLOBAL = "jobs_global_report.xsl"
 STYLESHEET_BOARD = "jobs_board_report.xsl"
@@ -1505,8 +1506,12 @@ class Gui(object):
             l_test_log_files = self.find_test_log(job.remote_log_files)
             xml_test = src.xmlManager.add_simple_node(xmlj,
                                                       "test_log_file_path")
-            for test_log_path in l_test_log_files:
-                src.xmlManager.add_simple_node(xml_test, "path", test_log_path)
+            for test_log_path, res_test, nb_fails in l_test_log_files:
+                test_path_node = src.xmlManager.add_simple_node(xml_test,
+                                               "path",
+                                               test_log_path)
+                test_path_node.attrib["res"] = res_test
+                test_path_node.attrib["nb_fails"] = nb_fails
             
             xmlafter = src.xmlManager.add_simple_node(xmlj, "after", job.after)
             # get the job father
@@ -1554,14 +1559,26 @@ class Gui(object):
            a list.
 
         :param l_remote_log_files List: the list of all remote log files
-        :return: the list of test log files path
+        :return: the list of (test log files path, res of the command)
         :rtype: List
         '''
         res = []
         for file_path in l_remote_log_files:
             dirname = os.path.basename(os.path.dirname(file_path))
-            if dirname == "TEST":
-                res.append(file_path)
+            file_name = os.path.basename(file_path)
+            regex = src.logger.log_all_command_file_expression
+            oExpr = re.compile(regex)
+            if dirname == "TEST" and oExpr.search(file_name):
+                # find the res of the command
+                prod_node = etree.parse(file_path).getroot().find("product")
+                res_test = prod_node.attrib["global_res"]
+                # find the number of fails
+                testbase_node = prod_node.find("tests").find("testbase")
+                nb_fails = int(testbase_node.attrib["failed"])
+                # put the file path, the res of the test command and the number 
+                # of fails in the output
+                res.append((file_path, res_test, nb_fails))
+                
         return res
     
     def last_update(self, finish_status = "finished"):

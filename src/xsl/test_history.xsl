@@ -119,11 +119,6 @@
 
 <xsl:template match="product" mode="test">
 
-  <a>
-  <xsl:attribute name="href"><xsl:value-of select="/salome/product/@history_file"/></xsl:attribute>
-  history view
-  </a>
-
   <h3>Tests</h3>
     
   <xsl:for-each select="tests/testbase">
@@ -214,7 +209,6 @@
       </tr>
     </xsl:if>
     </xsl:for-each>
-
     <!-- Summary Row -->
     <xsl:variable name="GrandTotal" select="number(../testbase/@total)"/>
     <xsl:variable name="TotalFailure" select="count(//test[@res='KO'])"/>
@@ -270,7 +264,7 @@
   <xsl:for-each select="./grid">
     <xsl:sort select="@name" />
     <xsl:sort select="@session" />
-
+    
     <div style="display:none" name="mod"><xsl:attribute name="id">mod_<xsl:value-of select="../@name"/>.<xsl:value-of select="@name"/></xsl:attribute>
     Tests of grid <b><xsl:value-of select="@name"/></b>
     <table width="100%">
@@ -282,69 +276,79 @@
       </tr>
 
       <xsl:for-each select="./session">
-        <xsl:sort select="@name" />
+      <!--<xsl:if test="@executed_last_time='yes'">-->
+            <xsl:sort select="@name" />
 
-        <tr>
-          <td align="center"><xsl:attribute name="rowspan"><xsl:value-of select="count(./test)+count(.//callback)+1" /></xsl:attribute>
-            <xsl:value-of select="@name" />
-            <br/>(<xsl:value-of select="format-number(sum(./test/@exec_time), '0')" /> s)
-          </td>
-        </tr>
-
-      <xsl:for-each select="./test">
-        <xsl:sort select="@script" />
-
-        <xsl:choose>
-          <xsl:when test="count(./callback) != 0">
             <tr>
-              <td align="left">
-		    <xsl:attribute name="class"><xsl:value-of select="@res" /></xsl:attribute>
-		    <a href="#content" class="node">
-			    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>')</xsl:attribute>
-			    <xsl:attribute name="title">Click to see the script content</xsl:attribute>
-			    <xsl:value-of select="@script" />
-		    </a>
-		    &#160;
-		    <a href="#content" class="node">
-			    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>log')</xsl:attribute>
-			    <xsl:attribute name="title">Click to see the execution log</xsl:attribute>
-			    log
-		    </a>
+              <td align="center"><xsl:attribute name="rowspan"><xsl:value-of select="count(./test)+count(.//callback)+1" /></xsl:attribute>
+                <xsl:value-of select="@name" />
+                <br/>(<xsl:value-of select="format-number(sum(./test/@exec_time), '0')" /> s)
               </td>
-              <td align="center"><xsl:attribute name="class"><xsl:value-of select="@res" /></xsl:attribute><xsl:value-of select="@res" /></td>
-              <td align="right"><xsl:value-of select="format-number(@exec_time, '0.0')" /></td>
             </tr>
-            <tr>
-              <td align="left" colspan="3" class="linkification-disabled"><xsl:value-of select="./callback" /></td>
-            </tr>
-          </xsl:when>
-          <xsl:otherwise>
-            <tr>
-              <td align="left">
-		    <a href="#content" class="node">
-			    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>')</xsl:attribute>
-			    <xsl:attribute name="title">Click to see the script content</xsl:attribute>
-			    <xsl:value-of select="@script" />
-		    </a>
-		    &#160;
-		    <a href="#content" class="node">
-			    <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>log')</xsl:attribute>
-			    <xsl:attribute name="title">Click to see the execution log</xsl:attribute>
-			    log
-		    </a>
-              </td>
-              <td align="center"><xsl:attribute name="class"><xsl:value-of select="@res" /></xsl:attribute><xsl:value-of select="@res" /></td>
-              <td align="right"><xsl:value-of select="format-number(@exec_time, '0.0')" /></td>
-            </tr>
-          </xsl:otherwise>
-        </xsl:choose>
-          <xsl:if test="count(./amend) != 0">
-            <tr>
-              <td class="ko"><b>Amended</b></td>	
-              <td align="left" colspan="3"><xsl:value-of select="./amend" /></td>
-            </tr>
-          </xsl:if>
-      </xsl:for-each>
+
+          <xsl:for-each select="./test">
+            <xsl:sort select="@script" />
+
+            <xsl:choose>
+              <xsl:when test="count(./callback) != 0">
+                <tr>
+                  <td align="left">
+	            <xsl:attribute name="class"><xsl:value-of select="@res" /></xsl:attribute>
+	            <a href="#content" class="node">
+		            <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>')</xsl:attribute>
+		            <xsl:attribute name="title">Click to see the script content</xsl:attribute>
+		            <xsl:value-of select="@script" />
+	            </a>
+	            &#160;
+	            <a href="#content" class="node">
+		            <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>log')</xsl:attribute>
+		            <xsl:attribute name="title">Click to see the execution log</xsl:attribute>
+		            log
+	            </a>
+                  </td>
+                  <td align="center"><xsl:attribute name="class"><xsl:value-of select="@res" /></xsl:attribute><xsl:value-of select="@res" /></td>
+                  <td align="right"><xsl:value-of select="format-number(@exec_time, '0.0')" /></td>
+                  <xsl:for-each select="./history/previous_test">
+                    <xsl:sort select="@date_hour" order="descending"/>
+                    <td align="center"><xsl:attribute name="class"><xsl:value-of select="@res" /></xsl:attribute><xsl:value-of select="@res" /></td>
+                  </xsl:for-each>
+                </tr>
+                <tr>
+                  <td align="left" colspan="3" class="linkification-disabled"><xsl:value-of select="./callback" /></td>
+                </tr>
+              </xsl:when>
+              <xsl:otherwise>
+                <tr>
+                  <td align="left">
+	            <a href="#content" class="node">
+		            <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>')</xsl:attribute>
+		            <xsl:attribute name="title">Click to see the script content</xsl:attribute>
+		            <xsl:value-of select="@script" />
+	            </a>
+	            &#160;
+	            <a href="#content" class="node">
+		            <xsl:attribute name="onclick">javascript:Toggle('<xsl:value-of select="@script"/>log')</xsl:attribute>
+		            <xsl:attribute name="title">Click to see the execution log</xsl:attribute>
+		            log
+	            </a>
+                  </td>
+                  <td align="center"><xsl:attribute name="class"><xsl:value-of select="@res" /></xsl:attribute><xsl:value-of select="@res" /></td>
+                  <td align="right"><xsl:value-of select="format-number(@exec_time, '0.0')" /></td>
+                  <xsl:for-each select="./history/previous_test">
+                    <xsl:sort select="@date_hour" order="descending"/>
+                    <td align="center"><xsl:attribute name="class"><xsl:value-of select="@res" /></xsl:attribute><xsl:value-of select="@res" /></td>
+                  </xsl:for-each>
+                </tr>
+              </xsl:otherwise>
+            </xsl:choose>
+              <xsl:if test="count(./amend) != 0">
+                <tr>
+                  <td class="ko"><b>Amended</b></td>	
+                  <td align="left" colspan="3"><xsl:value-of select="./amend" /></td>
+                </tr>
+              </xsl:if>
+          </xsl:for-each>
+      <!--</xsl:if>-->
       </xsl:for-each>
     
     </table>
