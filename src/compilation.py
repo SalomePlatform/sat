@@ -82,12 +82,16 @@ class Builder:
         #environ_info.append(self.product_info.name)
 
         # create build environment
-        self.build_environ = src.environment.SalomeEnviron(self.config, src.environment.Environ(dict(os.environ)), True)
+        self.build_environ = src.environment.SalomeEnviron(self.config,
+                                      src.environment.Environ(dict(os.environ)),
+                                      True)
         self.build_environ.silent = (self.config.USER.output_verbose_level < 5)
         self.build_environ.set_full_environ(self.logger, environ_info)
         
         # create runtime environment
-        self.launch_environ = src.environment.SalomeEnviron(self.config, src.environment.Environ(dict(os.environ)), False)
+        self.launch_environ = src.environment.SalomeEnviron(self.config,
+                                      src.environment.Environ(dict(os.environ)),
+                                      False)
         self.launch_environ.silent = True # no need to show here
         self.launch_environ.set_full_environ(self.logger, environ_info)
 
@@ -125,6 +129,7 @@ class Builder:
                               stderr=subprocess.STDOUT)
 
         if res == 0:
+            self.put_txt_log_in_appli_log_dir("cmake")
             return res
         else:
             return 1
@@ -148,6 +153,7 @@ class Builder:
                               stderr=subprocess.STDOUT)
 
         if res == 0:
+            self.put_txt_log_in_appli_log_dir("build_configure")
             return res
         else:
             return 1
@@ -172,6 +178,7 @@ class Builder:
                               stderr=subprocess.STDOUT)
 
         if res == 0:
+            self.put_txt_log_in_appli_log_dir("configure")
             return res
         else:
             return 1
@@ -223,6 +230,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
                               stderr=subprocess.STDOUT)
 
         if res == 0:
+            self.put_txt_log_in_appli_log_dir("make")
             return res
         else:
             return 1
@@ -257,6 +265,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
                               stderr=subprocess.STDOUT)
 
         if res == 0:
+            self.put_txt_log_in_appli_log_dir("make")
             return res
         else:
             return 1
@@ -283,6 +292,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
                               stderr=subprocess.STDOUT)
 
         if res == 0:
+            self.put_txt_log_in_appli_log_dir("makeinstall")
             return res
         else:
             return 1
@@ -382,6 +392,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
             pymodule = imp.load_source(product + "_compile_script", script)
             self.nb_proc = nb_proc
             retcode = pymodule.compil(self.config, self, self.logger)
+            self.put_txt_log_in_appli_log_dir("script")
         except:
             __, exceptionValue, exceptionTraceback = sys.exc_info()
             self.logger.write(str(exceptionValue), 1)
@@ -423,15 +434,19 @@ CC=\\"hack_libtool\\"%g" libtool'''
                               env=self.build_environ.environ.environ)
 
         if res == 0:
+            self.put_txt_log_in_appli_log_dir("script")
             return res
         else:
             return 1
     
-    def do_script_build(self, script):
+    def do_script_build(self, script, number_of_proc=0):
         # define make options (may not be used by the script)
-        nb_proc = src.get_cfg_param(self.product_info,"nb_proc", 0)
-        if nb_proc == 0: 
-            nb_proc = self.config.VARS.nb_proc
+        if number_of_proc==0:
+            nb_proc = src.get_cfg_param(self.product_info,"nb_proc", 0)
+            if nb_proc == 0: 
+                nb_proc = self.config.VARS.nb_proc
+        else:
+            nb_proc = min(number_of_proc, self.config.VARS.nb_proc)
             
         extension = script.split('.')[-1]
         if extension in ["bat","sh"]:
@@ -441,3 +456,24 @@ CC=\\"hack_libtool\\"%g" libtool'''
         
         msg = _("The script %s must have .sh, .bat or .py extension." % script)
         raise src.SatException(msg)
+    
+    def put_txt_log_in_appli_log_dir(self, file_name):
+        '''Put the txt log (that contain the system logs, like make command
+           output) in the directory <APPLICATION DIR>/LOGS/<product_name>/
+    
+        :param file_name Str: the name of the file to write
+        '''
+        if self.logger.logTxtFile == sys.__stdout__:
+            return
+        dir_where_to_put = os.path.join(self.config.APPLICATION.workdir,
+                                        "LOGS",
+                                        self.product_info.name)
+        file_path = os.path.join(dir_where_to_put, file_name)
+        src.ensure_path_exists(dir_where_to_put)
+        # write the logTxtFile copy it to the destination, and then recreate 
+        # it as it was
+        self.logger.logTxtFile.close()
+        os.rename(self.logger.txtFilePath, file_path)
+        self.logger.logTxtFile = open(str(self.logger.txtFilePath), 'w')
+        self.logger.logTxtFile.write(open(file_path, "r").read())
+        
