@@ -145,7 +145,8 @@ def show_product_last_logs(logger, config, product_log_dir):
         my_stat = os.stat(os.path.join(product_log_dir, file_n))
         l_time_file.append(
               (datetime.datetime.fromtimestamp(my_stat[stat.ST_MTIME]), file_n))
-        
+    
+    # display the available logs
     for i, (__, file_name) in enumerate(sorted(l_time_file)):
         str_indice = src.printcolors.printcLabel("%2d" % (i+1))
         opt = []
@@ -264,6 +265,7 @@ def run(args, runner, logger):
 
     # If the last option is invoked, just, show the last log file
     if options.last_terminal:
+        src.check_config_has_application(runner.cfg)
         log_dirs = os.listdir(os.path.join(runner.cfg.APPLICATION.workdir,
                                            'LOGS'))
         show_last_logs(logger, runner.cfg, log_dirs)

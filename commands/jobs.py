@@ -36,9 +36,9 @@ CSV_DELIMITER = ";"
 
 parser = src.options.Options()
 
-parser.add_option('n', 'name', 'string', 'jobs_cfg', 
+parser.add_option('n', 'name', 'list2', 'jobs_cfg', 
                   _('Mandatory: The name of the config file that contains'
-                  ' the jobs configuration'))
+                  ' the jobs configuration. Can be a list.'))
 parser.add_option('o', 'only_jobs', 'list2', 'only_jobs',
                   _('Optional: the list of jobs to launch, by their name. '))
 parser.add_option('l', 'list', 'boolean', 'list', 
@@ -1612,6 +1612,24 @@ class Gui(object):
         for xml_file in self.d_xml_board_files.values():
             self.write_xml_file(xml_file, STYLESHEET_BOARD)
 
+def get_config_file_path(job_config_name, l_cfg_dir):
+    found = False
+    file_jobs_cfg = None
+    if os.path.exists(job_config_name):
+        found = True
+        file_jobs_cfg = job_config_name
+    else:
+        for cfg_dir in l_cfg_dir:
+            file_jobs_cfg = os.path.join(cfg_dir, job_config_name)
+            if not file_jobs_cfg.endswith('.pyconf'):
+                file_jobs_cfg += '.pyconf'
+            
+            if not os.path.exists(file_jobs_cfg):
+                continue
+            else:
+                found = True
+                break
+    return found, file_jobs_cfg
 
 ##
 # Describes the command
@@ -1650,36 +1668,29 @@ def run(args, runner, logger):
         return 1
     
     # Find the file in the directories, unless it is a full path
-    found = False
-    if os.path.exists(options.jobs_cfg):
-        found = True
-        file_jobs_cfg = options.jobs_cfg
-    else:
-        for cfg_dir in l_cfg_dir:
-            file_jobs_cfg = os.path.join(cfg_dir, options.jobs_cfg)
-            if not file_jobs_cfg.endswith('.pyconf'):
-                file_jobs_cfg += '.pyconf'
-            
-            if not os.path.exists(file_jobs_cfg):
-                continue
-            else:
-                found = True
-                break
-    
-    if not found:
-        msg = _("The file configuration %(name_file)s was not found."
-                "\nUse the --list option to get the possible files.")
-        src.printcolors.printcError(msg)
-        return 1
+    # merge all in a config
+    merger = src.pyconf.ConfigMerger()
+    config_jobs = src.pyconf.Config()
+    l_conf_files_path = []
+    for config_file in options.jobs_cfg:
+        found, file_jobs_cfg = get_config_file_path(config_file, l_cfg_dir)
+        if not found:
+            msg = _("The file configuration %(name_file)s was not found."
+                    "\nUse the --list option to get the "
+                    "possible files." % config_file)
+            src.printcolors.printcError(msg)
+            return 1
+        l_conf_files_path.append(file_jobs_cfg)
+        # Read the config that is in the file
+        one_config_jobs = src.read_config_from_a_file(file_jobs_cfg)
+        merger.merge(config_jobs, one_config_jobs)
     
     info = [
         (_("Platform"), runner.cfg.VARS.dist),
-        (_("File containing the jobs configuration"), file_jobs_cfg)
+        (_("Files containing the jobs configuration"), l_conf_files_path)
     ]    
     src.print_info(logger, info)
 
-    # Read the config that is in the file
-    config_jobs = src.read_config_from_a_file(file_jobs_cfg)
     if options.only_jobs:
         l_jb = src.pyconf.Sequence()
         for jb in config_jobs.jobs:
