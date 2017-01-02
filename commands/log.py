@@ -20,6 +20,8 @@ import os
 import shutil
 import re
 import glob
+import datetime
+import stat
 
 # Compatibility python 2/3 for input function
 # input stays input for python 3 and input = raw_input for python 2
@@ -35,6 +37,9 @@ parser = src.options.Options()
 parser.add_option('t', 'terminal', 'boolean', 'terminal', "Optional: "
                   "Terminal log.")
 parser.add_option('l', 'last', 'boolean', 'last', "Show the log of the last "
+                  "Optional: launched command.")
+parser.add_option('', 'last_terminal', 'boolean', 'last_terminal', "Show the "
+                  "log of the last compilations"
                   "Optional: launched command.")
 parser.add_option('f', 'full', 'boolean', 'full', "Optional: Show the logs of "
                   "ALL the launched commands.")
@@ -106,6 +111,59 @@ def print_log_command_in_terminal(filePath, logger):
         logger.write(command_traces, 1)
         logger.write("\n", 1)
 
+def show_last_logs(logger, config, log_dirs):
+    """Show last compilation logs"""
+    log_dir = os.path.join(config.APPLICATION.workdir, 'LOGS')
+    # list the logs
+    nb = len(log_dirs)
+    nb_cols = 4
+    col_size = (nb / nb_cols) + 1
+    for index in range(0, col_size):
+        for i in range(0, nb_cols):
+            k = index + i * col_size
+            if k < nb:
+                l = log_dirs[k]
+                str_indice = src.printcolors.printcLabel("%2d" % (k+1))
+                log_name = l
+                logger.write("%s: %-30s" % (str_indice, log_name), 1, False)
+        logger.write("\n", 1, False)
+
+    # loop till exit
+    x = -1
+    while (x < 0):
+        x = ask_value(nb)
+        if x > 0:
+            product_log_dir = os.path.join(log_dir, log_dirs[x-1])
+            show_product_last_logs(logger, config, product_log_dir)
+
+def show_product_last_logs(logger, config, product_log_dir):
+    """Show last compilation logs of a product"""
+    files = os.listdir(product_log_dir)
+    # sort the files chronologically
+    l_time_file = []
+    for file_n in os.listdir(product_log_dir):
+        my_stat = os.stat(os.path.join(product_log_dir, file_n))
+        l_time_file.append(
+              (datetime.datetime.fromtimestamp(my_stat[stat.ST_MTIME]), file_n))
+        
+    for i, (__, file_name) in enumerate(sorted(l_time_file)):
+        str_indice = src.printcolors.printcLabel("%2d" % (i+1))
+        opt = []
+        my_stat = os.stat(os.path.join(product_log_dir, file_name))
+        opt.append(str(datetime.datetime.fromtimestamp(my_stat[stat.ST_MTIME])))
+        
+        opt.append("(%8.2f)" % (my_stat[stat.ST_SIZE] / 1024.0))
+        logger.write(" %-35s" % " ".join(opt), 1, False)
+        logger.write("%s: %-30s\n" % (str_indice, file_name), 1, False)
+        
+    # loop till exit
+    x = -1
+    while (x < 0):
+        x = ask_value(len(files))
+        if x > 0:
+            log_file_path = os.path.join(product_log_dir, files[x-1])
+            src.system.show_in_editor(config.USER.editor, log_file_path, logger)
+        
 def ask_value(nb):
     '''Ask for an int n. 0<n<nb
     
@@ -203,6 +261,13 @@ def run(args, runner, logger):
     src.ensure_path_exists(os.path.join(logDir, "TEST"))
     shutil.copy2(xsltest, os.path.join(logDir, "TEST"))
     shutil.copy2(imgLogo, logDir)
+
+    # If the last option is invoked, just, show the last log file
+    if options.last_terminal:
+        log_dirs = os.listdir(os.path.join(runner.cfg.APPLICATION.workdir,
+                                           'LOGS'))
+        show_last_logs(logger, runner.cfg, log_dirs)
+        return 0
 
     # If the last option is invoked, just, show the last log file
     if options.last:
