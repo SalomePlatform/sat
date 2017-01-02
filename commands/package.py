@@ -95,6 +95,8 @@ parser.add_option('t', 'salometools', 'boolean', 'sat',
     _('Optional: Produce an archive that contains salomeTools.'), False)
 parser.add_option('n', 'name', 'string', 'name',
     _('Optional: The name or full path of the archive.'), None)
+parser.add_option('', 'add_files', 'list2', 'add_files',
+    _('Optional: The list of additional files to add to the archive.'), None)
 
 def add_files(tar, name_archive, d_content, logger):
     '''Create an archive containing all directories and files that are given in
@@ -959,7 +961,15 @@ def run(args, runner, logger):
                                        package_type,
                                        tmp_working_dir)
     d_files_to_add["README"] = (local_readme_tmp_path, "README")
-    
+
+    # Add the additional files of option add_files
+    for file_path in options.add_files:
+        if not os.path.exists(file_path):
+            msg = _("WARNING: the file %s is not accessible.\n" % file_path)
+            continue
+        file_name = os.path.basename(file_path)
+        d_files_to_add[file_name] = (file_path, file_name)
+
     logger.write("\n", 2)
 
     logger.write(src.printcolors.printcLabel(_("Actually do the package")), 2)
