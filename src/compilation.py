@@ -19,6 +19,7 @@
 import os
 import subprocess
 import sys
+import shutil
 
 import src
 
@@ -473,7 +474,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
         # write the logTxtFile copy it to the destination, and then recreate 
         # it as it was
         self.logger.logTxtFile.close()
-        os.rename(self.logger.txtFilePath, file_path)
+        shutil.move(self.logger.txtFilePath, file_path)
         self.logger.logTxtFile = open(str(self.logger.txtFilePath), 'w')
         self.logger.logTxtFile.write(open(file_path, "r").read())
         
