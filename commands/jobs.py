@@ -1698,11 +1698,20 @@ def run(args, runner, logger):
                 l_jb.append(jb,
                 "Adding a job that was given in only_jobs option parameters")
         config_jobs.jobs = l_jb
-     
+    
+    # Make a unique file that contain all the jobs in order to use it 
+    # on every machine
+    name_pyconf = "_".join([os.path.basename(path)[:-len('.pyconf')] 
+                            for path in l_conf_files_path]) + ".pyconf"
+    path_pyconf = src.get_tmp_filename(runner.cfg, name_pyconf)
+    #Save config
+    f = file( path_pyconf , 'w')
+    config_jobs.__save__(f)
+    
     # Initialization
     today_jobs = Jobs(runner,
                       logger,
-                      file_jobs_cfg,
+                      path_pyconf,
                       config_jobs)
     # SSH connection to all machines
     today_jobs.ssh_connection_all_machines()
@@ -1787,4 +1796,7 @@ def run(args, runner, logger):
                 today_jobs.gui.last_update()
         # Output the results
         today_jobs.write_all_results()
+        # Remove the temporary pyconf file
+        if os.path.exists(path_pyconf):
+            os.remove(path_pyconf)
         return res
