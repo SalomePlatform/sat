@@ -526,7 +526,7 @@ def compile_product_cmake_autotools(sat,
             if res_mi > 0:
                 error_step = "MAKE INSTALL"
                 
-        return res, len_end_line, error_step 
+    return res, len_end_line, error_step 
 
 def compile_product_script(sat,
                            p_name_info,
