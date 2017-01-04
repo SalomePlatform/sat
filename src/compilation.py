@@ -129,8 +129,8 @@ class Builder:
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
 
+        self.put_txt_log_in_appli_log_dir("cmake")
         if res == 0:
-            self.put_txt_log_in_appli_log_dir("cmake")
             return res
         else:
             return 1
@@ -152,9 +152,8 @@ class Builder:
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
-
+        self.put_txt_log_in_appli_log_dir("build_configure")
         if res == 0:
-            self.put_txt_log_in_appli_log_dir("build_configure")
             return res
         else:
             return 1
@@ -177,9 +176,9 @@ class Builder:
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
-
+        
+        self.put_txt_log_in_appli_log_dir("configure")
         if res == 0:
-            self.put_txt_log_in_appli_log_dir("configure")
             return res
         else:
             return 1
@@ -229,9 +228,8 @@ CC=\\"hack_libtool\\"%g" libtool'''
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
-
+        self.put_txt_log_in_appli_log_dir("make")
         if res == 0:
-            self.put_txt_log_in_appli_log_dir("make")
             return res
         else:
             return 1
@@ -264,9 +262,9 @@ CC=\\"hack_libtool\\"%g" libtool'''
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
-
+        
+        self.put_txt_log_in_appli_log_dir("make")
         if res == 0:
-            self.put_txt_log_in_appli_log_dir("make")
             return res
         else:
             return 1
@@ -291,9 +289,9 @@ CC=\\"hack_libtool\\"%g" libtool'''
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
-
+        
+        self.put_txt_log_in_appli_log_dir("makeinstall")
         if res == 0:
-            self.put_txt_log_in_appli_log_dir("makeinstall")
             return res
         else:
             return 1
@@ -393,7 +391,6 @@ CC=\\"hack_libtool\\"%g" libtool'''
             pymodule = imp.load_source(product + "_compile_script", script)
             self.nb_proc = nb_proc
             retcode = pymodule.compil(self.config, self, self.logger)
-            self.put_txt_log_in_appli_log_dir("script")
         except:
             __, exceptionValue, exceptionTraceback = sys.exc_info()
             self.logger.write(str(exceptionValue), 1)
@@ -401,6 +398,8 @@ CC=\\"hack_libtool\\"%g" libtool'''
             traceback.print_tb(exceptionTraceback)
             traceback.print_exc()
             retcode = 1
+        finally:
+            self.put_txt_log_in_appli_log_dir("script")
 
         return retcode
 
@@ -434,8 +433,8 @@ CC=\\"hack_libtool\\"%g" libtool'''
                               cwd=str(self.build_dir), 
                               env=self.build_environ.environ.environ)
 
+        self.put_txt_log_in_appli_log_dir("script")
         if res == 0:
-            self.put_txt_log_in_appli_log_dir("script")
             return res
         else:
             return 1
