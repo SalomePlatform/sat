@@ -96,7 +96,7 @@ parser.add_option('t', 'salometools', 'boolean', 'sat',
 parser.add_option('n', 'name', 'string', 'name',
     _('Optional: The name or full path of the archive.'), None)
 parser.add_option('', 'add_files', 'list2', 'add_files',
-    _('Optional: The list of additional files to add to the archive.'), None)
+    _('Optional: The list of additional files to add to the archive.'), [])
 
 def add_files(tar, name_archive, d_content, logger):
     '''Create an archive containing all directories and files that are given in
