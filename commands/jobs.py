@@ -1696,7 +1696,7 @@ def run(args, runner, logger):
         for jb in config_jobs.jobs:
             if jb.name in options.only_jobs:
                 l_jb.append(jb,
-                "Adding a job that was given in only_jobs option parameters")
+                "Job that was given in only_jobs option parameters\n")
         config_jobs.jobs = l_jb
     
     # Make a unique file that contain all the jobs in order to use it 
