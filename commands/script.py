@@ -30,7 +30,7 @@ parser.add_option('', 'nb_proc', 'int', 'nb_proc',
     _('Optional: The number of processors to use in the script if the make '
       'command is used in it.\n\tWarning: the script has to be correctly written '
       'if you want this option to work.\n\tThe $MAKE_OPTIONS has to be '
-      'used.'), "")
+      'used.'), 0)
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
