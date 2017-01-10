@@ -963,12 +963,13 @@ def run(args, runner, logger):
     d_files_to_add["README"] = (local_readme_tmp_path, "README")
 
     # Add the additional files of option add_files
-    for file_path in options.add_files:
-        if not os.path.exists(file_path):
-            msg = _("WARNING: the file %s is not accessible.\n" % file_path)
-            continue
-        file_name = os.path.basename(file_path)
-        d_files_to_add[file_name] = (file_path, file_name)
+    if options.add_files:
+        for file_path in options.add_files:
+            if not os.path.exists(file_path):
+                msg = _("WARNING: the file %s is not accessible.\n" % file_path)
+                continue
+            file_name = os.path.basename(file_path)
+            d_files_to_add[file_name] = (file_path, file_name)
 
     logger.write("\n", 2)
 
