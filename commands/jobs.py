@@ -1615,7 +1615,7 @@ class Gui(object):
 def get_config_file_path(job_config_name, l_cfg_dir):
     found = False
     file_jobs_cfg = None
-    if os.path.exists(job_config_name):
+    if os.path.exists(job_config_name) and job_config_name.endswith(".pyconf"):
         found = True
         file_jobs_cfg = job_config_name
     else:
