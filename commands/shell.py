@@ -46,14 +46,24 @@ def run(args, runner, logger):
         message = _("The option --command is required\n")      
         logger.write(src.printcolors.printcError(message))
         return 1
-
+    
+    # Print the input command
+    msg = _("Command to execute:\n%s\nExecution ... " % options.command)
+    logger.write(msg, 3)
+    
+    # Call the input command
     res = subprocess.call(options.command,
                           shell=True,
                           stdout=logger.logTxtFile,
                           stderr=subprocess.STDOUT)
-    
+ 
     # Format the result to be 0 (success) or 1 (fail)
     if res != 0:
         res = 1
+        logger.write(src.printcolors.printc("KO"), 3)
+    else:
+        logger.write(src.printcolors.printc("OK"), 3)
+    
+    logger.write("\n",3)
     
     return res
