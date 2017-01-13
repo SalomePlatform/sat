@@ -434,6 +434,12 @@ def check_config_exists(config, prod_dir, prod_info):
                 if prod_dep_info.version != compile_cfg[prod_dep]:
                     config_corresponds = False
                     break
+        
+        for prod_name in compile_cfg:
+            if prod_name not in prod_info.depend:
+                config_corresponds = False
+                break
+        
         if config_corresponds:
             return True, os.path.join(prod_dir, dir_or_file)
     
