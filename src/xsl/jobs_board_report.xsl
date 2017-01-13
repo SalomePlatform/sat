@@ -262,10 +262,10 @@
 			          <xsl:attribute name="title"><xsl:value-of select="@nb_fails"/> fails</xsl:attribute>
 			          <xsl:attribute name="href"><xsl:value-of select="."/></xsl:attribute>
 			          <xsl:if test="@res='0'">
-				      <xsl:attribute name="class">OK2</xsl:attribute>
+				      <xsl:attribute name="class">OK2day</xsl:attribute>
 			          </xsl:if>
 			          <xsl:if test="@res!='0'">
-				      <xsl:attribute name="class">KO2</xsl:attribute>
+				      <xsl:attribute name="class">KO2day</xsl:attribute>
 			          </xsl:if>
                       test
                   </a>
