@@ -1,0 +1,13 @@
+# This package was generated with sat ¤{version}
+# Date: ¤{date}
+# User: ¤{user}
+# Distribution : ¤{dist}
+
+In the following, $ROOT represents the directory where you install SALOME (the
+directory where this file is located).
+
+This package includes an installation of the application ¤{application}.
+
+ To be in its environment, launch the following commands :
+> bash
+> source $ROOT/¤{env_file}

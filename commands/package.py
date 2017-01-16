@@ -750,8 +750,13 @@ def add_readme(config, package_type, where):
         d['dist'] = config.VARS.dist
         if 'profile' in config.APPLICATION:
             d['launcher'] = config.APPLICATION.profile.launcher_name
-        readme_template_path = os.path.join(config.VARS.internal_dir,
-                                            "README_BIN.template")
+            readme_template_path = os.path.join(config.VARS.internal_dir,
+                                                "README_BIN.template")
+        else:
+            d['env_file'] = 'env_launch.sh'
+            readme_template_path = os.path.join(config.VARS.internal_dir,
+                                               "README_BIN_NO_PROFILE.template")
+            
     if package_type == SOURCE:
         d['application'] = config.VARS.application
         d['user'] = config.VARS.user
