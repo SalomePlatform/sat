@@ -298,18 +298,21 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
     ##
     # Runs 'make_check'.
-    def check(self):
+    def check(self, command=""):
         if src.architecture.is_windows():
-            command = 'msbuild RUN_TESTS.vcxproj'
+            cmd = 'msbuild RUN_TESTS.vcxproj'
         else :
             if self.product_info.build_source=="autotools" :
-                command = 'make check'
+                cmd = 'make check'
             else:
-                command = 'make test'
-            
-        self.log_command(command)
+                cmd = 'make test'
+        
+        if command:
+            cmd = command
+        
+        self.log_command(cmd)
 
-        res = subprocess.call(command,
+        res = subprocess.call(cmd,
                               shell=True,
                               cwd=str(self.build_dir),
                               env=self.launch_environ.environ.environ,
@@ -323,7 +326,10 @@ CC=\\"hack_libtool\\"%g" libtool'''
       
     ##
     # Performs a default build for this module.
-    def do_default_build(self, build_conf_options="", configure_options="", show_warning=True):
+    def do_default_build(self,
+                         build_conf_options="",
+                         configure_options="",
+                         show_warning=True):
         use_autotools = False
         if 'use_autotools' in self.product_info:
             uc = self.product_info.use_autotools
