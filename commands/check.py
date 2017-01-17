@@ -173,7 +173,7 @@ def check_product(p_name_info, config, logger):
 
     # Launch the check    
     log_step(logger, header, "CHECK")
-    res = builder.check()
+    res = builder.check(command=command)
     log_res_step(logger, res)
     
     # Log the result
