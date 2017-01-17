@@ -145,7 +145,7 @@ def check_product(p_name_info, config, logger):
             cmd_found = False
             msg = _('WARNING: The product %s is defined as having tests. But it'
                     ' is compiled using a script and the key "test_build" is '
-                    'not defined in the definition of %s' % p_name)
+                    'not defined in the definition of %s' % (p_name, p_name))
             logger.write("%s\n" % msg, 4)
                 
     if ignored or not cmd_found:
