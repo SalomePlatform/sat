@@ -294,9 +294,11 @@ class ConfigManager:
                 project_cfg = src.pyconf.Config(open(project_pyconf_path),
                                                 PWD=("", project_pyconf_dir))
             except Exception as e:
-                raise src.SatException(_("Error in configuration file: "
-                                 "%(file_path)s\n  %(error)s") % \
-                            {'file_path' : project_pyconf_path, 'error': str(e) })
+                msg = _("WARNING: Error in configuration file: "
+                                 "%(file_path)s\n  %(error)s\n") % \
+                            {'file_path' : project_pyconf_path, 'error': str(e) }
+                sys.stdout.write(msg)
+                continue
             projects_cfg.PROJECTS.projects.addMapping(project_name,
                              src.pyconf.Mapping(projects_cfg.PROJECTS.projects),
                              "The %s project\n" % project_name)
@@ -361,17 +363,13 @@ class ConfigManager:
                                                     os.path.join(products_dir,
                                                                  fName)),
                                                      PWD=("", products_dir))
-                    except src.pyconf.ConfigError as e:
-                        raise src.SatException(_(
-                            "Error in configuration file: %(prod)s\n  %(error)s") % \
-                            {'prod' :  fName, 'error': str(e) })
-                    except IOError as error:
-                        e = str(error)
-                        raise src.SatException( e );
                     except Exception as e:
-                        raise src.SatException(_(
-                            "Error in configuration file: %(prod)s\n  %(error)s") % \
+                        msg = _(
+                            "WARNING: Error in configuration file"
+                            ": %(prod)s\n  %(error)s" % \
                             {'prod' :  fName, 'error': str(e) })
+                        sys.stdout.write(msg)
+                        continue
                     
                     products_cfg.PRODUCTS[pName] = prod_cfg
         
