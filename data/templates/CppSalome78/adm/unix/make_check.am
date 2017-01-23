@@ -1,0 +1,15 @@
+
+python_cmd = env \
+	SELF_ROOT_DIR=$(prefix) \
+	REP_TESTS=$(prefix)/tests \
+	REP_MAIL=$(prefix)/tests/maillages \
+	PATH=$(bindir)/$(PACKAGE):$(PATH) \
+	PYTHONPATH=$(bindir)/$(PACKAGE):$(libdir)/$(PACKAGE):$(pythondir)/$(PACKAGE):$(PYTHONPATH) \
+	python
+
+check-local:
+	for f in X $(scripts_SCRIPTS) ; do \
+	  if test $f != X ; then \
+	    ( cd $(scriptsdir) && $(python_cmd) $f ) || exit 1  ; \
+	  fi ; \
+	done

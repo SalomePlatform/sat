@@ -1,0 +1,23 @@
+SUFFIXES =
+
+# --------------------------------------------
+# *.i --> *_wrap.cxx
+# --------------------------------------------
+
+SUFFIXES += .i _wrap.cxx
+
+.i_wrap.cxx :
+	$(SWIG) $(SWIG_FLAGS) $(SWIG_PYTHON_INCLUDES) -o $@ $<
+
+
+#----------------------------------------------
+# Post-installation rules
+#----------------------------------------------
+
+install-exec-hook: install-swig
+
+install-swig: $(patsubst lib%.la, $(libdir)/_%.so, \
+			$(filter lib%SWIG.la, $(lib_LTLIBRARIES)))
+
+$(libdir)/_%.so: $(libdir)/lib%.so
+	ln -s `basename $^` $@
