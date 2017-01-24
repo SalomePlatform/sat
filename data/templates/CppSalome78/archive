@@ -1,0 +1,34 @@
+#! /bin/bash
+
+#
+DIR=`echo $0 | sed -e "s,[^/]*$,,;s,/$,,;s,^$,.,"`
+cd ${DIR}
+DIR=`pwd`
+
+REP=`basename $DIR`
+
+if [ -z "$USER" ]
+then
+    USER=`whoami 2> /dev/null` || true
+fi
+
+mkdir -p /tmp/${USER}
+\rm -rf /tmp/${USER}/${REP}
+
+cd ${DIR}/..
+cp -drf ${REP} /tmp/${USER}/${REP}
+
+cd /tmp/${USER}/${REP}
+./root_clean
+find . -name "CVS" -depth -exec \rm -rf {} \;
+find . -type f -exec chmod u+rw {} \;
+
+cd /tmp/${USER}
+
+TAR_FILE=${REP}`date +_%d.%m.%Y_%H.%M`.tgz
+
+tar cvfz ${TAR_FILE} ${REP}
+
+cp ${TAR_FILE} ${DIR}/..
+
+\rm -rf /tmp/${USER}/${REP} ${TAR_FILE}
