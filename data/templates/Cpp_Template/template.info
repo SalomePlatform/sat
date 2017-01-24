@@ -37,7 +37,7 @@ pyconf = """
         name : "%(NAME)sCPP"
         component_name : "%(NAME)s"
         get_sources : '%(get_method)s'
-        build_sources : 'autotools'
+        build_source : 'autotools'
         git_info:
         {
             repo : 'to be filled'
