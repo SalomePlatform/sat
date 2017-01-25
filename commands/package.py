@@ -97,7 +97,7 @@ parser.add_option('n', 'name', 'string', 'name',
     _('Optional: The name or full path of the archive.'), None)
 parser.add_option('', 'add_files', 'list2', 'add_files',
     _('Optional: The list of additional files to add to the archive.'), [])
-parser.add_option('', 'without_commercial', 'boolean', 'with_commercial',
+parser.add_option('', 'without_commercial', 'boolean', 'without_commercial',
     _('Optional: do not add commercial licence.'), False)
 
 def add_files(tar, name_archive, d_content, logger):
@@ -200,7 +200,7 @@ def produce_relative_launcher(config,
              stat.S_IXUSR |
              stat.S_IXGRP |
              stat.S_IXOTH)
-    
+
     return filepath
 
 def produce_relative_env_files(config,
