@@ -17,6 +17,9 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
+import sys
+import tempfile
+import traceback
 import datetime
 import time
 import csv
@@ -356,7 +359,10 @@ class Job(object):
             # Put end time
             self._Tf = time.time()
             # And get the remote command status and log files
-            self.get_log_files()
+            try:
+                self.get_log_files()
+            except Exception as e:
+                self.err += _("Unable to get remote log files: %s" % e)
         
         return self._has_finished
           
@@ -1769,6 +1775,18 @@ def run(args, runner, logger):
         interruped = True
         logger.write("\n\n%s\n\n" % 
                 (src.printcolors.printcWarning(_("Forced interruption"))), 1)
+    except Exception as e:
+        msg = _("CRITICAL ERROR: The jobs loop has been interrupted\n")
+        logger.write("\n\n%s\n" % src.printcolors.printcError(msg) )
+        logger.write("%s\n" % str(e))
+        # get stack
+        __, __, exc_traceback = sys.exc_info()
+        fp = tempfile.TemporaryFile()
+        traceback.print_tb(exc_traceback, file=fp)
+        fp.seek(0)
+        stack = fp.read()
+        logger.write("\nTRACEBACK: %s\n" % stack.replace('"',"'"), 1)
+        
     finally:
         res = 0
         if interruped:
