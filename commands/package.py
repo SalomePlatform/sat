@@ -97,6 +97,8 @@ parser.add_option('n', 'name', 'string', 'name',
     _('Optional: The name or full path of the archive.'), None)
 parser.add_option('', 'add_files', 'list2', 'add_files',
     _('Optional: The list of additional files to add to the archive.'), [])
+parser.add_option('', 'without_commercial', 'boolean', 'with_commercial',
+    _('Optional: do not add commercial licence.'), False)
 
 def add_files(tar, name_archive, d_content, logger):
     '''Create an archive containing all directories and files that are given in
@@ -140,7 +142,8 @@ def produce_relative_launcher(config,
                               logger,
                               file_dir,
                               file_name,
-                              binaries_dir_name):
+                              binaries_dir_name,
+                              with_commercial=True):
     '''Create a specific SALOME launcher for the binary package. This launcher 
        uses relative paths.
     
@@ -179,7 +182,9 @@ def produce_relative_launcher(config,
     launch_file = open(filepath, "w")
     launch_file.write(before)
     # Write
-    writer.write_cfgForPy_file(launch_file, for_package = binaries_dir_name)
+    writer.write_cfgForPy_file(launch_file,
+                               for_package = binaries_dir_name,
+                               with_commercial=with_commercial)
     launch_file.write(after)
     launch_file.close()
     
@@ -305,10 +310,11 @@ def binary_package(config, logger, options, tmp_working_dir):
     if "profile" in config.APPLICATION:
         launcher_name = config.APPLICATION.profile.launcher_name
         launcher_package = produce_relative_launcher(config,
-                                                     logger,
-                                                     tmp_working_dir,
-                                                     launcher_name,
-                                                     binaries_dir_name)
+                                             logger,
+                                             tmp_working_dir,
+                                             launcher_name,
+                                             binaries_dir_name,
+                                             not(options.without_commercial))
     
         d_products["launcher"] = (launcher_package, launcher_name)
     else:

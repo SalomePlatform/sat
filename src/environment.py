@@ -167,7 +167,12 @@ class SalomeEnviron:
     """Class to manage the environment of SALOME.
     """
 
-    def __init__(self, cfg, environ, forBuild=False, for_package=None):
+    def __init__(self,
+                 cfg,
+                 environ,
+                 forBuild=False,
+                 for_package=None,
+                 enable_simple_env_script = True):
         '''Initialization.
 
         :param cfg Config: the global config
@@ -182,6 +187,7 @@ class SalomeEnviron:
         self.cfg = cfg
         self.forBuild = forBuild
         self.for_package = for_package
+        self.enable_simple_env_script = enable_simple_env_script
         self.silent = False
 
     def __repr__(self):
@@ -630,6 +636,8 @@ class SalomeEnviron:
         :param script_path str: a path to an environment script
         :param logger Logger: The logger instance to display messages
         """
+        if not self.enable_simple_env_script:
+            return
         # Check that the script exists
         if not os.path.exists(script_path):
             raise src.SatException(_("Environment script not found: %s") % 
@@ -768,7 +776,8 @@ class FileEnvWriter:
     def write_cfgForPy_file(self,
                             filename,
                             additional_env = {},
-                            for_package = None):
+                            for_package = None,
+                            with_commercial = True):
         """Append to current opened aFile a cfgForPy 
            environment (SALOME python launcher).
            
@@ -790,7 +799,8 @@ class FileEnvWriter:
         env = SalomeEnviron(self.config,
                             tmp,
                             forBuild=False,
-                            for_package=for_package)
+                            for_package=for_package,
+                            enable_simple_env_script = with_commercial)
         env.silent = self.silent
 
         if self.env_info is not None:
