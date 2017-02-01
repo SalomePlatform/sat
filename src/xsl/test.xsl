@@ -119,6 +119,11 @@
 
 <xsl:template match="product" mode="test">
 
+  <a>
+  <xsl:attribute name="href"><xsl:value-of select="/salome/product/@history_file"/></xsl:attribute>
+  history view
+  </a>
+
   <h3>Tests</h3>
     
   <xsl:for-each select="tests/testbase">
@@ -147,6 +152,8 @@
     </tr>
         
     <xsl:for-each select="./grid">
+    <xsl:if test="@executed_last_time='yes'">
+     
       <xsl:variable name="total" select="count(.//test)"/>
       <xsl:variable name="failureCount" select="count(.//test[@res='KO'])"/>
       <xsl:variable name="successCount" select="count(.//test[@res='OK'])"/>
@@ -205,10 +212,11 @@
         <xsl:call-template name="display-count"><xsl:with-param name="value" select="$notApplicable"/></xsl:call-template>
         <td align="right"><xsl:value-of select="format-number(sum(.//test/@exec_time), '0.0')" /></td>
       </tr>
+    </xsl:if>
     </xsl:for-each>
 
     <!-- Summary Row -->
-    <xsl:variable name="GrandTotal" select="count(//test)"/>
+    <xsl:variable name="GrandTotal" select="number(../testbase/@total)"/>
     <xsl:variable name="TotalFailure" select="count(//test[@res='KO'])"/>
     <xsl:variable name="TotalSuccess" select="count(//test[@res='OK'])"/>
     <xsl:variable name="TotalTimeout" select="count(//test[@res='TIMEOUT'])"/>
@@ -341,6 +349,7 @@
     
     </table>
     </div>
+  <!--</xsl:if>-->
   </xsl:for-each>
   
   <xsl:for-each select="./grid">

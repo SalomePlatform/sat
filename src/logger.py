@@ -27,7 +27,8 @@ import src
 from . import printcolors
 from . import xmlManager
 
-logCommandFileExpression = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
+log_macro_command_file_expression = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
+log_all_command_file_expression = "^.*[0-9]{8}_+[0-9]{6}_+.*\.xml$"
 
 class Logger(object):
     '''Class to handle log mechanism.
@@ -286,7 +287,7 @@ def show_command_log(logFilePath, cmd, application, notShownCommands):
     # When the command is not in notShownCommands, no need to go further :
     # Do not show
     if cmd in notShownCommands:
-        return False, None
+        return False, None, None
  
     # Get the application of the log file
     try:
@@ -294,22 +295,23 @@ def show_command_log(logFilePath, cmd, application, notShownCommands):
     except Exception as e:
         msg = _("WARNING: the log file %s cannot be read:" % logFilePath)
         sys.stdout.write(printcolors.printcWarning("%s\n%s\n" % (msg, e)))
-        return False, None
+        return False, None, None
 
     if 'application' in logFileXml.xmlroot.keys():
         appliLog = logFileXml.xmlroot.get('application')
+        launched_cmd = logFileXml.xmlroot.find('Site').attrib['launchedCommand']
         # if it corresponds, then the log has to be shown
         if appliLog == application:
-            return True, appliLog
+            return True, appliLog, launched_cmd
         elif application != 'None':
-            return False, appliLog
+            return False, appliLog, launched_cmd
         
-        return True, appliLog
+        return True, appliLog, launched_cmd
     
     if application == 'None':
-            return True, None    
+            return True, None, None
         
-    return False, None
+    return False, None, None
 
 def list_log_file(dirPath, expression):
     '''Find all files corresponding to expression in dirPath
@@ -325,8 +327,11 @@ def list_log_file(dirPath, expression):
         sExpr = expression
         oExpr = re.compile(sExpr)
         if oExpr.search(fileName):
+            file_name = fileName
+            if fileName.startswith("micro_"):
+                file_name = fileName[len("micro_"):]
             # get date and hour and format it
-            date_hour_cmd_host = fileName.split('_')
+            date_hour_cmd_host = file_name.split('_')
             date_not_formated = date_hour_cmd_host[0]
             date = "%s/%s/%s" % (date_not_formated[6:8], 
                                  date_not_formated[4:6], 
@@ -363,9 +368,9 @@ def update_hat_xml(logDir, application=None, notShownCommands = []):
                                     "LOGlist", {"application" : application})
     # parse the log directory to find all the command logs, 
     # then add it to the xml file
-    lLogFile = list_log_file(logDir, logCommandFileExpression)
+    lLogFile = list_log_file(logDir, log_macro_command_file_expression)
     for filePath, __, date, __, hour, cmd, __ in lLogFile:
-        showLog, cmdAppli = show_command_log(filePath, cmd,
+        showLog, cmdAppli, full_cmd = show_command_log(filePath, cmd,
                                               application, notShownCommands)
         #if cmd not in notShownCommands:
         if showLog:
@@ -375,7 +380,8 @@ def update_hat_xml(logDir, application=None, notShownCommands = []):
                                    attrib = {"date" : date, 
                                              "hour" : hour, 
                                              "cmd" : cmd, 
-                                             "application" : cmdAppli})
+                                             "application" : cmdAppli,
+                                             "full_command" : full_cmd})
     
     # Write the file on the hard drive
     xmlHat.write_tree('hat.xsl')

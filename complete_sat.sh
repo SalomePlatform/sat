@@ -32,7 +32,7 @@ _show_applications()
             opts2=$(echo --list --value --edit --info $opts2)
             ;;
         log)
-            opts2=$(echo --clean --full --last --terminal $opts2)
+            opts2=$(echo --clean --full --last --terminal --no_browser $opts2)
             ;;
         jobs)
             opts2=$(echo --name --only_jobs --list --completion --test_connection --input_boards --publish $opts2)
@@ -104,7 +104,7 @@ _salomeTools_complete()
     # first argument => show available commands
     if [[ ${argc} == 1 ]]
     then
-        opts="config log testcommand source patch prepare environ clean configure make makeinstall compile launcher run jobs job shell test package generate find_duplicates application template base --help"
+        opts="config log testcommand source patch prepare environ clean configure make makeinstall compile launcher run jobs job shell test package generate find_duplicates application template base profile script --help"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     fi
@@ -159,7 +159,7 @@ _salomeTools_complete()
             return 0        
             ;;
         log)
-            opts="--clean --last --terminal --last"
+            opts="--clean --last --terminal --last --no_browser"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
@@ -234,7 +234,7 @@ _salomeTools_complete()
             return 0
             ;;
         package)
-            opts="--name --binaries --sources --project --salometools --with_vcs"
+            opts="--name --binaries --sources --project --salometools --with_vcs --without_commercial"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
@@ -260,6 +260,16 @@ _salomeTools_complete()
             ;;
         base)
             opts="--set"
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        profile)
+            opts="--prefix --name --force --no_update --version --slogan"
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        script)
+            opts="--products --nb_proc"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;

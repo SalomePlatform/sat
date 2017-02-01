@@ -19,6 +19,7 @@
 import os
 import subprocess
 import sys
+import shutil
 
 import src
 
@@ -82,12 +83,16 @@ class Builder:
         #environ_info.append(self.product_info.name)
 
         # create build environment
-        self.build_environ = src.environment.SalomeEnviron(self.config, src.environment.Environ(dict(os.environ)), True)
+        self.build_environ = src.environment.SalomeEnviron(self.config,
+                                      src.environment.Environ(dict(os.environ)),
+                                      True)
         self.build_environ.silent = (self.config.USER.output_verbose_level < 5)
         self.build_environ.set_full_environ(self.logger, environ_info)
         
         # create runtime environment
-        self.launch_environ = src.environment.SalomeEnviron(self.config, src.environment.Environ(dict(os.environ)), False)
+        self.launch_environ = src.environment.SalomeEnviron(self.config,
+                                      src.environment.Environ(dict(os.environ)),
+                                      False)
         self.launch_environ.silent = True # no need to show here
         self.launch_environ.set_full_environ(self.logger, environ_info)
 
@@ -105,13 +110,20 @@ class Builder:
         cmake_option = options
         # cmake_option +=' -DCMAKE_VERBOSE_MAKEFILE=ON -DSALOME_CMAKE_DEBUG=ON'
         if 'cmake_options' in self.product_info:
-            cmake_option += " %s " % " ".join(self.product_info.cmake_options.split())
+            cmake_option += " %s " % " ".join(
+                                        self.product_info.cmake_options.split())
 
         # add debug option
         if self.debug_mode:
             cmake_option += " -DCMAKE_BUILD_TYPE=Debug"
         else :
             cmake_option += " -DCMAKE_BUILD_TYPE=Release"
+        
+        # In case CMAKE_GENERATOR is defined in environment, 
+        # use it in spite of automatically detect it
+        if 'cmake_generator' in self.config.APPLICATION:
+            cmake_option += " -DCMAKE_GENERATOR=%s" \
+                                       % self.config.APPLICATION.cmake_generator
         
         command = ("cmake %s -DCMAKE_INSTALL_PREFIX=%s %s" %
                             (cmake_option, self.install_dir, self.source_dir))
@@ -126,6 +138,7 @@ class Builder:
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
 
+        self.put_txt_log_in_appli_log_dir("cmake")
         if res == 0:
             return res
         else:
@@ -148,7 +161,7 @@ class Builder:
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
-
+        self.put_txt_log_in_appli_log_dir("build_configure")
         if res == 0:
             return res
         else:
@@ -161,7 +174,8 @@ class Builder:
         if 'configure_options' in self.product_info:
             options += " %s " % self.product_info.configure_options
 
-        command = "%s/configure --prefix=%s" % (self.source_dir, str(self.install_dir))
+        command = "%s/configure --prefix=%s" % (self.source_dir,
+                                                str(self.install_dir))
 
         command = command + " " + options
         self.log_command(command)
@@ -172,7 +186,8 @@ class Builder:
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
-
+        
+        self.put_txt_log_in_appli_log_dir("configure")
         if res == 0:
             return res
         else:
@@ -223,7 +238,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
-
+        self.put_txt_log_in_appli_log_dir("make")
         if res == 0:
             return res
         else:
@@ -252,7 +267,8 @@ CC=\\"hack_libtool\\"%g" libtool'''
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
-
+        
+        self.put_txt_log_in_appli_log_dir("make")
         if res == 0:
             return res
         else:
@@ -278,7 +294,8 @@ CC=\\"hack_libtool\\"%g" libtool'''
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
-
+        
+        self.put_txt_log_in_appli_log_dir("makeinstall")
         if res == 0:
             return res
         else:
@@ -286,18 +303,21 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
     ##
     # Runs 'make_check'.
-    def check(self):
+    def check(self, command=""):
         if src.architecture.is_windows():
-            command = 'msbuild RUN_TESTS.vcxproj'
+            cmd = 'msbuild RUN_TESTS.vcxproj'
         else :
             if self.product_info.build_source=="autotools" :
-                command = 'make check'
+                cmd = 'make check'
             else:
-                command = 'make test'
-            
-        self.log_command(command)
+                cmd = 'make test'
+        
+        if command:
+            cmd = command
+        
+        self.log_command(cmd)
 
-        res = subprocess.call(command,
+        res = subprocess.call(cmd,
                               shell=True,
                               cwd=str(self.build_dir),
                               env=self.launch_environ.environ.environ,
@@ -311,7 +331,10 @@ CC=\\"hack_libtool\\"%g" libtool'''
       
     ##
     # Performs a default build for this module.
-    def do_default_build(self, build_conf_options="", configure_options="", show_warning=True):
+    def do_default_build(self,
+                         build_conf_options="",
+                         configure_options="",
+                         show_warning=True):
         use_autotools = False
         if 'use_autotools' in self.product_info:
             uc = self.product_info.use_autotools
@@ -344,7 +367,8 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
         if use_autotools:
             if not self.prepare(): return self.get_result()
-            if not self.build_configure(build_conf_options): return self.get_result()
+            if not self.build_configure(
+                                   build_conf_options): return self.get_result()
             if not self.configure(configure_options): return self.get_result()
             if not self.make(): return self.get_result()
             if not self.install(): return self.get_result()
@@ -386,12 +410,15 @@ CC=\\"hack_libtool\\"%g" libtool'''
             traceback.print_tb(exceptionTraceback)
             traceback.print_exc()
             retcode = 1
+        finally:
+            self.put_txt_log_in_appli_log_dir("script")
 
         return retcode
 
     def complete_environment(self, make_options):
         assert self.build_environ is not None
-        # pass additional variables to environment (may be used by the build script)
+        # pass additional variables to environment 
+        # (may be used by the build script)
         self.build_environ.set("SOURCE_DIR", str(self.source_dir))
         self.build_environ.set("INSTALL_DIR", str(self.install_dir))
         self.build_environ.set("PRODUCT_INSTALL", str(self.install_dir))
@@ -420,16 +447,20 @@ CC=\\"hack_libtool\\"%g" libtool'''
                               cwd=str(self.build_dir),
                               env=self.build_environ.environ.environ)
 
+        self.put_txt_log_in_appli_log_dir("script")
         if res == 0:
             return res
         else:
             return 1
     
-    def do_script_build(self, script):
+    def do_script_build(self, script, number_of_proc=0):
         # define make options (may not be used by the script)
-        nb_proc = src.get_cfg_param(self.product_info,"nb_proc", 0)
-        if nb_proc == 0: 
-            nb_proc = self.config.VARS.nb_proc
+        if number_of_proc==0:
+            nb_proc = src.get_cfg_param(self.product_info,"nb_proc", 0)
+            if nb_proc == 0: 
+                nb_proc = self.config.VARS.nb_proc
+        else:
+            nb_proc = min(number_of_proc, self.config.VARS.nb_proc)
             
         extension = script.split('.')[-1]
         if extension in ["bat","sh"]:
@@ -439,3 +470,24 @@ CC=\\"hack_libtool\\"%g" libtool'''
         
         msg = _("The script %s must have .sh, .bat or .py extension." % script)
         raise src.SatException(msg)
+    
+    def put_txt_log_in_appli_log_dir(self, file_name):
+        '''Put the txt log (that contain the system logs, like make command
+           output) in the directory <APPLICATION DIR>/LOGS/<product_name>/
+    
+        :param file_name Str: the name of the file to write
+        '''
+        if self.logger.logTxtFile == sys.__stdout__:
+            return
+        dir_where_to_put = os.path.join(self.config.APPLICATION.workdir,
+                                        "LOGS",
+                                        self.product_info.name)
+        file_path = os.path.join(dir_where_to_put, file_name)
+        src.ensure_path_exists(dir_where_to_put)
+        # write the logTxtFile copy it to the destination, and then recreate 
+        # it as it was
+        self.logger.logTxtFile.close()
+        shutil.move(self.logger.txtFilePath, file_path)
+        self.logger.logTxtFile = open(str(self.logger.txtFilePath), 'w')
+        self.logger.logTxtFile.write(open(file_path, "r").read())
+        

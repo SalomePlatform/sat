@@ -15,7 +15,6 @@
 #  You should have received a copy of the GNU Lesser General Public
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-
 '''This file is the main entry file to salomeTools
 '''
 
@@ -26,6 +25,7 @@ import tempfile
 import imp
 import types
 import gettext
+import traceback
 
 # salomeTools imports
 import src
@@ -157,7 +157,11 @@ class Sat(object):
             (file_, pathname, description) = imp.find_module(nameCmd, [dirPath])
             module = imp.load_module(nameCmd, file_, pathname, description)
             
-            def run_command(args='', batch = False, verbose = -1, logger_add_link = None):
+            def run_command(args='',
+                            options=None,
+                            batch = False,
+                            verbose = -1,
+                            logger_add_link = None):
                 '''The function that will load the configuration (all pyconf)
                 and return the function run of the command corresponding to module
                 
@@ -187,14 +191,19 @@ class Sat(object):
                 if argv != [''] and argv[0][0] != "-":
                     appliToLoad = argv[0].rstrip('*')
                     argv = argv[1:]
-   
+                
+                # Check if the global options of salomeTools have to be changed
+                if options:
+                    options_save = self.options
+                    self.options = options  
+
                 # read the configuration from all the pyconf files    
                 cfgManager = config.ConfigManager()
                 self.cfg = cfgManager.get_config(datadir=self.datadir, 
                                                  application=appliToLoad, 
                                                  options=self.options, 
                                                  command=__nameCmd__)
-                
+                               
                 # Set the verbose mode if called
                 if verbose > -1:
                     verbose_save = self.options.output_verbose_level
@@ -242,17 +251,43 @@ class Sat(object):
                                              str(e)))
                         self.options.logs_paths_in_file = None
                 
+                options_launched = ""
+                res = None
                 try:
-                    res = None
                     # Execute the hooks (if there is any) 
                     # and run method of the command
                     self.run_hook(__nameCmd__, C_PRE_HOOK, logger_command)
                     res = __module__.run(argv, self, logger_command)
                     self.run_hook(__nameCmd__, C_POST_HOOK, logger_command)
-                    
-                    # set res if it is not set in the command
                     if res is None:
                         res = 0
+                        
+                except Exception as e:
+                    # Get error
+                    logger_command.write("\n***** ", 1)
+                    logger_command.write(src.printcolors.printcError(
+                                                       "salomeTools ERROR:"), 1)
+                    logger_command.write("\n" + str(e) + "\n\n", 1)
+                    # get stack
+                    __, __, exc_traceback = sys.exc_info()
+                    fp = tempfile.TemporaryFile()
+                    traceback.print_tb(exc_traceback, file=fp)
+                    fp.seek(0)
+                    stack = fp.read()
+                    verbosity = 5
+                    if self.options.debug_mode:
+                        verbosity = 1
+                    logger_command.write("TRACEBACK: %s" % stack.replace('"',"'"),
+                                         verbosity)
+                finally:
+                    # set res if it is not set in the command
+                    if res is None:
+                        res = 1
+                                            
+                    # come back to the original global options
+                    if options:
+                        options_launched = get_text_from_options(self.options)
+                        self.options = options_save
                     
                     # come back in the original batch mode if 
                     # batch argument was called
@@ -269,6 +304,7 @@ class Sat(object):
                     launchedCommand = ' '.join([self.cfg.VARS.salometoolsway +
                                                 os.path.sep +
                                                 'sat',
+                                                options_launched,
                                                 __nameCmd__, 
                                                 args])
                     launchedCommand = launchedCommand.replace('"', "'")
@@ -280,15 +316,7 @@ class Sat(object):
                                                  res,
                                                  launchedCommand)
                         logger_add_link.l_logFiles += logger_command.l_logFiles
-
-                finally:
-                    launchedCommand = ' '.join([self.cfg.VARS.salometoolsway +
-                                                os.path.sep +
-                                                'sat',
-                                                __nameCmd__, 
-                                                args])
-                    launchedCommand = launchedCommand.replace('"', "'")
-                    
+                                            
                     # Put the final attributes corresponding to end time and
                     # Write the file to the hard drive
                     logger_command.end_write(
@@ -419,7 +447,22 @@ class Sat(object):
         (file_, pathname, description) = imp.find_module(module, [cmdsdir])
         module = imp.load_module(module, file_, pathname, description)
         return module
- 
+
+def get_text_from_options(options):
+    text_options = ""
+    for attr in dir(options):
+        if attr.startswith("__"):
+            continue
+        if options.__getattr__(attr) != None:
+            option_contain = options.__getattr__(attr)
+            if type(option_contain)==type([]):
+                option_contain = ",".join(option_contain)
+            if type(option_contain)==type(True):
+                option_contain = ""
+            text_options+= "--%s %s " % (attr, option_contain)
+    return text_options
+                
+
 def print_version():
     '''prints salomeTools version (in src/internal_config/salomeTools.pyconf)
     '''
@@ -487,11 +530,7 @@ if __name__ == "__main__":
         code = fun_command(' '.join(args[1:]))
     else:
         # catch exception in order to show less verbose but elegant message
-        try:
-            code = fun_command(' '.join(args[1:]))
-        except Exception as exc:
-            code = 1
-            write_exception(exc)
+        code = fun_command(' '.join(args[1:]))
     
     # exit salomeTools with the right code (0 if no errors, else 1)
     if code is None: code = 0

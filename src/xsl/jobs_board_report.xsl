@@ -79,7 +79,7 @@
 </style>
 
 <xsl:if test="//JobsReport/infos/@JobsCommandStatus='running'">
-  <meta http-equiv="refresh" content="10"></meta>
+  <meta http-equiv="refresh" content="120"></meta>
 </xsl:if>
 
 <script language="JavaScript"><![CDATA[
@@ -233,7 +233,7 @@
 				</xsl:if>
 			    </a>
 		      </xsl:if>
-		      <xsl:if test="state/.='Not today'">
+		    <xsl:if test="state/.='Not today'">
 			 - 
 			<xsl:for-each select="//JobsReport/jobs/job[@name=$curr_job_name]/history/link">
 			<xsl:sort select="@date" order="descending" />
@@ -253,7 +253,24 @@
 			  </h4>
 			</xsl:if> 
 			</xsl:for-each>
-		      </xsl:if> 
+		      </xsl:if>
+              <!--Add the link to the tests if there is any -->
+              <xsl:if test="(test_log_file_path) and (test_log_file_path/*)">
+              -     
+                <xsl:for-each select="//JobsReport/jobs/job[@name=$curr_job_name]/test_log_file_path/path">
+                  <a>
+			          <xsl:attribute name="title"><xsl:value-of select="@nb_fails"/> fails</xsl:attribute>
+			          <xsl:attribute name="href"><xsl:value-of select="."/></xsl:attribute>
+			          <xsl:if test="@res='0'">
+				      <xsl:attribute name="class">OK2day</xsl:attribute>
+			          </xsl:if>
+			          <xsl:if test="@res!='0'">
+				      <xsl:attribute name="class">KO2day</xsl:attribute>
+			          </xsl:if>
+                      test
+                  </a>
+                </xsl:for-each>
+		      </xsl:if>              
 		      <br/>
 		      
 

@@ -39,6 +39,18 @@ def apply_patch(config, product_info, max_product_name_len, logger):
     :rtype: (boolean, str)
     '''
 
+    # if the product is native, do not apply patch
+    if src.product.product_is_native(product_info):
+        # display and log
+        logger.write('%s: ' % src.printcolors.printcLabel(product_info.name), 4)
+        logger.write(' ' * (max_product_name_len - len(product_info.name)), 4, False)
+        logger.write("\n", 4, False)
+        msg = _("The %s product is native. Do not apply "
+                "any patch.") % product_info.name
+        logger.write(msg, 4)
+        logger.write("\n", 4)
+        return True, ""       
+
     if not "patches" in product_info or len(product_info.patches) == 0:
         # display and log
         logger.write('%s: ' % src.printcolors.printcLabel(product_info.name), 4)

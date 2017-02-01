@@ -17,11 +17,9 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
-import sys
-import traceback
-import tempfile
 
 import src
+import salomeTools
 
 # Define all possible option for the make command :  sat make <options>
 parser = src.options.Options()
@@ -111,17 +109,33 @@ def run(args, runner, logger):
     res = 0
     nb_pass = 0
     for command in commands:
+        specific_option = False
         # Determine if it is a sat command or a shell command
         cmd_exe = command.split(" ")[0] # first part
         if cmd_exe == "sat":
-            sat_command_name = command.split(" ")[1]
-            end_cmd = command.replace(cmd_exe + " " + sat_command_name, "")
+            # use the salomeTools parser to get the options of the command
+            sat_parser = salomeTools.parser
+            input_parser = src.remove_item_from_list(command.split(' ')[1:], "")
+            (options, argus) = sat_parser.parse_args(input_parser)
+            # Verify if there is a changed option
+            for attr in dir(options):
+                if attr.startswith("__"):
+                    continue
+                if options.__getattr__(attr) != None:
+                    specific_option = True
+            sat_command_name = argus[0]
+            end_cmd = " ".join(argus[1:])
         else:
             sat_command_name = "shell"
             end_cmd = "--command " + command
         
-        # Get dynamically the command function to call 
+        # Do not change the options if no option was called in the command
+        if not(specific_option):
+            options = None
+
+        # Get dynamically the command function to call
         sat_command = runner.__getattr__(sat_command_name)
+
         logger.write("Executing " + 
                      src.printcolors.printcLabel(command) + " ", 3)
         logger.write("." * (len_max_command - len(command)) + " ", 3)
@@ -129,34 +143,20 @@ def run(args, runner, logger):
         
         error = ""
         stack = ""
-        try:
-            # Execute the command
-            code = sat_command(end_cmd,
-                               batch = True,
-                               verbose = 0,
-                               logger_add_link = logger)
-        except Exception as e:
-            code = 1
-            # Get error
-            error = str(e)
-            # get stack
-            __, __, exc_traceback = sys.exc_info()
-            fp = tempfile.TemporaryFile()
-            traceback.print_tb(exc_traceback, file=fp)
-            fp.seek(0)
-            stack = fp.read()
-            logger.add_link(_("Dead Link"),
-                            sat_command_name,
-                            code,
-                            "ERROR: %s TRACEBACK: %s" % (error,
-                                                    stack.replace('"',"'")))
+        # Execute the command
+        code = sat_command(end_cmd,
+                           options = options,
+                           batch = True,
+                           verbose = 0,
+                           logger_add_link = logger)
             
         # Print the status of the command
         if code == 0:
             nb_pass += 1
             logger.write('%s\n' % src.printcolors.printc(src.OK_STATUS), 3)
         else:
-            res = 1
+            if sat_command_name != "test":
+                res = 1
             logger.write('%s %s\n' % (src.printcolors.printc(src.KO_STATUS),
                                       error), 3)
             if len(stack) > 0:

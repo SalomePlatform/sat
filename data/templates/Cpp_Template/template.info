@@ -37,7 +37,7 @@ pyconf = """
         name : "%(NAME)sCPP"
         component_name : "%(NAME)s"
         get_sources : '%(get_method)s'
-        build_sources : 'autotools'
+        build_source : 'autotools'
         git_info:
         {
             repo : 'to be filled'
@@ -45,11 +45,10 @@ pyconf = """
         }
         archive_info:
         {
-            archive_name : '%(target)s.tar.gz'
+            archive_name : '%(target)s'
         }
-        nb_proc : 1
-        source_dir : $TOOLS.common.source_root + '/' + $name
-        build_dir : $TOOLS.common.build_root + '/' + $name
+        source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
+        build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
         depend : [ 
                    'hdf5',
                    'med',
@@ -58,17 +57,18 @@ pyconf = """
                    'omniORB',
                    'omniORBpy',
                    'boost' ,
+                   'cppunit' ,
                    'KERNEL',
                    'GUI',
                    'MED'
                  ]
         opt_depend : []
-		properties :
-		{
-			is_cpp : "yes"
-			environment : "salome"
-			has_salome_gui : "yes"
-			logo : $source_dir + "/resources/%(NAME)s.png"
-		}
+        properties :
+        {
+            is_cpp : "yes"
+            environment : "salome"
+            has_salome_gui : "yes"
+            logo : $source_dir + "/resources/%(NAME)s.png"
+        }
     }
 """

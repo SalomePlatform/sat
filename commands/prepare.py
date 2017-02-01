@@ -17,6 +17,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import re
+import os
 
 import src
 
@@ -62,7 +63,7 @@ def get_products_list(options, cfg, logger):
     return products_infos
 
 def remove_products(arguments, l_products_info, logger):
-    '''method that removes the products in l_products_info from arguments list.
+    '''function that removes the products in l_products_info from arguments list.
     
     :param arguments str: The arguments from which to remove products
     :param l_products_info list: List of 
@@ -79,6 +80,37 @@ def remove_products(arguments, l_products_info, logger):
             end_text = '\n'            
         logger.write(product_name + end_text, 1)
     return args
+
+def find_products_already_getted(l_products):
+    '''function that returns the list of products that have an existing source 
+       directory.
+    
+    :param l_products List: The list of products to check
+    :return: The list of product configurations that have an existing source 
+             directory.
+    :rtype: List
+    '''
+    l_res = []
+    for p_name_p_cfg in l_products:
+        __, prod_cfg = p_name_p_cfg
+        if os.path.exists(prod_cfg.source_dir):
+            l_res.append(p_name_p_cfg)
+    return l_res
+
+def find_products_with_patchs(l_products):
+    '''function that returns the list of products that have one or more patches.
+    
+    :param l_products List: The list of products to check
+    :return: The list of product configurations that have one or more patches.
+    :rtype: List
+    '''
+    l_res = []
+    for p_name_p_cfg in l_products:
+        __, prod_cfg = p_name_p_cfg
+        l_patchs = src.get_cfg_param(prod_cfg, "patches", [])
+        if len(l_patchs)>0:
+            l_res.append(p_name_p_cfg)
+    return l_res
 
 def description():
     '''method that is called when salomeTools is called with --help option.
@@ -115,26 +147,30 @@ def run(args, runner, logger):
     ldev_products = [p for p in products_infos if src.product.product_is_dev(p[1])]
     args_product_opt_clean = args_product_opt
     if not options.force and len(ldev_products) > 0:
-        msg = _("Do not get the source of the following products "
-                "in development mode\nUse the --force option to"
-                " overwrite it.\n")
-        logger.write(src.printcolors.printcWarning(msg), 1)
-        args_product_opt_clean = remove_products(args_product_opt_clean,
-                                                 ldev_products,
-                                                 logger)
-        logger.write("\n", 1)
+        l_products_not_getted = find_products_already_getted(ldev_products)
+        if len(l_products_not_getted) > 0:
+            msg = _("Do not get the source of the following products "
+                    "in development mode\nUse the --force option to"
+                    " overwrite it.\n")
+            logger.write(src.printcolors.printcWarning(msg), 1)
+            args_product_opt_clean = remove_products(args_product_opt_clean,
+                                                     l_products_not_getted,
+                                                     logger)
+            logger.write("\n", 1)
 
     
     args_product_opt_patch = args_product_opt
     if not options.force_patch and len(ldev_products) > 0:
-        msg = _("do not patch the following products "
-                "in development mode\nUse the --force_patch option to"
-                " overwrite it.\n")
-        logger.write(src.printcolors.printcWarning(msg), 1)
-        args_product_opt_patch = remove_products(args_product_opt_patch,
-                                                 ldev_products,
-                                                 logger)
-        logger.write("\n", 1)
+        l_products_with_patchs = find_products_with_patchs(ldev_products)
+        if len(l_products_with_patchs) > 0:
+            msg = _("do not patch the following products "
+                    "in development mode\nUse the --force_patch option to"
+                    " overwrite it.\n")
+            logger.write(src.printcolors.printcWarning(msg), 1)
+            args_product_opt_patch = remove_products(args_product_opt_patch,
+                                                     l_products_with_patchs,
+                                                     logger)
+            logger.write("\n", 1)
 
     # Construct the final commands arguments
     args_clean = args_appli + args_product_opt_clean + " --sources"

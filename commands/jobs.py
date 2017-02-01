@@ -17,6 +17,9 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
+import sys
+import tempfile
+import traceback
 import datetime
 import time
 import csv
@@ -26,6 +29,7 @@ import re
 import paramiko
 
 import src
+import src.ElementTree as etree
 
 STYLESHEET_GLOBAL = "jobs_global_report.xsl"
 STYLESHEET_BOARD = "jobs_board_report.xsl"
@@ -35,9 +39,9 @@ CSV_DELIMITER = ";"
 
 parser = src.options.Options()
 
-parser.add_option('n', 'name', 'string', 'jobs_cfg', 
+parser.add_option('n', 'name', 'list2', 'jobs_cfg', 
                   _('Mandatory: The name of the config file that contains'
-                  ' the jobs configuration'))
+                  ' the jobs configuration. Can be a list.'))
 parser.add_option('o', 'only_jobs', 'list2', 'only_jobs',
                   _('Optional: the list of jobs to launch, by their name. '))
 parser.add_option('l', 'list', 'boolean', 'list', 
@@ -137,9 +141,9 @@ class Machine(object):
             self.put_dir(sat_local_path, self.sat_path, filters = ['.git'])
             # put the job configuration file in order to make it reachable 
             # on the remote machine
-            self.sftp.put(job_file, os.path.join(".salomeTools",
-                                                 "Jobs",
-                                                 ".jobs_command_file.pyconf"))
+            remote_job_file_name = ".%s" % os.path.basename(job_file)
+            self.sftp.put(job_file, os.path.join(self.sat_path,
+                                                 remote_job_file_name))
         except Exception as e:
             res = str(e)
             self._connection_successful = False
@@ -237,8 +241,18 @@ class Machine(object):
 class Job(object):
     '''Class to manage one job
     '''
-    def __init__(self, name, machine, application, board, 
-                 commands, timeout, config, logger, after=None, prefix=None):
+    def __init__(self,
+                 name,
+                 machine,
+                 application,
+                 board, 
+                 commands,
+                 timeout,
+                 config,
+                 job_file_path,
+                 logger,
+                 after=None,
+                 prefix=None):
 
         self.name = name
         self.machine = machine
@@ -268,13 +282,16 @@ class Job(object):
 
         self.out = ""
         self.err = ""
-               
+        
+        self.name_remote_jobs_pyconf = ".%s" % os.path.basename(job_file_path)
         self.commands = commands
         self.command = (os.path.join(self.machine.sat_path, "sat") +
                         " -l " +
                         os.path.join(self.machine.sat_path,
                                      "list_log_files.txt") +
-                        " job --jobs_config .jobs_command_file" +
+                        " job --jobs_config " + 
+                        os.path.join(self.machine.sat_path,
+                                     self.name_remote_jobs_pyconf) +
                         " --name " +
                         self.name)
         if prefix:
@@ -342,7 +359,10 @@ class Job(object):
             # Put end time
             self._Tf = time.time()
             # And get the remote command status and log files
-            self.get_log_files()
+            try:
+                self.get_log_files()
+            except Exception as e:
+                self.err += _("Unable to get remote log files: %s" % e)
         
         return self._has_finished
           
@@ -669,6 +689,7 @@ class Jobs(object):
                    cmmnds,
                    timeout,
                    self.runner.cfg,
+                   self.job_file_path,
                    self.logger,
                    after = after,
                    prefix = prefix)
@@ -1042,7 +1063,13 @@ class Gui(object):
        see the jobs states
     '''
    
-    def __init__(self, xml_dir_path, l_jobs, l_jobs_not_today, prefix, file_boards=""):
+    def __init__(self,
+                 xml_dir_path,
+                 l_jobs,
+                 l_jobs_not_today,
+                 prefix,
+                 logger,
+                 file_boards=""):
         '''Initialization
         
         :param xml_dir_path str: The path to the directory where to put 
@@ -1052,6 +1079,9 @@ class Gui(object):
         :param file_boards str: the file path from which to read the
                                    expected boards
         '''
+        # The logging instance
+        self.logger = logger
+        
         # The prefix to add to the xml files : date_hour
         self.prefix = prefix
         
@@ -1083,7 +1113,7 @@ class Gui(object):
 
         # Create the lines and columns
         self.initialize_boards(l_jobs, l_jobs_not_today)
-        
+
         # Write the xml file
         self.update_xml_files(l_jobs)
     
@@ -1276,8 +1306,15 @@ class Gui(object):
         for file_name in os.listdir(self.xml_dir_path):
             if oExpr.search(file_name):
                 file_path = os.path.join(self.xml_dir_path, file_name)
-                global_xml = src.xmlManager.ReadXmlFile(file_path)
-                l_globalxml.append(global_xml)
+                try:
+                    global_xml = src.xmlManager.ReadXmlFile(file_path)
+                    l_globalxml.append(global_xml)
+                except Exception as e:
+                    msg = _("\nWARNING: the file %s can not be read, it will be "
+                            "ignored\n%s" % (file_path, e))
+                    self.logger.write("%s\n" % src.printcolors.printcWarning(
+                                                                        msg), 5)
+                    
 
         # Construct the dictionnary self.history 
         for job in l_jobs + l_jobs_not_today:
@@ -1471,6 +1508,16 @@ class Gui(object):
                 src.xmlManager.add_simple_node(xmlj,
                                                "remote_log_file_path",
                                                "nothing")           
+            # Search for the test log if there is any
+            l_test_log_files = self.find_test_log(job.remote_log_files)
+            xml_test = src.xmlManager.add_simple_node(xmlj,
+                                                      "test_log_file_path")
+            for test_log_path, res_test, nb_fails in l_test_log_files:
+                test_path_node = src.xmlManager.add_simple_node(xml_test,
+                                               "path",
+                                               test_log_path)
+                test_path_node.attrib["res"] = res_test
+                test_path_node.attrib["nb_fails"] = nb_fails
             
             xmlafter = src.xmlManager.add_simple_node(xmlj, "after", job.after)
             # get the job father
@@ -1512,6 +1559,33 @@ class Gui(object):
                     datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
                
 
+    def find_test_log(self, l_remote_log_files):
+        '''Find if there is a test log (board) in the remote log files and 
+           the path to it. There can be several test command, so the result is
+           a list.
+
+        :param l_remote_log_files List: the list of all remote log files
+        :return: the list of (test log files path, res of the command)
+        :rtype: List
+        '''
+        res = []
+        for file_path in l_remote_log_files:
+            dirname = os.path.basename(os.path.dirname(file_path))
+            file_name = os.path.basename(file_path)
+            regex = src.logger.log_all_command_file_expression
+            oExpr = re.compile(regex)
+            if dirname == "TEST" and oExpr.search(file_name):
+                # find the res of the command
+                prod_node = etree.parse(file_path).getroot().find("product")
+                res_test = prod_node.attrib["global_res"]
+                # find the number of fails
+                testbase_node = prod_node.find("tests").find("testbase")
+                nb_fails = int(testbase_node.attrib["failed"])
+                # put the file path, the res of the test command and the number 
+                # of fails in the output
+                res.append((file_path, res_test, nb_fails))
+                
+        return res
     
     def last_update(self, finish_status = "finished"):
         '''update information about the jobs for the file xml_file   
@@ -1544,6 +1618,24 @@ class Gui(object):
         for xml_file in self.d_xml_board_files.values():
             self.write_xml_file(xml_file, STYLESHEET_BOARD)
 
+def get_config_file_path(job_config_name, l_cfg_dir):
+    found = False
+    file_jobs_cfg = None
+    if os.path.exists(job_config_name) and job_config_name.endswith(".pyconf"):
+        found = True
+        file_jobs_cfg = job_config_name
+    else:
+        for cfg_dir in l_cfg_dir:
+            file_jobs_cfg = os.path.join(cfg_dir, job_config_name)
+            if not file_jobs_cfg.endswith('.pyconf'):
+                file_jobs_cfg += '.pyconf'
+            
+            if not os.path.exists(file_jobs_cfg):
+                continue
+            else:
+                found = True
+                break
+    return found, file_jobs_cfg
 
 ##
 # Describes the command
@@ -1566,7 +1658,8 @@ def run(args, runner, logger):
             if not options.no_label:
                 logger.write("------ %s\n" % 
                                  src.printcolors.printcHeader(cfg_dir))
-    
+            if not os.path.exists(cfg_dir):
+                continue
             for f in sorted(os.listdir(cfg_dir)):
                 if not f.endswith('.pyconf'):
                     continue
@@ -1580,45 +1673,51 @@ def run(args, runner, logger):
         src.printcolors.printcError(message)
         return 1
     
-    # Find the file in the directories
-    found = False
-    for cfg_dir in l_cfg_dir:
-        file_jobs_cfg = os.path.join(cfg_dir, options.jobs_cfg)
-        if not file_jobs_cfg.endswith('.pyconf'):
-            file_jobs_cfg += '.pyconf'
-        
-        if not os.path.exists(file_jobs_cfg):
-            continue
-        else:
-            found = True
-            break
-    
-    if not found:
-        msg = _("The file configuration %(name_file)s was not found."
-                "\nUse the --list option to get the possible files.")
-        src.printcolors.printcError(msg)
-        return 1
+    # Find the file in the directories, unless it is a full path
+    # merge all in a config
+    merger = src.pyconf.ConfigMerger()
+    config_jobs = src.pyconf.Config()
+    l_conf_files_path = []
+    for config_file in options.jobs_cfg:
+        found, file_jobs_cfg = get_config_file_path(config_file, l_cfg_dir)
+        if not found:
+            msg = _("The file configuration %(name_file)s was not found."
+                    "\nUse the --list option to get the "
+                    "possible files." % config_file)
+            src.printcolors.printcError(msg)
+            return 1
+        l_conf_files_path.append(file_jobs_cfg)
+        # Read the config that is in the file
+        one_config_jobs = src.read_config_from_a_file(file_jobs_cfg)
+        merger.merge(config_jobs, one_config_jobs)
     
     info = [
         (_("Platform"), runner.cfg.VARS.dist),
-        (_("File containing the jobs configuration"), file_jobs_cfg)
+        (_("Files containing the jobs configuration"), l_conf_files_path)
     ]    
     src.print_info(logger, info)
 
-    # Read the config that is in the file
-    config_jobs = src.read_config_from_a_file(file_jobs_cfg)
     if options.only_jobs:
         l_jb = src.pyconf.Sequence()
         for jb in config_jobs.jobs:
             if jb.name in options.only_jobs:
                 l_jb.append(jb,
-                "Adding a job that was given in only_jobs option parameters")
+                "Job that was given in only_jobs option parameters\n")
         config_jobs.jobs = l_jb
-     
+    
+    # Make a unique file that contain all the jobs in order to use it 
+    # on every machine
+    name_pyconf = "_".join([os.path.basename(path)[:-len('.pyconf')] 
+                            for path in l_conf_files_path]) + ".pyconf"
+    path_pyconf = src.get_tmp_filename(runner.cfg, name_pyconf)
+    #Save config
+    f = file( path_pyconf , 'w')
+    config_jobs.__save__(f)
+    
     # Initialization
     today_jobs = Jobs(runner,
                       logger,
-                      file_jobs_cfg,
+                      path_pyconf,
                       config_jobs)
     # SSH connection to all machines
     today_jobs.ssh_connection_all_machines()
@@ -1647,6 +1746,7 @@ def run(args, runner, logger):
                   today_jobs.ljobs,
                   today_jobs.ljobs_not_today,
                   runner.cfg.VARS.datehour,
+                  logger,
                   file_boards = options.input_boards)
         
         logger.write(src.printcolors.printcSuccess("OK"), 5)
@@ -1675,6 +1775,18 @@ def run(args, runner, logger):
         interruped = True
         logger.write("\n\n%s\n\n" % 
                 (src.printcolors.printcWarning(_("Forced interruption"))), 1)
+    except Exception as e:
+        msg = _("CRITICAL ERROR: The jobs loop has been interrupted\n")
+        logger.write("\n\n%s\n" % src.printcolors.printcError(msg) )
+        logger.write("%s\n" % str(e))
+        # get stack
+        __, __, exc_traceback = sys.exc_info()
+        fp = tempfile.TemporaryFile()
+        traceback.print_tb(exc_traceback, file=fp)
+        fp.seek(0)
+        stack = fp.read()
+        logger.write("\nTRACEBACK: %s\n" % stack.replace('"',"'"), 1)
+        
     finally:
         res = 0
         if interruped:
@@ -1702,4 +1814,7 @@ def run(args, runner, logger):
                 today_jobs.gui.last_update()
         # Output the results
         today_jobs.write_all_results()
+        # Remove the temporary pyconf file
+        if os.path.exists(path_pyconf):
+            os.remove(path_pyconf)
         return res

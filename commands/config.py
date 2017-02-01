@@ -285,7 +285,7 @@ class ConfigManager:
             if not os.path.exists(project_pyconf_path):
                 msg = _("WARNING: The project file %s cannot be found. "
                         "It will be ignored\n" % project_pyconf_path)
-                sys.stdout.write(src.printcolors.printcWarning(msg))
+                sys.stdout.write(msg)
                 continue
             project_name = os.path.basename(
                                     project_pyconf_path)[:-len(".pyconf")]
@@ -294,9 +294,11 @@ class ConfigManager:
                 project_cfg = src.pyconf.Config(open(project_pyconf_path),
                                                 PWD=("", project_pyconf_dir))
             except Exception as e:
-                raise src.SatException(_("Error in configuration file: "
-                                 "%(file_path)s\n  %(error)s") % \
-                            {'file_path' : project_pyconf_path, 'error': str(e) })
+                msg = _("WARNING: Error in configuration file: "
+                                 "%(file_path)s\n  %(error)s\n") % \
+                            {'file_path' : project_pyconf_path, 'error': str(e) }
+                sys.stdout.write(msg)
+                continue
             projects_cfg.PROJECTS.projects.addMapping(project_name,
                              src.pyconf.Mapping(projects_cfg.PROJECTS.projects),
                              "The %s project\n" % project_name)
@@ -361,17 +363,13 @@ class ConfigManager:
                                                     os.path.join(products_dir,
                                                                  fName)),
                                                      PWD=("", products_dir))
-                    except src.pyconf.ConfigError as e:
-                        raise src.SatException(_(
-                            "Error in configuration file: %(prod)s\n  %(error)s") % \
-                            {'prod' :  fName, 'error': str(e) })
-                    except IOError as error:
-                        e = str(error)
-                        raise src.SatException( e );
                     except Exception as e:
-                        raise src.SatException(_(
-                            "Error in configuration file: %(prod)s\n  %(error)s") % \
+                        msg = _(
+                            "WARNING: Error in configuration file"
+                            ": %(prod)s\n  %(error)s" % \
                             {'prod' :  fName, 'error': str(e) })
+                        sys.stdout.write(msg)
+                        continue
                     
                     products_cfg.PRODUCTS[pName] = prod_cfg
         
@@ -406,18 +404,22 @@ class ConfigManager:
                                         "There is an error in the file"
                                         " %s.pyconf.\n" % cfg.VARS.application))
                     do_merge = False
-            except:
+            except Exception as e:
                 if (not ('-e' in parser.parse_args()[1]) 
                                         or ('--edit' in parser.parse_args()[1]) 
                                         and command == 'config'):
+                    sys.stdout.write(src.printcolors.printcWarning("%s\n" % str(e)))
                     raise src.SatException(_("Error in configuration file:"
                                              " %(application)s.pyconf\n") % \
                         { 'application': application} )
                 else:
                     sys.stdout.write(src.printcolors.printcWarning(
-                                    "There is an error in the file"
-                                    " %s.pyconf. Opening the file with the"
-                                    " default viewer\n" % cfg.VARS.application))
+                                "There is an error in the file"
+                                " %s.pyconf. Opening the file with the"
+                                " default viewer\n" % cfg.VARS.application))
+                    sys.stdout.write("The error:"
+                                 " %s\n" % src.printcolors.printcWarning(
+                                                                      str(e)))
                     do_merge = False
 
             if do_merge:

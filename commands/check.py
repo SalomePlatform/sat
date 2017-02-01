@@ -26,6 +26,8 @@ parser.add_option('p', 'products', 'list2', 'products',
     _('Optional: products to configure. This option can be'
     ' passed several time to configure several products.'))
 
+CHECK_PROPERTY = "has_unit_tests"
+
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
        configuration regarding the passed options.
@@ -89,10 +91,6 @@ def check_all_products(config, products_infos, logger):
     '''
     res = 0
     for p_name_info in products_infos:
-        __, p_info = p_name_info
-        if ("build_dir" not in  "build_dir" or 
-            not src.product.product_compiles(p_info)):
-            continue
         res_prod = check_product(p_name_info, config, logger)
         if res_prod != 0:
             res += 1 
@@ -120,6 +118,48 @@ def check_product(p_name_info, config, logger):
     logger.write(header, 3)
     logger.write("\n", 4, False)
     logger.flush()
+
+    # Verify if the command has to be launched or not
+    ignored = False
+    if not src.get_property_in_product_cfg(p_info, CHECK_PROPERTY):
+        msg = _("The product %s is defined as not having tests. "
+                "product ignored." % p_name)
+        logger.write("%s\n" % msg, 4)
+        ignored = True
+    if "build_dir" not in p_info:
+        msg = _("No build_dir key defined in "
+                "the config file of %s: product ignored." % p_name)
+        logger.write("%s\n" % msg, 4)
+        ignored = True
+    if not src.product.product_compiles(p_info):
+        msg = _("The product %s is defined as not compiling. "
+                "product ignored." % p_name)
+        logger.write("%s\n" % msg, 4)
+        ignored = True
+
+    # Get the command to execute for script products
+    cmd_found = True
+    command = ""
+    if src.product.product_has_script(p_info) and not ignored:
+        command = src.get_cfg_param(p_info, "test_build", "Not found")
+        if command == "Not found":
+            cmd_found = False
+            msg = _('WARNING: The product %s is defined as having tests. But it'
+                    ' is compiled using a script and the key "test_build" is '
+                    'not defined in the definition of %s' % (p_name, p_name))
+            logger.write("%s\n" % msg, 4)
+                
+    if ignored or not cmd_found:
+        log_step(logger, header, "ignored")
+        logger.write("==== %(name)s %(IGNORED)s\n" %
+            { "name" : p_name ,
+             "IGNORED" : src.printcolors.printcInfo("IGNORED")},
+            4)
+        logger.write("\n", 3, False)
+        logger.flush()
+        if not cmd_found:
+            return 1
+        return 0
     
     # Instantiate the class that manages all the construction commands
     # like cmake, check, make install, make test, environment management, etc...
@@ -130,12 +170,11 @@ def check_product(p_name_info, config, logger):
     res_prepare = builder.prepare()
     log_res_step(logger, res_prepare)
     
-    # Execute buildconfigure, configure if the product is autotools
-    # Execute ccheck if the product is ccheck
     len_end_line = 20
 
+    # Launch the check    
     log_step(logger, header, "CHECK")
-    res = builder.check()
+    res = builder.check(command=command)
     log_res_step(logger, res)
     
     # Log the result

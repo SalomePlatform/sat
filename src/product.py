@@ -35,7 +35,7 @@ def get_product_config(config, product_name, with_install_dir=True):
     :param product_name str: The name of the product
     :param with_install_dir boolean: If false, do not provide an install 
                                      directory (at false only for internal use 
-                                     of the function get_install_dir)
+                                     of the function check_config_exists)
     :return: the specific configuration of the product
     :rtype: Config
     '''
@@ -91,7 +91,7 @@ def get_product_config(config, product_name, with_install_dir=True):
         # merge opt_depend in depend
         if prod_info is not None and 'opt_depend' in prod_info:
             for depend in prod_info.opt_depend:
-                if depend in config.APPLICATION:
+                if depend in config.APPLICATION.products:
                     prod_info.depend.append(depend,'')
         
         # In case of a product get with a vcs, 
@@ -109,8 +109,9 @@ def get_product_config(config, product_name, with_install_dir=True):
         
         # In case of a fixed product, 
         # define the install_dir (equal to the version)
-        if prod_info is not None and prod_info.get_source=="fixed":
+        if prod_info is not None and os.path.isdir(version):
             prod_info.install_dir = version
+            prod_info.get_source = "fixed"
         
         # Check if the product is defined as native in the application
         if prod_info is not None:
@@ -128,7 +129,16 @@ def get_product_config(config, product_name, with_install_dir=True):
         prod_info = src.pyconf.Config()
         prod_info.name = product_name
         prod_info.get_source = "native"
-    
+
+    # If there is no definition but the product is fixed,
+    # construct a new definition containing only the product name
+    if prod_info is None and os.path.isdir(version):
+        prod_info = src.pyconf.Config()
+        prod_info.name = product_name
+        prod_info.get_source = "fixed"
+        prod_info.addMapping("environ", src.pyconf.Mapping(prod_info), "")
+
+
     # If prod_info is still None, it means that there is no product definition
     # in the config. The user has to provide it.
     if prod_info is None:
@@ -407,7 +417,10 @@ def check_config_exists(config, prod_dir, prod_info):
         
         # If there is no dependency, it is the right path
         if len(prod_info.depend)==0:
-            return True, os.path.join(prod_dir, dir_or_file)
+            compile_cfg = src.pyconf.Config(config_file)
+            if len(compile_cfg) == 0:
+                return True, os.path.join(prod_dir, dir_or_file)
+            continue
         
         # check if there is the config described in the file corresponds the 
         # dependencies of the product
@@ -426,6 +439,12 @@ def check_config_exists(config, prod_dir, prod_info):
                 if prod_dep_info.version != compile_cfg[prod_dep]:
                     config_corresponds = False
                     break
+        
+        for prod_name in compile_cfg:
+            if prod_name not in prod_info.depend:
+                config_corresponds = False
+                break
+        
         if config_corresponds:
             return True, os.path.join(prod_dir, dir_or_file)
     

@@ -401,12 +401,76 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     :param config Config: The global configuration
     :param logger Logger: The logger instance to use for the display 
                           and logging
+    :param header Str: the header to display when logging
+    :param len_end Int: the lenght of the the end of line (used in display)
     :return: 1 if it fails, else 0.
     :rtype: int
     '''
     
+    __, p_info = p_name_info
+          
+    # Get the build procedure from the product configuration.
+    # It can be :
+    # build_sources : autotools -> build_configure, configure, make, make install
+    # build_sources : cmake     -> cmake, make, make install
+    # build_sources : script    -> script executions
+    res = 0
+    if (src.product.product_is_autotools(p_info) or 
+                                          src.product.product_is_cmake(p_info)):
+        res, len_end_line, error_step = compile_product_cmake_autotools(sat,
+                                                                  p_name_info,
+                                                                  config,
+                                                                  options,
+                                                                  logger,
+                                                                  header,
+                                                                  len_end)
+    if src.product.product_has_script(p_info):
+        res, len_end_line, error_step = compile_product_script(sat,
+                                                                  p_name_info,
+                                                                  config,
+                                                                  options,
+                                                                  logger,
+                                                                  header,
+                                                                  len_end)
+
+    # Check that the install directory exists
+    if res==0 and not(os.path.exists(p_info.install_dir)):
+        res = 1
+        error_step = "NO INSTALL DIR"
+        msg = _("Error: despite the fact that all the steps ended successfully,"
+                " no install directory was found !")
+        logger.write(src.printcolors.printcError(msg), 4)
+        logger.write("\n", 4)
+    
+    # Add the config file corresponding to the dependencies/versions of the 
+    # product that have been successfully compiled
+    if res==0:       
+        logger.write(_("Add the config file in installation directory\n"), 5)
+        add_compile_config_file(p_info, config)
+    
+    return res, len_end_line, error_step
+
+def compile_product_cmake_autotools(sat,
+                                    p_name_info,
+                                    config,
+                                    options,
+                                    logger,
+                                    header,
+                                    len_end):
+    '''Execute the proper build procedure for autotools or cmake
+       in the product build directory.
+    
+    :param p_name_info tuple: (str, Config) => (product_name, product_info)
+    :param config Config: The global configuration
+    :param logger Logger: The logger instance to use for the display 
+                          and logging
+    :param header Str: the header to display when logging
+    :param len_end Int: the lenght of the the end of line (used in display)
+    :return: 1 if it fails, else 0.
+    :rtype: int
+    '''
     p_name, p_info = p_name_info
-       
+    
     # Execute "sat configure", "sat make" and "sat install"
     res = 0
     error_step = ""
@@ -422,7 +486,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     
     if res_c > 0:
         error_step = "CONFIGURE"
-    else:    
+    else:
         # Logging and sat command call for make step
         # Logging take account of the fact that the product has a compilation 
         # script or not
@@ -461,23 +525,42 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
             
             if res_mi > 0:
                 error_step = "MAKE INSTALL"
+                
+    return res, len_end_line, error_step 
 
-    # Check that the install directory exists
-    if res==0 and not(os.path.exists(p_info.install_dir)):
-        res = 1
-        error_step = "NO INSTALL DIR"
-        msg = _("Error: despite the fact that all the steps ended successfully,"
-                " no install directory was found !")
-        logger.write(src.printcolors.printcError(msg), 4)
-        logger.write("\n", 4)
+def compile_product_script(sat,
+                           p_name_info,
+                           config,
+                           options,
+                           logger,
+                           header,
+                           len_end):
+    '''Execute the script build procedure in the product build directory.
     
-    # Add the config file corresponding to the dependencies/versions of the 
-    # product that have been successfully compiled
-    if res==0:       
-        logger.write(_("Add the config file in installation directory\n"), 5)
-        add_compile_config_file(p_info, config)
+    :param p_name_info tuple: (str, Config) => (product_name, product_info)
+    :param config Config: The global configuration
+    :param logger Logger: The logger instance to use for the display 
+                          and logging
+    :param header Str: the header to display when logging
+    :param len_end Int: the lenght of the the end of line (used in display)
+    :return: 1 if it fails, else 0.
+    :rtype: int
+    '''
+    p_name, p_info = p_name_info
     
-    return res, len_end_line, error_step
+    # Execute "sat configure", "sat make" and "sat install"
+    error_step = ""
+    
+    # Logging and sat command call for the script step
+    scrit_path_display = src.printcolors.printcLabel(p_info.compil_script)
+    log_step(logger, header, "SCRIPT " + scrit_path_display)
+    len_end_line = len_end + len(scrit_path_display)
+    res = sat.script(config.VARS.application + " --products " + p_name,
+                     verbose = 0,
+                     logger_add_link = logger)
+    log_res_step(logger, res)
+              
+    return res, len_end_line, error_step 
 
 def add_compile_config_file(p_info, config):
     '''Execute the proper configuration command(s) 

@@ -228,22 +228,48 @@ def check_remote_machine(machine_name, logger):
 
 ##
 # Creates the XML report for a product.
-def create_test_report(config, dest_path, stylesheet, xmlname=""):
+def create_test_report(config,
+                       xml_history_path,
+                       dest_path,
+                       retcode,
+                       xmlname=""):
+    # get the date and hour of the launching of the command, in order to keep
+    # history
+    date_hour = config.VARS.datehour
+    
+    # Get some information to put in the xml file
     application_name = config.VARS.application
     withappli = src.config_has_application(config)
-
-    root = etree.Element("salome")
-    prod_node = etree.Element("product", name=application_name, build=xmlname)
-    root.append(prod_node)
-
+    
+    first_time = False
+    if not os.path.exists(xml_history_path):
+        first_time = True
+        root = etree.Element("salome")
+        prod_node = etree.Element("product", name=application_name, build=xmlname)
+        root.append(prod_node)
+    else:
+        root = etree.parse(xml_history_path).getroot()
+        prod_node = root.find("product")
+    
+    prod_node.attrib["history_file"] = os.path.basename(xml_history_path)
+    prod_node.attrib["global_res"] = retcode
+    
     if withappli:
-
+        if not first_time:
+            for node in (prod_node.findall("version_to_download") + 
+                         prod_node.findall("out_dir")):
+                prod_node.remove(node)
+                
         add_simple_node(prod_node, "version_to_download",
                         config.APPLICATION.name)
         
         add_simple_node(prod_node, "out_dir", config.APPLICATION.workdir)
 
     # add environment
+    if not first_time:
+        for node in prod_node.findall("exec"):
+                prod_node.remove(node)
+        
     exec_node = add_simple_node(prod_node, "exec")
     exec_node.append(etree.Element("env", name="Host", value=config.VARS.node))
     exec_node.append(etree.Element("env", name="Architecture",
@@ -251,47 +277,138 @@ def create_test_report(config, dest_path, stylesheet, xmlname=""):
     exec_node.append(etree.Element("env", name="Number of processors",
                                    value=str(config.VARS.nb_proc)))    
     exec_node.append(etree.Element("env", name="Begin date",
-                                   value=src.parse_date(config.VARS.datehour)))
+                                   value=src.parse_date(date_hour)))
     exec_node.append(etree.Element("env", name="Command",
                                    value=config.VARS.command))
     exec_node.append(etree.Element("env", name="sat version",
                                    value=config.INTERNAL.sat_version))
 
     if 'TESTS' in config:
-        tests = add_simple_node(prod_node, "tests")
-        known_errors = add_simple_node(prod_node, "known_errors")
-        new_errors = add_simple_node(prod_node, "new_errors")
-        amend = add_simple_node(prod_node, "amend")
+        if first_time:
+            tests = add_simple_node(prod_node, "tests")
+            known_errors = add_simple_node(prod_node, "known_errors")
+            new_errors = add_simple_node(prod_node, "new_errors")
+            amend = add_simple_node(prod_node, "amend")
+        else:
+            tests = prod_node.find("tests")
+            known_errors = prod_node.find("known_errors")
+            new_errors = prod_node.find("new_errors")
+            amend = prod_node.find("amend")
+        
         tt = {}
         for test in config.TESTS:
             if not tt.has_key(test.testbase):
                 tt[test.testbase] = [test]
             else:
                 tt[test.testbase].append(test)
-
+        
         for testbase in tt.keys():
-            gn = add_simple_node(tests, "testbase")
+            if first_time:
+                gn = add_simple_node(tests, "testbase")
+            else:
+                gn = tests.find("testbase")
+                # initialize all grids and session to "not executed"
+                for mn in gn.findall("grid"):
+                    mn.attrib["executed_last_time"] = "no"
+                    for tyn in mn.findall("session"):
+                        tyn.attrib["executed_last_time"] = "no"
+                        for test_node in tyn.findall('test'):
+                            for node in test_node.getchildren():
+                                if node.tag != "history":
+                                    test_node.remove(node)
+                            
+                            attribs_to_pop = []    
+                            for attribute in test_node.attrib:
+                                if (attribute != "script" and 
+                                                        attribute != "res"):
+                                    attribs_to_pop.append(attribute)
+                            for attribute in attribs_to_pop:
+                                test_node.attrib.pop(attribute)
+            
             gn.attrib['name'] = testbase
             nb, nb_pass, nb_failed, nb_timeout, nb_not_run = 0, 0, 0, 0, 0
             grids = {}
             sessions = {}
             for test in tt[testbase]:
-                #print test.grid
                 if not grids.has_key(test.grid):
-                    mn = add_simple_node(gn, "grid")
-                    mn.attrib['name'] = test.grid
+                    if first_time:
+                        mn = add_simple_node(gn, "grid")
+                        mn.attrib['name'] = test.grid
+                    else:
+                        l_mn = gn.findall("grid")
+                        mn = None
+                        for grid_node in l_mn:
+                            if grid_node.attrib['name'] == test.grid:
+                                mn = grid_node
+                                break
+                        if mn == None:
+                            mn = add_simple_node(gn, "grid")
+                            mn.attrib['name'] = test.grid
+                    
                     grids[test.grid] = mn
-
+                
+                mn.attrib["executed_last_time"] = "yes"
+                
                 if not sessions.has_key("%s/%s" % (test.grid, test.session)):
-                    tyn = add_simple_node(mn, "session")
-                    tyn.attrib['name'] = test.session
+                    if first_time:
+                        tyn = add_simple_node(mn, "session")
+                        tyn.attrib['name'] = test.session
+                    else:
+                        l_tyn = mn.findall("session")
+                        tyn = None
+                        for session_node in l_tyn:
+                            if session_node.attrib['name'] == test.session:
+                                tyn = session_node
+                                break
+                        if tyn == None:
+                            tyn = add_simple_node(mn, "session")
+                            tyn.attrib['name'] = test.session
+                        
                     sessions["%s/%s" % (test.grid, test.session)] = tyn
 
+                tyn.attrib["executed_last_time"] = "yes"
+
                 for script in test.script:
-                    tn = add_simple_node(sessions[
-                                    "%s/%s" % (test.grid, test.session)], "test")
-                    tn.attrib['session'] = test.session
-                    tn.attrib['script'] = script.name
+                    if first_time:
+                        tn = add_simple_node(sessions[
+                                           "%s/%s" % (test.grid, test.session)],
+                                             "test")
+                        tn.attrib['session'] = test.session
+                        tn.attrib['script'] = script.name
+                        hn = add_simple_node(tn, "history")
+                    else:
+                        l_tn = sessions["%s/%s" % (test.grid, test.session)].findall(
+                                                                         "test")
+                        tn = None
+                        for test_node in l_tn:
+                            if test_node.attrib['script'] == script['name']:
+                                tn = test_node
+                                break
+                        
+                        if tn == None:
+                            tn = add_simple_node(sessions[
+                                           "%s/%s" % (test.grid, test.session)],
+                                             "test")
+                            tn.attrib['session'] = test.session
+                            tn.attrib['script'] = script.name
+                            hn = add_simple_node(tn, "history")
+                        else:
+                            # Get or create the history node for the current test
+                            if len(tn.findall("history")) == 0:
+                                hn = add_simple_node(tn, "history")
+                            else:
+                                hn = tn.find("history")
+                            # Put the last test data into the history
+                            if 'res' in tn.attrib:
+                                attributes = {"date_hour" : date_hour,
+                                              "res" : tn.attrib['res'] }
+                                add_simple_node(hn,
+                                                "previous_test",
+                                                attrib=attributes)
+                            for node in tn:
+                                if node.tag != "history":
+                                    tn.remove(node)
+                    
                     if 'callback' in script:
                         try:
                             cnode = add_simple_node(tn, "callback")
@@ -375,7 +492,17 @@ def create_test_report(config, dest_path, stylesheet, xmlname=""):
             gn.attrib['failed'] = str(nb_failed)
             gn.attrib['timeout'] = str(nb_timeout)
             gn.attrib['not_run'] = str(nb_not_run)
-
+            
+            # Remove the res attribute of all tests that were not launched 
+            # this time
+            for mn in gn.findall("grid"):
+                if mn.attrib["executed_last_time"] == "no":
+                    for tyn in mn.findall("session"):
+                        if tyn.attrib["executed_last_time"] == "no":
+                            for test_node in tyn.findall('test'):
+                                if "res" in test_node.attrib:
+                                    test_node.attrib.pop("res")          
+    
     if len(xmlname) == 0:
         xmlname = application_name
     if not xmlname.endswith(".xml"):
@@ -383,8 +510,33 @@ def create_test_report(config, dest_path, stylesheet, xmlname=""):
 
     src.xmlManager.write_report(os.path.join(dest_path, xmlname),
                                 root,
-                                stylesheet)
+                                "test.xsl")
+    src.xmlManager.write_report(xml_history_path,
+                                root,
+                                "test_history.xsl")
     return src.OK_STATUS
+
+def generate_history_xml_path(config, test_base):
+    """Generate the name of the xml file that contain the history of the tests
+       on the machine with the current APPLICATION and the current test base.
+    
+    :param config Config: The global configuration
+    :param test_base Str: The test base name (or path)
+    :return: the full path of the history xml file
+    :rtype: Str
+    """
+    history_xml_name = ""
+    if "APPLICATION" in config:
+        history_xml_name += config.APPLICATION.name
+        history_xml_name += "-" 
+    history_xml_name += config.VARS.dist
+    history_xml_name += "-"
+    test_base_name = test_base
+    if os.path.exists(test_base):
+        test_base_name = os.path.basename(test_base)
+    history_xml_name += test_base_name
+    history_xml_name += ".xml"
+    return os.path.join(config.USER.log_dir, "TEST", history_xml_name)
 
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with test parameter.
@@ -530,9 +682,12 @@ def run(args, runner, logger):
     out_dir = os.path.join(runner.cfg.USER.log_dir, "TEST")
     src.ensure_path_exists(out_dir)
     name_xml_board = logger.logFileName.split(".")[0] + "board" + ".xml"
+    historic_xml_path = generate_history_xml_path(runner.cfg, test_base)
+    
     create_test_report(runner.cfg,
+                       historic_xml_path,
                        out_dir,
-                       "test.xsl",
+                       retcode,
                        xmlname = name_xml_board)
     xml_board_path = os.path.join(out_dir, name_xml_board)
     logger.l_logFiles.append(xml_board_path)
@@ -540,8 +695,12 @@ def run(args, runner, logger):
                     "board",
                     retcode,
                     "Click on the link to get the detailed test results")
-
-    logger.write(_("Removing the temporary directory: rm -rf %s\n" % test_runner.tmp_working_dir), 5)
+    
+    # Add the historic files into the log files list of the command
+    logger.l_logFiles.append(historic_xml_path)
+    
+    logger.write(_("Removing the temporary directory: "
+                   "rm -rf %s\n" % test_runner.tmp_working_dir), 5)
     if os.path.exists(test_runner.tmp_working_dir):
         shutil.rmtree(test_runner.tmp_working_dir)
 

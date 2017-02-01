@@ -142,6 +142,7 @@ def make_product(p_name_info, make_option, config, logger):
     # Execute cmake if the product is cmake
     len_end_line = 20
     res = 0
+
     if not src.product.product_has_script(p_info):
         nb_proc, make_opt_without_j = get_nb_proc(p_info, config, make_option)
         log_step(logger, header, "MAKE -j" + str(nb_proc))

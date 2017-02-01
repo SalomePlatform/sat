@@ -95,6 +95,10 @@ parser.add_option('t', 'salometools', 'boolean', 'sat',
     _('Optional: Produce an archive that contains salomeTools.'), False)
 parser.add_option('n', 'name', 'string', 'name',
     _('Optional: The name or full path of the archive.'), None)
+parser.add_option('', 'add_files', 'list2', 'add_files',
+    _('Optional: The list of additional files to add to the archive.'), [])
+parser.add_option('', 'without_commercial', 'boolean', 'without_commercial',
+    _('Optional: do not add commercial licence.'), False)
 
 def add_files(tar, name_archive, d_content, logger):
     '''Create an archive containing all directories and files that are given in
@@ -138,7 +142,8 @@ def produce_relative_launcher(config,
                               logger,
                               file_dir,
                               file_name,
-                              binaries_dir_name):
+                              binaries_dir_name,
+                              with_commercial=True):
     '''Create a specific SALOME launcher for the binary package. This launcher 
        uses relative paths.
     
@@ -177,7 +182,9 @@ def produce_relative_launcher(config,
     launch_file = open(filepath, "w")
     launch_file.write(before)
     # Write
-    writer.write_cfgForPy_file(launch_file, for_package = binaries_dir_name)
+    writer.write_cfgForPy_file(launch_file,
+                               for_package = binaries_dir_name,
+                               with_commercial=with_commercial)
     launch_file.write(after)
     launch_file.close()
     
@@ -193,7 +200,7 @@ def produce_relative_launcher(config,
              stat.S_IXUSR |
              stat.S_IXGRP |
              stat.S_IXOTH)
-    
+
     return filepath
 
 def produce_relative_env_files(config,
@@ -303,10 +310,11 @@ def binary_package(config, logger, options, tmp_working_dir):
     if "profile" in config.APPLICATION:
         launcher_name = config.APPLICATION.profile.launcher_name
         launcher_package = produce_relative_launcher(config,
-                                                     logger,
-                                                     tmp_working_dir,
-                                                     launcher_name,
-                                                     binaries_dir_name)
+                                             logger,
+                                             tmp_working_dir,
+                                             launcher_name,
+                                             binaries_dir_name,
+                                             not(options.without_commercial))
     
         d_products["launcher"] = (launcher_package, launcher_name)
     else:
@@ -748,8 +756,13 @@ def add_readme(config, package_type, where):
         d['dist'] = config.VARS.dist
         if 'profile' in config.APPLICATION:
             d['launcher'] = config.APPLICATION.profile.launcher_name
-        readme_template_path = os.path.join(config.VARS.internal_dir,
-                                            "README_BIN.template")
+            readme_template_path = os.path.join(config.VARS.internal_dir,
+                                                "README_BIN.template")
+        else:
+            d['env_file'] = 'env_launch.sh'
+            readme_template_path = os.path.join(config.VARS.internal_dir,
+                                               "README_BIN_NO_PROFILE.template")
+            
     if package_type == SOURCE:
         d['application'] = config.VARS.application
         d['user'] = config.VARS.user
@@ -959,7 +972,16 @@ def run(args, runner, logger):
                                        package_type,
                                        tmp_working_dir)
     d_files_to_add["README"] = (local_readme_tmp_path, "README")
-    
+
+    # Add the additional files of option add_files
+    if options.add_files:
+        for file_path in options.add_files:
+            if not os.path.exists(file_path):
+                msg = _("WARNING: the file %s is not accessible.\n" % file_path)
+                continue
+            file_name = os.path.basename(file_path)
+            d_files_to_add[file_name] = (file_path, file_name)
+
     logger.write("\n", 2)
 
     logger.write(src.printcolors.printcLabel(_("Actually do the package")), 2)

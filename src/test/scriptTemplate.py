@@ -87,11 +87,12 @@ exec_result.close()
 
 if 'PY' not in '${sessionName}':
     import salome_utils
-    killScript = os.path.join(os.environ['KERNEL_ROOT_DIR'],
-                              'bin',
-                              'salome',
-                              'killSalome.py')
-    cmd = '{python} {killScript} {port}'.format(python=os.environ['PYTHONBIN'],
-                                      	     killScript=killScript,
-                                      	     port=salome_utils.getPortNumber())
+    #killScript = os.path.join(os.environ['KERNEL_ROOT_DIR'],
+    #                          'bin',
+    #                          'salome',
+    #                          'killSalome.py')
+    #cmd = '{python} {killScript} {port}'.format(python=os.environ['PYTHONBIN'],
+    #                                  	     killScript=killScript,
+    #                                  	     port=salome_utils.getPortNumber())
+    cmd = 'killSalome.py {port}'.format( port=salome_utils.getPortNumber())
     os.system(cmd)

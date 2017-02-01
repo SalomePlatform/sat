@@ -145,6 +145,36 @@ def get_source_from_archive(product_info, source_dir, logger):
     
     return retcode
 
+def get_source_from_dir(product_info, source_dir, logger):
+    
+    if "dir_info" not in product_info:
+        msg = _("Error: you must put a dir_info section"
+                " in the file %s.pyconf" % product_info.name)
+        logger.write("\n%s\n" % src.printcolors.printcError(msg), 1)
+        return False
+
+    if "dir" not in product_info.dir_info:
+        msg = _("Error: you must put a dir in the dir_info section"
+                " in the file %s.pyconf" % product_info.name)
+        logger.write("\n%s\n" % src.printcolors.printcError(msg), 1)
+        return False
+
+    # check that source exists
+    if not os.path.exists(product_info.dir_info.dir):
+        msg = _("Error: the dir %s defined in the file"
+                " %s.pyconf does not exists" % (product_info.dir_info.dir,
+                                                product_info.name))
+        logger.write("\n%s\n" % src.printcolors.printcError(msg), 1)
+        return False
+    
+    logger.write('DIR: %s ... ' % src.printcolors.printcInfo(
+                                           product_info.dir_info.dir), 3)
+    logger.flush()
+
+    retcode = src.Path(product_info.dir_info.dir).copy(source_dir)
+    
+    return retcode
+    
 def get_source_from_cvs(user,
                         product_info,
                         source_dir,
@@ -296,6 +326,9 @@ def get_product_sources(config,
 
     if product_info.get_source == "archive":
         return get_source_from_archive(product_info, source_dir, logger)
+
+    if product_info.get_source == "dir":
+        return get_source_from_dir(product_info, source_dir, logger)
     
     if product_info.get_source == "cvs":
         cvs_user = config.USER.cvs_user
@@ -418,8 +451,6 @@ def get_all_product_sources(config, products, logger):
         results[product_name] = retcode
         if retcode:
             # The case where it succeed
-            
-            
             res = src.OK_STATUS
             good_result = good_result + 1
         else:

@@ -29,10 +29,10 @@ parser.add_option("s",
                   _("Search the duplicate files in the SOURCES directory."))
 parser.add_option("p",
                   "path",
-                  "string",
+                  "list2",
                   "path",
                   _("Optional: Search the duplicate files in the given "
-                    "directory path."))
+                    "directory paths."))
 parser.add_option("",
                   "exclude-file",
                   "list2",
@@ -57,10 +57,11 @@ default_files_ignored = ['__init__.py', 'Makefile.am', 'VERSION',
                          'README', 'AUTHORS', 'NEWS', 'COPYING', 'ChangeLog']
 default_directories_ignored = []
 
-def list_directory(path, extension_ignored, files_ignored, directories_ignored):
+def list_directory(lpath, extension_ignored, files_ignored, directories_ignored):
     '''Make the list of all files and paths that are not filtered 
     
-    :param path Str: The path to of the directory where to search for duplicates
+    :param lpath List: The list of path to of the directories where to 
+                       search for duplicates
     :param extension_ignored List: The list of extensions to ignore
     :param files_ignored List: The list of files to ignore
     :param directories_ignored List: The list of directory paths to ignore
@@ -70,17 +71,19 @@ def list_directory(path, extension_ignored, files_ignored, directories_ignored):
     '''
     files_out = []
     files_arb_out=[]
-    for root, __, files in os.walk(path):  
-        for fic in files:
-            extension = fic.split('.')[-1]   
-            if extension not in extension_ignored and fic not in files_ignored:
-                in_ignored_dir = False
-                for rep in directories_ignored:
-                    if rep in root:
-                        in_ignored_dir = True                
-                if not in_ignored_dir:
-                    files_out.append([fic])              
-                    files_arb_out.append([fic, root])
+    for path in lpath:
+        for root, __, files in os.walk(path):  
+            for fic in files:
+                extension = fic.split('.')[-1]   
+                if (extension not in extension_ignored and 
+                                                      fic not in files_ignored):
+                    in_ignored_dir = False
+                    for rep in directories_ignored:
+                        if rep in root:
+                            in_ignored_dir = True                
+                    if not in_ignored_dir:
+                        files_out.append([fic])              
+                        files_arb_out.append([fic, root])
     return files_arb_out, files_out
 
 def format_list_of_str(l_str):
@@ -169,13 +172,18 @@ def run(args, runner, logger):
     # Determine the directory path where to search 
     # for duplicates files regarding the options
     if options.path:
-        dir_path = options.path
+        l_dir_path = options.path
     else:
         src.check_config_has_application(runner.cfg)
         if options.sources:
-            dir_path = os.path.join(runner.cfg.APPLICATION.workdir, "SOURCES")
+            l_dir_path = [os.path.join(runner.cfg.APPLICATION.workdir,
+                                       "SOURCES")]
         else:
-            dir_path = os.path.join(runner.cfg.APPLICATION.workdir, "INSTALL")
+            # find all installation paths
+            all_products = runner.cfg.APPLICATION.products.keys()
+            l_product_cfg = src.product.get_products_infos(all_products,
+                                                           runner.cfg)
+            l_dir_path = [pi.install_dir for __, pi in l_product_cfg]
     
     # Get the files to ignore during the searching
     files_ignored = default_files_ignored
@@ -192,14 +200,20 @@ def run(args, runner, logger):
     if options.exclude_path:
         directories_ignored = options.exclude_path
     
-    # Check the directory
-    if not(os.path.isdir(dir_path)):
-        msg = _("%s has to be a valid repository path." % dir_path)
-        logger.write(src.printcolors.printcError(msg), 1)
-        return 1
+    # Check the directories
+    l_path = src.deepcopy_list(l_dir_path)
+    l_dir_path = []
+    for dir_path in l_path:
+        if not(os.path.isdir(dir_path)):
+            msg = _("%s does not exists or is not a directory path: "
+                    "it will be ignored" % dir_path)
+            logger.write("%s\n" % src.printcolors.printcWarning(msg), 3)
+            continue
+        l_dir_path.append(dir_path)
+            
     
     # Display some information
-    info = [(_("Directory"), dir_path),
+    info = [(_("Directories"), "\n".join(l_dir_path)),
             (_("Ignored files"), files_ignored),
             (_("Ignored extensions"), extension_ignored),
             (_("Ignored directories"), directories_ignored)
@@ -209,7 +223,7 @@ def run(args, runner, logger):
     # Get all the files and paths
     logger.write(_("Store all file paths ... "), 3)
     logger.flush()
-    dic, fic = list_directory(dir_path,
+    dic, fic = list_directory(l_dir_path,
                               extension_ignored,
                               files_ignored,
                               directories_ignored)  

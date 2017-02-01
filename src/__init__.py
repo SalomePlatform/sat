@@ -378,3 +378,10 @@ def replace_in_file(filein, strin, strout):
     fout = open(fileout, "w")
     for line in fin:
         fout.write(line.replace(strin, strout))
+
+def get_property_in_product_cfg(product_cfg, pprty):
+    if not "properties" in product_cfg:
+        return None
+    if not pprty in product_cfg.properties:
+        return None
+    return product_cfg.properties[pprty]
