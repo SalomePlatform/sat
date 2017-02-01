@@ -145,7 +145,10 @@ def make_product(p_name_info, make_option, config, logger):
     if not src.product.product_has_script(p_info):
         nb_proc, make_opt_without_j = get_nb_proc(p_info, config, make_option)
         log_step(logger, header, "MAKE -j" + str(nb_proc))
-        res_m = builder.make(nb_proc, make_opt_without_j)
+        if src.architecture.is_windows():
+            res_m = builder.wmake(nb_proc, make_opt_without_j)
+        else:
+            res_m = builder.make(nb_proc, make_opt_without_j)
         log_res_step(logger, res_m)
         res += res_m
     else:
