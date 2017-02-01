@@ -201,6 +201,8 @@ def get_product_config(config, product_name, with_install_dir=True):
                 raise src.SatException(_("Compilation script not found: %s") % 
                                    script_name)
             prod_info.compil_script = script_path
+            if src.architecture.is_windows():
+                prod_info.compil_script = prod_info.compil_script[:-len(".sh")] + ".bat"
        
         # Check that the script is executable
         if not os.access(prod_info.compil_script, os.X_OK):
