@@ -407,7 +407,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     :rtype: int
     '''
     
-    __, p_info = p_name_info
+    p_name, p_info = p_name_info
           
     # Get the build procedure from the product configuration.
     # It can be :
@@ -441,12 +441,19 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
                 " no install directory was found !")
         logger.write(src.printcolors.printcError(msg), 4)
         logger.write("\n", 4)
+        return res, len_end_line, error_step
     
     # Add the config file corresponding to the dependencies/versions of the 
     # product that have been successfully compiled
     if res==0:       
         logger.write(_("Add the config file in installation directory\n"), 5)
         add_compile_config_file(p_info, config)
+
+    # Do the unit tests (call the check command)
+    log_step(logger, header, "CHECK")
+    res += sat.check(config.VARS.application + " --products " + p_name,
+                             verbose = 0,
+                             logger_add_link = logger)
     
     return res, len_end_line, error_step
 
