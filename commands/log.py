@@ -138,7 +138,6 @@ def show_last_logs(logger, config, log_dirs):
 
 def show_product_last_logs(logger, config, product_log_dir):
     """Show last compilation logs of a product"""
-    files = os.listdir(product_log_dir)
     # sort the files chronologically
     l_time_file = []
     for file_n in os.listdir(product_log_dir):
@@ -160,9 +159,10 @@ def show_product_last_logs(logger, config, product_log_dir):
     # loop till exit
     x = -1
     while (x < 0):
-        x = ask_value(len(files))
+        x = ask_value(len(l_time_file))
         if x > 0:
-            log_file_path = os.path.join(product_log_dir, files[x-1])
+            (__, file_name) =  sorted(l_time_file)[x-1]
+            log_file_path = os.path.join(product_log_dir, file_name)
             src.system.show_in_editor(config.USER.editor, log_file_path, logger)
         
 def ask_value(nb):
