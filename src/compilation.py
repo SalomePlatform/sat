@@ -110,13 +110,20 @@ class Builder:
         cmake_option = options
         # cmake_option +=' -DCMAKE_VERBOSE_MAKEFILE=ON -DSALOME_CMAKE_DEBUG=ON'
         if 'cmake_options' in self.product_info:
-            cmake_option += " %s " % " ".join(self.product_info.cmake_options.split())
+            cmake_option += " %s " % " ".join(
+                                        self.product_info.cmake_options.split())
 
         # add debug option
         if self.debug_mode:
             cmake_option += " -DCMAKE_BUILD_TYPE=Debug"
         else :
             cmake_option += " -DCMAKE_BUILD_TYPE=Release"
+        
+        # In case CMAKE_GENERATOR is defined in environment, 
+        # use it in spite of automatically detect it
+        if 'cmake_generator' in self.config.APPLICATION:
+            cmake_option += " -DCMAKE_GENERATOR=%s" \
+                                       % self.config.APPLICATION.cmake_generator
         
         command = ("cmake %s -DCMAKE_INSTALL_PREFIX=%s %s" %
                             (cmake_option, self.install_dir, self.source_dir))
@@ -165,7 +172,8 @@ class Builder:
         if 'configure_options' in self.product_info:
             options += " %s " % self.product_info.configure_options
 
-        command = "%s/configure --prefix=%s" % (self.source_dir, str(self.install_dir))
+        command = "%s/configure --prefix=%s" % (self.source_dir,
+                                                str(self.install_dir))
 
         command = command + " " + options
         self.log_command(command)
@@ -362,7 +370,8 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
         if use_autotools:
             if not self.prepare(): return self.get_result()
-            if not self.build_configure(build_conf_options): return self.get_result()
+            if not self.build_configure(
+                                   build_conf_options): return self.get_result()
             if not self.configure(configure_options): return self.get_result()
             if not self.make(): return self.get_result()
             if not self.install(): return self.get_result()
@@ -411,7 +420,8 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
     def complete_environment(self, make_options):
         assert self.build_environ is not None
-        # pass additional variables to environment (may be used by the build script)
+        # pass additional variables to environment 
+        # (may be used by the build script)
         self.build_environ.set("SOURCE_DIR", str(self.source_dir))
         self.build_environ.set("INSTALL_DIR", str(self.install_dir))
         self.build_environ.set("PRODUCT_INSTALL", str(self.install_dir))
