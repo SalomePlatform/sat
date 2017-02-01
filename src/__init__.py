@@ -35,6 +35,11 @@ from . import compilation
 from . import test_module
 from . import template
 
+import platform
+if platform.system() == "Windows" :
+    import colorama
+    colorama.init()
+
 OK_STATUS = "OK"
 KO_STATUS = "KO"
 NA_STATUS = "NA"
@@ -319,6 +324,20 @@ def deepcopy_list(input_list):
     """
     res = []
     for elem in input_list:
+        res.append(elem)
+    return res
+
+def remove_item_from_list(input_list, item):
+    """ Remove all occurences of item from input_list
+    
+    :param input_list List: The list to modify
+    :return: The without any item
+    :rtype: List
+    """
+    res = []
+    for elem in input_list:
+        if elem == item:
+            continue
         res.append(elem)
     return res
 
