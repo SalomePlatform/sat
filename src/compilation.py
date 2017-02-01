@@ -117,6 +117,8 @@ class Builder:
                             (cmake_option, self.install_dir, self.source_dir))
 
         self.log_command(command)
+        # for key in sorted(self.build_environ.environ.environ.keys()):
+            # print key, "  ", self.build_environ.environ.environ[key]
         res = subprocess.call(command,
                               shell=True,
                               cwd=str(self.build_dir),
@@ -229,19 +231,14 @@ CC=\\"hack_libtool\\"%g" libtool'''
     
     ##
     # Runs msbuild to build the module.
-    def wmake(self, opt_nb_proc = None):
-        nbproc = self.get_nb_proc(opt_nb_proc)
+    def wmake(self,nb_proc, opt_nb_proc = None):
 
-        hh = 'MSBUILD /m:%s' % str(nbproc)
+        hh = 'MSBUILD /m:%s' % str(nb_proc)
         if self.debug_mode:
             hh += " " + src.printcolors.printcWarning("DEBUG")
-        self.log_step(hh)
-
         # make
         command = 'msbuild'
-        if self.options.makeflags:
-            command = command + " " + self.options.makeflags
-        command = command + " /maxcpucount:" + str(nbproc)
+        command = command + " /maxcpucount:" + str(nb_proc)
         if self.debug_mode:
             command = command + " /p:Configuration=Debug"
         else:
@@ -415,11 +412,12 @@ CC=\\"hack_libtool\\"%g" libtool'''
 
         self.log_command("  " + _("Run build script %s\n") % script)
         self.complete_environment(make_options)
+        
         res = subprocess.call(script, 
                               shell=True,
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT,
-                              cwd=str(self.build_dir), 
+                              cwd=str(self.build_dir),
                               env=self.build_environ.environ.environ)
 
         if res == 0:
