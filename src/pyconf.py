@@ -1223,6 +1223,10 @@ class ConfigReader(object):
         else:
             self.lastc = None
         self.last_token = tt
+        
+        # Python 2.x specific unicode conversion
+        if sys.version_info[0] == 2 and tt == WORD and isinstance(token, unicode):
+            token = token.encode('ascii')
         return (tt, token)
 
     def load(self, stream, parent=None, suffix=None):
