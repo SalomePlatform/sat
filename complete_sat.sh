@@ -154,7 +154,7 @@ _salomeTools_complete()
     # show argument for each command
     case "${command}" in
         config)
-            opts="--value --list --copy --edit --no_label --info"
+            opts="--value --list --copy --edit --no_label --info --show_patchs"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0        
             ;;
@@ -204,7 +204,7 @@ _salomeTools_complete()
             return 0
             ;;
         compile)
-            opts="--products --with_fathers --with_children --clean_all --make_flags --show --stop_first_fail"
+            opts="--products --with_fathers --with_children --clean_all --make_flags --show --stop_first_fail --check"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;

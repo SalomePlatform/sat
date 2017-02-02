@@ -51,6 +51,8 @@ parser.add_option('', 'show', 'boolean', 'no_compile',
 parser.add_option('', 'stop_first_fail', 'boolean', 'stop_first_fail', _(
                   "Optional: Stops the command at first product compilation"
                   " fail."), False)
+parser.add_option('', 'check', 'boolean', 'check', _(
+                  "Optional: execute the unit tests after compilation"), False)
 
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
@@ -358,16 +360,19 @@ def compile_all_products(sat, config, options, products_infos, logger):
                                                              len_end_line)
         
         if res_prod != 0:
-            # Clean the install directory if there is any
-            logger.write(_("Cleaning the install directory if there is any\n"),
-                         5)
-            sat.clean(config.VARS.application + 
-                      " --products " + p_name + 
-                      " --install",
-                      batch=True,
-                      verbose=0,
-                      logger_add_link = logger)
             res += 1
+            
+            if error_step != "CHECK":
+                # Clean the install directory if there is any
+                logger.write(_(
+                            "Cleaning the install directory if there is any\n"),
+                             5)
+                sat.clean(config.VARS.application + 
+                          " --products " + p_name + 
+                          " --install",
+                          batch=True,
+                          verbose=0,
+                          logger_add_link = logger)
             
         # Log the result
         if res_prod > 0:
@@ -375,6 +380,9 @@ def compile_all_products(sat, config, options, products_infos, logger):
             logger.write("\r" + header + src.printcolors.printcError("KO ") + error_step)
             logger.write("\n==== %(KO)s in compile of %(name)s \n" %
                 { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
+            if error_step == "CHECK":
+                logger.write(_("\nINSTALL directory = %s" % 
+                           src.printcolors.printcInfo(p_info.install_dir)), 3)
             logger.flush()
         else:
             logger.write("\r%s%s" % (header, " " * len_end_line), 3)
@@ -448,12 +456,18 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     if res==0:       
         logger.write(_("Add the config file in installation directory\n"), 5)
         add_compile_config_file(p_info, config)
-
-    # Do the unit tests (call the check command)
-    log_step(logger, header, "CHECK")
-    res += sat.check(config.VARS.application + " --products " + p_name,
-                             verbose = 0,
-                             logger_add_link = logger)
+        
+        if options.check:
+            # Do the unit tests (call the check command)
+            log_step(logger, header, "CHECK")
+            res_check = sat.check(
+                              config.VARS.application + " --products " + p_name,
+                              verbose = 0,
+                              logger_add_link = logger)
+            if res_check != 0:
+                error_step = "CHECK"
+                
+            res += res_check
     
     return res, len_end_line, error_step
 
