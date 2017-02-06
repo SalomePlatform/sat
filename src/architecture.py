@@ -88,7 +88,7 @@ def get_distribution(codes):
     else:
         sys.stderr.write(_(u"Unknown distribution: '%s'\n") % distrib)
         sys.stderr.write(_(u"Please add your distribution to"
-                           " data/distrib.pyconf\n"))
+                           " src/internal_config/distrib.pyconf\n"))
         sys.exit(-1)
 
     return distrib
