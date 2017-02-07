@@ -372,7 +372,7 @@ def binary_package(config, logger, options, tmp_working_dir):
                                                     tmp_working_dir,
                                                     binaries_dir_name)
         
-        d_products["appli script"] = (env_file, appli_script)
+        d_products["appli script"] = (appli_script, "create_appli.py")
    
     return d_products
 
