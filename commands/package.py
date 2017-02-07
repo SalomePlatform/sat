@@ -834,7 +834,7 @@ def run(args, runner, logger):
     if all_option_types.count(True) > 1:
         msg = _("Error: You can use only one type for the package\nUse only one"
                 " of the following options: --binaries, --sources, --project or"
-                " --sat")
+                " --salometools")
         logger.write(src.printcolors.printcError(msg), 1)
         logger.write("\n", 1)
         return 1
