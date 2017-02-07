@@ -245,6 +245,46 @@ def produce_relative_env_files(config,
     
     return filepath
 
+def product_appli_creation_script(config,
+                                  logger,
+                                  file_dir,
+                                  binaries_dir_name):
+    '''Create a script that can produce an application (EDF style) in the binary
+       package.
+    
+    :param config Config: The global configuration.
+    :param logger Logger: the logging instance
+    :param file_dir str: the directory where to put the file
+    :param binaries_dir_name str: the name of the repository where the binaries
+                                  are, in the archive.
+    :return: the path of the produced script file
+    :rtype: Str
+    '''
+    template_name = "create_appli.py.for_bin_packages.template"
+    template_path = os.path.join(config.VARS.internal_dir, template_name)
+    text_to_fill = open(template_path, "r").read()
+    text_to_fill = text_to_fill.replace("TO BE FILLED 1",
+                                        '"' + binaries_dir_name + '"')
+    
+    text_to_add = ""
+    for product_name in config.APPLICATION.products:
+        product_info = src.product.get_product_config(config, product_name)
+        if src.product.product_is_SALOME(product_info):
+            line_to_add = ("<module name=\"" + 
+                           product_name + 
+                           "\" gui=\"yes\" path=\"''' + "
+                           "os.path.join(dir_bin_name, \"" + 
+                           product_name + "\") + '''\"/>")
+            text_to_add += line_to_add + "\n"
+    
+    filled_text = text_to_fill.replace("TO BE FILLED 2", text_to_add)
+    
+    tmp_file_path = os.path.join(file_dir, "create_appli.py")
+    ff = open(tmp_file_path, "w")
+    ff.write(filled_text)
+    ff.close()
+    
+    return tmp_file_path
 
 def binary_package(config, logger, options, tmp_working_dir):
     '''Prepare a dictionary that stores all the needed directories and files to
@@ -325,7 +365,15 @@ def binary_package(config, logger, options, tmp_working_dir):
                                                binaries_dir_name)
 
         d_products["environment file"] = (env_file, "env_launch.sh")
-    
+        
+        # And provide a script for the creation of an application EDF style
+        appli_script = product_appli_creation_script(config,
+                                                    logger,
+                                                    tmp_working_dir,
+                                                    binaries_dir_name)
+        
+        d_products["appli script"] = (env_file, appli_script)
+   
     return d_products
 
 def source_package(sat, config, logger, options, tmp_working_dir):
