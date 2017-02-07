@@ -284,6 +284,16 @@ def product_appli_creation_script(config,
     ff.write(filled_text)
     ff.close()
     
+    # change the rights in order to make the file executable for everybody
+    os.chmod(tmp_file_path,
+             stat.S_IRUSR |
+             stat.S_IRGRP |
+             stat.S_IROTH |
+             stat.S_IWUSR |
+             stat.S_IXUSR |
+             stat.S_IXGRP |
+             stat.S_IXOTH)
+    
     return tmp_file_path
 
 def binary_package(config, logger, options, tmp_working_dir):

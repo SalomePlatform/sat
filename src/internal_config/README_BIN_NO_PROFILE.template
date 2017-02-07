@@ -11,3 +11,8 @@ This package includes an installation of the application ¤{application}.
  To be in its environment, launch the following commands :
 > bash
 > source $ROOT/¤{env_file}
+
+You can produce a SALOME application (old fashion) by launching the following 
+command:
+
+> $ROOT/create_appli.py

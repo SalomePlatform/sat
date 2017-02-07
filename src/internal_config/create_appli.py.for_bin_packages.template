@@ -52,5 +52,14 @@ for line in env_file_save_stream.readlines():
 for stream in [env_file_save_stream, env_file_stream]:
 	stream.close()
 
+os.chmod(os.path.join(ROOT_DIR, env_file_name),
+         stat.S_IRUSR |
+         stat.S_IRGRP |
+         stat.S_IROTH |
+         stat.S_IWUSR |
+         stat.S_IXUSR |
+         stat.S_IXGRP |
+         stat.S_IXOTH)
+
 command = "python " + os.path.join(ROOT_DIR, dir_bin_name, "KERNEL", "bin", "salome", "appli_gen.py") + " --prefix=APPLI --config=" + appli_config_name
 subprocess.call(command, shell=True)
