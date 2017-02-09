@@ -294,7 +294,7 @@ class ConfigManager:
                 project_cfg = src.pyconf.Config(open(project_pyconf_path),
                                                 PWD=("", project_pyconf_dir))
             except Exception as e:
-                msg = _("WARNING: Error in configuration file: "
+                msg = _("ERROR: Error in configuration file: "
                                  "%(file_path)s\n  %(error)s\n") % \
                             {'file_path' : project_pyconf_path, 'error': str(e) }
                 sys.stdout.write(msg)
