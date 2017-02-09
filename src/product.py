@@ -262,6 +262,15 @@ def get_product_config(config, product_name, with_install_dir=True):
         # The variable with_install_dir is at false only for internal use 
         # of the function get_install_dir
         
+        # Save the install_dir key if there is any
+        if "install_dir" in prod_info and not "install_dir_save" in prod_info:
+            prod_info.install_dir_save = prod_info.install_dir
+        
+        # if it is not the first time the install_dir is computed, it means
+        # that install_dir_save exists and it has to be taken into account.
+        if "install_dir_save" in prod_info:
+            prod_info.install_dir = prod_info.install_dir_save
+        
         # Set the install_dir key
         prod_info.install_dir = get_install_dir(config, base, version, prod_info)
                 

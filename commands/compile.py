@@ -329,6 +329,10 @@ def compile_all_products(sat, config, options, products_infos, logger):
                       verbose=0,
                       logger_add_link = logger)
         
+        # Recompute the product information to get the right install_dir
+        # (it could change if there is a clean of the install directory)
+        p_info = src.product.get_product_config(config, p_name)
+        
         # Check if it was already successfully installed
         if src.product.check_installation(p_info):
             logger.write(_("Already installed\n"))
