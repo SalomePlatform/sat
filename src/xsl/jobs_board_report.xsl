@@ -219,7 +219,7 @@
 		      <xsl:if test="not(remote_log_file_path/.='nothing') and state/.!='Not today'">
 			     - 
 			    <a>
-				<xsl:attribute name="title">remote log</xsl:attribute>
+				<xsl:attribute name="title">Begin : <xsl:value-of select="begin/."/>&#xA;End :    <xsl:value-of select="end/."/> </xsl:attribute>
 				<xsl:attribute name="href"><xsl:value-of select="remote_log_file_path/."/></xsl:attribute>
 				<xsl:if test="res/.='0'">
 				   <xsl:attribute name="class">OK2day</xsl:attribute>
@@ -240,7 +240,9 @@
 			<xsl:if test="@last='yes'">
 			  <h4>
 			    <a>
-			      <xsl:attribute name="title">remote log</xsl:attribute>
+			      <xsl:attribute name="title">
+				  <xsl:value-of select="concat(substring(@date, 7, 2), '/', substring(@date, 5, 2), '/', substring(@date,1,4))"/>
+			      </xsl:attribute>
 			      <xsl:attribute name="href"><xsl:value-of select="."/></xsl:attribute>
 			      <xsl:if test="@res='0'">
 				  <xsl:attribute name="class">OK2</xsl:attribute>
@@ -248,7 +250,7 @@
 			      <xsl:if test="@res!='0'">
 				  <xsl:attribute name="class">KO2</xsl:attribute>
 			      </xsl:if>
-			      <xsl:value-of select="@date"/>
+			      <xsl:value-of select="../../host"/>
 			    </a>
 			  </h4>
 			</xsl:if> 
