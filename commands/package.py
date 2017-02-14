@@ -24,6 +24,8 @@ import tarfile
 
 import src
 
+from application import get_SALOME_modules
+
 BINARY = "binary"
 SOURCE = "Source"
 PROJECT = "Project"
@@ -267,7 +269,7 @@ def product_appli_creation_script(config,
                                         '"' + binaries_dir_name + '"')
     
     text_to_add = ""
-    for product_name in config.APPLICATION.products:
+    for product_name in get_SALOME_modules(config):
         product_info = src.product.get_product_config(config, product_name)
         if src.product.product_is_SALOME(product_info):
             line_to_add = ("<module name=\"" + 
