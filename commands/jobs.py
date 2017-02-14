@@ -1683,7 +1683,7 @@ def run(args, runner, logger):
             msg = _("The file configuration %s was not found."
                     "\nUse the --list option to get the "
                     "possible files." % config_file)
-            src.printcolors.printcError(msg)
+            logger.write(src.printcolors.printcError(msg), 1)
             return 1
         l_conf_files_path.append(file_jobs_cfg)
         # Read the config that is in the file
