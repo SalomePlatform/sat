@@ -344,6 +344,17 @@ def binary_package(config, logger, options, tmp_working_dir):
             l_install_dir.append((prod_name, prod_info.install_dir))
         else:
             l_not_installed.append(prod_name)
+        
+        # Add also the cpp generated modules (if any)
+        if src.product.product_is_cpp(prod_info):
+            # cpp module
+            for name_cpp in src.product.get_product_components(prod_info):
+                install_dir = os.path.join(config.APPLICATION.workdir,
+                                           "INSTALL", name_cpp) 
+                if os.path.exists(install_dir):
+                    l_install_dir.append((name_cpp, install_dir))
+                else:
+                    l_not_installed.append(name_cpp)
     
     # Print warning or error if there are some missing products
     if len(l_not_installed) > 0:
