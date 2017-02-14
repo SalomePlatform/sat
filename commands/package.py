@@ -271,12 +271,26 @@ def product_appli_creation_script(config,
     text_to_add = ""
     for product_name in get_SALOME_modules(config):
         product_info = src.product.get_product_config(config, product_name)
-        if src.product.product_is_SALOME(product_info):
-            line_to_add = ("<module name=\"" + 
-                           product_name + 
-                           "\" gui=\"yes\" path=\"''' + "
-                           "os.path.join(dir_bin_name, \"" + 
-                           product_name + "\") + '''\"/>")
+       
+        if src.product.product_is_smesh_plugin(product_info):
+            continue
+
+        if 'install_dir' in product_info and bool(product_info.install_dir):
+            if src.product.product_is_cpp(product_info):
+                # cpp module
+                for cpp_name in src.product.get_product_components(product_info):
+                    line_to_add = ("<module name=\"" + 
+                                   cpp_name + 
+                                   "\" gui=\"yes\" path=\"''' + "
+                                   "os.path.join(dir_bin_name, \"" + 
+                                   cpp_name + "\") + '''\"/>")
+            else:
+                # regular module
+                line_to_add = ("<module name=\"" + 
+                               product_name + 
+                               "\" gui=\"yes\" path=\"''' + "
+                               "os.path.join(dir_bin_name, \"" + 
+                               product_name + "\") + '''\"/>")
             text_to_add += line_to_add + "\n"
     
     filled_text = text_to_fill.replace("TO BE FILLED 2", text_to_add)
