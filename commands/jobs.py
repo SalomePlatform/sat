@@ -1315,7 +1315,6 @@ class Gui(object):
                     self.logger.write("%s\n" % src.printcolors.printcWarning(
                                                                         msg), 5)
                     
-
         # Construct the dictionnary self.history 
         for job in l_jobs + l_jobs_not_today:
             l_links = []
@@ -1681,7 +1680,7 @@ def run(args, runner, logger):
     for config_file in options.jobs_cfg:
         found, file_jobs_cfg = get_config_file_path(config_file, l_cfg_dir)
         if not found:
-            msg = _("The file configuration %(name_file)s was not found."
+            msg = _("The file configuration %s was not found."
                     "\nUse the --list option to get the "
                     "possible files." % config_file)
             src.printcolors.printcError(msg)
