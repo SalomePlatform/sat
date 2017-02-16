@@ -363,23 +363,7 @@ class SalomeEnviron:
                 self.run_env_script("APPLICATION_%s" % sname,
                                 self.cfg.APPLICATION.environ_script[pscript],
                                 logger)
-                self.add_line(1)
-        
-        # If there is profile (SALOME), then define additional variables
-        if ('profile' in self.cfg.APPLICATION and 
-                                    "product" in self.cfg.APPLICATION.profile):
-            profile_product = self.cfg.APPLICATION.profile.product
-            product_info_profile = src.product.get_product_config(self.cfg,
-                                                            profile_product)
-            profile_share_salome = os.path.join(product_info_profile.install_dir,
-                                                "share",
-                                                "salome" )
-            self.set( "SUITRoot", profile_share_salome )
-            self.set( "SalomeAppConfig",
-                      os.path.join(profile_share_salome,
-                                   "resources",
-                                   profile_product.lower() ) )
-        
+                self.add_line(1)       
 
     def set_salome_minimal_product_env(self, product_info, logger):
         """Sets the minimal environment for a SALOME product.
@@ -568,6 +552,10 @@ class SalomeEnviron:
                     pi.install_dir = os.path.join(self.cfg.APPLICATION.workdir,
                                                   "INSTALL",
                                                   pi.component_name)
+                    if self.for_package:
+                        pi.install_dir = os.path.join("out_dir_Path",
+                                                      self.for_package,
+                                                      pi.component_name)
                     pi.source_dir = os.path.join(self.cfg.APPLICATION.workdir,
                                                   "GENERATED",
                                                   pi.component_name)
@@ -672,18 +660,6 @@ class SalomeEnviron:
         self.add_line(1)
         self.add_comment('setting environ for all products')
 
-        # Set the application working directory
-        if src_root is None:
-            src_root = self.cfg.APPLICATION.workdir
-        self.set('SRC_ROOT', src_root)
-
-        # SALOME variables
-        appli_name = "APPLI"
-        if "APPLI" in self.cfg and "application_name" in self.cfg.APPLI:
-            appli_name = self.cfg.APPLI.application_name
-        self.set("SALOME_APPLI_ROOT",
-                 os.path.join(self.cfg.APPLICATION.workdir, appli_name))
-
         # Make sure that the python lib dirs are set after python
         if "Python" in self.cfg.APPLICATION.products:
             self.set_a_product("Python", logger)
@@ -708,7 +684,7 @@ class SalomeEnviron:
 
         self.set_python_libdirs()
 
-        # set products        
+        # set products
         for product in env_info:
             self.set_a_product(product, logger)
 

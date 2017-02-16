@@ -384,7 +384,8 @@ def binary_package(config, logger, options, tmp_working_dir):
         d_products[prod_name] = (install_dir, path_in_archive)
 
     # create the relative launcher and add it to the files to add
-    if "profile" in config.APPLICATION:
+    if ("profile" in config.APPLICATION and 
+                                       "product" in config.APPLICATION.profile):
         launcher_name = config.APPLICATION.profile.launcher_name
         launcher_package = produce_relative_launcher(config,
                                              logger,
