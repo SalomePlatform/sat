@@ -333,7 +333,9 @@ def binary_package(config, logger, options, tmp_working_dir):
     l_product_info = src.product.get_products_infos(l_products_name,
                                                     config)
     l_install_dir = []
+    l_source_dir = []
     l_not_installed = []
+    l_sources_not_present = []
     for prod_name, prod_info in l_product_info:
         # ignore the native and fixed products
         if (src.product.product_is_native(prod_info) 
@@ -355,7 +357,16 @@ def binary_package(config, logger, options, tmp_working_dir):
                     l_install_dir.append((name_cpp, install_dir))
                 else:
                     l_not_installed.append(name_cpp)
-    
+        
+        # Add the sources of the products that have the property 
+        # sources_in_package : "yes"
+        if src.get_property_in_product_cfg(prod_info,
+                                           "sources_in_package") == "yes":
+            if os.path.exists(prod_info.source_dir):
+                l_source_dir.append((prod_name, prod_info.source_dir))
+            else:
+                l_sources_not_present.append(prod_name)
+        
     # Print warning or error if there are some missing products
     if len(l_not_installed) > 0:
         text_missing_prods = ""
@@ -372,7 +383,24 @@ def binary_package(config, logger, options, tmp_working_dir):
             logger.write("%s\n%s" % (src.printcolors.printcWarning(msg),
                                      text_missing_prods),
                          1)
-    
+
+    # Do the same for sources
+    if len(l_sources_not_present) > 0:
+        text_missing_prods = ""
+        for p_name in l_sources_not_present:
+            text_missing_prods += "-" + p_name + "\n"
+        if not options.force_creation:
+            msg = _("ERROR: there are missing products sources:")
+            logger.write("%s\n%s" % (src.printcolors.printcError(msg),
+                                     text_missing_prods),
+                         1)
+            return None
+        else:
+            msg = _("WARNING: there are missing products sources:")
+            logger.write("%s\n%s" % (src.printcolors.printcWarning(msg),
+                                     text_missing_prods),
+                         1)
+ 
     # construct the name of the directory that will contain the binaries
     binaries_dir_name = "BINARIES-" + config.VARS.dist
     
@@ -382,6 +410,10 @@ def binary_package(config, logger, options, tmp_working_dir):
     for prod_name, install_dir in l_install_dir:
         path_in_archive = os.path.join(binaries_dir_name, prod_name)
         d_products[prod_name] = (install_dir, path_in_archive)
+        
+    for prod_name, source_dir in l_source_dir:
+        path_in_archive = os.path.join("SOURCES", prod_name)
+        d_products[prod_name] = (source_dir, path_in_archive)
 
     # create the relative launcher and add it to the files to add
     if ("profile" in config.APPLICATION and 

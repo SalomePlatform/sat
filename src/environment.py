@@ -381,12 +381,19 @@ class SalomeEnviron:
                 logger.write("  " + _("No install_dir for product %s\n") %
                               product_info.name, 5)
         
-        if not self.for_package:
+        source_in_package = src.get_property_in_product_cfg(product_info,
+                                                           "sources_in_package")
+        if not self.for_package or source_in_package == "yes":
             # set source dir, unless no source dir
             if not src.product.product_is_fixed(product_info):
                 src_dir = product_info.name + "_SRC_DIR"
                 if not self.is_defined(src_dir):
-                    self.set(src_dir, product_info.source_dir)
+                    if not self.for_package:
+                        self.set(src_dir, product_info.source_dir)
+                    else:
+                        self.set(src_dir, os.path.join("out_dir_Path",
+                                                       "SOURCES",
+                                                       product_info.name))
 
     def set_salome_generic_product_env(self, pi):
         """Sets the generic environment for a SALOME product.
