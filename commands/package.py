@@ -337,7 +337,17 @@ def binary_package(config, logger, options, tmp_working_dir):
     l_not_installed = []
     l_sources_not_present = []
     for prod_name, prod_info in l_product_info:
-        # ignore the native and fixed products
+
+        # Add the sources of the products that have the property 
+        # sources_in_package : "yes"
+        if src.get_property_in_product_cfg(prod_info,
+                                           "sources_in_package") == "yes":
+            if os.path.exists(prod_info.source_dir):
+                l_source_dir.append((prod_name, prod_info.source_dir))
+            else:
+                l_sources_not_present.append(prod_name)
+
+        # ignore the native and fixed products for install directories
         if (src.product.product_is_native(prod_info) 
                 or src.product.product_is_fixed(prod_info)
                 or not src.product.product_compiles(prod_info)):
@@ -357,15 +367,6 @@ def binary_package(config, logger, options, tmp_working_dir):
                     l_install_dir.append((name_cpp, install_dir))
                 else:
                     l_not_installed.append(name_cpp)
-        
-        # Add the sources of the products that have the property 
-        # sources_in_package : "yes"
-        if src.get_property_in_product_cfg(prod_info,
-                                           "sources_in_package") == "yes":
-            if os.path.exists(prod_info.source_dir):
-                l_source_dir.append((prod_name, prod_info.source_dir))
-            else:
-                l_sources_not_present.append(prod_name)
         
     # Print warning or error if there are some missing products
     if len(l_not_installed) > 0:
