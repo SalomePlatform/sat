@@ -141,24 +141,14 @@ def make_product(p_name_info, make_option, config, logger):
     # Execute buildconfigure, configure if the product is autotools
     # Execute cmake if the product is cmake
     len_end_line = 20
-    res = 0
 
-    if not src.product.product_has_script(p_info):
-        nb_proc, make_opt_without_j = get_nb_proc(p_info, config, make_option)
-        log_step(logger, header, "MAKE -j" + str(nb_proc))
-        if src.architecture.is_windows():
-            res_m = builder.wmake(nb_proc, make_opt_without_j)
-        else:
-            res_m = builder.make(nb_proc, make_opt_without_j)
-        log_res_step(logger, res_m)
-        res += res_m
+    nb_proc, make_opt_without_j = get_nb_proc(p_info, config, make_option)
+    log_step(logger, header, "MAKE -j" + str(nb_proc))
+    if src.architecture.is_windows():
+        res = builder.wmake(nb_proc, make_opt_without_j)
     else:
-        scrit_path_display = src.printcolors.printcLabel(p_info.compil_script)
-        log_step(logger, header, "SCRIPT " + scrit_path_display)
-        len_end_line += len(scrit_path_display)
-        res_s = builder.do_script_build(p_info.compil_script)
-        log_res_step(logger, res_s)
-        res += res_s
+        res = builder.make(nb_proc, make_opt_without_j)
+    log_res_step(logger, res)
     
     # Log the result
     if res > 0:
@@ -212,9 +202,7 @@ def description():
     :rtype: str
     '''
     return _("The make command executes the \"make\" command in"
-             " the build directory.\nIn case of a product that is constructed "
-             "using a script (build_source :  \"script\"), then the make "
-             "command executes the script.\n\nexample:\nsat make SALOME-master "
+             " the build directory.\nexample:\nsat make SALOME-master "
              "--products Python,KERNEL,GUI")
   
 def run(args, runner, logger):
