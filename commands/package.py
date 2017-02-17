@@ -413,7 +413,7 @@ def binary_package(config, logger, options, tmp_working_dir):
         
     for prod_name, source_dir in l_source_dir:
         path_in_archive = os.path.join("SOURCES", prod_name)
-        d_products[prod_name] = (source_dir, path_in_archive)
+        d_products[prod_name + " (sources)"] = (source_dir, path_in_archive)
 
     # create the relative launcher and add it to the files to add
     if ("profile" in config.APPLICATION and 
