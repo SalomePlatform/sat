@@ -27,7 +27,7 @@ ignore_filters = '*.png'
 # a tuple = (parameter name, default value, prompt, validation method)
 parameters = [
     (file_subst, "%(NAME)s"),
-    ("get_method", "archive", "get method for prepare", lambda l: l in ['cvs', 'git', 'archive'])
+    ("get_method", "dir", "get method for prepare", lambda l: l in ['cvs', 'git', 'archive', 'dir'])
     ]
 
 # configuration to use this component with sat
@@ -47,6 +47,10 @@ pyconf = """
         {
             archive_name : '%(target)s'
         }
+        dir_info:
+        {
+            dir : '%(target)s'
+        }
         source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
         build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
         depend : [ 
@@ -65,8 +69,8 @@ pyconf = """
         opt_depend : []
         properties :
         {
-            is_cpp : "yes"
-            environment : "salome"
+            cpp : "yes"
+            generate : "yes"
             has_salome_gui : "yes"
             logo : $source_dir + "/resources/%(NAME)s.png"
         }
