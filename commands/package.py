@@ -428,22 +428,22 @@ def binary_package(config, logger, options, tmp_working_dir):
                                              not(options.without_commercial))
     
         d_products["launcher"] = (launcher_package, launcher_name)
-    else:
-        # No profile, it means that there has to be some environment files
-        env_file = produce_relative_env_files(config,
-                                               logger,
-                                               tmp_working_dir,
-                                               binaries_dir_name)
 
-        d_products["environment file"] = (env_file, "env_launch.sh")
-        
-        # And provide a script for the creation of an application EDF style
-        appli_script = product_appli_creation_script(config,
-                                                    logger,
-                                                    tmp_working_dir,
-                                                    binaries_dir_name)
-        
-        d_products["appli script"] = (appli_script, "create_appli.py")
+    # Put also some environment files
+    env_file = produce_relative_env_files(config,
+                                           logger,
+                                           tmp_working_dir,
+                                           binaries_dir_name)
+
+    d_products["environment file"] = (env_file, "env_launch.sh")
+    
+    # And provide a script for the creation of an application EDF style
+    appli_script = product_appli_creation_script(config,
+                                                logger,
+                                                tmp_working_dir,
+                                                binaries_dir_name)
+    
+    d_products["appli script"] = (appli_script, "create_appli.py")
    
     return d_products
 
