@@ -65,10 +65,14 @@ def generate_launch_file(config,
     # Compute the default launcher path if it is not provided in pathlauncher
     # parameter
     if pathlauncher is None:
-        filepath = os.path.join( os.path.join( profile_install_dir,
-                                               'bin',
-                                               'salome' ),
-                                 profile['launcher_name'] )
+        if platform.system() == "Windows" :
+            filepath = os.path.join( os.path.join( profile_install_dir,
+                                                   'bin',
+                                                   'salome' ),
+                                     profile['launcher_name'] )
+        else:
+            filepath = os.path.join( out_dir,
+                                     profile['launcher_name'] )
     else:
         filepath = os.path.join(pathlauncher, profile['launcher_name'])
 
@@ -397,9 +401,10 @@ def run(args, runner, logger):
                                          logger,
                                          additional_env = additional_environ )
 
-    # Create the link (bash file that sources python and then call 
-    # the actual launcher) to the launcher
-    generate_launch_link( runner.cfg, logger, launcherPath)
+    if platform.system() == "Windows" :
+        # Create the link (bash file that sources python and then call 
+        # the actual launcher) to the launcher
+        generate_launch_link( runner.cfg, logger, launcherPath)
 
     # Add some links
     finish_profile_install(runner.cfg, launcherPath)
