@@ -339,7 +339,7 @@ class SalomeEnviron:
             self.load_cfg_environment(self.cfg.APPLICATION.environ)
             if self.forBuild and "build" in self.cfg.APPLICATION.environ:
                 self.load_cfg_environment(self.cfg.APPLICATION.environ.build)
-            if not self.forBuild and "launch" in pi.environ:
+            if not self.forBuild and "launch" in self.cfg.APPLICATION.environ:
                 self.load_cfg_environment(self.cfg.APPLICATION.environ.launch)
             self.add_line(1)
 
