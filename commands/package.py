@@ -34,6 +34,9 @@ SAT = "Sat"
 ARCHIVE_DIR = "ARCHIVES"
 PROJECT_DIR = "PROJECT"
 
+IGNORED_DIRS = [".git"]
+IGNORED_EXTENSIONS = [".la", ".cmake"]
+
 PROJECT_TEMPLATE = """#!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
@@ -102,7 +105,7 @@ parser.add_option('', 'add_files', 'list2', 'add_files',
 parser.add_option('', 'without_commercial', 'boolean', 'without_commercial',
     _('Optional: do not add commercial licence.'), False)
 
-def add_files(tar, name_archive, d_content, logger):
+def add_files(tar, name_archive, d_content, logger, f_exclude=None):
     '''Create an archive containing all directories and files that are given in
        the d_content argument.
     
@@ -113,6 +116,7 @@ def add_files(tar, name_archive, d_content, logger):
                            d_content[label] = 
                                         (path_on_local_machine, path_in_archive)
     :param logger Logger: the logging instance
+    :param f_exclude Function: the function that filters
     :return: 0 if success, 1 if not.
     :rtype: int
     '''
@@ -131,7 +135,7 @@ def add_files(tar, name_archive, d_content, logger):
         in_archive = os.path.join(name_archive, archive_path)
         # Add it in the archive
         try:
-            tar.add(local_path, arcname=in_archive)
+            tar.add(local_path, arcname=in_archive, exclude=f_exclude)
             logger.write(src.printcolors.printcSuccess(_("OK")), 3)
         except Exception as e:
             logger.write(src.printcolors.printcError(_("KO ")), 3)
@@ -139,6 +143,22 @@ def add_files(tar, name_archive, d_content, logger):
             success = 1
         logger.write("\n", 3)
     return success
+
+def exclude_VCS_info(filename):
+    ''' The function that is used to exclude from package the link to the 
+        VCS repositories (like .git)
+
+    :param filename Str: The filname to exclude (or not).
+    :return: True if the file has to be exclude
+    :rtype: Boolean
+    '''
+    for dir_name in IGNORED_DIRS:
+        if dir_name in filename:
+            return True
+    for extension in IGNORED_EXTENSIONS:
+        if filename.endswith(extension):
+            return True
+    return False
 
 def produce_relative_launcher(config,
                               logger,
@@ -1110,8 +1130,13 @@ def run(args, runner, logger):
         # Creating the object tarfile
         tar = tarfile.open(path_targz, mode='w:gz')
         
+        # get the filtering function if needed
+        filter_function = None
+        if package_type == BINARY:
+            filter_function = exclude_VCS_info
+
         # Add the files to the tarfile object
-        res = add_files(tar, archive_name, d_files_to_add, logger)
+        res = add_files(tar, archive_name, d_files_to_add, logger, f_exclude=filter_function)
         tar.close()
     except KeyboardInterrupt:
         logger.write(src.printcolors.printcError("\nERROR: forced interruption\n"), 1)
