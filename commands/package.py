@@ -104,6 +104,10 @@ parser.add_option('', 'add_files', 'list2', 'add_files',
     _('Optional: The list of additional files to add to the archive.'), [])
 parser.add_option('', 'without_commercial', 'boolean', 'without_commercial',
     _('Optional: do not add commercial licence.'), False)
+parser.add_option('', 'without_property', 'string', 'without_property',
+    _('Optional: Filter the products by their properties.\n\tSyntax: '
+      '--without_property <property>:<value>'))
+
 
 def add_files(tar, name_archive, d_content, logger, f_exclude=None):
     '''Create an archive containing all directories and files that are given in
@@ -930,7 +934,22 @@ def add_readme(config, package_type, where):
     f.write(src.template.substitute(readme_template_path, d))
     
     return readme_path
-        
+
+def update_config(config, prop, value):
+    '''Remove from config.APPLICATION.products the products that have the property given as input.
+    
+    :param config Config: The global config.
+    :param prop str: The property to filter
+    :param value str: The value of the property to filter
+    '''
+    src.check_config_has_application(config)
+    l_product_to_remove = []
+    for product_name in config.APPLICATION.products.keys():
+        prod_cfg = src.product.get_product_config(config, product_name)
+        if src.get_property_in_product_cfg(prod_cfg, prop) == value:
+            l_product_to_remove.append(product_name)
+    for product_name in l_product_to_remove:
+        config.APPLICATION.products.__delitem__(product_name)
 
 def description():
     '''method that is called when salomeTools is called with --help option.
@@ -1016,6 +1035,11 @@ def run(args, runner, logger):
             logger.write(src.printcolors.printcError(msg), 1)
             logger.write("\n", 1)
             return 1
+    
+    # Remove the products that are filtered by the --without_property option
+    if options.without_property:
+        [prop, value] = options.without_property.split(":")
+        update_config(runner.cfg, prop, value)
     
     # Print
     src.printcolors.print_value(logger, "Package type", package_type, 2)
