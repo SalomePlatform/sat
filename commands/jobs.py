@@ -318,8 +318,11 @@ class Job(object):
         :return: (the output of the kill, the error of the kill)
         :rtype: (str, str)
         '''
-        
-        pids = self.get_pids()
+        try:
+            pids = self.get_pids()
+        except:
+            return ("Unable to get the pid of the command.", "")
+            
         cmd_kill = " ; ".join([("kill -2 " + pid) for pid in pids])
         (_, out_kill, err_kill) = self.machine.exec_command(cmd_kill, 
                                                             self.logger)
@@ -509,7 +512,6 @@ class Job(object):
             self._has_finished = True
             self._has_timouted = True
             self._Tf = time.time()
-            self.get_pids()
             (out_kill, _) = self.kill_remote_process()
             self.out += "TIMEOUT \n" + out_kill.read().decode()
             self.err += "TIMEOUT : %s seconds elapsed\n" % str(self.timeout)
