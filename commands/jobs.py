@@ -327,7 +327,7 @@ class Job(object):
         (_, out_kill, err_kill) = self.machine.exec_command(cmd_kill, 
                                                             self.logger)
         time.sleep(wait)
-        return (out_kill, err_kill)
+        return (out_kill.read().decode(), err_kill.read().decode())
             
     def has_begun(self):
         '''Returns True if the job has already begun
@@ -513,7 +513,7 @@ class Job(object):
             self._has_timouted = True
             self._Tf = time.time()
             (out_kill, _) = self.kill_remote_process()
-            self.out += "TIMEOUT \n" + out_kill.read().decode()
+            self.out += "TIMEOUT \n" + out_kill
             self.err += "TIMEOUT : %s seconds elapsed\n" % str(self.timeout)
             try:
                 self.get_log_files()
