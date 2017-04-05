@@ -518,7 +518,12 @@ class Job(object):
             try:
                 self.get_log_files()
             except Exception as e:
-                self.err += _("Unable to get remote log files: %s" % e)
+                # The 2 following lines must be suppressed after the bug is fixed
+                print("The error type: ")
+                print(type(e))
+                print("The error: ")
+                print(e)
+                self.err += _("Unable to get remote log files: %s" % str(e))
             
     def total_duration(self):
         """Give the total duration of the job
