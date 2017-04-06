@@ -138,7 +138,7 @@ _salomeTools_complete()
     fi
       
     # show list of products
-    if [[ ${prev} == "--product" || ${prev} == "-p" || ${prev} == "--info" || ${prev} == "-i" ]]
+    if [[ ${prev} == "--products" || ${prev} == "-p" || ${prev} == "--info" || ${prev} == "-i" ]]
     then
         appli="${COMP_WORDS[2]}"
         if [[ ${command} != "source" ]]
