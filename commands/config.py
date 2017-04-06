@@ -387,20 +387,6 @@ class ConfigManager:
                                  " %s\n" % src.printcolors.printcWarning(
                                                                       str(e)))
                     do_merge = False
-
-            if do_merge:
-                merger.merge(cfg, application_cfg)
-            
-                # apply overwrite from command line if needed
-                for rule in self.get_command_line_overrides(options,
-                                                             ["APPLICATION"]):
-                    # this cannot be factorized because of the exec
-                    exec('cfg.' + rule)
-                    
-                # default launcher name ('salome')
-                if ('profile' in cfg.APPLICATION and 
-                    'launcher_name' not in cfg.APPLICATION.profile):
-                    cfg.APPLICATION.profile.launcher_name = 'salome'
         
             else:
                 cfg['open_application'] = 'yes'
@@ -413,7 +399,7 @@ class ConfigManager:
                                 "The products\n")
         if application is not None:
             src.pyconf.streamOpener = ConfigOpener(cfg.PATHS.PRODUCTPATH)
-            for product_name in cfg.APPLICATION.products.keys():
+            for product_name in application_cfg.APPLICATION.products.keys():
                 # Loop on all files that are in softsDir directory
                 # and read their config
                 product_file_name = product_name + ".pyconf"
@@ -438,6 +424,20 @@ class ConfigManager:
             # apply overwrite from command line if needed
             for rule in self.get_command_line_overrides(options, ["PRODUCTS"]):
                 exec('cfg.' + rule) # this cannot be factorized because of the exec
+            
+            if do_merge:
+                merger.merge(cfg, application_cfg)
+
+                # default launcher name ('salome')
+                if ('profile' in cfg.APPLICATION and 
+                    'launcher_name' not in cfg.APPLICATION.profile):
+                    cfg.APPLICATION.profile.launcher_name = 'salome'
+
+                # apply overwrite from command line if needed
+                for rule in self.get_command_line_overrides(options,
+                                                             ["APPLICATION"]):
+                    # this cannot be factorized because of the exec
+                    exec('cfg.' + rule)
             
         # =====================================================================
         # load USER config
