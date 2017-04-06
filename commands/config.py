@@ -47,6 +47,8 @@ parser.add_option('c', 'copy', 'boolean', 'copy',
 \tIf a name is given the new config file takes the given name."""))
 parser.add_option('n', 'no_label', 'boolean', 'no_label',
     _("Internal use: do not print labels, Works only with --value and --list."))
+parser.add_option('', 'completion', 'boolean', 'completion',
+    _("Internal use: print only keys, works only with --value."))
 parser.add_option('s', 'schema', 'boolean', 'schema',
     _("Internal use."))
 
@@ -949,5 +951,10 @@ def run(args, runner, logger):
                     src.printcolors.printcLabel(runner.cfg.VARS.application), 3)
         logger.write("\n", 2, False)
         show_patchs(runner.cfg, logger)
+    
+    # case: print all the products name of the application (internal use for completion)
+    elif options.completion:
+        for product_name in runner.cfg.APPLICATION.products.keys():
+            logger.write("%s\n" % product_name)
         
     

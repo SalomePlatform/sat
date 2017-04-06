@@ -67,7 +67,7 @@ _show_products()
 {
     if [[ $appli != $prev ]]
     then
-        opts=$(for x in `$SAT_PATH/sat -s config $appli -nv APPLICATION.products`
+        opts=$(for x in `$SAT_PATH/sat config $appli --completion`
             do echo ${x}; done)
 
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
@@ -138,12 +138,12 @@ _salomeTools_complete()
     fi
       
     # show list of products
-    if [[ ${prev} == "--product" || ${prev} == "-p" ]]
+    if [[ ${prev} == "--product" || ${prev} == "-p" || ${prev} == "--info" || ${prev} == "-i" ]]
     then
         appli="${COMP_WORDS[2]}"
         if [[ ${command} != "source" ]]
         then
-            opts=$(for x in `$SAT_PATH/sat config $appli -nv APPLICATION.products`
+            opts=$(for x in `$SAT_PATH/sat config $appli --completion`
                 do echo ${x}; done)
 
                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
