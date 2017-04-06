@@ -344,42 +344,6 @@ class ConfigManager:
             exec('cfg.' + rule) # this cannot be factorized because of the exec
 
         # =====================================================================
-        # Load product config files in PRODUCTS section
-        products_cfg = src.pyconf.Config()
-        products_cfg.addMapping("PRODUCTS",
-                                src.pyconf.Mapping(products_cfg),
-                                "The products\n")
-        src.pyconf.streamOpener = ConfigOpener(cfg.PATHS.PRODUCTPATH)
-        for products_dir in cfg.PATHS.PRODUCTPATH:
-            # Loop on all files that are in softsDir directory
-            # and read their config
-            for fName in os.listdir(products_dir):
-                if fName.endswith(".pyconf"):
-                    pName = fName[:-len(".pyconf")]
-                    if pName in products_cfg.PRODUCTS:
-                        continue
-                    try:
-                        prod_cfg = src.pyconf.Config(open(
-                                                    os.path.join(products_dir,
-                                                                 fName)),
-                                                     PWD=("", products_dir))
-                    except Exception as e:
-                        msg = _(
-                            "WARNING: Error in configuration file"
-                            ": %(prod)s\n  %(error)s" % \
-                            {'prod' :  fName, 'error': str(e) })
-                        sys.stdout.write(msg)
-                        continue
-                    
-                    products_cfg.PRODUCTS[pName] = prod_cfg
-        
-        merger.merge(cfg, products_cfg)
-        
-        # apply overwrite from command line if needed
-        for rule in self.get_command_line_overrides(options, ["PRODUCTS"]):
-            exec('cfg.' + rule) # this cannot be factorized because of the exec
-
-        # =====================================================================
         # Load APPLICATION config file
         if application is not None:
             # search APPLICATION file in all directories in configPath
@@ -438,7 +402,40 @@ class ConfigManager:
         
             else:
                 cfg['open_application'] = 'yes'
-                
+
+        # =====================================================================
+        # Load product config files in PRODUCTS section
+        products_cfg = src.pyconf.Config()
+        products_cfg.addMapping("PRODUCTS",
+                                src.pyconf.Mapping(products_cfg),
+                                "The products\n")
+        if application is not None:
+            src.pyconf.streamOpener = ConfigOpener(cfg.PATHS.PRODUCTPATH)
+            for product_name in cfg.APPLICATION.products.keys():
+                # Loop on all files that are in softsDir directory
+                # and read their config
+                product_file_name = product_name + ".pyconf"
+                product_file_path = src.find_file_in_lpath(product_file_name, cfg.PATHS.PRODUCTPATH)
+                if product_file_path:
+                    products_dir = os.path.dirname(product_file_path)
+                    try:
+                        prod_cfg = src.pyconf.Config(open(
+                                                    os.path.join(products_dir,
+                                                                 product_file_name)),
+                                                     PWD=("", products_dir))
+                        products_cfg.PRODUCTS[product_name] = prod_cfg
+                    except Exception as e:
+                        msg = _(
+                            "WARNING: Error in configuration file"
+                            ": %(prod)s\n  %(error)s" % \
+                            {'prod' :  product_name, 'error': str(e) })
+                        sys.stdout.write(msg)
+            
+            merger.merge(cfg, products_cfg)
+            
+            # apply overwrite from command line if needed
+            for rule in self.get_command_line_overrides(options, ["PRODUCTS"]):
+                exec('cfg.' + rule) # this cannot be factorized because of the exec
             
         # =====================================================================
         # load USER config
