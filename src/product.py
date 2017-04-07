@@ -295,6 +295,7 @@ def get_product_section(config, product_name, version, section=None):
         # returns specific information for the given version
         prod_info = config.PRODUCTS[product_name][section]
         prod_info.section = section
+        prod_info.from_file = config.PRODUCTS[product_name].from_file
         return prod_info
 
     # If it exists, get the information of the product_version
@@ -302,6 +303,7 @@ def get_product_section(config, product_name, version, section=None):
         # returns specific information for the given version
         prod_info = config.PRODUCTS[product_name]["version_" + version]
         prod_info.section = "version_" + version
+        prod_info.from_file = config.PRODUCTS[product_name].from_file
         return prod_info
     
     # Else, check if there is a description for multiple versions
@@ -315,6 +317,7 @@ def get_product_section(config, product_name, version, section=None):
             # returns specific information for the versions
             prod_info = config.PRODUCTS[product_name][section_range]
             prod_info.section = section_range
+            prod_info.from_file = config.PRODUCTS[product_name].from_file
             return prod_info
     
     # Else, get the standard informations
@@ -322,6 +325,7 @@ def get_product_section(config, product_name, version, section=None):
         # returns the generic information (given version not found)
         prod_info = config.PRODUCTS[product_name].default
         prod_info.section = "default"
+        prod_info.from_file = config.PRODUCTS[product_name].from_file
         return prod_info
     
     # if noting was found, return None

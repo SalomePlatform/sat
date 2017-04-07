@@ -359,10 +359,11 @@ class ConfigManager:
                     if pName in products_cfg.PRODUCTS:
                         continue
                     try:
-                        prod_cfg = src.pyconf.Config(open(
-                                                    os.path.join(products_dir,
-                                                                 fName)),
+                        product_file_path = os.path.join(products_dir, fName)
+                        prod_cfg = src.pyconf.Config(open(product_file_path),
                                                      PWD=("", products_dir))
+                        prod_cfg.from_file = product_file_path
+                        products_cfg.PRODUCTS[pName] = prod_cfg
                     except Exception as e:
                         msg = _(
                             "WARNING: Error in configuration file"
@@ -370,8 +371,6 @@ class ConfigManager:
                             {'prod' :  fName, 'error': str(e) })
                         sys.stdout.write(msg)
                         continue
-                    
-                    products_cfg.PRODUCTS[pName] = prod_cfg
         
         merger.merge(cfg, products_cfg)
         
@@ -584,9 +583,6 @@ def show_product_info(config, name, logger):
     logger.write(_("%s is a product\n") % src.printcolors.printcLabel(name), 2)
     pinfo = src.product.get_product_config(config, name)
     
-    # Type of the product
-    ptype = src.get_cfg_param(pinfo, "type", "")
-    src.printcolors.print_value(logger, "type", ptype, 2)
     if "depend" in pinfo:
         src.printcolors.print_value(logger, 
                                     "depends on", 
@@ -596,6 +592,21 @@ def show_product_info(config, name, logger):
         src.printcolors.print_value(logger, 
                                     "optional", 
                                     ', '.join(pinfo.opt_depend), 2)
+                                    
+    # information on pyconf
+    logger.write("\n", 2)
+    logger.write(src.printcolors.printcLabel("configuration:") + "\n", 2)
+    if "from_file" in pinfo:
+        src.printcolors.print_value(logger, 
+                                    "pyconf file path", 
+                                    pinfo.from_file, 
+                                    2)
+    if "section" in pinfo:
+        src.printcolors.print_value(logger, 
+                                    "section", 
+                                    pinfo.section, 
+                                    2)
+    
 
     # information on prepare
     logger.write("\n", 2)
@@ -692,6 +703,7 @@ def show_product_info(config, name, logger):
                                        False)
     zz.set_python_libdirs()
     zz.set_a_product(name, logger)
+
         
 def show_patchs(config, logger):
     '''Prints all the used patchs in the application.
