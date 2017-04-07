@@ -204,7 +204,7 @@ _salomeTools_complete()
             return 0
             ;;
         compile)
-            opts="--products --with_fathers --with_children --clean_all --make_flags --show --stop_first_fail --check"
+            opts="--products --with_fathers --with_children --clean_all --make_flags --show --stop_first_fail --check --clean_build_after"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;

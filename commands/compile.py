@@ -54,6 +54,9 @@ parser.add_option('', 'stop_first_fail', 'boolean', 'stop_first_fail', _(
 parser.add_option('', 'check', 'boolean', 'check', _(
                   "Optional: execute the unit tests after compilation"), False)
 
+parser.add_option('', 'clean_build_after', 'boolean', 'clean_build_after', 
+                  _('Optional: remove the build directory after successful compilation'), False)
+
 def get_products_list(options, cfg, logger):
     '''method that gives the product list with their informations from 
        configuration regarding the passed options.
@@ -377,7 +380,17 @@ def compile_all_products(sat, config, options, products_infos, logger):
                           batch=True,
                           verbose=0,
                           logger_add_link = logger)
-            
+        else:
+            # Clean the build directory if the compilation and tests succeed
+            if options.clean_build_after:
+                log_step(logger, header, "CLEAN BUILD")
+                sat.clean(config.VARS.application + 
+                          " --products " + p_name + 
+                          " --build",
+                          batch=True,
+                          verbose=0,
+                          logger_add_link = logger)
+
         # Log the result
         if res_prod > 0:
             logger.write("\r%s%s" % (header, " " * len_end_line), 3)
