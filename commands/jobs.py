@@ -523,7 +523,15 @@ class Job(object):
                 print(type(e))
                 print("The error: ")
                 print(e)
-                self.err += _("Unable to get remote log files: %s" % str(e))
+                print("Local scope:")
+                print(dir())
+                print("The str type: ")
+                print(type(str))
+                print("str: ")
+                print(str)
+                if 'str' in dir():
+                    del(str)
+                self.err += _("Unable to get remote log files!")
             
     def total_duration(self):
         """Give the total duration of the job
