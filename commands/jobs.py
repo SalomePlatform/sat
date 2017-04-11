@@ -529,8 +529,6 @@ class Job(object):
                 print(type(str))
                 print("str: ")
                 print(str)
-                if 'str' in dir():
-                    del(str)
                 self.err += _("Unable to get remote log files!")
             
     def total_duration(self):
