@@ -47,6 +47,8 @@ parser.add_option('c', 'copy', 'boolean', 'copy',
 \tIf a name is given the new config file takes the given name."""))
 parser.add_option('n', 'no_label', 'boolean', 'no_label',
     _("Internal use: do not print labels, Works only with --value and --list."))
+parser.add_option('', 'completion', 'boolean', 'completion',
+    _("Internal use: print only keys, works only with --value."))
 parser.add_option('s', 'schema', 'boolean', 'schema',
     _("Internal use."))
 
@@ -344,41 +346,6 @@ class ConfigManager:
             exec('cfg.' + rule) # this cannot be factorized because of the exec
 
         # =====================================================================
-        # Load product config files in PRODUCTS section
-        products_cfg = src.pyconf.Config()
-        products_cfg.addMapping("PRODUCTS",
-                                src.pyconf.Mapping(products_cfg),
-                                "The products\n")
-        src.pyconf.streamOpener = ConfigOpener(cfg.PATHS.PRODUCTPATH)
-        for products_dir in cfg.PATHS.PRODUCTPATH:
-            # Loop on all files that are in softsDir directory
-            # and read their config
-            for fName in os.listdir(products_dir):
-                if fName.endswith(".pyconf"):
-                    pName = fName[:-len(".pyconf")]
-                    if pName in products_cfg.PRODUCTS:
-                        continue
-                    try:
-                        product_file_path = os.path.join(products_dir, fName)
-                        prod_cfg = src.pyconf.Config(open(product_file_path),
-                                                     PWD=("", products_dir))
-                        prod_cfg.from_file = product_file_path
-                        products_cfg.PRODUCTS[pName] = prod_cfg
-                    except Exception as e:
-                        msg = _(
-                            "WARNING: Error in configuration file"
-                            ": %(prod)s\n  %(error)s" % \
-                            {'prod' :  fName, 'error': str(e) })
-                        sys.stdout.write(msg)
-                        continue
-        
-        merger.merge(cfg, products_cfg)
-        
-        # apply overwrite from command line if needed
-        for rule in self.get_command_line_overrides(options, ["PRODUCTS"]):
-            exec('cfg.' + rule) # this cannot be factorized because of the exec
-
-        # =====================================================================
         # Load APPLICATION config file
         if application is not None:
             # search APPLICATION file in all directories in configPath
@@ -420,24 +387,56 @@ class ConfigManager:
                                  " %s\n" % src.printcolors.printcWarning(
                                                                       str(e)))
                     do_merge = False
+        
+            else:
+                cfg['open_application'] = 'yes'
 
+        # =====================================================================
+        # Load product config files in PRODUCTS section
+        products_cfg = src.pyconf.Config()
+        products_cfg.addMapping("PRODUCTS",
+                                src.pyconf.Mapping(products_cfg),
+                                "The products\n")
+        if application is not None:
+            src.pyconf.streamOpener = ConfigOpener(cfg.PATHS.PRODUCTPATH)
+            for product_name in application_cfg.APPLICATION.products.keys():
+                # Loop on all files that are in softsDir directory
+                # and read their config
+                product_file_name = product_name + ".pyconf"
+                product_file_path = src.find_file_in_lpath(product_file_name, cfg.PATHS.PRODUCTPATH)
+                if product_file_path:
+                    products_dir = os.path.dirname(product_file_path)
+                    try:
+                        prod_cfg = src.pyconf.Config(open(product_file_path),
+                                                     PWD=("", products_dir))
+                        prod_cfg.from_file = product_file_path
+                        products_cfg.PRODUCTS[product_name] = prod_cfg
+                    except Exception as e:
+                        msg = _(
+                            "WARNING: Error in configuration file"
+                            ": %(prod)s\n  %(error)s" % \
+                            {'prod' :  product_name, 'error': str(e) })
+                        sys.stdout.write(msg)
+            
+            merger.merge(cfg, products_cfg)
+            
+            # apply overwrite from command line if needed
+            for rule in self.get_command_line_overrides(options, ["PRODUCTS"]):
+                exec('cfg.' + rule) # this cannot be factorized because of the exec
+            
             if do_merge:
                 merger.merge(cfg, application_cfg)
-            
+
+                # default launcher name ('salome')
+                if ('profile' in cfg.APPLICATION and 
+                    'launcher_name' not in cfg.APPLICATION.profile):
+                    cfg.APPLICATION.profile.launcher_name = 'salome'
+
                 # apply overwrite from command line if needed
                 for rule in self.get_command_line_overrides(options,
                                                              ["APPLICATION"]):
                     # this cannot be factorized because of the exec
                     exec('cfg.' + rule)
-                    
-                # default launcher name ('salome')
-                if ('profile' in cfg.APPLICATION and 
-                    'launcher_name' not in cfg.APPLICATION.profile):
-                    cfg.APPLICATION.profile.launcher_name = 'salome'
-        
-            else:
-                cfg['open_application'] = 'yes'
-                
             
         # =====================================================================
         # load USER config
@@ -592,7 +591,7 @@ def show_product_info(config, name, logger):
         src.printcolors.print_value(logger, 
                                     "optional", 
                                     ', '.join(pinfo.opt_depend), 2)
-                                    
+
     # information on pyconf
     logger.write("\n", 2)
     logger.write(src.printcolors.printcLabel("configuration:") + "\n", 2)
@@ -606,7 +605,6 @@ def show_product_info(config, name, logger):
                                     "section", 
                                     pinfo.section, 
                                     2)
-    
 
     # information on prepare
     logger.write("\n", 2)
@@ -703,7 +701,6 @@ def show_product_info(config, name, logger):
                                        False)
     zz.set_python_libdirs()
     zz.set_a_product(name, logger)
-
         
 def show_patchs(config, logger):
     '''Prints all the used patchs in the application.
@@ -964,5 +961,10 @@ def run(args, runner, logger):
                     src.printcolors.printcLabel(runner.cfg.VARS.application), 3)
         logger.write("\n", 2, False)
         show_patchs(runner.cfg, logger)
+    
+    # case: print all the products name of the application (internal use for completion)
+    elif options.completion:
+        for product_name in runner.cfg.APPLICATION.products.keys():
+            logger.write("%s\n" % product_name)
         
     
