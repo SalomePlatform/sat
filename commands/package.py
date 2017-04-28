@@ -22,6 +22,7 @@ import shutil
 import datetime
 import tarfile
 import codecs
+import string
 
 import src
 
@@ -292,38 +293,37 @@ def produce_install_bin_file(config,
     filepath = os.path.join(file_dir, file_name)
     # open the file and write into it
     # use codec utf-8 as sat variables are in unicode
-    installbin_file = codecs.open(filepath, "w", 'utf-8') 
-    installbin_template_path = os.path.join(config.VARS.internal_dir,
-                                    "INSTALL_BIN.template")
-    
-    # build the name of the directory that will contain the binaries
-    binaries_dir_name = "BINARIES-" + config.VARS.dist
-    # build the substitution loop
-    loop_cmd = "for f in $(grep -RIl"
-    for key in d_sub:
-        loop_cmd += " -e "+ key
-    loop_cmd += ' INSTALL); do\n     sed -i "\n'
-    for key in d_sub:
-        loop_cmd += "        s?" + key + "?$(pwd)/" + d_sub[key] + "?g\n"
-    loop_cmd += '            " $f\ndone'
+    with codecs.open(filepath, "w", 'utf-8') as installbin_file:
+        installbin_template_path = os.path.join(config.VARS.internal_dir,
+                                        "INSTALL_BIN.template")
+        
+        # build the name of the directory that will contain the binaries
+        binaries_dir_name = "BINARIES-" + config.VARS.dist
+        # build the substitution loop
+        loop_cmd = "for f in $(grep -RIl"
+        for key in d_sub:
+            loop_cmd += " -e "+ key
+        loop_cmd += ' INSTALL); do\n     sed -i "\n'
+        for key in d_sub:
+            loop_cmd += "        s?" + key + "?$(pwd)/" + d_sub[key] + "?g\n"
+        loop_cmd += '            " $f\ndone'
 
-    d={}
-    d["BINARIES_DIR"] = binaries_dir_name
-    d["SUBSTITUTION_LOOP"]=loop_cmd
-    
-    # substitute the template and write it in file
-    content=src.template.substitute(installbin_template_path, d)
-    installbin_file.write(content)
-    installbin_file.close()
-    # change the rights in order to make the file executable for everybody
-    os.chmod(filepath,
-             stat.S_IRUSR |
-             stat.S_IRGRP |
-             stat.S_IROTH |
-             stat.S_IWUSR |
-             stat.S_IXUSR |
-             stat.S_IXGRP |
-             stat.S_IXOTH)
+        d={}
+        d["BINARIES_DIR"] = binaries_dir_name
+        d["SUBSTITUTION_LOOP"]=loop_cmd
+        
+        # substitute the template and write it in file
+        content=src.template.substitute(installbin_template_path, d)
+        installbin_file.write(content)
+        # change the rights in order to make the file executable for everybody
+        os.chmod(filepath,
+                 stat.S_IRUSR |
+                 stat.S_IRGRP |
+                 stat.S_IROTH |
+                 stat.S_IWUSR |
+                 stat.S_IXUSR |
+                 stat.S_IXGRP |
+                 stat.S_IXOTH)
     
     return filepath
 
@@ -507,11 +507,11 @@ def binary_package(config, logger, options, tmp_working_dir):
                                              binaries_dir_name,
                                              not(options.without_commercial))
     
-        if options.sources:
-            # if we mix binaries and sources, prefix launcher name with "bin" 
-            # to avoid clashes
-            launcher_name="bin"+launcher_name
         d_products["launcher"] = (launcher_package, launcher_name)
+        if options.sources:
+            # if we mix binaries and sources, we add a copy of the launcher, 
+            # prefixed  with "bin",in order to avoid clashes
+            d_products["launcher (copy)"] = (launcher_package, "bin"+launcher_name)
     else:
         # Provide a script for the creation of an application EDF style
         appli_script = product_appli_creation_script(config,
@@ -946,52 +946,88 @@ def project_package(project_file_path, tmp_working_dir):
     
     return d_project
 
-def add_readme(config, package_type, where):
+def add_readme(config, options, where):
     readme_path = os.path.join(where, "README")
-    f = open(readme_path, 'w')
-    # prepare substitution dictionary
-    d = dict()
-    if package_type == BINARY:
-        d['application'] = config.VARS.application
+    with codecs.open(readme_path, "w", 'utf-8') as f:
+
+    # templates for building the header
+        readme_header="""
+# This package was generated with sat $version
+# Date: $date
+# User: $user
+# Distribution : $dist
+
+In the following, $$ROOT represents the directory where you have installed 
+SALOME (the directory where this file is located).
+
+"""
+        readme_compilation_with_binaries="""
+
+compilation based on the binaries used as prerequisites
+=======================================================
+
+If you fail to compile the the complete application (for example because
+you are not root on your system and cannot install missing packages), you
+may try a partial compilation based on the binaries.
+For that it is necessary to copy the binaries from BINARIES to INSTALL,
+and do some substitutions on cmake and .la files (replace the build directories
+with local paths).
+The procedure to do it is:
+ 1) Remove or rename INSTALL directory if it exists
+ 2) Execute the shell script bin_install.sh:
+ > cd $ROOT
+ > ./bin_install.sh
+ 3) Use SalomeTool (as explained in Sources section) and compile only the 
+    modules you need to (with -p option)
+
+"""
+        readme_header_tpl=string.Template(readme_header)
+        readme_template_path_bin_prof = os.path.join(config.VARS.internal_dir,
+                "README_BIN.template")
+        readme_template_path_bin_noprof = os.path.join(config.VARS.internal_dir,
+                "README_BIN_NO_PROFILE.template")
+        readme_template_path_src = os.path.join(config.VARS.internal_dir,
+                "README_SRC.template")
+        readme_template_path_pro = os.path.join(config.VARS.internal_dir,
+                "README_PROJECT.template")
+        readme_template_path_sat = os.path.join(config.VARS.internal_dir,
+                "README_SAT.template")
+
+        # prepare substitution dictionary
+        d = dict()
         d['user'] = config.VARS.user
         d['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         d['version'] = config.INTERNAL.sat_version
         d['dist'] = config.VARS.dist
-        if 'profile' in config.APPLICATION:
-            d['launcher'] = config.APPLICATION.profile.launcher_name
-            readme_template_path = os.path.join(config.VARS.internal_dir,
-                                                "README_BIN.template")
-        else:
-            d['env_file'] = 'env_launch.sh'
-            readme_template_path = os.path.join(config.VARS.internal_dir,
-                                               "README_BIN_NO_PROFILE.template")
-            
-    if package_type == SOURCE:
-        d['application'] = config.VARS.application
-        d['user'] = config.VARS.user
-        d['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        d['version'] = config.INTERNAL.sat_version
-        if 'profile' in config.APPLICATION:
-            d['profile'] = config.APPLICATION.profile.product
-            d['launcher'] = config.APPLICATION.profile.launcher_name
-        readme_template_path = os.path.join(config.VARS.internal_dir,
-                                    "README_SRC.template")
+        f.write(readme_header_tpl.substitute(d)) # write the general header (common)
 
-    if package_type == PROJECT:
-        d['user'] = config.VARS.user
-        d['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        d['version'] = config.INTERNAL.sat_version
-        readme_template_path = os.path.join(config.VARS.internal_dir,
-                                    "README_PROJECT.template")
+        if options.binaries or options.sources:
+            d['application'] = config.VARS.application
+            f.write("# Application: " + d['application'])
+            if 'profile' in config.APPLICATION:
+                d['launcher'] = config.APPLICATION.profile.launcher_name
+                d['launcher'] = config.APPLICATION.profile.launcher_name
+            else:
+                d['env_file'] = 'env_launch.sh'
 
-    if package_type == SAT:
-        d['user'] = config.VARS.user
-        d['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        d['version'] = config.INTERNAL.sat_version
-        readme_template_path = os.path.join(config.VARS.internal_dir,
-                                    "README_SAT.template")
-    
-    f.write(src.template.substitute(readme_template_path, d))
+        # write the specific sections
+        if options.binaries:
+            if "env_file" in d:
+                f.write(src.template.substitute(readme_template_path_bin_noprof, d))
+            else:
+                f.write(src.template.substitute(readme_template_path_bin_prof, d))
+
+        if options.sources:
+            f.write(src.template.substitute(readme_template_path_src, d))
+
+        if options.binaries and options.sources:
+            f.write(readme_compilation_with_binaries)
+
+        if options.project:
+            f.write(src.template.substitute(readme_template_path_pro, d))
+
+        if options.sat:
+            f.write(src.template.substitute(readme_template_path_sat, d))
     
     return readme_path
 
@@ -1048,7 +1084,6 @@ def run(args, runner, logger):
         logger.write("\n", 1)
         return 1
     
-
     # The repository where to put the package if not Binary or Source
     package_default_path = runner.cfg.USER.workdir
     
@@ -1085,7 +1120,7 @@ def run(args, runner, logger):
         [prop, value] = options.without_property.split(":")
         update_config(runner.cfg, prop, value)
     
-    # get the name of the archive or construct it
+    # get the name of the archive or build it
     if options.name:
         if os.path.basename(options.name) == options.name:
             # only a name (not a path)
@@ -1141,7 +1176,6 @@ def run(args, runner, logger):
  
     path_targz = os.path.join(dir_name, archive_name + ".tgz")
     
-    # Print the path of the package
     src.printcolors.print_value(logger, "Package path", path_targz, 2)
 
     # Create a working directory for all files that are produced during the
@@ -1160,8 +1194,7 @@ def run(args, runner, logger):
 
     d_files_to_add={}  # content of the archive
 
-    # a dict to hold paths that will need to be substitute 
-    # for users recompilations
+    # a dict to hold paths that will need to be substitute for users recompilations
     d_paths_to_substitute={}  
 
     if options.binaries:
@@ -1169,7 +1202,8 @@ def run(args, runner, logger):
                                             logger,
                                             options,
                                             tmp_working_dir)
-        # for all binaries dir, store the substitution that will be required for extra compilations
+        # for all binaries dir, store the substitution that will be required 
+        # for extra compilations
         for key in d_bin_files_to_add:
             if key.endswith("(bin)"):
                 source_dir = d_bin_files_to_add[key][0]
@@ -1216,12 +1250,11 @@ def run(args, runner, logger):
         logger.write("\n", 1)
         return 1
 
-    # CNC revoir la construction de readme  
     # Add the README file in the package
-    #local_readme_tmp_path = add_readme(runner.cfg,
-    #                                   package_type,
-    #                                   tmp_working_dir)
-    #d_files_to_add["README"] = (local_readme_tmp_path, "README")
+    local_readme_tmp_path = add_readme(runner.cfg,
+                                       options,
+                                       tmp_working_dir)
+    d_files_to_add["README"] = (local_readme_tmp_path, "README")
 
     # Add the additional files of option add_files
     if options.add_files:

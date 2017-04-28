@@ -1,23 +1,13 @@
-# This package was generated with sat ¤{version}
-# Date: ¤{date}
-# User: ¤{user}
-# Application: ¤{application}
 
-Important
-=========
-The version of SAlomeTools included in this package is configured to work with 
-the application of the package.
+Sources
+=======
 
-1) Introduction
-===============
+This package includes the sources of the application. 
+They are located in the $ROOT/ARCHIVES directory.
 
-In the following, $ROOT represents the directory where you install your 
-application (the directory where this file is located).
-
-The sources of your application are located in the $ROOT/ARCHIVES directory.
-
-This package includes SAlomeTools (sat) a suite of scripts to manage
+It also includes a version of SAlomeTools (sat), a suite of scripts to manage
 operations on your application (get sources, compilation, test, packaging ...).
+This version is configured to work with the application of the package.
 
 sat is located in $ROOT and you can read its documentation in 
 $ROOT/salomeTools/doc or by using:
@@ -27,28 +17,51 @@ $ROOT/salomeTools/doc or by using:
 If you use bash, you can have completion for sat by sourcing $ROOT/salomeTools/complete_sat.sh:
 > source $ROOT/salomeTools/complete_sat.sh
 
-2) Preparing the sources of your application
+
+a) Preparing the sources of your application
 ============================================
-Tap the following command to get the source and apply the patches:
+Type the following command to get the source and apply the patches:
 > $ROOT/sat prepare ¤{application}
 
-3) Build ¤{application}
-=======================
-Tap the following command to compile and install the products of your application:
-> $ROOT/sat compile ¤{application}
+The sources are retrieved from tgz archives located in ARCHIVES directory (or from VCS tools 
+if they were included)
 
-3) Set environment for libraries inside ¤{application}
+
+b) Build ¤{application}
+=======================
+Type the following command to compile and install the products of your application:
+> $ROOT/sat -t compile ¤{application}
+
+The -t option displays the compilation logs in the terminal.
+
+IMPORTANT : 
+This operation may fail if some requiered linux packages are not installed on your system.
+It is also often necessary to install a nvidia driver.
+If you fail to compile and your archive contains pre-compiled binaries, 
+and you actually only need to modify a SALOME module, or add an extra one,
+then you may be interrested by a limited compilation based on the binaries used as prerequisites.
+In this case please refer to the instructions after 
+(paragraph compilation based on the binaries used as prerequisites).
+
+c) Set environment for libraries inside ¤{application}
 ======================================================
-Tap the following command to produce the environment files:
+Type the following command to produce the environment files:
 > $ROOT/sat environ ¤{application}
 
-4) Create a SALOME launcher
+d) Create a SALOME launcher
 ===========================
 
 Create the launcher:
 > $ROOT/sat launcher ¤{application}
 
-5) How to set the Distene license
+IMPORTANT : 
+If you package also contains a binary installationn 
+this command will overwrite tits launcher.
+In this case, you will still ne able to execute the binary version, wy usig a copy 
+of its launcher, called bin¤{launcher}
+
+
+e) How to set the Distene license
 =================================
 
 If your application is based on SALOME and embed the SMESH module and MeshGems 
