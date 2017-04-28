@@ -1137,35 +1137,27 @@ def run(args, runner, logger):
             archive_name = archive_name[:-len(".tar.gz")]
         
     else:
+        archive_name=""
         dir_name = package_default_path
-        if options.binaries:
-            archive_name = (runner.cfg.APPLICATION.name +
-                            "-" +
-                            runner.cfg.VARS.dist)
-            
-        elif options.sources:
-            archive_name = (runner.cfg.APPLICATION.name +
-                            "-" +
-                            "SRC")
-            if options.with_vcs:
-                archive_name = (runner.cfg.APPLICATION.name +
-                            "-" +
-                            "SRC" +
-                            "-" +
-                            "VCS")
+        if options.binaries or options.sources:
+            archive_name = runner.cfg.APPLICATION.name
 
-        elif options.project:
+        if options.binaries:
+            archive_name += "_"+runner.cfg.VARS.dist
+            
+        if options.sources:
+            archive_name += "_SRC"
+            if options.with_vcs:
+                archive_name += "_VCS"
+
+        if options.project:
             project_name, __ = os.path.splitext(
                                             os.path.basename(options.project))
-            archive_name = ("PROJECT" +
-                            "-" +
-                            project_name)
+            archive_name += ("PROJECT_" + project_name)
  
-        elif options.sat:
-            archive_name = ("salomeTools" +
-                            "-" +
-                            runner.cfg.INTERNAL.sat_version)
-        else:
+        if options.sat:
+            archive_name += ("salomeTools_" + runner.cfg.INTERNAL.sat_version)
+        if len(archive_name)==0: # no option worked 
             msg = _("Error: Cannot name the archive\n"
                     " check if at least one of the following options was "
                     "selected : --binaries, --sources, --project or"
@@ -1232,7 +1224,7 @@ def run(args, runner, logger):
                                                       "install_bin.sh")
             d_files_to_add.update({"install_bin" : (file_install_bin, "install_bin.sh")})
             logger.write("substitutions that need to be done later : \n", 5)
-            logger.write(d_paths_to_substitute, 5)
+            logger.write(str(d_paths_to_substitute), 5)
             logger.write("\n", 5)
     else:
         # --salomeTool option is not considered when --sources is selected, as this option
