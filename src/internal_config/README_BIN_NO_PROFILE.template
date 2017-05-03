@@ -1,18 +1,17 @@
-# This package was generated with sat ¤{version}
-# Date: ¤{date}
-# User: ¤{user}
-# Distribution : ¤{dist}
 
-In the following, $ROOT represents the directory where you install SALOME (the
-directory where this file is located).
+Binairies
+=========
 
-This package includes an installation of the application ¤{application}.
+This package includes a binary installation of the application ¤{application}.
+The binaries are stored in BINARIES directory.
 
- To be in its environment, launch the following commands :
-> bash
-> source $ROOT/¤{env_file}
-
-You can produce a SALOME application (old fashion) by launching the following 
+You can produce a SALOME application (old style) by launching the following 
 command:
 
 > $ROOT/create_appli.py
+
+This command creates a SALOME application directory APPLI which contains a launcher.
+To start the application, run:
+> $ROOT/APPLI/runAppli
+
+

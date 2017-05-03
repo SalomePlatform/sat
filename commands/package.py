@@ -21,6 +21,8 @@ import stat
 import shutil
 import datetime
 import tarfile
+import codecs
+import string
 
 import src
 
@@ -34,8 +36,8 @@ SAT = "Sat"
 ARCHIVE_DIR = "ARCHIVES"
 PROJECT_DIR = "PROJECT"
 
-IGNORED_DIRS = [".git"]
-IGNORED_EXTENSIONS = [".la", ".cmake"]
+IGNORED_DIRS = [".git", ".svn"]
+IGNORED_EXTENSIONS = []
 
 PROJECT_TEMPLATE = """#!/usr/bin/env python
 #-*- coding:utf-8 -*-
@@ -148,7 +150,7 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
         logger.write("\n", 3)
     return success
 
-def exclude_VCS_info(filename):
+def exclude_VCS_and_extensions(filename):
     ''' The function that is used to exclude from package the link to the 
         VCS repositories (like .git)
 
@@ -268,6 +270,60 @@ def produce_relative_env_files(config,
              stat.S_IXUSR |
              stat.S_IXGRP |
              stat.S_IXOTH)
+    
+    return filepath
+
+def produce_install_bin_file(config,
+                             logger,
+                             file_dir,
+                             d_sub,
+                             file_name):
+    '''Create a bash shell script which do substitutions in BIRARIES dir 
+       in order to use it for extra compilations.
+    
+    :param config Config: The global configuration.
+    :param logger Logger: the logging instance
+    :param file_dir str: the directory where to put the files
+    :param d_sub, dict: the dictionnary that contains the substitutions to be done
+    :param file_name str: the name of the install script file
+    :return: the produced file
+    :rtype: str
+    '''  
+    # Write
+    filepath = os.path.join(file_dir, file_name)
+    # open the file and write into it
+    # use codec utf-8 as sat variables are in unicode
+    with codecs.open(filepath, "w", 'utf-8') as installbin_file:
+        installbin_template_path = os.path.join(config.VARS.internal_dir,
+                                        "INSTALL_BIN.template")
+        
+        # build the name of the directory that will contain the binaries
+        binaries_dir_name = "BINARIES-" + config.VARS.dist
+        # build the substitution loop
+        loop_cmd = "for f in $(grep -RIl"
+        for key in d_sub:
+            loop_cmd += " -e "+ key
+        loop_cmd += ' INSTALL); do\n     sed -i "\n'
+        for key in d_sub:
+            loop_cmd += "        s?" + key + "?$(pwd)/" + d_sub[key] + "?g\n"
+        loop_cmd += '            " $f\ndone'
+
+        d={}
+        d["BINARIES_DIR"] = binaries_dir_name
+        d["SUBSTITUTION_LOOP"]=loop_cmd
+        
+        # substitute the template and write it in file
+        content=src.template.substitute(installbin_template_path, d)
+        installbin_file.write(content)
+        # change the rights in order to make the file executable for everybody
+        os.chmod(filepath,
+                 stat.S_IRUSR |
+                 stat.S_IRGRP |
+                 stat.S_IROTH |
+                 stat.S_IWUSR |
+                 stat.S_IXUSR |
+                 stat.S_IXGRP |
+                 stat.S_IXOTH)
     
     return filepath
 
@@ -434,7 +490,7 @@ def binary_package(config, logger, options, tmp_working_dir):
     d_products = {}
     for prod_name, install_dir in l_install_dir:
         path_in_archive = os.path.join(binaries_dir_name, prod_name)
-        d_products[prod_name] = (install_dir, path_in_archive)
+        d_products[prod_name + " (bin)"] = (install_dir, path_in_archive)
         
     for prod_name, source_dir in l_source_dir:
         path_in_archive = os.path.join("SOURCES", prod_name)
@@ -452,6 +508,10 @@ def binary_package(config, logger, options, tmp_working_dir):
                                              not(options.without_commercial))
     
         d_products["launcher"] = (launcher_package, launcher_name)
+        if options.sources:
+            # if we mix binaries and sources, we add a copy of the launcher, 
+            # prefixed  with "bin",in order to avoid clashes
+            d_products["launcher (copy)"] = (launcher_package, "bin"+launcher_name)
     else:
         # Provide a script for the creation of an application EDF style
         appli_script = product_appli_creation_script(config,
@@ -530,7 +590,8 @@ def source_package(sat, config, logger, options, tmp_working_dir):
         
         d_sat["sat link"] = (tmp_satlink_path, "sat")
     
-    return src.merge_dicts(d_archives, d_archives_vcs, d_project, d_sat)
+    d_source = src.merge_dicts(d_archives, d_archives_vcs, d_project, d_sat)
+    return d_source
 
 def get_archives(config, logger):
     '''Find all the products that are get using an archive and all the products
@@ -885,52 +946,88 @@ def project_package(project_file_path, tmp_working_dir):
     
     return d_project
 
-def add_readme(config, package_type, where):
+def add_readme(config, options, where):
     readme_path = os.path.join(where, "README")
-    f = open(readme_path, 'w')
-    # prepare substitution dictionary
-    d = dict()
-    if package_type == BINARY:
-        d['application'] = config.VARS.application
+    with codecs.open(readme_path, "w", 'utf-8') as f:
+
+    # templates for building the header
+        readme_header="""
+# This package was generated with sat $version
+# Date: $date
+# User: $user
+# Distribution : $dist
+
+In the following, $$ROOT represents the directory where you have installed 
+SALOME (the directory where this file is located).
+
+"""
+        readme_compilation_with_binaries="""
+
+compilation based on the binaries used as prerequisites
+=======================================================
+
+If you fail to compile the the complete application (for example because
+you are not root on your system and cannot install missing packages), you
+may try a partial compilation based on the binaries.
+For that it is necessary to copy the binaries from BINARIES to INSTALL,
+and do some substitutions on cmake and .la files (replace the build directories
+with local paths).
+The procedure to do it is:
+ 1) Remove or rename INSTALL directory if it exists
+ 2) Execute the shell script bin_install.sh:
+ > cd $ROOT
+ > ./bin_install.sh
+ 3) Use SalomeTool (as explained in Sources section) and compile only the 
+    modules you need to (with -p option)
+
+"""
+        readme_header_tpl=string.Template(readme_header)
+        readme_template_path_bin_prof = os.path.join(config.VARS.internal_dir,
+                "README_BIN.template")
+        readme_template_path_bin_noprof = os.path.join(config.VARS.internal_dir,
+                "README_BIN_NO_PROFILE.template")
+        readme_template_path_src = os.path.join(config.VARS.internal_dir,
+                "README_SRC.template")
+        readme_template_path_pro = os.path.join(config.VARS.internal_dir,
+                "README_PROJECT.template")
+        readme_template_path_sat = os.path.join(config.VARS.internal_dir,
+                "README_SAT.template")
+
+        # prepare substitution dictionary
+        d = dict()
         d['user'] = config.VARS.user
         d['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         d['version'] = config.INTERNAL.sat_version
         d['dist'] = config.VARS.dist
-        if 'profile' in config.APPLICATION:
-            d['launcher'] = config.APPLICATION.profile.launcher_name
-            readme_template_path = os.path.join(config.VARS.internal_dir,
-                                                "README_BIN.template")
-        else:
-            d['env_file'] = 'env_launch.sh'
-            readme_template_path = os.path.join(config.VARS.internal_dir,
-                                               "README_BIN_NO_PROFILE.template")
-            
-    if package_type == SOURCE:
-        d['application'] = config.VARS.application
-        d['user'] = config.VARS.user
-        d['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        d['version'] = config.INTERNAL.sat_version
-        if 'profile' in config.APPLICATION:
-            d['profile'] = config.APPLICATION.profile.product
-            d['launcher'] = config.APPLICATION.profile.launcher_name
-        readme_template_path = os.path.join(config.VARS.internal_dir,
-                                    "README_SRC.template")
+        f.write(readme_header_tpl.substitute(d)) # write the general header (common)
 
-    if package_type == PROJECT:
-        d['user'] = config.VARS.user
-        d['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        d['version'] = config.INTERNAL.sat_version
-        readme_template_path = os.path.join(config.VARS.internal_dir,
-                                    "README_PROJECT.template")
+        if options.binaries or options.sources:
+            d['application'] = config.VARS.application
+            f.write("# Application: " + d['application'])
+            if 'profile' in config.APPLICATION:
+                d['launcher'] = config.APPLICATION.profile.launcher_name
+                d['launcher'] = config.APPLICATION.profile.launcher_name
+            else:
+                d['env_file'] = 'env_launch.sh'
 
-    if package_type == SAT:
-        d['user'] = config.VARS.user
-        d['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        d['version'] = config.INTERNAL.sat_version
-        readme_template_path = os.path.join(config.VARS.internal_dir,
-                                    "README_SAT.template")
-    
-    f.write(src.template.substitute(readme_template_path, d))
+        # write the specific sections
+        if options.binaries:
+            if "env_file" in d:
+                f.write(src.template.substitute(readme_template_path_bin_noprof, d))
+            else:
+                f.write(src.template.substitute(readme_template_path_bin_prof, d))
+
+        if options.sources:
+            f.write(src.template.substitute(readme_template_path_src, d))
+
+        if options.binaries and options.sources:
+            f.write(readme_compilation_with_binaries)
+
+        if options.project:
+            f.write(src.template.substitute(readme_template_path_pro, d))
+
+        if options.sat:
+            f.write(src.template.substitute(readme_template_path_sat, d))
     
     return readme_path
 
@@ -957,13 +1054,13 @@ def description():
     :rtype: str
     '''
     return _("The package command creates an archive.\nThere are 4 kinds of "
-             "archive:\n  1- The binary archive. It contains all the product "
+             "archive, which can be mixed:\n  1- The binary archive. It contains all the product "
              "installation directories and a launcher,\n  2- The sources archive."
              " It contains the products archives, a project corresponding to "
              "the application and salomeTools,\n  3- The project archive. It "
              "contains a project (give the project file path as argument),\n  4-"
              " The salomeTools archive. It contains salomeTools.\n\nexample:"
-             "\nsat package SALOME-master --sources")
+             "\nsat package SALOME-master --bineries --sources")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with package parameter.
@@ -987,29 +1084,11 @@ def run(args, runner, logger):
         logger.write("\n", 1)
         return 1
     
-    # Check for only one option for package type
-    if all_option_types.count(True) > 1:
-        msg = _("Error: You can use only one type for the package\nUse only one"
-                " of the following options: --binaries, --sources, --project or"
-                " --salometools")
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
-        return 1
-    
-    # Get the package type
-    if options.binaries:
-        package_type = BINARY
-    if options.sources:
-        package_type = SOURCE
-    if options.project:
-        package_type = PROJECT
-    if options.sat:
-        package_type = SAT
-
     # The repository where to put the package if not Binary or Source
     package_default_path = runner.cfg.USER.workdir
     
-    if package_type in [BINARY, SOURCE]:
+    # if the package contains binaries or sources:
+    if options.binaries or options.sources:
         # Check that the command has been called with an application
         src.check_config_has_application(runner.cfg)
 
@@ -1022,7 +1101,8 @@ def run(args, runner, logger):
                                             "PACKAGE")
         src.ensure_path_exists(package_default_path)
         
-    elif package_type == PROJECT:
+    # if the package contains a project:
+    if options.project:
         # check that the project is visible by SAT
         if options.project not in runner.cfg.PROJECTS.project_file_paths:
             site_path = os.path.join(runner.cfg.VARS.salometoolsway,
@@ -1040,10 +1120,7 @@ def run(args, runner, logger):
         [prop, value] = options.without_property.split(":")
         update_config(runner.cfg, prop, value)
     
-    # Print
-    src.printcolors.print_value(logger, "Package type", package_type, 2)
-
-    # get the name of the archive or construct it
+    # get the name of the archive or build it
     if options.name:
         if os.path.basename(options.name) == options.name:
             # only a name (not a path)
@@ -1060,38 +1137,37 @@ def run(args, runner, logger):
             archive_name = archive_name[:-len(".tar.gz")]
         
     else:
+        archive_name=""
         dir_name = package_default_path
-        if package_type == BINARY:
-            archive_name = (runner.cfg.APPLICATION.name +
-                            "-" +
-                            runner.cfg.VARS.dist)
-            
-        if package_type == SOURCE:
-            archive_name = (runner.cfg.APPLICATION.name +
-                            "-" +
-                            "SRC")
-            if options.with_vcs:
-                archive_name = (runner.cfg.APPLICATION.name +
-                            "-" +
-                            "SRC" +
-                            "-" +
-                            "VCS")
+        if options.binaries or options.sources:
+            archive_name = runner.cfg.APPLICATION.name
 
-        if package_type == PROJECT:
+        if options.binaries:
+            archive_name += "_"+runner.cfg.VARS.dist
+            
+        if options.sources:
+            archive_name += "_SRC"
+            if options.with_vcs:
+                archive_name += "_VCS"
+
+        if options.project:
             project_name, __ = os.path.splitext(
                                             os.path.basename(options.project))
-            archive_name = ("PROJECT" +
-                            "-" +
-                            project_name)
+            archive_name += ("PROJECT_" + project_name)
  
-        if package_type == SAT:
-            archive_name = ("salomeTools" +
-                            "-" +
-                            runner.cfg.INTERNAL.sat_version)
+        if options.sat:
+            archive_name += ("salomeTools_" + runner.cfg.INTERNAL.sat_version)
+        if len(archive_name)==0: # no option worked 
+            msg = _("Error: Cannot name the archive\n"
+                    " check if at least one of the following options was "
+                    "selected : --binaries, --sources, --project or"
+                    " --salometools")
+            logger.write(src.printcolors.printcError(msg), 1)
+            logger.write("\n", 1)
+            return 1
  
     path_targz = os.path.join(dir_name, archive_name + ".tgz")
     
-    # Print the path of the package
     src.printcolors.print_value(logger, "Package path", path_targz, 2)
 
     # Create a working directory for all files that are produced during the
@@ -1108,30 +1184,67 @@ def run(args, runner, logger):
     logger.write(src.printcolors.printcLabel(msg), 2)
     logger.write("\n", 2)
 
-    if package_type == BINARY:           
-        d_files_to_add = binary_package(runner.cfg,
-                                        logger,
-                                        options,
-                                        tmp_working_dir)
-        if not(d_files_to_add):
-            return 1
+    d_files_to_add={}  # content of the archive
 
-    if package_type == SOURCE:
-        d_files_to_add = source_package(runner,
+    # a dict to hold paths that will need to be substitute for users recompilations
+    d_paths_to_substitute={}  
+
+    if options.binaries:
+        d_bin_files_to_add = binary_package(runner.cfg,
+                                            logger,
+                                            options,
+                                            tmp_working_dir)
+        # for all binaries dir, store the substitution that will be required 
+        # for extra compilations
+        for key in d_bin_files_to_add:
+            if key.endswith("(bin)"):
+                source_dir = d_bin_files_to_add[key][0]
+                path_in_archive = d_bin_files_to_add[key][1].replace("BINARIES-" + runner.cfg.VARS.dist,"INSTALL")
+                if os.path.basename(source_dir)==os.path.basename(path_in_archive):
+                    # if basename is the same we will just substitute the dirname 
+                    d_paths_to_substitute[os.path.dirname(source_dir)]=\
+                        os.path.dirname(path_in_archive)
+                else:
+                    d_paths_to_substitute[source_dir]=path_in_archive
+
+        d_files_to_add.update(d_bin_files_to_add)
+
+    if options.sources:
+        d_files_to_add.update(source_package(runner,
                                         runner.cfg,
                                         logger, 
                                         options,
-                                        tmp_working_dir)          
+                                        tmp_working_dir))
+        if options.binaries:
+            # for archives with bin and sources we provide a shell script able to 
+            # install binaries for compilation
+            file_install_bin=produce_install_bin_file(runner.cfg,logger,
+                                                      tmp_working_dir,
+                                                      d_paths_to_substitute,
+                                                      "install_bin.sh")
+            d_files_to_add.update({"install_bin" : (file_install_bin, "install_bin.sh")})
+            logger.write("substitutions that need to be done later : \n", 5)
+            logger.write(str(d_paths_to_substitute), 5)
+            logger.write("\n", 5)
+    else:
+        # --salomeTool option is not considered when --sources is selected, as this option
+        # already brings salomeTool!
+        if options.sat:
+            d_files_to_add.update({"salomeTools" : (runner.cfg.VARS.salometoolsway, "")})
+        
     
-    if package_type == PROJECT:
-        d_files_to_add = project_package(options.project, tmp_working_dir)
+    if options.project:
+        d_files_to_add.update(project_package(options.project, tmp_working_dir))
 
-    if package_type == SAT:
-        d_files_to_add = {"salomeTools" : (runner.cfg.VARS.salometoolsway, "")}
-    
+    if not(d_files_to_add):
+        msg = _("Error: Empty dictionnary to build the archive!\n")
+        logger.write(src.printcolors.printcError(msg), 1)
+        logger.write("\n", 1)
+        return 1
+
     # Add the README file in the package
     local_readme_tmp_path = add_readme(runner.cfg,
-                                       package_type,
+                                       options,
                                        tmp_working_dir)
     d_files_to_add["README"] = (local_readme_tmp_path, "README")
 
@@ -1155,8 +1268,7 @@ def run(args, runner, logger):
         
         # get the filtering function if needed
         filter_function = None
-        if package_type == BINARY:
-            filter_function = exclude_VCS_info
+        filter_function = exclude_VCS_and_extensions
 
         # Add the files to the tarfile object
         res = add_files(tar, archive_name, d_files_to_add, logger, f_exclude=filter_function)
