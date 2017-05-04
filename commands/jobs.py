@@ -1726,6 +1726,12 @@ def run(args, runner, logger):
     f = file( path_pyconf , 'w')
     config_jobs.__save__(f)
     
+    # log the paramiko problems
+    paramiko_log_dir_path = os.path.join(runner.cfg.USER.log_dir, "JOBS")
+    src.ensure_path_exists(paramiko_log_dir_path)
+    paramiko.util.log_to_file(os.path.join(paramiko_log_dir_path,
+                                           logger.txtFileName))
+    
     # Initialization
     today_jobs = Jobs(runner,
                       logger,

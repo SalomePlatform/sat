@@ -12,3 +12,4 @@ doc/build
 test/htmlcov
 test/test_res.html
 doc/src/commands/apidoc*
+.idea
