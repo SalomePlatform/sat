@@ -234,7 +234,7 @@ _salomeTools_complete()
             return 0
             ;;
         package)
-            opts="--name --binaries --sources --project --salometools --with_vcs --without_commercial --without_property"
+            opts="--name --binaries --sources --project --salometools --force_creation --add_files --with_vcs --without_commercial --without_property"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
