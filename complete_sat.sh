@@ -104,7 +104,7 @@ _salomeTools_complete()
     # first argument => show available commands
     if [[ ${argc} == 1 ]]
     then
-        opts="config log testcommand source patch prepare environ clean configure make makeinstall compile launcher run jobs job shell test package generate find_duplicates application template base profile script --help"
+        opts="config log source patch prepare environ clean configure make makeinstall compile launcher run jobs job shell test package generate find_duplicates application template base check profile script --help --overwrite --debug --verbose --batch --all_in_terminal --logs_paths_in_file"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     fi
@@ -159,7 +159,7 @@ _salomeTools_complete()
             return 0        
             ;;
         log)
-            opts="--clean --last --terminal --last --no_browser"
+            opts="--clean --last --terminal --last --last_terminal --no_browser"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
@@ -204,7 +204,7 @@ _salomeTools_complete()
             return 0
             ;;
         compile)
-            opts="--products --with_fathers --with_children --clean_all --make_flags --show --stop_first_fail --check --clean_build_after"
+            opts="--products --with_fathers --with_children --clean_all --clean_make --install_flags --show --stop_first_fail --check --clean_build_after"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
@@ -270,6 +270,11 @@ _salomeTools_complete()
             ;;
         script)
             opts="--products --nb_proc"
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        check)
+            opts="--products"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
