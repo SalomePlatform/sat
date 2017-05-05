@@ -342,12 +342,12 @@ def finish_profile_install(config, launcherPath):
                 os.symlink(launcherPath, link_path)
 
         link_path = os.path.join(profile_dir, 'salome')
-        if not os.path.exists(link_path):
-            try:
-                os.symlink(launcherPath, link_path)
-            except OSError:
-                os.remove(link_path)
-                os.symlink(launcherPath, link_path)
+        relativeLauncherPath = "../../salome"
+        try:
+            os.symlink(relativeLauncherPath, link_path)
+        except OSError:
+            os.remove(link_path)
+            os.symlink(relativeLauncherPath, link_path)
 
 ##################################################
 
