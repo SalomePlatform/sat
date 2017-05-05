@@ -459,7 +459,7 @@ class ConfigManager:
                                                  (containing all pyconf).
         '''
         # get the expected name and path of the file
-        self.config_file_name = 'salomeTools.pyconf'
+        self.config_file_name = 'SAT.pyconf'
         self.user_config_file_path = os.path.join(config.VARS.personalDir,
                                                    self.config_file_name)
         
@@ -855,7 +855,7 @@ def run(args, runner, logger):
         if ('APPLICATION' not in runner.cfg and
                        'open_application' not in runner.cfg): # edit user pyconf
             usercfg = os.path.join(runner.cfg.VARS.personalDir, 
-                                   'salomeTools.pyconf')
+                                   'SAT.pyconf')
             logger.write(_("Openning %s\n" % usercfg), 3)
             src.system.show_in_editor(editor, usercfg, logger)
         else:
