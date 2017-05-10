@@ -127,8 +127,7 @@ def run(args, runner, logger):
             end_cmd = " ".join(argus[1:])
         else:
             sat_command_name = "shell"
-            end_cmd = "--command " + command
-        
+            end_cmd = ["--command", command]
         # Do not change the options if no option was called in the command
         if not(specific_option):
             options = None

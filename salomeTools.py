@@ -21,6 +21,7 @@
 # python imports
 import os
 import sys
+import re
 import tempfile
 import imp
 import types
@@ -98,7 +99,7 @@ class Sat(object):
         # Read the salomeTools options (the list of possible options is 
         # at the beginning of this file)
         try:
-            (options, argus) = parser.parse_args(opt.split(' '))
+            (options, argus) = parser.parse_args(opt)
         except Exception as exc:
             write_exception(exc)
             sys.exit(-1)
@@ -165,13 +166,18 @@ class Sat(object):
                 '''The function that will load the configuration (all pyconf)
                 and return the function run of the command corresponding to module
                 
-                :param args str: The directory path containing the commands 
+                :param args str: The arguments of the command 
                 '''
                 # Make sure the internationalization is available
                 gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
                 
                 # Get the arguments in a list and remove the empty elements
-                argv_0 = args.split(" ")
+                if type(args) == type(''):
+                    # split by spaces without considering spaces in quotes
+                    argv_0 = re.findall(r'(?:"[^"]*"|[^\s"])+', args)
+                else:
+                    argv_0 = args
+                
                 if argv_0 != ['']:
                     while "" in argv_0: argv_0.remove("")
                 
@@ -188,7 +194,7 @@ class Sat(object):
                            
                 # if it is provided by the command line, get the application
                 appliToLoad = None
-                if argv != [''] and argv[0][0] != "-":
+                if argv not in [[''], []] and argv[0][0] != "-":
                     appliToLoad = argv[0].rstrip('*')
                     argv = argv[1:]
                 
@@ -306,7 +312,7 @@ class Sat(object):
                                                 'sat',
                                                 options_launched,
                                                 __nameCmd__, 
-                                                args])
+                                                ' '.join(args)])
                     launchedCommand = launchedCommand.replace('"', "'")
                     
                     # Add a link to the parent command      
@@ -330,7 +336,7 @@ class Sat(object):
                     if not micro_command:
                         logger_command.write("\nPath to the xml log file :\n",
                                              5)
-                        logger_command.write("%s\n" % src.printcolors.printcInfo(
+                        logger_command.write("%s\n\n" % src.printcolors.printcInfo(
                                                 logger_command.logFilePath), 5)
 
                     # If the logs_paths_in_file was called, write the result
@@ -527,19 +533,13 @@ if __name__ == "__main__":
         sys.exit(0)
     
     # instantiate the salomeTools class with correct options
-    sat = Sat(' '.join(sys.argv[1:]))
+    sat = Sat(sys.argv[1:])
     # the command called
     command = args[0]
     # get dynamically the command function to call
     fun_command = sat.__getattr__(command)
-    # call the command with two cases : mode debug or not
-    if options.debug_mode:
-        # call classically the command and if it fails, 
-        # show exception and stack (usual python mode)
-        code = fun_command(' '.join(args[1:]))
-    else:
-        # catch exception in order to show less verbose but elegant message
-        code = fun_command(' '.join(args[1:]))
+    # Run the command using the arguments
+    code = fun_command(args[1:])
     
     # exit salomeTools with the right code (0 if no errors, else 1)
     if code is None: code = 0
