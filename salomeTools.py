@@ -324,6 +324,15 @@ class Sat(object):
                     
                     if res != 0:
                         res = 1
+                        
+                    # print the log file path if 
+                    # the maximum verbose mode is invoked
+                    if not micro_command:
+                        logger_command.write("\nPath to the xml log file :\n",
+                                             5)
+                        logger_command.write("%s\n" % src.printcolors.printcInfo(
+                                                logger_command.logFilePath), 5)
+
                     # If the logs_paths_in_file was called, write the result
                     # and log files in the given file path
                     if self.options.logs_paths_in_file and not micro_command:

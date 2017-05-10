@@ -24,6 +24,10 @@ DISTRIBUTIONS :
 # If no code is found the value is used.
 VERSIONS :
 {
+
+# Do not do anything for the ubuntu machines (CEA dicision). 
+#
+
     "DB":
     {
         "unstable": "sid"
@@ -32,6 +36,9 @@ VERSIONS :
 	    "6.0.7" : "06"
 	    "6.0.10": "06"
 	    "7.1" : "07"
+	    "7.11" : "07"
+	    "7.2" : "07"
+	    "7.3" : "07"
 	    "7.5" : "07"
 	    "8.1" : "08"
 	    "8.2" : "08"
@@ -72,3 +79,4 @@ VERSIONS :
         "6.7" : "6"
     }
 }
+
