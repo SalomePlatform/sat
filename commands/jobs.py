@@ -1200,7 +1200,7 @@ class Gui(object):
                                                    attrib={"name" : distrib})
                     
                 if board_job == board:
-                    if (application is not None and 
+                    if (application not in [None, ''] and 
                                     application not in d_application[board]):
                         d_application[board].append(application)
                         src.xmlManager.add_simple_node(
