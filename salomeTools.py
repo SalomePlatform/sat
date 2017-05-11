@@ -312,7 +312,7 @@ class Sat(object):
                                                 'sat',
                                                 options_launched,
                                                 __nameCmd__, 
-                                                ' '.join(args)])
+                                                ' '.join(argv_0)])
                     launchedCommand = launchedCommand.replace('"', "'")
                     
                     # Add a link to the parent command      
