@@ -1190,7 +1190,8 @@ class Gui(object):
                 continue
             for board in self.d_xml_board_files:
                 if board_job == board:
-                    if distrib is not None and distrib not in d_dist[board]:
+                    if (distrib not in [None, ''] and 
+                                            distrib not in d_dist[board]):
                         d_dist[board].append(distrib)
                         src.xmlManager.add_simple_node(
                             self.d_xml_board_files[board].xmlroot.find(
