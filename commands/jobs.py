@@ -777,8 +777,11 @@ class Jobs(object):
                     msg = _("WARNING: The job \"%(job_name)s\" requires the "
                             "machine \"%(machine_name)s\" but this machine "
                             "is not defined in the configuration file.\n"
-                            "The job will not be launched")
-                    self.logger.write(src.printcolors.printcWarning(msg))
+                            "The job will not be launched\n")
+                    self.logger.write(src.printcolors.printcWarning(
+                                        msg % {"job_name" : job_def.name,
+                                               "machine_name" : name_machine}))
+                    continue
                                   
             a_job = self.define_job(job_def, a_machine)
                 
