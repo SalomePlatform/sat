@@ -762,9 +762,6 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs):
     lproducts_name = config.APPLICATION.products.keys()
     l_products = src.product.get_products_infos(lproducts_name, config)
     for p_name, p_info in l_products:
-        # ignore native and fixed products
-        if src.product.product_is_native(p_info):
-            continue
         find_product_scripts_and_pyconf(p_name,
                                         p_info,
                                         config,
