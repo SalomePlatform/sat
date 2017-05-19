@@ -36,8 +36,7 @@ parameters = [
 
 # configuration to use this component with sat
 pyconf = """
-TOOLS : { common : { module_info : {
-    '%(NAME)s':
+    'default':
     {
         name : "%(NAME)s"
         has_gui : "yes"
@@ -50,7 +49,7 @@ TOOLS : { common : { module_info : {
         }
         archive_info:
         {
-            archive_name : '%(target)s.tar.gz'
+            archive_name : '%(NAME)s.tar.gz'
         }
         nb_proc : 1
         source_dir : $TOOLS.common.source_root + '/' + $name
@@ -58,5 +57,4 @@ TOOLS : { common : { module_info : {
         depend : [ 'Python', 'KERNEL', 'GUI' ]
         opt_depend : []
     }
-}}}
 """
