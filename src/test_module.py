@@ -40,6 +40,8 @@ import src
 # directories not considered as test grids
 C_IGNORE_GRIDS = ['.git', '.svn', 'RESSOURCES']
 
+DEFAULT_TIMEOUT = 150
+
 # Get directory to be used for the temporary files.
 #
 def getTmpDirDEFAULT():
@@ -560,11 +562,11 @@ class Test:
                                 self.currentsession)
         sessionname = "%s/%s" % (self.currentgrid, self.currentsession)
         time_out = self.get_test_timeout(sessionname,
-                                         self.config.SITE.test.timeout)
+                                         DEFAULT_TIMEOUT)
 
         time_out_salome = src.get_cfg_param(self.config.SITE.test,
                                             "timeout_app",
-                                            self.config.SITE.test.timeout)
+                                            DEFAULT_TIMEOUT)
 
         # generate wrapper script
         script_path = os.path.join(out_path, 'wrapperScript.py')

@@ -68,12 +68,6 @@ SITE :
     {
         log_dir : $USER.workdir + "/LOGS"
     }
-    test :{
-           tmp_dir_with_application : '/tmp' + $VARS.sep + $VARS.user + """
-"""$VARS.sep + $APPLICATION.name + $VARS.sep + 'test'
-           tmp_dir : '/tmp' + $VARS.sep + $VARS.user + $VARS.sep + 'test'
-           timeout : 150
-           }
 }
 
 PROJECTS :

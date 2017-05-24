@@ -590,9 +590,12 @@ def run(args, runner, logger):
     # initialization
     #################
     if with_application:
-        tmp_dir = runner.cfg.SITE.test.tmp_dir_with_application
+        tmp_dir = os.path.join(runner.cfg.VARS.tmp_root,
+                               runner.cfg.APPLICATION.name,
+                               "test")
     else:
-        tmp_dir = runner.cfg.SITE.test.tmp_dir
+        tmp_dir = os.path.join(runner.cfg.VARS.tmp_root,
+                               "test")
 
     # remove previous tmp dir
     if os.access(tmp_dir, os.F_OK):
@@ -653,7 +656,7 @@ def run(args, runner, logger):
 
     src.printcolors.print_value(logger, _('Display'), os.environ['DISPLAY'], 2)
     src.printcolors.print_value(logger, _('Timeout'),
-                                runner.cfg.SITE.test.timeout, 2)
+                                src.test_module.DEFAULT_TIMEOUT, 2)
     src.printcolors.print_value(logger, _("Working dir"), base_dir, 3)
 
     # create the test object
