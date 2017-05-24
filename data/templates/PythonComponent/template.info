@@ -40,8 +40,8 @@ pyconf = """
     {
         name : "%(NAME)s"
         has_gui : "yes"
-        get_sources : '%(get_method)s'
-        build_sources : 'autotools'
+        get_source : '%(get_method)s'
+        build_source : 'autotools'
         git_info:
         {
             repo : 'to be filled'
@@ -52,9 +52,16 @@ pyconf = """
             archive_name : '%(NAME)s.tar.gz'
         }
         nb_proc : 1
-        source_dir : $TOOLS.common.source_root + '/' + $name
-        build_dir : $TOOLS.common.build_root + '/' + $name
+        source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
+        build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
         depend : [ 'Python', 'KERNEL', 'GUI' ]
         opt_depend : []
+        type : "salome"
+        properties :
+        {
+            is_SALOME_module : 'yes'
+            has_unit_tests : True
+            has_salome_gui : 'yes'
+        }
     }
 """
