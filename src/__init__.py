@@ -119,20 +119,40 @@ def print_info(logger, info):
     logger.write("\n", 2)
 
 def get_base_path(config):
-    '''Returns the path of the product base.
+    '''Returns the path of the products base.
     
     :param config Config: The global Config instance.
-    :return: The path of the product base.
+    :return: The path of the products base.
     :rtype: str
     '''
-    if "base" not in config.SITE:
-        site_file_path = os.path.join(config.VARS.salometoolsway,
+    if "base" not in config.LOCAL:
+        local_file_path = os.path.join(config.VARS.salometoolsway,
                                       "data",
-                                      "site.pyconf")
-        msg = _("Please define a base path in the file %s" % site_file_path)
+                                      "local.pyconf")
+        msg = _("Please define a base path in the file %s" % local_file_path)
         raise SatException(msg)
+        
+    base_path = os.path.abspath(config.LOCAL.base)
+    
+    return base_path
 
-    return config.SITE.base
+def get_log_path(config):
+    '''Returns the path of the logs.
+    
+    :param config Config: The global Config instance.
+    :return: The path of the logs.
+    :rtype: str
+    '''
+    if "log_dir" not in config.LOCAL:
+        local_file_path = os.path.join(config.VARS.salometoolsway,
+                                      "data",
+                                      "local.pyconf")
+        msg = _("Please define a log_dir in the file %s" % local_file_path)
+        raise SatException(msg)
+      
+    log_dir_path = os.path.abspath(config.LOCAL.log_dir)
+    
+    return log_dir_path
 
 def get_salome_version(config):
     if hasattr(config.APPLICATION, 'version_salome'):

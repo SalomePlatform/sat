@@ -59,16 +59,17 @@ JOBPATH : $project_path + "jobs/"
 MACHINEPATH : $project_path + "machines/"
 """
 
-SITE_TEMPLATE = ("""#!/usr/bin/env python
+LOCAL_TEMPLATE = ("""#!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-SITE :
-{   
-    log :
-    {
-        log_dir : $USER.workdir + "/LOGS"
-    }
-}
+  LOCAL :
+  {
+    base : 'unknown'
+    workdir : 'unknown'
+    log_dir : 'unknown'
+    VCS : None
+    tag : None
+  }
 
 PROJECTS :
 {
@@ -621,7 +622,7 @@ def get_archives(config, logger):
     return d_archives, l_pinfo_vcs
 
 def add_salomeTools(config, tmp_working_dir):
-    '''Prepare a version of salomeTools that has a specific site.pyconf file 
+    '''Prepare a version of salomeTools that has a specific local.pyconf file 
        configured for a source package.
 
     :param config Config: The global configuration.
@@ -636,12 +637,12 @@ def add_salomeTools(config, tmp_working_dir):
     sat_running_path = src.Path(config.VARS.salometoolsway)
     sat_running_path.copy(sat_tmp_path)
     
-    # Update the site.pyconf file that contains the path to the project
-    site_pyconf_name = "site.pyconf"
-    site_pyconf_dir = os.path.join(tmp_working_dir, "salomeTools", "data")
-    site_pyconf_file = os.path.join(site_pyconf_dir, site_pyconf_name)
-    ff = open(site_pyconf_file, "w")
-    ff.write(SITE_TEMPLATE)
+    # Update the local.pyconf file that contains the path to the project
+    local_pyconf_name = "local.pyconf"
+    local_pyconf_dir = os.path.join(tmp_working_dir, "salomeTools", "data")
+    local_pyconf_file = os.path.join(local_pyconf_dir, local_pyconf_name)
+    ff = open(local_pyconf_file, "w")
+    ff.write(LOCAL_TEMPLATE)
     ff.close()
     
     return sat_tmp_path.path
@@ -1096,12 +1097,12 @@ def run(args, runner, logger):
     if options.project:
         # check that the project is visible by SAT
         if options.project not in runner.cfg.PROJECTS.project_file_paths:
-            site_path = os.path.join(runner.cfg.VARS.salometoolsway,
+            local_path = os.path.join(runner.cfg.VARS.salometoolsway,
                                      "data",
-                                     "site.pyconf")
+                                     "local.pyconf")
             msg = _("ERROR: the project %(proj)s is not visible by salomeTools."
-                    "\nPlease add it in the %(site)s file." % {
-                                  "proj" : options.project, "site" : site_path})
+                    "\nPlease add it in the %(local)s file." % {
+                                  "proj" : options.project, "local" : local_path})
             logger.write(src.printcolors.printcError(msg), 1)
             logger.write("\n", 1)
             return 1

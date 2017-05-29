@@ -1,0 +1,16 @@
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+  LOCAL :
+  {
+    base : 'unknown'
+    workdir : 'unknown'
+    log_dir : 'unknown'
+    VCS : None
+    tag : None
+  }
+  PROJECTS :
+  {
+    project_file_paths :
+    [
+    ]
+  }

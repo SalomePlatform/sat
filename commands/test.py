@@ -536,7 +536,8 @@ def generate_history_xml_path(config, test_base):
         test_base_name = os.path.basename(test_base)
     history_xml_name += test_base_name
     history_xml_name += ".xml"
-    return os.path.join(config.USER.log_dir, "TEST", history_xml_name)
+    log_dir = src.get_log_path(config)
+    return os.path.join(log_dir, "TEST", history_xml_name)
 
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with test parameter.
@@ -682,7 +683,8 @@ def run(args, runner, logger):
     logger.write("\n", 2, False)
     
     logger.write(_("\nGenerate the specific test log\n"), 5)
-    out_dir = os.path.join(runner.cfg.USER.log_dir, "TEST")
+    log_dir = src.get_log_path(runner.cfg)
+    out_dir = os.path.join(log_dir, "TEST")
     src.ensure_path_exists(out_dir)
     name_xml_board = logger.logFileName.split(".")[0] + "board" + ".xml"
     historic_xml_path = generate_history_xml_path(runner.cfg, test_base)
