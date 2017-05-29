@@ -512,7 +512,7 @@ class Job(object):
             self._has_finished = True
             self._has_timouted = True
             self._Tf = time.time()
-            (out_kill, _) = self.kill_remote_process()
+            (out_kill, __) = self.kill_remote_process()
             self.out += "TIMEOUT \n" + out_kill
             self.err += "TIMEOUT : %s seconds elapsed\n" % str(self.timeout)
             try:
