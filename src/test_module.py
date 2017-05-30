@@ -564,9 +564,7 @@ class Test:
         time_out = self.get_test_timeout(sessionname,
                                          DEFAULT_TIMEOUT)
 
-        time_out_salome = src.get_cfg_param(self.config.SITE.test,
-                                            "timeout_app",
-                                            DEFAULT_TIMEOUT)
+        time_out_salome = DEFAULT_TIMEOUT
 
         # generate wrapper script
         script_path = os.path.join(out_path, 'wrapperScript.py')
@@ -784,7 +782,7 @@ class Test:
             self.settings.clear()
 
         # read known failures pyconf
-        if "testerror" in self.config.SITE:
+        if "testerror" in self.config.LOCAL:
             #import testerror
             #self.known_errors = testerror.read_test_failures(
             #                            self.config.TOOLS.testerror.file_path,
