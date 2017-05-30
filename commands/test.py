@@ -581,10 +581,11 @@ def run(args, runner, logger):
         os.environ['DISPLAY'] = options.display
     elif 'DISPLAY' not in os.environ:
         # if no display set
-        if ('display' in runner.cfg.SITE.test and 
-                                        len(runner.cfg.SITE.test.display) > 0):
+        if ('test' in runner.cfg.LOCAL and
+                'display' in runner.cfg.LOCAL.test and 
+                len(runner.cfg.LOCAL.test.display) > 0):
             # use default value for test tool
-            os.environ['DISPLAY'] = runner.cfg.SITE.test.display
+            os.environ['DISPLAY'] = runner.cfg.LOCAL.test.display
         else:
             os.environ['DISPLAY'] = "localhost:0.0"
 
