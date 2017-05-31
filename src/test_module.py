@@ -431,8 +431,8 @@ class Test:
             launcherDir = os.path.dirname(self.launcher)
             if launcherName == 'runAppli':
                 # Old application
-                cmd = "for i in " + launcherDir + "/env.d/*.sh; do source ${i};"
-                " done ; echo $KERNEL_ROOT_DIR"
+                cmd = ("for i in " + launcherDir + "/env.d/*.sh; do source ${i};"
+                       " done ; echo $KERNEL_ROOT_DIR")
             else:
                 # New application
                 cmd = ("echo -e 'import os\nprint os.environ[\"KERNEL_" + 
