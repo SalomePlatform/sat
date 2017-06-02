@@ -214,6 +214,10 @@ def produce_relative_launcher(config,
     # Little hack to put out_dir_Path outside the strings
     src.replace_in_file(filepath, 'r"out_dir_Path', 'out_dir_Path + r"' )
     
+    # A hack to put a call to a file for distene licence.
+    # It does nothing to an application that has no distene product
+    hack_for_distene_licence(filepath)
+       
     # change the rights in order to make the file executable for everybody
     os.chmod(filepath,
              stat.S_IRUSR |
@@ -226,6 +230,43 @@ def produce_relative_launcher(config,
 
     return filepath
 
+def hack_for_distene_licence(filepath):
+    '''Replace the distene licence env variable by a call to a file.
+    
+    :param filepath Str: The path to the launcher to modify.
+    '''  
+    shutil.move(filepath, filepath + "_old")
+    fileout= filepath
+    filein = filepath + "_old"
+    fin = open(filein, "r")
+    fout = open(fileout, "w")
+    text = fin.readlines()
+    # Find the Distene section
+    num_line = -1
+    for i,line in enumerate(text):
+        if "# Set DISTENE License" in line:
+            num_line = i
+            break
+    if num_line == -1:
+        # No distene product, there is nothing to do
+        fin.close()
+        fout.close()
+        return
+    del text[num_line +1]
+    del text[num_line +1]
+    text_to_insert ="""    import imp
+    try:
+        distene = imp.load_source('distene_licence', '/data/tmpsalome/salome/prerequis/install/LICENSE/dlim8.var.py')
+        distene.set_distene_variables(context)
+    except:
+        pass\n"""
+    text.insert(num_line + 1, text_to_insert)
+    for line in text:
+        fout.write(line)
+    fin.close()    
+    fout.close()
+    return
+    
 def produce_relative_env_files(config,
                               logger,
                               file_dir,

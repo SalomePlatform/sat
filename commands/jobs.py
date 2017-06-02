@@ -832,6 +832,15 @@ class Jobs(object):
                 self.logger.flush()
                 res_copy = machine.copy_sat(self.runner.cfg.VARS.salometoolsway,
                                             self.job_file_path)
+
+                # set the local settings of sat on the remote machine using
+                # the init command
+                (__, __, __) = machine.exec_command(
+                                os.path.join(machine.sat_path,
+                                    "sat init --base unknown --workdir unknown"
+                                    " --log_dir unknown"),
+                                self.logger)
+                
                 # get the remote machine distribution using a sat command
                 (__, out_dist, __) = machine.exec_command(
                                 os.path.join(machine.sat_path,
@@ -840,14 +849,6 @@ class Jobs(object):
                 machine.distribution = out_dist.read().decode().replace("\n",
                                                                         "")
                 
-                # set the local settings of sat on the remote machine using
-                # the init command
-                (__, __, __) = machine.exec_command(
-                                os.path.join(machine.sat_path,
-                                    "sat init --base unknown --workdir unknown"
-                                    " --log_dir unknown"),
-                                self.logger)
-
                 # Print the status of the copy
                 if res_copy == 0:
                     self.logger.write('\r%s' % 
