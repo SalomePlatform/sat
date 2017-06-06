@@ -203,7 +203,7 @@ def run(args, runner, logger):
     (options, args) = parser.parse_args(args)
 
     # get the log directory. 
-    logDir = runner.cfg.USER.log_dir
+    logDir = src.get_log_path(runner.cfg)
     
     # Print a header
     nb_files_log_dir = len(glob.glob(os.path.join(logDir, "*")))
@@ -322,7 +322,7 @@ def run(args, runner, logger):
     # Create or update the hat xml that gives access to all the commands log files
     logger.write(_("Generating the hat log file (can be long) ... "), 3)
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
-    src.logger.update_hat_xml(runner.cfg.USER.log_dir, 
+    src.logger.update_hat_xml(logDir, 
                               application = runner.cfg.VARS.application, 
                               notShownCommands = notShownCommands)
     logger.write(src.printcolors.printc("OK"), 3)

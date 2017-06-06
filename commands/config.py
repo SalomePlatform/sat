@@ -247,30 +247,40 @@ class ConfigManager:
             exec('cfg.' + rule) # this cannot be factorized because of the exec        
                
         # =====================================================================
-        # Load SITE config file
+        # Load LOCAL config file
         # search only in the data directory
         src.pyconf.streamOpener = ConfigOpener([cfg.VARS.datadir])
         try:
-            site_cfg = src.pyconf.Config(open(os.path.join(cfg.VARS.datadir, 
-                                                           'site.pyconf')),
-                                         PWD = ('SITE', cfg.VARS.datadir) )
+            local_cfg = src.pyconf.Config(open(os.path.join(cfg.VARS.datadir, 
+                                                           'local.pyconf')),
+                                         PWD = ('LOCAL', cfg.VARS.datadir) )
         except src.pyconf.ConfigError as e:
             raise src.SatException(_("Error in configuration file: "
-                                     "site.pyconf\n  %(error)s") % \
+                                     "local.pyconf\n  %(error)s") % \
                 {'error': str(e) })
         except IOError as error:
             e = str(error)
-            if "site.pyconf" in e :
-                e += ("\nYou can copy data"
-                  + cfg.VARS.sep
-                  + "site.template.pyconf to data"
-                  + cfg.VARS.sep 
-                  + "site.pyconf and edit the file")
             raise src.SatException( e );
-        merger.merge(cfg, site_cfg)
+        merger.merge(cfg, local_cfg)
+
+        # When the key is "unknown", put the default value
+        if cfg.LOCAL.base == "unknown":
+            cfg.LOCAL.base = os.path.abspath(
+                                        os.path.join(cfg.VARS.salometoolsway,
+                                                     "..",
+                                                     "BASE"))
+        if cfg.LOCAL.workdir == "unknown":
+            cfg.LOCAL.workdir = os.path.abspath(
+                                        os.path.join(cfg.VARS.salometoolsway,
+                                                     ".."))
+        if cfg.LOCAL.log_dir == "unknown":
+            cfg.LOCAL.log_dir = os.path.abspath(
+                                        os.path.join(cfg.VARS.salometoolsway,
+                                                     "..",
+                                                     "LOGS"))
 
         # apply overwrite from command line if needed
-        for rule in self.get_command_line_overrides(options, ["SITE"]):
+        for rule in self.get_command_line_overrides(options, ["LOCAL"]):
             exec('cfg.' + rule) # this cannot be factorized because of the exec
         
         # =====================================================================
@@ -482,10 +492,6 @@ class ConfigManager:
         #
         user_cfg.addMapping('USER', src.pyconf.Mapping(user_cfg), "")
 
-        #
-        user_cfg.USER.addMapping('workdir', os.path.expanduser('~'),
-            "This is where salomeTools will work. "
-            "You may (and probably do) change it.\n")
         user_cfg.USER.addMapping('cvs_user', config.VARS.user,
             "This is the user name used to access salome cvs base.\n")
         user_cfg.USER.addMapping('svn_user', config.VARS.user,
@@ -516,16 +522,9 @@ class ConfigManager:
                                             src.pyconf.DOLLAR,
                                             'workdir  + $VARS.sep + "BASE"'),
                                  "The products installation base (could be "
-                                 "ignored if this key exists in the site.pyconf"
+                                 "ignored if this key exists in the local.pyconf"
                                  " file of salomTools).\n")
-        
-        user_cfg.USER.addMapping("log_dir",
-                                 src.pyconf.Reference(
-                                            user_cfg,
-                                            src.pyconf.DOLLAR,
-                                            'workdir  + $VARS.sep + "LOGS"'),
-                                 "The log repository\n")
-        
+               
         # 
         src.ensure_path_exists(config.VARS.personalDir)
         src.ensure_path_exists(os.path.join(config.VARS.personalDir, 

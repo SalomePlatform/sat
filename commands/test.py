@@ -536,7 +536,8 @@ def generate_history_xml_path(config, test_base):
         test_base_name = os.path.basename(test_base)
     history_xml_name += test_base_name
     history_xml_name += ".xml"
-    return os.path.join(config.USER.log_dir, "TEST", history_xml_name)
+    log_dir = src.get_log_path(config)
+    return os.path.join(log_dir, "TEST", history_xml_name)
 
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with test parameter.
@@ -580,19 +581,23 @@ def run(args, runner, logger):
         os.environ['DISPLAY'] = options.display
     elif 'DISPLAY' not in os.environ:
         # if no display set
-        if ('display' in runner.cfg.SITE.test and 
-                                        len(runner.cfg.SITE.test.display) > 0):
+        if ('test' in runner.cfg.LOCAL and
+                'display' in runner.cfg.LOCAL.test and 
+                len(runner.cfg.LOCAL.test.display) > 0):
             # use default value for test tool
-            os.environ['DISPLAY'] = runner.cfg.SITE.test.display
+            os.environ['DISPLAY'] = runner.cfg.LOCAL.test.display
         else:
             os.environ['DISPLAY'] = "localhost:0.0"
 
     # initialization
     #################
     if with_application:
-        tmp_dir = runner.cfg.SITE.test.tmp_dir_with_application
+        tmp_dir = os.path.join(runner.cfg.VARS.tmp_root,
+                               runner.cfg.APPLICATION.name,
+                               "test")
     else:
-        tmp_dir = runner.cfg.SITE.test.tmp_dir
+        tmp_dir = os.path.join(runner.cfg.VARS.tmp_root,
+                               "test")
 
     # remove previous tmp dir
     if os.access(tmp_dir, os.F_OK):
@@ -653,7 +658,7 @@ def run(args, runner, logger):
 
     src.printcolors.print_value(logger, _('Display'), os.environ['DISPLAY'], 2)
     src.printcolors.print_value(logger, _('Timeout'),
-                                runner.cfg.SITE.test.timeout, 2)
+                                src.test_module.DEFAULT_TIMEOUT, 2)
     src.printcolors.print_value(logger, _("Working dir"), base_dir, 3)
 
     # create the test object
@@ -679,7 +684,8 @@ def run(args, runner, logger):
     logger.write("\n", 2, False)
     
     logger.write(_("\nGenerate the specific test log\n"), 5)
-    out_dir = os.path.join(runner.cfg.USER.log_dir, "TEST")
+    log_dir = src.get_log_path(runner.cfg)
+    out_dir = os.path.join(log_dir, "TEST")
     src.ensure_path_exists(out_dir)
     name_xml_board = logger.logFileName.split(".")[0] + "board" + ".xml"
     historic_xml_path = generate_history_xml_path(runner.cfg, test_base)

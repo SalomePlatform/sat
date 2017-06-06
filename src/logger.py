@@ -56,11 +56,12 @@ class Logger(object):
                              config.VARS.command + "_" + 
                              config.VARS.hostname)
         logFileName = prefix + hour_command_host + ".xml"
-        logFilePath = os.path.join(config.USER.log_dir, logFileName)
+        log_dir = src.get_log_path(config)
+        logFilePath = os.path.join(log_dir, logFileName)
         # Construct txt file location in order to log 
         # the external commands calls (cmake, make, git clone, etc...)
         txtFileName = prefix + hour_command_host + ".txt"
-        txtFilePath = os.path.join(config.USER.log_dir, "OUT", txtFileName)
+        txtFilePath = os.path.join(log_dir, "OUT", txtFileName)
         
         src.ensure_path_exists(os.path.dirname(logFilePath))
         src.ensure_path_exists(os.path.dirname(txtFilePath))
@@ -230,7 +231,7 @@ class Logger(object):
         self.xmlFile.write_tree(stylesheet = "command.xsl")
         
         # Dump the config in a pyconf file in the log directory
-        logDir = self.config.USER.log_dir
+        logDir = src.get_log_path(self.config)
         dumpedPyconfFileName = (self.config.VARS.datehour 
                                 + "_" 
                                 + self.config.VARS.command 

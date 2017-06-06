@@ -58,6 +58,9 @@ _show_applications()
         base)
             opts2=$(echo --set $opts2)
             ;;
+        init)
+            opts2=$(echo --base --workdir --VCS --tag --log_dir $opts2)
+            ;;
     esac
 
     COMPREPLY=( $(compgen -W "${opts2}" -- ${cur}) )
@@ -104,7 +107,7 @@ _salomeTools_complete()
     # first argument => show available commands
     if [[ ${argc} == 1 ]]
     then
-        opts="config log source patch prepare environ clean configure make makeinstall compile launcher run jobs job shell test package generate find_duplicates application template base check profile script --help --overwrite --debug --verbose --batch --all_in_terminal --logs_paths_in_file"
+        opts="config log source patch prepare environ clean configure make makeinstall compile launcher run jobs job shell test package generate find_duplicates application template base check profile script init --help --overwrite --debug --verbose --batch --all_in_terminal --logs_paths_in_file"
         COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
         return 0
     fi
@@ -275,6 +278,11 @@ _salomeTools_complete()
             ;;
         check)
             opts="--products"
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        init)
+            opts="--base --workdir --VCS --tag --log_dir"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;

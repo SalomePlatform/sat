@@ -512,7 +512,7 @@ class Job(object):
             self._has_finished = True
             self._has_timouted = True
             self._Tf = time.time()
-            (out_kill, _) = self.kill_remote_process()
+            (out_kill, __) = self.kill_remote_process()
             self.out += "TIMEOUT \n" + out_kill
             self.err += "TIMEOUT : %s seconds elapsed\n" % str(self.timeout)
             try:
@@ -832,6 +832,15 @@ class Jobs(object):
                 self.logger.flush()
                 res_copy = machine.copy_sat(self.runner.cfg.VARS.salometoolsway,
                                             self.job_file_path)
+
+                # set the local settings of sat on the remote machine using
+                # the init command
+                (__, __, __) = machine.exec_command(
+                                os.path.join(machine.sat_path,
+                                    "sat init --base unknown --workdir unknown"
+                                    " --log_dir unknown"),
+                                self.logger)
+                
                 # get the remote machine distribution using a sat command
                 (__, out_dist, __) = machine.exec_command(
                                 os.path.join(machine.sat_path,
@@ -839,6 +848,7 @@ class Jobs(object):
                                 self.logger)
                 machine.distribution = out_dist.read().decode().replace("\n",
                                                                         "")
+                
                 # Print the status of the copy
                 if res_copy == 0:
                     self.logger.write('\r%s' % 
@@ -1731,7 +1741,8 @@ def run(args, runner, logger):
     config_jobs.__save__(f)
     
     # log the paramiko problems
-    paramiko_log_dir_path = os.path.join(runner.cfg.USER.log_dir, "JOBS")
+    log_dir = src.get_log_path(runner.cfg)
+    paramiko_log_dir_path = os.path.join(log_dir, "JOBS")
     src.ensure_path_exists(paramiko_log_dir_path)
     paramiko.util.log_to_file(os.path.join(paramiko_log_dir_path,
                                            logger.txtFileName))
@@ -1753,7 +1764,7 @@ def run(args, runner, logger):
         logger.flush()
         
         # Copy the stylesheets in the log directory 
-        log_dir = runner.cfg.USER.log_dir
+        log_dir = log_dir
         xsl_dir = os.path.join(runner.cfg.VARS.srcDir, 'xsl')
         files_to_copy = []
         files_to_copy.append(os.path.join(xsl_dir, STYLESHEET_GLOBAL))
@@ -1764,7 +1775,7 @@ def run(args, runner, logger):
         
         # Instanciate the Gui in order to produce the xml files that contain all
         # the boards
-        gui = Gui(runner.cfg.USER.log_dir,
+        gui = Gui(log_dir,
                   today_jobs.ljobs,
                   today_jobs.ljobs_not_today,
                   runner.cfg.VARS.datehour,

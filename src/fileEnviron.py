@@ -539,17 +539,9 @@ class LauncherFileEnviron:
                               self.prefix+
                               self.setVarEnv+
                               '(r"%s", r"%s", overwrite=True)\n' % 
-                              ('DISTENE_LICENCE_FILE_FOR_MGCLEANER', 
+                              ('DLIM8VAR', 
                                self.change_to_launcher(
-                                                '<path to your license>')))
-            self.output.write(self.indent+
-                              "#"+
-                              self.prefix+
-                              self.setVarEnv+
-                              '(r"%s", r"%s", overwrite=True)\n' % 
-                              ('DISTENE_LICENCE_FILE_FOR_YAMS', 
-                               self.change_to_launcher(
-                                                    '<path to your license>')))
+                                                '<your licence>')))
             return
         if "setting environ for" in comment:
             self.output.write(self.indent+"#[%s]\n" % 
