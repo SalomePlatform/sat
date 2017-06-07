@@ -1007,9 +1007,9 @@ and do some substitutions on cmake and .la files (replace the build directories
 with local paths).
 The procedure to do it is:
  1) Remove or rename INSTALL directory if it exists
- 2) Execute the shell script bin_install.sh:
+ 2) Execute the shell script install_bin.sh:
  > cd $ROOT
- > ./bin_install.sh
+ > ./install_bin.sh
  3) Use SalomeTool (as explained in Sources section) and compile only the 
     modules you need to (with -p option)
 
