@@ -22,6 +22,7 @@ import sys
 import os
 import datetime
 import re
+import tempfile
 
 import src
 from . import printcolors
@@ -83,7 +84,17 @@ class Logger(object):
                             attrib = {"application" : config.VARS.application})
         self.put_initial_xml_fields()
         # Initialize the txt file for reading
-        self.logTxtFile = open(str(self.txtFilePath), 'w')
+        try:
+            self.logTxtFile = open(str(self.txtFilePath), 'w')
+        except IOError:
+            #msg1 = _("WARNING! Trying to write to a file that"
+            #         " is not accessible:")
+            #msg2 = _("The logs won't be written.")
+            #print("%s\n%s\n%s\n" % (src.printcolors.printcWarning(msg1),
+            #                        src.printcolors.printcLabel(str(self.txtFilePath)),
+            #                        src.printcolors.printcWarning(msg2) ))
+            self.logTxtFile = tempfile.TemporaryFile()
+            
         # If the option all_in_terminal was called, all the system commands
         # are redirected to the terminal
         if all_in_terminal:
