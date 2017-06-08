@@ -248,10 +248,12 @@ class Logger(object):
                                 + self.config.VARS.command 
                                 + ".pyconf")
         dumpedPyconfFilePath = os.path.join(logDir, 'OUT', dumpedPyconfFileName)
-        f = open(dumpedPyconfFilePath, 'w')
-        self.config.__save__(f)
-        f.close()
-        
+        try:
+            f = open(dumpedPyconfFilePath, 'w')
+            self.config.__save__(f)
+            f.close()
+        except IOError:
+            pass
 
 def date_to_datetime(date):
     '''Little method that gets year, mon, day, hour , 

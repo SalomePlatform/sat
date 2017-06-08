@@ -53,13 +53,16 @@ class XmlLogFile(object):
         log_file_path = self.logFile
         if file_path:
             log_file_path = file_path
-        f = open(log_file_path, 'w')
-        f.write("<?xml version='1.0' encoding='utf-8'?>\n")
-        if stylesheet:
-            f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % 
-                    stylesheet)    
-        f.write(etree.tostring(self.xmlroot, encoding='utf-8'))
-        f.close()  
+        try:
+            f = open(log_file_path, 'w')
+            f.write("<?xml version='1.0' encoding='utf-8'?>\n")
+            if stylesheet:
+                f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % 
+                        stylesheet)    
+            f.write(etree.tostring(self.xmlroot, encoding='utf-8'))
+            f.close()
+        except IOError:
+            pass  
         
     def add_simple_node(self, node_name, text=None, attrib={}):
         '''Add a node with some attibutes and text to the root node.
