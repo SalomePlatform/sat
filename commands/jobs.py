@@ -837,8 +837,8 @@ class Jobs(object):
                 # the init command
                 (__, __, __) = machine.exec_command(
                                 os.path.join(machine.sat_path,
-                                    "sat init --base unknown --workdir unknown"
-                                    " --log_dir unknown"),
+                                    ("sat init --base unknown --workdir unknown"
+                                     " --log_dir unknown")),
                                 self.logger)
                 
                 # get the remote machine distribution using a sat command
