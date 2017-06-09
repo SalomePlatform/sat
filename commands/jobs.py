@@ -835,11 +835,12 @@ class Jobs(object):
 
                 # set the local settings of sat on the remote machine using
                 # the init command
-                (__, __, __) = machine.exec_command(
+                (__, out_dist, __) = machine.exec_command(
                                 os.path.join(machine.sat_path,
-                                    ("sat init --base unknown --workdir unknown"
-                                     " --log_dir unknown")),
+                                    "sat init --base unknown --workdir"
+                                    " unknown --log_dir unknown"),
                                 self.logger)
+                out_dist.read()    
                 
                 # get the remote machine distribution using a sat command
                 (__, out_dist, __) = machine.exec_command(
