@@ -292,8 +292,8 @@ class Job(object):
                         " job --jobs_config " + 
                         os.path.join(self.machine.sat_path,
                                      self.name_remote_jobs_pyconf) +
-                        " --name " +
-                        self.name)
+                        ' --name "' +
+                        self.name + '"')
         if prefix:
             self.command = prefix + ' "' + self.command +'"'
     
@@ -518,18 +518,7 @@ class Job(object):
             try:
                 self.get_log_files()
             except Exception as e:
-                # The 2 following lines must be suppressed after the bug is fixed
-                print("The error type: ")
-                print(type(e))
-                print("The error: ")
-                print(e)
-                print("Local scope:")
-                print(dir())
-                print("The str type: ")
-                print(type(str))
-                print("str: ")
-                print(str)
-                self.err += _("Unable to get remote log files!")
+                self.err += _("Unable to get remote log files!\n%s\n" % str(e))
             
     def total_duration(self):
         """Give the total duration of the job
@@ -1664,6 +1653,38 @@ def get_config_file_path(job_config_name, l_cfg_dir):
                 break
     return found, file_jobs_cfg
 
+def develop_factorized_jobs(config_jobs):
+    '''update information about the jobs for the file xml_file   
+    
+    :param config_jobs Config: the config corresponding to the jos description
+    '''
+    developed_jobs_list = []
+    for jb in config_jobs.jobs:
+        # case where the jobs are not developed
+        if type(jb.machine) == type(""):
+            developed_jobs_list.append(jb)
+            continue
+        # Case where the jobs must be developed
+        # Example:
+        # machine : ["CO7.2 physique", ["CO6.4 physique", $MONDAY, $TUESDAY ], "FD22"]
+        name_job = jb.name
+        for machine in jb.machine:
+            new_job = src.pyconf.deepCopyMapping(jb)
+            # case where there is a jobs on the machine corresponding to all
+            # days in when variable. 
+            if type(machine) == type(""):
+                new_job.machine = machine
+                new_job.name = name_job + " / " + machine
+            else:
+                # case the days are re defined
+                new_job.machine = machine[0]
+                new_job.name = name_job + " / " + machine[0]
+                new_job.when = machine[1:]
+            developed_jobs_list.append(new_job)
+    
+    config_jobs.jobs = developed_jobs_list
+            
+
 ##
 # Describes the command
 def description():
@@ -1732,6 +1753,9 @@ def run(args, runner, logger):
                 "Job that was given in only_jobs option parameters\n")
         config_jobs.jobs = l_jb
     
+    # Parse the config jobs in order to develop all the factorized jobs
+    develop_factorized_jobs(config_jobs)
+    
     # Make a unique file that contain all the jobs in order to use it 
     # on every machine
     name_pyconf = "_".join([os.path.basename(path)[:-len('.pyconf')] 
@@ -1753,6 +1777,7 @@ def run(args, runner, logger):
                       logger,
                       path_pyconf,
                       config_jobs)
+    
     # SSH connection to all machines
     today_jobs.ssh_connection_all_machines()
     if options.test_connection:
@@ -1770,6 +1795,7 @@ def run(args, runner, logger):
         files_to_copy = []
         files_to_copy.append(os.path.join(xsl_dir, STYLESHEET_GLOBAL))
         files_to_copy.append(os.path.join(xsl_dir, STYLESHEET_BOARD))
+        files_to_copy.append(os.path.join(xsl_dir, "command.xsl"))
         files_to_copy.append(os.path.join(xsl_dir, "running.gif"))
         for file_path in files_to_copy:
             shutil.copy2(file_path, log_dir)

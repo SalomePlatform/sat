@@ -1570,6 +1570,12 @@ def overwriteMergeResolve(map1, map2, key):
         rv = "overwrite"
     return rv
 
+def deepCopyMapping(inMapping):
+    res = Mapping()
+    for element in inMapping:
+        res[element] = inMapping[element]
+    return res
+
 class ConfigMerger(object):
     """
     This class is used for merging two configurations. If a key exists in the
