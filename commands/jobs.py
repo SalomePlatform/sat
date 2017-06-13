@@ -292,8 +292,7 @@ class Job(object):
                         " job --jobs_config " + 
                         os.path.join(self.machine.sat_path,
                                      self.name_remote_jobs_pyconf) +
-                        ' --name "' +
-                        self.name + '"')
+                        " --name " + self.name)
         if prefix:
             self.command = prefix + ' "' + self.command +'"'
     
