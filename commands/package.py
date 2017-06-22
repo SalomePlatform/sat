@@ -250,6 +250,8 @@ def hack_for_distene_licence(filepath):
     if num_line == -1:
         # No distene product, there is nothing to do
         fin.close()
+        for line in text:
+            fout.write(line)
         fout.close()
         return
     del text[num_line +1]
