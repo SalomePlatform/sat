@@ -67,7 +67,7 @@ export $1=$out_var
 }
 
 # The 3 following variables are used only in case of a sat package
-export out_dir_Path=`dirname "${BASH_SOURCE[0]}"`
+export out_dir_Path=$(cd $(dirname ${BASH_SOURCE[0]});pwd))
 export PRODUCT_OUT_DIR=${out_dir_Path}
 export PRODUCT_ROOT_DIR=${PRODUCT_OUT_DIR}
 
