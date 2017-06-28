@@ -1003,7 +1003,7 @@ SALOME (the directory where this file is located).
 compilation based on the binaries used as prerequisites
 =======================================================
 
-If you fail to compile the the complete application (for example because
+If you fail to compile the complete application (for example because
 you are not root on your system and cannot install missing packages), you
 may try a partial compilation based on the binaries.
 For that it is necessary to copy the binaries from BINARIES to INSTALL,

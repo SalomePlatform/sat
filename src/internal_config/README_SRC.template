@@ -35,11 +35,11 @@ Type the following command to compile and install the products of your applicati
 The -t option displays the compilation logs in the terminal.
 
 IMPORTANT : 
-This operation may fail if some requiered linux packages are not installed on your system.
+This operation may fail if some required linux packages are not installed on your system.
 It is also often necessary to install a nvidia driver.
 If you fail to compile and your archive contains pre-compiled binaries, 
 and you actually only need to modify a SALOME module, or add an extra one,
-then you may be interrested by a limited compilation based on the binaries used as prerequisites.
+then you may be interested by a limited compilation based on the binaries used as prerequisites.
 In this case please refer to the instructions after 
 (paragraph compilation based on the binaries used as prerequisites).
 
@@ -55,9 +55,9 @@ Create the launcher:
 > $ROOT/sat launcher ¤{application}
 
 IMPORTANT : 
-If you package also contains a binary installationn 
-this command will overwrite tits launcher.
-In this case, you will still ne able to execute the binary version, wy usig a copy 
+If your package already contains a binary installation 
+this command will overwrite this launcher.
+In this case, you will still be able to execute the binary version, by using a copy 
 of its launcher, called bin¤{launcher}
 
 
