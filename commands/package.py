@@ -747,7 +747,9 @@ def make_archive(prod_name, prod_info, where):
     path_targz_prod = os.path.join(where, prod_name + ".tgz")
     tar_prod = tarfile.open(path_targz_prod, mode='w:gz')
     local_path = prod_info.source_dir
-    tar_prod.add(local_path, arcname=prod_name)
+    tar_prod.add(local_path,
+                 arcname=prod_name,
+                 exclude=exclude_VCS_and_extensions)
     tar_prod.close()
     return path_targz_prod       
 
@@ -1302,7 +1304,6 @@ def run(args, runner, logger):
         tar = tarfile.open(path_targz, mode='w:gz')
         
         # get the filtering function if needed
-        filter_function = None
         filter_function = exclude_VCS_and_extensions
 
         # Add the files to the tarfile object
