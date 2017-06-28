@@ -1191,17 +1191,17 @@ def run(args, runner, logger):
             archive_name = runner.cfg.APPLICATION.name
 
         if options.binaries:
-            archive_name += "_"+runner.cfg.VARS.dist
+            archive_name += "-"+runner.cfg.VARS.dist
             
         if options.sources:
-            archive_name += "_SRC"
+            archive_name += "-SRC"
             if options.with_vcs:
-                archive_name += "_VCS"
+                archive_name += "-VCS"
 
         if options.project:
             project_name, __ = os.path.splitext(
                                             os.path.basename(options.project))
-            archive_name += ("PROJECT_" + project_name)
+            archive_name += ("PROJECT-" + project_name)
  
         if options.sat:
             archive_name += ("salomeTools_" + runner.cfg.INTERNAL.sat_version)
