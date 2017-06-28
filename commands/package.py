@@ -684,6 +684,17 @@ def add_salomeTools(config, tmp_working_dir):
     local_pyconf_name = "local.pyconf"
     local_pyconf_dir = os.path.join(tmp_working_dir, "salomeTools", "data")
     local_pyconf_file = os.path.join(local_pyconf_dir, local_pyconf_name)
+    # Remove the .pyconf file in the root directory of salomeTools if there is
+    # any. (For example when launching jobs, a pyconf file describing the jobs 
+    # can be here and is not useful) 
+    files_or_dir_SAT = os.listdir(os.path.join(tmp_working_dir, "salomeTools"))
+    for file_or_dir in files_or_dir_SAT:
+        if file_or_dir.endswith(".pyconf"):
+            file_path = os.path.join(tmp_working_dir,
+                                     "salomeTools",
+                                     file_or_dir)
+            os.remove(file_path)
+    
     ff = open(local_pyconf_file, "w")
     ff.write(LOCAL_TEMPLATE)
     ff.close()
