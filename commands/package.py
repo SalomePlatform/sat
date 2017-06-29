@@ -689,7 +689,7 @@ def add_salomeTools(config, tmp_working_dir):
     # can be here and is not useful) 
     files_or_dir_SAT = os.listdir(os.path.join(tmp_working_dir, "salomeTools"))
     for file_or_dir in files_or_dir_SAT:
-        if file_or_dir.endswith(".pyconf"):
+        if file_or_dir.endswith(".pyconf") or file_or_dir.endswith(".txt"):
             file_path = os.path.join(tmp_working_dir,
                                      "salomeTools",
                                      file_or_dir)
