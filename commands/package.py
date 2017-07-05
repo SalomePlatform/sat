@@ -1133,7 +1133,7 @@ def run(args, runner, logger):
         return 1
     
     # The repository where to put the package if not Binary or Source
-    package_default_path = runner.cfg.USER.workdir
+    package_default_path = runner.cfg.LOCAL.workdir
     
     # if the package contains binaries or sources:
     if options.binaries or options.sources:
