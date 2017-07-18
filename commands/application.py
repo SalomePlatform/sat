@@ -28,7 +28,7 @@ import src
 
 parser = src.options.Options()
 parser.add_option('n', 'name', 'string', 'name',
-    _('Optional: The name of the application (default is APPLI.name or '
+    _('Optional: The name of the application (default is APPLICATION.virtual_app.name or '
       'runAppli)'))
 parser.add_option('c', 'catalog', 'string', 'catalog',
     _('Optional: The resources catalog to use'))
@@ -79,7 +79,10 @@ def create_config_file(config, modules, env_file, logger):
     f = open(config_file, "w")
 
     f.write('<application>\n')
-    f.write('<prerequisites path="%s"/>\n' % env_file)
+    if env_file.endswith("cfg"):
+        f.write('<context path="%s"/>\n' % env_file)
+    else:   
+        f.write('<prerequisites path="%s"/>\n' % env_file)
     f.write('<resources path="CatalogResources.xml"/>\n')
     f.write('<modules>\n')
 
@@ -118,8 +121,8 @@ def create_config_file(config, modules, env_file, logger):
 ##
 # Customizes the application by editing SalomeApp.xml.
 def customize_app(config, appli_dir, logger):
-    if 'configure' not in config.APPLI \
-        or len(config.APPLI.configure) == 0:
+    if 'configure' not in config.APPLICATION.virtual_app \
+        or len(config.APPLICATION.virtual_app.configure) == 0:
         return
 
     # shortcut to get an element (section or parameter) from parent.
@@ -152,9 +155,9 @@ def customize_app(config, appli_dir, logger):
     assert document is not None, "document tag not found"
 
     logger.write("\n", 4)
-    for section_name in config.APPLI.configure:
-        for parameter_name in config.APPLI.configure[section_name]:
-            parameter_value = config.APPLI.configure[section_name][parameter_name]
+    for section_name in config.APPLICATION.virtual_app.configure:
+        for parameter_name in config.APPLICATION.virtual_app.configure[section_name]:
+            parameter_value = config.APPLICATION.virtual_app.configure[section_name][parameter_name]
             logger.write("  configure: %s/%s = %s\n" % (section_name,
                                                         parameter_name,
                                                         parameter_value), 4)
@@ -272,8 +275,12 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
     finally:
         logger.write(src.printcolors.printc(status) + "\n", 2, False)
 
-    # build the application
-    env_file = os.path.join(config.APPLICATION.workdir, "env_launch.sh")
+    # build the application (the name depends upon salome version
+    # for salome 8 we use a salome context file
+    VersionSalome = src.get_salome_version(config)
+    env_ext="cfg" if VersionSalome>=820 else "sh"
+    env_file = os.path.join(config.APPLICATION.workdir, "env_launch.cfg")
+
     write_step(logger, _("Building application"), level=2)
     cf = create_config_file(config, l_SALOME_modules, env_file, logger)
 
@@ -296,44 +303,6 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
     return retcode
 
 
-##
-# Generates a launcher that sources Salome's python and calls original launcher
-def generate_sourcing_launcher(config, appli_dir, logger) :
-
-    # Rename original launcher
-    launcher_name = os.path.join( appli_dir,
-                                  "bin",
-                                  "salome",
-                                  config.APPLI.launch_alias_name )
-    original_launcher = launcher_name + "-original"
-    os.rename( launcher_name, original_launcher )
-    
-    # Open new launcher
-    f = open(launcher_name, "w")
-    
-    # Write the set up of the environment
-    env = src.environment.SalomeEnviron( config,
-                                         src.fileEnviron.get_file_environ(
-                                                                        f,
-                                                                        "bash",
-                                                                        {},
-                                                                        config))
-    env.set_a_product( "Python", logger)
-    
-    # Write the call to the original launcher
-    f.write( "\n\n")
-    f.write( "# This is the call to the original launcher\n")
-    f.write( original_launcher + " $*" )
-    f.write( "\n\n")
-    
-    # Write the cleaning of the environment
-    env.finish(True)
-    
-    # Close new launcher
-    f.close()
-    os.chmod(launcher_name, stat.S_IRWXU| stat.S_IRWXG| stat.S_IRWXO) # 0777
-
-   
 
 ##
 # Generates the catalog from a list of machines.
@@ -423,9 +392,9 @@ def run(args, runner, logger):
     application = src.printcolors.printcLabel(runner.cfg.VARS.application)
     logger.write(_("Building application for %s\n") % application, 1)
 
-    # if section APPLI does not exists create one
-    if "APPLI" not in runner.cfg:
-        msg = _("The section APPLI is not defined in the product.")
+    # if section APPLICATION.virtual_app does not exists create one
+    if "virtual_app" not in runner.cfg.APPLICATION:
+        msg = _("The section APPLICATION.virtual_app is not defined in the product.")
         logger.write(src.printcolors.printcError(msg), 1)
         logger.write("\n", 1)
         return 1
@@ -437,16 +406,16 @@ def run(args, runner, logger):
 
     # set list of modules
     if options.modules:
-        runner.cfg.APPLI['modules'] = options.modules
+        runner.cfg.APPLICATION.virtual_app['modules'] = options.modules
 
     # set name and application_name
     if options.name:
-        runner.cfg.APPLI['name'] = options.name
-        runner.cfg.APPLI['application_name'] = options.name + "_appdir"
+        runner.cfg.APPLICATION.virtual_app['name'] = options.name
+        runner.cfg.APPLICATION.virtual_app['application_name'] = options.name + "_appdir"
     
-    application_name = src.get_cfg_param(runner.cfg.APPLI,
+    application_name = src.get_cfg_param(runner.cfg.APPLICATION.virtual_app,
                                          "application_name",
-                                         runner.cfg.APPLI.name + "_appdir")
+                                         runner.cfg.APPLICATION.virtual_app.name + "_appdir")
     appli_dir = os.path.join(target_dir, application_name)
 
     src.printcolors.print_value(logger,
@@ -464,18 +433,18 @@ def run(args, runner, logger):
         catalog_src = options.gencat
         catalog = generate_catalog(options.gencat.split(","),
                                    runner.cfg,logger)
-    elif 'catalog' in runner.cfg.APPLI:
+    elif 'catalog' in runner.cfg.APPLICATION.virtual_app:
         # use catalog specified in the product
-        if runner.cfg.APPLI.catalog.endswith(".xml"):
+        if runner.cfg.APPLICATION.virtual_app.catalog.endswith(".xml"):
             # catalog as a file
-            catalog = runner.cfg.APPLI.catalog
+            catalog = runner.cfg.APPLICATION.virtual_app.catalog
         else:
             # catalog as a list of computers
-            catalog_src = runner.cfg.APPLI.catalog
+            catalog_src = runner.cfg.APPLICATION.virtual_app.catalog
             mlist = filter(lambda l: len(l.strip()) > 0,
-                           runner.cfg.APPLI.catalog.split(","))
+                           runner.cfg.APPLICATION.virtual_app.catalog.split(","))
             if len(mlist) > 0:
-                catalog = generate_catalog(runner.cfg.APPLI.catalog.split(","),
+                catalog = generate_catalog(runner.cfg.APPLICATION.virtual_app.catalog.split(","),
                                            runner.cfg, logger)
 
     # display which catalog is used

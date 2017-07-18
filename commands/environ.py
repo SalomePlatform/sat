@@ -23,7 +23,7 @@ import src
 parser = src.options.Options()
 parser.add_option('', 'shell', 'list2', 'shell',
     _("Optional: Generates the environment files for the given format: "
-      "bash (default), bat (for windows) or all."), [])
+      "bash (default), bat (for windows), cfg (salome context file) or all."), [])
 parser.add_option('p', 'products', 'list2', 'products',
     _("Optional: Includes only the specified products."))
 parser.add_option('', 'prefix', 'string', 'prefix',
@@ -34,8 +34,8 @@ parser.add_option('t', 'target', 'string', 'out_dir',
     None)
 
 # list of available shells with extensions
-C_SHELLS = { "bash": "sh", "bat": "bat" }
-C_ALL_SHELL = [ "bash", "bat" ]
+C_SHELLS = { "bash": "sh", "bat": "bat", "cfg" : "cfg" }
+C_ALL_SHELL = [ "bash", "bat", "cfg" ]
 
 
 ##

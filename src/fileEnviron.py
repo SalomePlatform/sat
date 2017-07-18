@@ -74,6 +74,8 @@ export PRODUCT_ROOT_DIR=${PRODUCT_OUT_DIR}
 ###########################################################################
 """
 
+cfg_header='''[SALOME Configuration]
+'''
 
 Launcher_header='''# a generated SALOME Configuration file using python syntax
 '''
@@ -91,6 +93,8 @@ def get_file_environ(output, shell, environ=None):
         return BatFileEnviron(output, environ)
     if shell == "cfgForPy":
         return LauncherFileEnviron(output, environ)
+    if shell == "cfg":
+        return ContextFileEnviron(output, environ)
     raise Exception("FileEnviron: Unknown shell = %s" % shell)
 
 class FileEnviron:
@@ -325,6 +329,85 @@ class BatFileEnviron(FileEnviron):
     def finish(self, required=True):
         """Add a final instruction in the out file (in case of file generation)
            In the particular windows case, do nothing
+        
+        :param required bool: Do nothing if required is False
+        """
+        return
+
+class ContextFileEnviron(FileEnviron):
+    """Class for a salome context configuration file.
+    """
+    def __init__(self, output, environ=None):
+        """Initialization
+        
+        :param output file: the output file stream.
+        :param environ dict: a potential additional environment.
+        """
+        self._do_init(output, environ)
+        self.output.write(cfg_header)
+
+    def set(self, key, value):
+        '''Set the environment variable "key" to value "value"
+        
+        :param key str: the environment variable to set
+        :param value str: the value
+        '''
+        self.output.write('%s="%s"\n' % (key, value))
+        self.environ[key] = value
+
+    def get(self, key):
+        '''Get the value of the environment variable "key"
+        
+        :param key str: the environment variable
+        '''
+        return '%({0})s'.format(key)
+
+    def command_value(self, key, command):
+        '''Get the value given by the system command "command" 
+           and put it in the environment variable key.
+           Has to be overwritten in the derived classes
+           This can be seen as a virtual method
+        
+        :param key str: the environment variable
+        :param command str: the command to execute
+        '''
+        raise NotImplementedError("command_value is not implement "
+                                  "for salome context files!")
+
+    def add_echo(self, text):
+        """Add a comment
+        
+        :param text str: the comment to add
+        """
+        self.add_comment(text)
+
+    def add_warning(self, warning):
+        """Add a warning
+        
+        :param text str: the warning to add
+        """
+        self.add_comment("WARNING %s"  % warning)
+
+    def prepend_value(self, key, value, sep=os.pathsep):
+        '''prepend value to key using sep
+        
+        :param key str: the environment variable to prepend
+        :param value str: the value to prepend to key
+        :param sep str: the separator string
+        '''
+        self.output.write('ADD_TO_%s: %s\n' % (key, value))
+
+    def append_value(self, key, value, sep=os.pathsep):
+        '''append value to key using sep
+        
+        :param key str: the environment variable to append
+        :param value str: the value to append to key
+        :param sep str: the separator string
+        '''
+        self.prepend_value(key, value)
+
+    def finish(self, required=True):
+        """Add a final instruction in the out file (in case of file generation)
         
         :param required bool: Do nothing if required is False
         """

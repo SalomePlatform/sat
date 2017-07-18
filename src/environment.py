@@ -393,26 +393,29 @@ class SalomeEnviron:
         l_binpath_libpath = []
 
         # create additional ROOT_DIR for CPP components
-        if 'component_name' in pi:
+        if src.product.product_is_cpp(pi):
+            assert 'component_name' in pi, 'Error : CPP component should have a component_name field'
             compo_name = pi.component_name
-            if compo_name + "CPP" == pi.name:
-                compo_root_dir = compo_name + "_ROOT_DIR"
-                envcompo_root_dir = os.path.join(
-                            self.cfg.TOOLS.common.install_root, compo_name )
-                self.set(compo_root_dir ,  envcompo_root_dir)
-                bin_path = os.path.join(envcompo_root_dir, 'bin', 'salome')
-                lib_path = os.path.join(envcompo_root_dir, 'lib', 'salome')
-                l_binpath_libpath.append( (bin_path, lib_path) )
+            compo_root_dir = compo_name + "_ROOT_DIR"
+            envcompo_root_dir = os.path.join(
+                        self.cfg.TOOLS.common.install_root, compo_name )
+            self.set(compo_root_dir ,  envcompo_root_dir)
+            bin_path = os.path.join(envcompo_root_dir, 'bin', 'salome')
+            lib_path = os.path.join(envcompo_root_dir, 'lib', 'salome')
+            l_binpath_libpath.append( (bin_path, lib_path) )
 
-        appliname = 'salome'
-        if (src.get_cfg_param(pi, 'product_type', 'SALOME').upper() 
-                            not in [ "SALOME", "SMESH_PLUGIN", "SAMPLE" ]):
-            appliname = ''
+        bin_path = os.path.join(env_root_dir, 'bin', 'salome')
+        if src.get_property_in_product_cfg(pi, "fhs"):
+            lib_path = os.path.join(env_root_dir, 'lib')
+            pylib1_path = os.path.join(env_root_dir, self.python_lib0)
+            pylib2_path = os.path.join(env_root_dir, self.python_lib1)
+        else:
+            lib_path = os.path.join(env_root_dir, 'lib', 'salome')
+            pylib1_path = os.path.join(env_root_dir, self.python_lib0, 'salome')
+            pylib2_path = os.path.join(env_root_dir, self.python_lib1, 'salome')
 
         # Construct the paths to prepend to PATH and LD_LIBRARY_PATH and 
         # PYTHONPATH
-        bin_path = os.path.join(env_root_dir, 'bin', appliname)
-        lib_path = os.path.join(env_root_dir, 'lib', appliname)
         l_binpath_libpath.append( (bin_path, lib_path) )
 
         for bin_path, lib_path in l_binpath_libpath:
@@ -423,10 +426,7 @@ class SalomeEnviron:
                 else :
                     self.prepend('LD_LIBRARY_PATH', lib_path)
 
-            l = [ bin_path, lib_path,
-                  os.path.join(env_root_dir, self.python_lib0, appliname),
-                  os.path.join(env_root_dir, self.python_lib1, appliname)
-                ]
+            l = [ bin_path, lib_path, pylib1_path, pylib2_path ]
             self.prepend('PYTHONPATH', l)
 
     def set_cpp_env(self, product_info):
