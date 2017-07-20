@@ -234,7 +234,7 @@ def create_application(config, appli_dir, catalog, logger, display=True):
                                    SALOME_modules)
     
     if retcode == 0:
-        cmd = src.printcolors.printcLabel("%s/runAppli" % appli_dir)
+        cmd = src.printcolors.printcLabel("%s/salome" % appli_dir)
 
     if display:
         logger.write("\n", 3, False)

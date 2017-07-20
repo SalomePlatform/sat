@@ -393,16 +393,16 @@ class SalomeEnviron:
         l_binpath_libpath = []
 
         # create additional ROOT_DIR for CPP components
-        if src.product.product_is_cpp(pi):
-            assert 'component_name' in pi, 'Error : CPP component should have a component_name field'
+        if 'component_name' in pi:
             compo_name = pi.component_name
-            compo_root_dir = compo_name + "_ROOT_DIR"
-            envcompo_root_dir = os.path.join(
-                        self.cfg.TOOLS.common.install_root, compo_name )
-            self.set(compo_root_dir ,  envcompo_root_dir)
-            bin_path = os.path.join(envcompo_root_dir, 'bin', 'salome')
-            lib_path = os.path.join(envcompo_root_dir, 'lib', 'salome')
-            l_binpath_libpath.append( (bin_path, lib_path) )
+            if compo_name + "CPP" == pi.name:
+                compo_root_dir = compo_name + "_ROOT_DIR"
+                envcompo_root_dir = os.path.join(
+                            self.cfg.TOOLS.common.install_root, compo_name )
+                self.set(compo_root_dir ,  envcompo_root_dir)
+                bin_path = os.path.join(envcompo_root_dir, 'bin', 'salome')
+                lib_path = os.path.join(envcompo_root_dir, 'lib', 'salome')
+                l_binpath_libpath.append( (bin_path, lib_path) )
 
         bin_path = os.path.join(env_root_dir, 'bin', 'salome')
         if src.get_property_in_product_cfg(pi, "fhs"):
