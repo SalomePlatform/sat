@@ -404,15 +404,16 @@ class SalomeEnviron:
                 lib_path = os.path.join(envcompo_root_dir, 'lib', 'salome')
                 l_binpath_libpath.append( (bin_path, lib_path) )
 
-        bin_path = os.path.join(env_root_dir, 'bin', 'salome')
         if src.get_property_in_product_cfg(pi, "fhs"):
             lib_path = os.path.join(env_root_dir, 'lib')
             pylib1_path = os.path.join(env_root_dir, self.python_lib0)
             pylib2_path = os.path.join(env_root_dir, self.python_lib1)
+            bin_path = os.path.join(env_root_dir, 'bin')
         else:
             lib_path = os.path.join(env_root_dir, 'lib', 'salome')
             pylib1_path = os.path.join(env_root_dir, self.python_lib0, 'salome')
             pylib2_path = os.path.join(env_root_dir, self.python_lib1, 'salome')
+            bin_path = os.path.join(env_root_dir, 'bin', 'salome')
 
         # Construct the paths to prepend to PATH and LD_LIBRARY_PATH and 
         # PYTHONPATH

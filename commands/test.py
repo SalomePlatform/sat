@@ -544,6 +544,7 @@ def run(args, runner, logger):
     '''
     (options, args) = parse_option(args, runner.cfg)
 
+    # the test base is specified either by the application, or by the --base option
     with_application = False
     if runner.cfg.VARS.application != 'None':
         logger.write(_('Running tests on application %s\n') % 
@@ -554,6 +555,7 @@ def run(args, runner, logger):
         raise src.SatException(_('A test base is required. Use the --base '
                                  'option'))
 
+    # the launcher is specified either by the application, or by the --launcher option
     if with_application:
         # check if environment is loaded
         if 'KERNEL_ROOT_DIR' in os.environ:

@@ -263,6 +263,16 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
     
     write_step(logger, _("Creating environment files"))
     status = src.KO_STATUS
+
+    VersionSalome = src.get_salome_version(config)
+    if VersionSalome>=820:
+        # for salome 8+ we use a salome context file for the virtual app
+        app_shell="cfg"
+        env_ext="cfg"
+    else:
+        app_shell="bash"
+        env_ext="sh"
+
     try:
         import environ
         # generate only shells the user wants (by default bash, csh, batch)
@@ -270,16 +280,14 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
         # with the current system.
         environ.write_all_source_files(config,
                                        logger,
+                                       shells=[app_shell],
                                        silent=True)
         status = src.OK_STATUS
     finally:
         logger.write(src.printcolors.printc(status) + "\n", 2, False)
 
     # build the application (the name depends upon salome version
-    # for salome 8 we use a salome context file
-    VersionSalome = src.get_salome_version(config)
-    env_ext="cfg" if VersionSalome>=820 else "sh"
-    env_file = os.path.join(config.APPLICATION.workdir, "env_launch.cfg")
+    env_file = os.path.join(config.APPLICATION.workdir, "env_launch." + env_ext)
 
     write_step(logger, _("Building application"), level=2)
     cf = create_config_file(config, l_SALOME_modules, env_file, logger)
