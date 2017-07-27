@@ -39,8 +39,8 @@ parser.add_option('', 'gencat', 'string', 'gencat',
 
 def generate_launch_file(config,
                          logger,
-                         env_info=None,
-                         pathlauncher=None,
+                         launcher_name,
+                         pathlauncher,
                          display=True,
                          additional_env={}):
     '''Generates the launcher file.
@@ -48,33 +48,18 @@ def generate_launch_file(config,
     :param config Config: The global configuration
     :param logger Logger: The logger instance to use for the display 
                           and logging
-    :param env_info str: The list of products to add in the files.
+    :param launcher_name str: The name of the launcher to generate
     :param pathlauncher str: The path to the launcher to generate
-    :param src_root str: The path to the directory where the sources are
     :param display boolean: If False, do not print anything in the terminal
     :param additional_env dict: The dict giving additional 
                                 environment variables
     :return: The launcher file path.
     :rtype: str
     '''
-    # Get the application directory and the profile directory
-    out_dir = config.APPLICATION.workdir
-    profile = config.APPLICATION.profile
-    profile_install_dir = get_profile_dir(config)
     
     # Compute the default launcher path if it is not provided in pathlauncher
     # parameter
-    if pathlauncher is None:
-        if platform.system() == "Windows" :
-            filepath = os.path.join( os.path.join( profile_install_dir,
-                                                   'bin',
-                                                   'salome' ),
-                                     profile['launcher_name'] )
-        else:
-            filepath = os.path.join( out_dir,
-                                     profile['launcher_name'] )
-    else:
-        filepath = os.path.join(pathlauncher, profile['launcher_name'])
+    filepath = os.path.join(pathlauncher, launcher_name)
 
     # Remove the file if it exists in order to replace it
     if os.path.exists(filepath):
@@ -83,18 +68,34 @@ def generate_launch_file(config,
     # Add the APPLI variable
     additional_env['APPLI'] = filepath
 
+
+    # get KERNEL bin installation path 
+    # (in order for the launcher to get python salomeContext API)
+    kernel_cfg = src.product.get_product_config(config, "KERNEL")
+    kernel_root_dir = kernel_cfg.install_dir
+    if not src.product.check_installation(kernel_cfg):
+        raise src.SatException(_("KERNEL is not installed"))
+
+    # set kernel bin dir (considering fhs property)
+    if src.get_property_in_product_cfg(kernel_cfg, "fhs"):
+        bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin") 
+    else:
+        bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin","salome") 
+
     # Get the launcher template
-    withProfile = src.fileEnviron.withProfile.replace( "PROFILE_INSTALL_DIR",
-                                                       profile_install_dir )
+    withProfile = src.fileEnviron.withProfile\
+                     .replace("BIN_KERNEL_INSTALL_DIR", bin_kernel_install_dir)\
+                     .replace("KERNEL_INSTALL_DIR", kernel_root_dir)
+
     before, after = withProfile.split(
                                 "# here your local standalone environment\n")
 
     # create an environment file writer
     writer = src.environment.FileEnvWriter(config,
                                            logger,
-                                           out_dir,
+                                           pathlauncher,
                                            src_root=None,
-                                           env_info=env_info)
+                                           env_info=None)
 
     # Display some information
     if display:
@@ -122,89 +123,6 @@ def generate_launch_file(config,
              stat.S_IXOTH)
     return filepath
 
-def generate_launch_link(config,
-                         logger,
-                         launcherPath,
-                         pathlauncher=None,
-                         display=True,
-                         packageLauncher=False):
-    '''Generates the launcher link that sources Python 
-       and call the actual launcher.
-    
-    :param config Config: The global configuration
-    :param logger Logger: The logger instance to use for the display 
-                          and logging
-    :param launcherPath str: The path to the launcher to call
-    :param pathlauncher str: The path to the launcher (link) to generate
-    :param display boolean: If False, do not print anything in the terminal
-    :param packageLauncher boolean: if True, use a relative path (for package)
-    :return: The launcher link file path.
-    :rtype: str
-    '''
-    if pathlauncher is None:
-        # Make an executable file that sources python, then launch the launcher
-        # produced by generate_launch_file method
-        sourceLauncher = os.path.join(config.APPLICATION.workdir,
-                                      config.APPLICATION.profile.launcher_name)
-    else:
-        sourceLauncher = os.path.join(pathlauncher,
-                                      config.APPLICATION.profile.launcher_name)
-
-    # Change the extension for the windows case
-    if platform.system() == "Windows" :
-            sourceLauncher += '.bat'
-
-    # display some information
-    if display:
-        logger.write(_("\nGenerating the executable that sources"
-                       " python and runs the launcher :\n") , 1)
-        logger.write("  %s\n" %src.printcolors.printcLabel(sourceLauncher), 1)
-
-    # open the file to write
-    f = open(sourceLauncher, "w")
-
-    # Write the set up of the environment
-    if platform.system() == "Windows" :
-        shell = 'bat'
-    else:
-        shell = 'bash'
-        
-    # Write the Python environment files
-    env = src.environment.SalomeEnviron( config, 
-                        src.fileEnviron.get_file_environ( f, shell, config ) )
-    env.set_a_product( "Python", logger)
-
-    # Write the call to the original launcher
-    f.write( "\n\n")
-    if packageLauncher:
-        cmd = os.path.join('${out_dir_Path}', launcherPath)
-    else:
-        cmd = launcherPath
-
-    if platform.system() == "Windows" :
-        cmd = 'python ' + cmd + ' %*'
-    else:
-        cmd = cmd + ' $*'
-    
-    f.write( cmd )
-    f.write( "\n\n")
-
-    # Write the cleaning of the environment
-    env.finish(True)
-
-    # Close new launcher
-    f.close()
-    os.chmod(sourceLauncher,
-             stat.S_IRUSR |
-             stat.S_IRGRP |
-             stat.S_IROTH |
-             stat.S_IWUSR |
-             stat.S_IWGRP |
-             stat.S_IWOTH |
-             stat.S_IXUSR |
-             stat.S_IXGRP |
-             stat.S_IXOTH)
-    return sourceLauncher
 
 def generate_catalog(machines, config, logger):
     """Generates an xml catalog file from a list of machines.
@@ -289,65 +207,15 @@ def copy_catalog(config, catalog_path):
     # Verify the existence of the file
     if not os.path.exists(catalog_path):
         raise IOError(_("Catalog not found: %s") % catalog_path)
-    # Compute the location where to copy the file
-    profile_dir = get_profile_dir(config)
-    new_catalog_path = os.path.join(profile_dir, "CatalogResources.xml")
+    # Get the application directory and copy catalog inside
+    out_dir = config.APPLICATION.workdir
+    new_catalog_path = os.path.join(out_dir, "CatalogResources.xml")
     # Do the copy
     shutil.copy(catalog_path, new_catalog_path)
     additional_environ = {'USER_CATALOG_RESOURCES_FILE' : new_catalog_path}
     return additional_environ
 
-def get_profile_dir(config):
-    """Get the profile directory from the config
-    
-    :param config Config: The global configuration
-    :return: The profile install directory
-    :rtype: Str
-    """
-    profile_name = config.APPLICATION.profile.product
-    profile_info = src.product.get_product_config(config, profile_name)
-    return profile_info.install_dir
 
-def finish_profile_install(config, launcherPath):
-    """Add some symlinks required for SALOME
-    
-    :param config Config: The global configuration
-    :param launcherPath str: the launcher file path
-    """
-    # Create a USERS directory
-    profile_dir = get_profile_dir(config)
-    user_dir = os.path.join(profile_dir, 'USERS')
-    if not os.path.exists(user_dir):
-        os.makedirs(user_dir)
-    # change rights of USERS directory
-    os.chmod(user_dir,
-             stat.S_IRUSR |
-             stat.S_IRGRP |
-             stat.S_IROTH |
-             stat.S_IWUSR |
-             stat.S_IWGRP |
-             stat.S_IWOTH |
-             stat.S_IXUSR |
-             stat.S_IXGRP |
-             stat.S_IXOTH)
-
-    # create a link in root directory to the launcher
-    if platform.system() != "Windows" :
-        link_path = os.path.join(config.APPLICATION.workdir, 'salome')
-        if not os.path.exists(link_path):
-            try:
-                os.symlink(launcherPath, link_path)
-            except OSError:
-                os.remove(link_path)
-                os.symlink(launcherPath, link_path)
-
-        link_path = os.path.join(profile_dir, 'salome')
-        relativeLauncherPath = "../../salome"
-        try:
-            os.symlink(relativeLauncherPath, link_path)
-        except OSError:
-            os.remove(link_path)
-            os.symlink(relativeLauncherPath, link_path)
 
 ##################################################
 
@@ -367,22 +235,16 @@ def run(args, runner, logger):
     # Verify that the command was called with an application
     src.check_config_has_application( runner.cfg )
     
-    # Verify that the APPLICATION section has a profile section
-    src.check_config_has_profile( runner.cfg )
-
-    # Verify that the profile is installed
-    if not src.product.check_installation(
-                                src.product.get_product_config(
-                                    runner.cfg,
-                                    runner.cfg.APPLICATION.profile.product)):
-        msg = _("The profile of the application is not correctly installed.")
-        logger.write(src.printcolors.printcError(msg), 1)
-        return 1
-
-    # Change the name of the file to create 
-    # if the corresponding option was called
+    # Determine the launcher name (from option, profile section or by default "salome")
     if options.name:
-        runner.cfg.APPLICATION.profile['launcher_name'] = options.name
+        launcher_name = options.name
+    elif 'profile' in runner.cfg.APPLICATION and 'launcher_name=' in runner.cfg.APPLICATION.profile:
+        launcher_name = runner.cfg.APPLICATION.profile.launcher_name
+    else:
+        launcher_name = 'salome'
+
+    # set the launcher path
+    launcher_path = runner.cfg.APPLICATION.workdir
 
     # Copy a catalog if the option is called
     additional_environ = {}
@@ -399,14 +261,8 @@ def run(args, runner, logger):
     # Generate the launcher
     launcherPath = generate_launch_file( runner.cfg,
                                          logger,
+                                         launcher_name,
+                                         launcher_path,
                                          additional_env = additional_environ )
-
-    if platform.system() == "Windows" :
-        # Create the link (bash file that sources python and then call 
-        # the actual launcher) to the launcher
-        generate_launch_link( runner.cfg, logger, launcherPath)
-
-    # Add some links
-    finish_profile_install(runner.cfg, launcherPath)
 
     return 0

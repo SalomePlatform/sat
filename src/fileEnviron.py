@@ -712,8 +712,8 @@ out_dir_Path=os.path.abspath(os.path.dirname(__file__))
 # Preliminary work to initialize path to SALOME Python modules
 def __initialize():
 
-  sys.path[:0] = [ os.path.join( 'PROFILE_INSTALL_DIR', 'bin', 'salome' ) ]
-  os.environ['ABSOLUTE_APPLI_PATH'] = 'PROFILE_INSTALL_DIR'
+  sys.path[:0] = [ 'BIN_KERNEL_INSTALL_DIR' ]
+  os.environ['ABSOLUTE_APPLI_PATH'] = 'KERNEL_INSTALL_DIR'
   
   # define folder to store omniorb config (initially in virtual application folder)
   try:
