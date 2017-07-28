@@ -72,9 +72,9 @@ def generate_launch_file(config,
     # get KERNEL bin installation path 
     # (in order for the launcher to get python salomeContext API)
     kernel_cfg = src.product.get_product_config(config, "KERNEL")
-    kernel_root_dir = kernel_cfg.install_dir
     if not src.product.check_installation(kernel_cfg):
         raise src.SatException(_("KERNEL is not installed"))
+    kernel_root_dir = kernel_cfg.install_dir
 
     # set kernel bin dir (considering fhs property)
     if src.get_property_in_product_cfg(kernel_cfg, "fhs"):
@@ -238,10 +238,8 @@ def run(args, runner, logger):
     # Determine the launcher name (from option, profile section or by default "salome")
     if options.name:
         launcher_name = options.name
-    elif 'profile' in runner.cfg.APPLICATION and 'launcher_name=' in runner.cfg.APPLICATION.profile:
-        launcher_name = runner.cfg.APPLICATION.profile.launcher_name
     else:
-        launcher_name = 'salome'
+        launcher_name = src.get_launcher_name(runner.cfg)
 
     # set the launcher path
     launcher_path = runner.cfg.APPLICATION.workdir

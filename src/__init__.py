@@ -136,6 +136,21 @@ def get_base_path(config):
     
     return base_path
 
+def get_launcher_name(config):
+    '''Returns the name of salome launcher.
+    
+    :param config Config: The global Config instance.
+    :return: The name of salome launcher.
+    :rtype: str
+    '''
+    check_config_has_application(config)
+    if 'profile' in config.APPLICATION and 'launcher_name=' in config.APPLICATION.profile:
+        launcher_name = config.APPLICATION.profile.launcher_name
+    else:
+        launcher_name = 'salome'
+
+    return launcher_name
+
 def get_log_path(config):
     '''Returns the path of the logs.
     

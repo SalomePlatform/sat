@@ -180,16 +180,25 @@ def produce_relative_launcher(config,
     :rtype: str
     '''
     
-    # Get the launcher template
-    profile_install_dir = os.path.join(binaries_dir_name,
-                                       config.APPLICATION.profile.product)
+    # get KERNEL installation path 
+    kernel_root_dir = os.path.join(binaries_dir_name, "KERNEL")
+
+    # set kernel bin dir (considering fhs property)
+    kernel_cfg = src.product.get_product_config(config, "KERNEL")
+    if src.get_property_in_product_cfg(kernel_cfg, "fhs"):
+        bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin") 
+    else:
+        bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin","salome") 
+
+    # Get the launcher template and do substitutions
     withProfile = src.fileEnviron.withProfile
+
     withProfile = withProfile.replace(
-        "ABSOLUTE_APPLI_PATH'] = 'PROFILE_INSTALL_DIR'",
-        "ABSOLUTE_APPLI_PATH'] = out_dir_Path + '" + config.VARS.sep + profile_install_dir + "'")
+        "ABSOLUTE_APPLI_PATH'] = 'KERNEL_INSTALL_DIR'",
+        "ABSOLUTE_APPLI_PATH'] = out_dir_Path + '" + config.VARS.sep + kernel_root_dir + "'")
     withProfile = withProfile.replace(
-        "os.path.join( 'PROFILE_INSTALL_DIR'",
-        "os.path.join( out_dir_Path, '" + profile_install_dir + "'")
+        " 'BIN_KERNEL_INSTALL_DIR'",
+        " out_dir_Path + '" + config.VARS.sep + bin_kernel_install_dir + "'")
 
     before, after = withProfile.split(
                                 "# here your local standalone environment\n")
@@ -535,9 +544,10 @@ def binary_package(config, logger, options, tmp_working_dir):
         d_products[prod_name + " (sources)"] = (source_dir, path_in_archive)
 
     # create the relative launcher and add it to the files to add
-    if ("profile" in config.APPLICATION and 
-                                       "product" in config.APPLICATION.profile):
-        launcher_name = config.APPLICATION.profile.launcher_name
+    VersionSalome = src.get_salome_version(config)
+    # Case where SALOME has the launcher that uses the SalomeContext API
+    if VersionSalome >= 730:
+        launcher_name = src.get_launcher_name(config)
         launcher_package = produce_relative_launcher(config,
                                              logger,
                                              tmp_working_dir,
@@ -619,7 +629,7 @@ def source_package(sat, config, logger, options, tmp_working_dir):
             t = os.getcwd()
         except:
             # In the jobs, os.getcwd() can fail
-            t = config.USER.workdir
+            t = config.LOCAL.workdir
         os.chdir(tmp_working_dir)
         if os.path.lexists(tmp_satlink_path):
             os.remove(tmp_satlink_path)
@@ -1053,7 +1063,6 @@ The procedure to do it is:
             d['application'] = config.VARS.application
             f.write("# Application: " + d['application'])
             if 'profile' in config.APPLICATION:
-                d['launcher'] = config.APPLICATION.profile.launcher_name
                 d['launcher'] = config.APPLICATION.profile.launcher_name
             else:
                 d['env_file'] = 'env_launch.sh'

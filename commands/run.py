@@ -38,22 +38,17 @@ def run(args, runner, logger):
     # check for product
     src.check_config_has_application(runner.cfg)
 
-    # check for profile
-    src.check_config_has_profile(runner.cfg)
-
     # Determine launcher path 
-    launcher_name = runner.cfg.APPLICATION.profile.launcher_name
+    launcher_name = src.get_launcher_name(runner.cfg)
     launcher_dir = runner.cfg.APPLICATION.workdir
     
     # Check the launcher existence
     if launcher_name not in  os.listdir(launcher_dir):
-        profile_name = runner.cfg.APPLICATION.profile.module
-        profile_install_dir = src.product.get_product_config(runner.cfg,
-                                                    profile_name).install_dir
-        launcher_dir = os.path.join(profile_install_dir, 'bin', 'salome')
+        message = _("The launcher %s was not found in directory %s!\nDid you run the"
+                    " command 'sat launcher' ?\n") % (launcher_name, launcher_dir)
+        raise src.SatException(message)
           
     launcher_path = os.path.join(launcher_dir, launcher_name)
-    launcher_path = os.path.abspath(launcher_path)
 
     if not os.path.exists(launcher_path):
         message = _("The launcher at path %s is missing.\nDid you run the"

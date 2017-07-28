@@ -531,22 +531,11 @@ class Test:
             return binSalome, binPython, killSalome
         
         # Case where SALOME has the launcher that uses the SalomeContext API
-        if VersionSalome >= 730:            
-            if 'profile' not in self.config.APPLICATION:
-                # Before revision of application concept
-                launcher_name = self.config.APPLI.launch_alias_name
-                binSalome = os.path.join(self.config.APPLICATION.workdir,
-                                         appdir,
-                                         launcher_name)
-            else:
-                # After revision of application concept
-                launcher_name = self.config.APPLICATION.profile.launcher_name
-                binSalome = os.path.join(self.config.APPLICATION.workdir,
-                                         launcher_name)
+        else:            
+            launcher_name = src.get_launcher_name(config)
+            binSalome = os.path.join(self.config.APPLICATION.workdir,
+                                     launcher_name)
             
-            if src.architecture.is_windows():
-                binSalome += '.bat'
-
             binPython = binSalome + ' shell'
             killSalome = binSalome + ' killall'
             return binSalome, binPython, killSalome
