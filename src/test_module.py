@@ -532,7 +532,7 @@ class Test:
         
         # Case where SALOME has the launcher that uses the SalomeContext API
         else:            
-            launcher_name = src.get_launcher_name(config)
+            launcher_name = src.get_launcher_name(self.config)
             binSalome = os.path.join(self.config.APPLICATION.workdir,
                                      launcher_name)
             
