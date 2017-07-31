@@ -1,16 +1,13 @@
 
-Binairies
-=========
+Binaries
+========
 
 This package includes a binary installation of the application ¤{application}.
 The binaries are stored in BINARIES directory.
 
-To run the application, launch the following command:
-> $ROOT/¤{launcher}
-
-This binary installation depends upon some native packages. 
+Warning : This binary installation depends upon some native packages. 
 If some of these packages are missing on your system, the execution may fail. 
-If this is the case, please check the file *_dep_sys_rpms.txt (it contains the known dependencies), 
+If this is the case, please check if the file *_dep_sys_rpms.txt is present (it contains the known dependencies), 
 and install the missing ones.
 
 

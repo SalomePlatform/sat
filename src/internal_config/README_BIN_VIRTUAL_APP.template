@@ -1,0 +1,9 @@
+
+You can produce a SALOME virtual application by launching the following command:
+
+> $ROOT/create_appli.py
+
+This command creates a SALOME application directory APPLI which contains a launcher.
+To start the application, run:
+> $ROOT/APPLI/runAppli
+

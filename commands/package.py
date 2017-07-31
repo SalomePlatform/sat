@@ -543,31 +543,34 @@ def binary_package(config, logger, options, tmp_working_dir):
         path_in_archive = os.path.join("SOURCES", prod_name)
         d_products[prod_name + " (sources)"] = (source_dir, path_in_archive)
 
-    # create the relative launcher and add it to the files to add
-    VersionSalome = src.get_salome_version(config)
-    # Case where SALOME has the launcher that uses the SalomeContext API
-    if VersionSalome >= 730:
-        launcher_name = src.get_launcher_name(config)
-        launcher_package = produce_relative_launcher(config,
-                                             logger,
-                                             tmp_working_dir,
-                                             launcher_name,
-                                             binaries_dir_name,
-                                             not(options.without_commercial))
-    
-        d_products["launcher"] = (launcher_package, launcher_name)
-        if options.sources:
-            # if we mix binaries and sources, we add a copy of the launcher, 
-            # prefixed  with "bin",in order to avoid clashes
-            d_products["launcher (copy)"] = (launcher_package, "bin"+launcher_name)
-    else:
-        # Provide a script for the creation of an application EDF style
-        appli_script = product_appli_creation_script(config,
-                                                    logger,
-                                                    tmp_working_dir,
-                                                    binaries_dir_name)
+    # for packages of SALOME applications including KERNEL, 
+    # we produce a salome launcher or a virtual application (depending on salome version)
+    if 'KERNEL' in config.APPLICATION.products:
+        VersionSalome = src.get_salome_version(config)
+        # Case where SALOME has the launcher that uses the SalomeContext API
+        if VersionSalome >= 730:
+            # create the relative launcher and add it to the files to add
+            launcher_name = src.get_launcher_name(config)
+            launcher_package = produce_relative_launcher(config,
+                                                 logger,
+                                                 tmp_working_dir,
+                                                 launcher_name,
+                                                 binaries_dir_name,
+                                                 not(options.without_commercial))
         
-        d_products["appli script"] = (appli_script, "create_appli.py")
+            d_products["launcher"] = (launcher_package, launcher_name)
+            if options.sources:
+                # if we mix binaries and sources, we add a copy of the launcher, 
+                # prefixed  with "bin",in order to avoid clashes
+                d_products["launcher (copy)"] = (launcher_package, "bin"+launcher_name)
+        else:
+            # Provide a script for the creation of an application EDF style
+            appli_script = product_appli_creation_script(config,
+                                                        logger,
+                                                        tmp_working_dir,
+                                                        binaries_dir_name)
+            
+            d_products["appli script"] = (appli_script, "create_appli.py")
 
     # Put also the environment file
     env_file = produce_relative_env_files(config,
@@ -1040,10 +1043,12 @@ The procedure to do it is:
 
 """
         readme_header_tpl=string.Template(readme_header)
-        readme_template_path_bin_prof = os.path.join(config.VARS.internal_dir,
+        readme_template_path_bin = os.path.join(config.VARS.internal_dir,
                 "README_BIN.template")
-        readme_template_path_bin_noprof = os.path.join(config.VARS.internal_dir,
-                "README_BIN_NO_PROFILE.template")
+        readme_template_path_bin_launcher = os.path.join(config.VARS.internal_dir,
+                "README_LAUNCHER.template")
+        readme_template_path_bin_virtapp = os.path.join(config.VARS.internal_dir,
+                "README_BIN_VIRTUAL_APP.template")
         readme_template_path_src = os.path.join(config.VARS.internal_dir,
                 "README_SRC.template")
         readme_template_path_pro = os.path.join(config.VARS.internal_dir,
@@ -1061,18 +1066,22 @@ The procedure to do it is:
 
         if options.binaries or options.sources:
             d['application'] = config.VARS.application
-            f.write("# Application: " + d['application'])
-            if 'profile' in config.APPLICATION:
-                d['launcher'] = config.APPLICATION.profile.launcher_name
-            else:
-                d['env_file'] = 'env_launch.sh'
+            f.write("# Application: " + d['application'] + "\n")
+            if 'KERNEL' in config.APPLICATION.products:
+                VersionSalome = src.get_salome_version(config)
+                # Case where SALOME has the launcher that uses the SalomeContext API
+                if VersionSalome >= 730:
+                    d['launcher'] = config.APPLICATION.profile.launcher_name
+                else:
+                    d['virtual_app'] = 'runAppli' # this info is not used now)
 
         # write the specific sections
         if options.binaries:
-            if "env_file" in d:
-                f.write(src.template.substitute(readme_template_path_bin_noprof, d))
-            else:
-                f.write(src.template.substitute(readme_template_path_bin_prof, d))
+            f.write(src.template.substitute(readme_template_path_bin, d))
+            if "virtual_app" in d:
+                f.write(src.template.substitute(readme_template_path_bin_virtapp, d))
+            if "launcher" in d:
+                f.write(src.template.substitute(readme_template_path_bin_launcher, d))
 
         if options.sources:
             f.write(src.template.substitute(readme_template_path_src, d))
