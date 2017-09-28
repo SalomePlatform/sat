@@ -434,6 +434,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     
     p_name, p_info = p_name_info
           
+    irint "CNC p_name,p_info:",p_name, p_info
     # Get the build procedure from the product configuration.
     # It can be :
     # build_sources : autotools -> build_configure, configure, make, make install
@@ -466,7 +467,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
                 " no install directory was found !")
         logger.write(src.printcolors.printcError(msg), 4)
         logger.write("\n", 4)
-        return res, len_end_line, error_step
+        return res, len_end, error_step
     
     # Add the config file corresponding to the dependencies/versions of the 
     # product that have been successfully compiled
