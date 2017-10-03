@@ -434,7 +434,6 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     
     p_name, p_info = p_name_info
           
-    irint "CNC p_name,p_info:",p_name, p_info
     # Get the build procedure from the product configuration.
     # It can be :
     # build_sources : autotools -> build_configure, configure, make, make install
