@@ -1,10 +1,11 @@
-#!/usr/bin/env python
+  #!/usr/bin/env python
 #-*- coding:utf-8 -*-
   LOCAL :
   {
-    base : 'unknown'
-    workdir : 'unknown'
-    log_dir : 'unknown'
+    base : 'default'
+    workdir : 'default'
+    log_dir : 'default'
+    archive_dir : 'default'
     VCS : None
     tag : None
   }

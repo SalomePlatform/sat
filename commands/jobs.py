@@ -825,8 +825,8 @@ class Jobs(object):
                 # the init command
                 (__, out_dist, __) = machine.exec_command(
                                 os.path.join(machine.sat_path,
-                                    "sat init --base unknown --workdir"
-                                    " unknown --log_dir unknown"),
+                                    "sat init --base default --workdir"
+                                    " default --log_dir default"),
                                 self.logger)
                 out_dist.read()    
                 

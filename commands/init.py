@@ -27,6 +27,9 @@ parser.add_option('b', 'base', 'string', 'base',
 parser.add_option('w', 'workdir', 'string', 'workdir', 
                   _('Optional: The path to the working directory '
                     '(where to install the applications'))
+parser.add_option('a', 'archive_dir', 'string', 'archive_dir', 
+                  _('Optional: The path to the local archive directory '
+                    '(where to install local source archives'))
 parser.add_option('v', 'VCS', 'string', 'VCS', 
                   _('Optional: The address of the repository of SAT '
                     '(only informative)'))
@@ -73,6 +76,7 @@ def display_local_values(config, logger):
     info = [("base", config.LOCAL.base),
             ("workdir", config.LOCAL.workdir),
             ("log_dir", config.LOCAL.log_dir),
+            ("archive_dir", config.LOCAL.archive_dir),
             ("VCS", config.LOCAL.VCS),
             ("tag", config.LOCAL.tag)]
     src.print_info(logger, info)
@@ -85,7 +89,7 @@ def check_path(path_to_check, logger):
     :param path_to_check Str: The path to check.
     :param logger Logger: The logger instance.
     """
-    if path_to_check == "unknown":
+    if path_to_check == "default":
         return 0
     
     # Get the path
@@ -134,7 +138,8 @@ def run(args, runner, logger):
     # Set the options corresponding to a directory
     for opt in [("base" , options.base),
                 ("workdir", options.workdir),
-                ("log_dir", options.log_dir)]:
+                ("log_dir", options.log_dir),
+                ("archive_dir", options.archive_dir)]:
         key, value = opt
         if value:
             res_check = check_path(value, logger)

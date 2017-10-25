@@ -263,21 +263,27 @@ class ConfigManager:
             raise src.SatException( e );
         merger.merge(cfg, local_cfg)
 
-        # When the key is "unknown", put the default value
-        if cfg.LOCAL.base == "unknown":
+        # When the key is "default", put the default value
+        if cfg.LOCAL.base == "default":
             cfg.LOCAL.base = os.path.abspath(
                                         os.path.join(cfg.VARS.salometoolsway,
                                                      "..",
                                                      "BASE"))
-        if cfg.LOCAL.workdir == "unknown":
+        if cfg.LOCAL.workdir == "default":
             cfg.LOCAL.workdir = os.path.abspath(
                                         os.path.join(cfg.VARS.salometoolsway,
                                                      ".."))
-        if cfg.LOCAL.log_dir == "unknown":
+        if cfg.LOCAL.log_dir == "default":
             cfg.LOCAL.log_dir = os.path.abspath(
                                         os.path.join(cfg.VARS.salometoolsway,
                                                      "..",
                                                      "LOGS"))
+
+        if cfg.LOCAL.archive_dir == "default":
+            cfg.LOCAL.archive_dir = os.path.abspath(
+                                        os.path.join(cfg.VARS.salometoolsway,
+                                                     "..",
+                                                     "ARCHIVES"))
 
         # apply overwrite from command line if needed
         for rule in self.get_command_line_overrides(options, ["LOCAL"]):
@@ -340,6 +346,10 @@ class ConfigManager:
         cfg.PATHS.JOBPATH.append(cfg.VARS.personal_jobs_dir, "")
         cfg.PATHS["MACHINEPATH"] = src.pyconf.Sequence(cfg.PATHS)
         cfg.PATHS.MACHINEPATH.append(cfg.VARS.personal_machines_dir, "")
+
+        # initialise the path with local directory
+        cfg.PATHS["ARCHIVEPATH"].append(cfg.LOCAL.archive_dir, "")
+
         # Loop over the projects in order to complete the PATHS variables
         for project in cfg.PROJECTS.projects:
             for PATH in ["APPLICATIONPATH",
@@ -516,14 +526,15 @@ class ConfigManager:
                                  'evince', 
                                  "This is the pdf_viewer used "
                                  "to read pdf documentation\n")
-        user_cfg.USER.addMapping("base",
-                                 src.pyconf.Reference(
-                                            user_cfg,
-                                            src.pyconf.DOLLAR,
-                                            'workdir  + $VARS.sep + "BASE"'),
-                                 "The products installation base (could be "
-                                 "ignored if this key exists in the local.pyconf"
-                                 " file of salomTools).\n")
+# CNC 25/10/17 : plus nécessaire a priori
+#        user_cfg.USER.addMapping("base",
+#                                 src.pyconf.Reference(
+#                                            user_cfg,
+#                                            src.pyconf.DOLLAR,
+#                                            'workdir  + $VARS.sep + "BASE"'),
+#                                 "The products installation base (could be "
+#                                 "ignored if this key exists in the local.pyconf"
+#                                 " file of salomTools).\n")
                
         # 
         src.ensure_path_exists(config.VARS.personalDir)

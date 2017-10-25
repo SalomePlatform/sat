@@ -64,9 +64,10 @@ LOCAL_TEMPLATE = ("""#!/usr/bin/env python
 
   LOCAL :
   {
-    base : 'unknown'
-    workdir : 'unknown'
-    log_dir : 'unknown'
+    base : 'default'
+    workdir : 'default'
+    log_dir : 'default'
+    archive_dir : 'default'
     VCS : None
     tag : None
   }
