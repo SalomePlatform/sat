@@ -438,14 +438,29 @@ class Test:
                 cmd = ("echo -e 'import os\nprint os.environ[\"KERNEL_" + 
                        "ROOT_DIR\"]' > tmpscript.py; %s shell" + 
                        " tmpscript.py") % self.launcher
-            root_dir = subprocess.Popen(cmd,
+
+            # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
+            #               de remontee de log des tests
+            #root_dir = subprocess.Popen(cmd,
+            #                stdout=subprocess.PIPE,
+            #                shell=True,
+            #                executable='/bin/bash').communicate()[0].split()[-1]
+            subproc_res = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
                             shell=True,
-                            executable='/bin/bash').communicate()[0].split()[-1]
+                            executable='/bin/bash').communicate()
+            print "TRACES OP - test_module.py/Test.get_tmp_dir() subproc_res = "
+            for resLine in subproc_res:
+                print "- '#%s#'" %resLine
+            
+            root_dir = subproc_res[0].split()[-1]
+
+        # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
+        #               de remontee de log des tests
+        print "TRACES OP - test_module.py/Test.get_tmp_dir() root_dir = '#%s#'" %root_dir
         
         # import grid salome_utils from KERNEL that gives 
         # the right getTmpDir function
-        
         (file_, pathname, description) = imp.find_module("salome_utils",
                                                          [os.path.join(root_dir,
                                                                     'bin',
