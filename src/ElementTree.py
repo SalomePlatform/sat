@@ -588,7 +588,7 @@ class ElementTree:
     def parse(self, source, parser=None):
         if not hasattr(source, "read"):
             # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
-    #               de remontee de log des tests
+            #               de remontee de log des tests
             print "TRACES OP - ElementTree.py/ElementTree.parse() source = '#%s#'" %source
             source = open(source, "rb")
         if not parser:
@@ -1282,7 +1282,7 @@ class XMLTreeBuilder:
     def feed(self, data):
         # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
         #               de remontee de log des tests
-        print "TRACES OP - ElementTree.py/XMLTreeBuilder.feed() data = '#%s#'" %data
+        #print "TRACES OP - ElementTree.py/XMLTreeBuilder.feed() data = '#%s#'" %data
         self._parser.Parse(data, 0)
 
     ##
