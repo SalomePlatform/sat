@@ -335,7 +335,9 @@ class SalomeEnviron:
         
         # Set the variables defined in the "environ" section
         if 'environ' in self.cfg.APPLICATION:
-            self.add_comment("APPLICATION environment")
+            # we write PRODUCT environment it in order to conform to 
+            # parseConfigFile.py
+            self.add_comment("PRODUCT environment") 
             self.load_cfg_environment(self.cfg.APPLICATION.environ)
             if self.forBuild and "build" in self.cfg.APPLICATION.environ:
                 self.load_cfg_environment(self.cfg.APPLICATION.environ.build)
