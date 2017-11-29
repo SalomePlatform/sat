@@ -49,8 +49,15 @@ def generate_component_list(config, product_info, context, logger):
     return res
 
 def generate_component(config, compo, product_info, context, header, logger):
-    hxxfile = compo + ".hxx"
-    cpplib = "lib" + compo + "CXX.so"
+#   get from config include file name and librairy name, or take default value
+    if "hxxfile" in product_info:
+        hxxfile = product_info.hxxfile
+    else:
+        hxxfile = compo + ".hxx"
+    if "cpplib" in product_info:
+        cpplib = product_info.cpplib
+    else:
+        cpplib = "lib" + compo + "CXX.so"
     cpp_path = product_info.install_dir
 
     logger.write("%s\n" % header, 4, False)
@@ -135,7 +142,7 @@ def generate_component(config, compo, product_info, context, header, logger):
 
         if src.product.product_has_salome_gui(product_info):
             # get files to build a template GUI
-            gui_files = salome_compo.getGUIfilesTemplate()
+            gui_files = salome_compo.getGUIfilesTemplate(compo)
         else:
             gui_files = None
 
