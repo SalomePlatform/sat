@@ -28,6 +28,7 @@ List of Commands
    
    config <commands/config>
    prepare <commands/prepare>
+   compile <commands/compile>
    log <commands/log>
 
 Code documentation
