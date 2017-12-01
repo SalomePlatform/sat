@@ -4,21 +4,34 @@ log
 
 Description
 ===========
-The **log** command gives information on sat logs.
+The **log** command displays sat log in a web browser or in a terminal.
 
 Usage
 =====
-* Show the logs for an application: ::
+* Show (in a web browser) the log of the commands corresponding to an application: ::
 
     sat log <application>
 
-* Show the logs for commands that do not use any application: ::
+* Show the log for commands that do not use any application: ::
 
     sat log
     
-* The --terminal (or -t) option gives access to the terminal mode: ::
+* The --terminal (or -t) display the log directly in the terminal, through a interactive menu: ::
 
 	sat log (<application>) --terminal
+
+* The --last option displays only the last command: ::
+
+    sat log (<application>)  --last
+
+* To access the last compilation log in terminal mode, use --last_terminal option: ::
+
+    sat log (<application>)  --last_terminal
+
+* The --clean (int) option erases the n older log files and print the number of remaining log files: ::
+
+    sat log (<application>) --clean 50
+
 
 
 Configuration
