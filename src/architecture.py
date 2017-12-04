@@ -114,6 +114,8 @@ def get_distrib_version(distrib, codes):
         if version in codes[distrib]:
             version = codes[distrib][version]
 
+    if distrib == "CO":
+        version=version[0]  #for centos, we only care for major version
     return version
 
 def get_python_version():
