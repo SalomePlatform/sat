@@ -1797,7 +1797,9 @@ def run(args, runner, logger):
         files_to_copy.append(os.path.join(xsl_dir, "command.xsl"))
         files_to_copy.append(os.path.join(xsl_dir, "running.gif"))
         for file_path in files_to_copy:
-            shutil.copy2(file_path, log_dir)
+            # OP We use copy instead of copy2 to update the creation date
+            #    So we can clean the LOGS directories easily
+            shutil.copy(file_path, log_dir)
         
         # Instanciate the Gui in order to produce the xml files that contain all
         # the boards

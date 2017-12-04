@@ -257,11 +257,13 @@ def run(args, runner, logger):
     imgLogo = os.path.join(xslDir, "LOGO-SAT.png")
     
     # copy the stylesheets in the log directory
-    shutil.copy2(xslCommand, logDir)
-    shutil.copy2(xslHat, logDir)
+    # OP We use copy instead of copy2 to update the creation date
+    #    So we can clean the LOGS directories easily
+    shutil.copy(xslCommand, logDir)
+    shutil.copy(xslHat, logDir)
     src.ensure_path_exists(os.path.join(logDir, "TEST"))
-    shutil.copy2(xsltest, os.path.join(logDir, "TEST"))
-    shutil.copy2(imgLogo, logDir)
+    shutil.copy(xsltest, os.path.join(logDir, "TEST"))
+    shutil.copy(imgLogo, logDir)
 
     # If the last option is invoked, just, show the last log file
     if options.last_terminal:
