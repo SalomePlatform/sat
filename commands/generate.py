@@ -142,7 +142,10 @@ def generate_component(config, compo, product_info, context, header, logger):
 
         if src.product.product_has_salome_gui(product_info):
             # get files to build a template GUI
-            gui_files = salome_compo.getGUIfilesTemplate(compo)
+            try: # try new yacsgen api
+                gui_files = salome_compo.getGUIfilesTemplate(compo)
+            except:  # use old yacsgen api
+                gui_files = salome_compo.getGUIfilesTemplate()
         else:
             gui_files = None
 
