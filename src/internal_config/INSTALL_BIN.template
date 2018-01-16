@@ -13,7 +13,7 @@ then
     exit
 fi
 mkdir INSTALL
-echo copies BINARIES-FD24 into INSTALL
+echo copies ¤{BINARIES_DIR} into INSTALL
 cp -RP ¤{BINARIES_DIR}/*  INSTALL
 echo does the substitutions
 # do the required substitutions
