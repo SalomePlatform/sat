@@ -12,7 +12,6 @@ This version is configured to work with the application of the package.
 sat is located in $ROOT and you can read its documentation in 
 $ROOT/salomeTools/doc or by using:
 > $ROOT/sat --help
-> $ROOT/sat doc
 
 If you use bash, you can have completion for sat by sourcing $ROOT/salomeTools/complete_sat.sh:
 > source $ROOT/salomeTools/complete_sat.sh
@@ -34,7 +33,12 @@ Type the following command to compile and install the products of your applicati
 
 The -t option displays the compilation logs in the terminal.
 
-IMPORTANT : 
+IMPORTANT 1:
+On CentOS 6.4 platform, the package devtoolset-2 must be installed to enable
+an alternative compiler and the compilation command must be preceded by
+"scl enable devtoolset-2".
+
+IMPORTANT 2: 
 This operation may fail if some required linux packages are not installed on your system.
 It is also often necessary to install a nvidia driver.
 If you fail to compile and your archive contains pre-compiled binaries, 
@@ -43,10 +47,12 @@ then you may be interested by a limited compilation based on the binaries used a
 In this case please refer to the instructions after 
 (paragraph compilation based on the binaries used as prerequisites).
 
+
 c) Set environment for libraries inside ¤{application}
 ======================================================
 Type the following command to produce the environment files:
 > $ROOT/sat environ ¤{application}
+
 
 d) Create a SALOME launcher
 ===========================
