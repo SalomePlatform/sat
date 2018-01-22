@@ -144,7 +144,7 @@ def get_launcher_name(config):
     :rtype: str
     '''
     check_config_has_application(config)
-    if 'profile' in config.APPLICATION and 'launcher_name=' in config.APPLICATION.profile:
+    if 'profile' in config.APPLICATION and 'launcher_name' in config.APPLICATION.profile:
         launcher_name = config.APPLICATION.profile.launcher_name
     else:
         launcher_name = 'salome'
