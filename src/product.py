@@ -549,18 +549,16 @@ def product_is_sample(product_info):
         return False
 
 def product_is_salome(product_info):
-    '''Know if a product is of type salome
+    '''Know if a product is a SALOME module
     
     :param product_info Config: The configuration specific to 
                                the product
-    :return: True if the product is salome, else False
+    :return: True if the product is a SALOME module, else False
     :rtype: boolean
     '''
-    if 'type' in product_info:
-        ptype = product_info.type
-        return ptype.lower() == 'salome'
-    else:
-        return False
+    return ("properties" in product_info and
+            "is_SALOME_module" in product_info.properties and
+            product_info.properties.is_SALOME_module == "yes")
 
 def product_is_fixed(product_info):
     '''Know if a product is fixed
@@ -637,18 +635,6 @@ def product_is_vcs(product_info):
     :rtype: boolean
     '''
     return product_info.get_source in AVAILABLE_VCS
-
-def product_is_SALOME(product_info):
-    '''Know if a product is a SALOME module
-    
-    :param product_info Config: The configuration specific to 
-                               the product
-    :return: True if the product is a SALOME module, else False
-    :rtype: boolean
-    '''
-    return ("properties" in product_info and
-            "is_SALOME_module" in product_info.properties and
-            product_info.properties.is_SALOME_module == "yes")
 
 def product_is_smesh_plugin(product_info):
     '''Know if a product is a SMESH plugin
