@@ -1135,7 +1135,7 @@ def run(args, runner, logger):
     
     # Parse the options
     (options, args) = parser.parse_args(args)
-       
+
     # Check that a type of package is called, and only one
     all_option_types = (options.binaries,
                         options.sources,
@@ -1171,16 +1171,31 @@ def run(args, runner, logger):
     # if the package contains a project:
     if options.project:
         # check that the project is visible by SAT
-        if options.project not in runner.cfg.PROJECTS.project_file_paths:
+        projectNameFile = options.project + ".pyconf"
+        foundProject = None
+        for i in runner.cfg.PROJECTS.project_file_paths:
+            baseName = os.path.basename(i)
+            if baseName == projectNameFile:
+                foundProject = i
+                break
+
+        if foundProject is None:
             local_path = os.path.join(runner.cfg.VARS.salometoolsway,
                                      "data",
                                      "local.pyconf")
-            msg = _("ERROR: the project %(proj)s is not visible by salomeTools."
-                    "\nPlease add it in the %(local)s file." % {
-                                  "proj" : options.project, "local" : local_path})
+            msg = _("""ERROR: the project %(1)s is not visible by salomeTools.
+known projects are:
+%(2)s
+
+Please add it in file:
+%(3)s""" % \
+                    {"1": options.project, "2": "\n".join(runner.cfg.PROJECTS.project_file_paths), "3": local_path})
             logger.write(src.printcolors.printcError(msg), 1)
             logger.write("\n", 1)
             return 1
+        else:
+            options.project_file_path = foundProject
+            src.printcolors.print_value(logger, "Project path", options.project_file_path, 2)
     
     # Remove the products that are filtered by the --without_property option
     if options.without_property:
@@ -1218,8 +1233,7 @@ def run(args, runner, logger):
                 archive_name += "-VCS"
 
         if options.project:
-            project_name, __ = os.path.splitext(
-                                            os.path.basename(options.project))
+            project_name = options.project
             archive_name += ("PROJECT-" + project_name)
  
         if options.sat:
@@ -1301,7 +1315,7 @@ def run(args, runner, logger):
         
     
     if options.project:
-        d_files_to_add.update(project_package(options.project, tmp_working_dir))
+        d_files_to_add.update(project_package(options.project_file_path, tmp_working_dir))
 
     if not(d_files_to_add):
         msg = _("Error: Empty dictionnary to build the archive!\n")
