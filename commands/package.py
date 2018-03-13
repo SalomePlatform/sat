@@ -503,9 +503,12 @@ def binary_package(config, logger, options, tmp_working_dir):
          logger.write("""
 WARNING: existing binaries directory from previous detar installation:
          %s
-         To make new package from this, you could 
-         1) move part of it in directory INSTALL (risky advanced use)
-         2) recompile all in INSTALL (safer) with sat compile.\n
+         To make new package from this, you could: 
+         1) install binaries in INSTALL directory with the script "install_bin.sh" 
+            see README file for more details
+         2) recompile everything in INSTALL with "sat compile" command 
+            this step is long, and requires some linux packages to be installed 
+            on your system\n
 """ % binaries_from_detar)
     
     # Print warning or error if there are some missing products
