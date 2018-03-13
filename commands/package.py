@@ -127,7 +127,7 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
     
     success = 0
     # loop over each directory or file stored in the d_content dictionary
-    for name in d_content.keys():
+    for name in sorted(d_content.keys()):
         # display information
         len_points = max_len - len(name)
         logger.write(name + " " + len_points * "." + " ", 3)
@@ -457,7 +457,7 @@ def binary_package(config, logger, options, tmp_working_dir):
     '''
 
     # Get the list of product installation to add to the archive
-    l_products_name = config.APPLICATION.products.keys()
+    l_products_name = sorted(config.APPLICATION.products.keys())
     l_product_info = src.product.get_products_infos(l_products_name,
                                                     config)
     l_install_dir = []
@@ -496,6 +496,18 @@ def binary_package(config, logger, options, tmp_working_dir):
                 else:
                     l_not_installed.append(name_cpp)
         
+    # check the name of the directory that (could) contains the binaries 
+    # from previous detar
+    binaries_from_detar = os.path.join(config.APPLICATION.workdir, "BINARIES-" + config.VARS.dist)
+    if os.path.exists(binaries_from_detar):
+         logger.write("""
+WARNING: existing binaries directory from previous detar installation:
+         %s
+         To make new package from this, you could 
+         1) move part of it in directory INSTALL (risky advanced use)
+         2) recompile all in INSTALL (safer) with sat compile.\n
+""" % binaries_from_detar)
+    
     # Print warning or error if there are some missing products
     if len(l_not_installed) > 0:
         text_missing_prods = ""
@@ -1189,7 +1201,7 @@ known projects are:
 
 Please add it in file:
 %(3)s""" % \
-                    {"1": options.project, "2": "\n".join(runner.cfg.PROJECTS.project_file_paths), "3": local_path})
+                    {"1": options.project, "2": "\n  ".join(runner.cfg.PROJECTS.project_file_paths), "3": local_path})
             logger.write(src.printcolors.printcError(msg), 1)
             logger.write("\n", 1)
             return 1
