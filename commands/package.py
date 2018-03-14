@@ -27,6 +27,7 @@ import string
 import src
 
 from application import get_SALOME_modules
+import src.debug as DBG
 
 BINARY = "binary"
 SOURCE = "Source"
@@ -970,7 +971,7 @@ def find_application_pyconf(config, application_tmp_dir):
     application_pyconf_cfg.__save__(ff, 1)
     ff.close()
 
-def project_package(project_file_path, tmp_working_dir):
+def project_package(config, name_project, project_file_path, tmp_working_dir, logger):
     '''Prepare a dictionary that stores all the needed directories and files to
        add in a project package.
     
@@ -985,7 +986,15 @@ def project_package(project_file_path, tmp_working_dir):
     '''
     d_project = {}
     # Read the project file and get the directories to add to the package
-    project_pyconf_cfg = src.pyconf.Config(project_file_path)
+    
+    try: 
+      project_pyconf_cfg = config.PROJECTS.projects.__getattr__(name_project)
+    except:
+      logger.write("""
+WARNING: inexisting config.PROJECTS.projects.%s, try to read now from:\n%s\n""" % (name_project, project_file_path))
+      project_pyconf_cfg = src.pyconf.Config(project_file_path)
+      project_pyconf_cfg.PWD = os.path.dirname(project_file_path)
+    
     paths = {"ARCHIVEPATH" : "archives",
              "APPLICATIONPATH" : "applications",
              "PRODUCTPATH" : "products",
@@ -1279,7 +1288,7 @@ Please add it in file:
     msg = _("Preparation of files to add to the archive")
     logger.write(src.printcolors.printcLabel(msg), 2)
     logger.write("\n", 2)
-
+    
     d_files_to_add={}  # content of the archive
 
     # a dict to hold paths that will need to be substitute for users recompilations
@@ -1328,9 +1337,10 @@ Please add it in file:
         if options.sat:
             d_files_to_add.update({"salomeTools" : (runner.cfg.VARS.salometoolsway, "")})
         
-    
+    DBG.write("config for package %s" % project_name, runner.cfg)
+
     if options.project:
-        d_files_to_add.update(project_package(options.project_file_path, tmp_working_dir))
+        d_files_to_add.update(project_package(runner.cfg, project_name, options.project_file_path, tmp_working_dir, logger))
 
     if not(d_files_to_add):
         msg = _("Error: Empty dictionnary to build the archive!\n")
