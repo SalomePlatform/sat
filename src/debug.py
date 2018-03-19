@@ -21,14 +21,30 @@
 This file assume DEBUG functionalities use
 - print debug messages in sys.stderr for salomeTools
 - show pretty print debug representation from instances of SAT classes
-  (pretty print src.pyconf.Config)
+  (pretty print src.pyconf.Config), and python dict/list etc. (as 'aVariable')
 
-WARNING: supposedly show messages in SAT development phase, not production
+WARNING: obviously supposedly show messages in SAT development phase, not production
 
 usage:
 >> import debug as DBG
 >> DBG.write("aTitle", aVariable)        # not shown in production 
->> DBG.write("aTitle", aVariable, True)  # unconditionaly shown 
+>> DBG.write("aTitle", aVariable, True)  # unconditionaly shown (as show=True)
+
+to set show message as development phase:
+>> DBG.push_debug(True)
+
+to set no show message as production phase:
+>> DBG.push_debug(False)
+
+to set show message temporary as development phase, only in a method:
+>> def aMethodToDebug(...):
+>> DBG.push_debug(True)              #force show as appended status
+>> etc. method code with some DBG.write()
+>> DBG.pop_debug(False)              #restore previous status (show or not show)
+>> return
+
+to set a message for future fix, as temporary problem to not forget:
+DBG.tofix("aTitle", aVariable, True/False) #True/False in production shown, or not
 """
 
 import os
@@ -46,7 +62,7 @@ def indent(text, amount=2, ch=' '):
 def write(title, var="", force=None, fmt="\n#### DEBUG: %s:\n%s\n"):
     """write sys.stderr a message if _debug[-1]==True or optionaly force=True"""
     if _debug[-1] or force:
-        if 'src.pyconf.Config' in str(type(var)): 
+        if 'src.pyconf.' in str(type(var)): 
             sys.stderr.write(fmt % (title, indent(getStrConfigDbg(var))))
         elif type(var) is not str:
             sys.stderr.write(fmt % (title, indent(PP.pformat(var))))
@@ -57,7 +73,8 @@ def write(title, var="", force=None, fmt="\n#### DEBUG: %s:\n%s\n"):
 def tofix(title, var="", force=None):
     """
     write sys.stderr a message if _debug[-1]==True or optionaly force=True
-    use this only if no logger accessible for classic logger.warning(message)
+    use this only if no logger accessible for classic 
+    logger.warning(message) or logger.debug(message)
     """
     fmt = "\n#### TOFIX: %s:\n%s\n"
     write(title, var, force, fmt)

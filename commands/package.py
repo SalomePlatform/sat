@@ -131,11 +131,11 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
     for name in sorted(d_content.keys()):
         # display information
         len_points = max_len - len(name)
-        logger.write(name + " " + len_points * "." + " ", 3)
-        # Get the local path and the path in archive 
-        # of the directory or file to add
         local_path, archive_path = d_content[name]
         in_archive = os.path.join(name_archive, archive_path)
+        logger.write(name + " " + len_points * "." + " "+ in_archive + " ", 3)
+        # Get the local path and the path in archive 
+        # of the directory or file to add
         # Add it in the archive
         try:
             tar.add(local_path, arcname=in_archive, exclude=f_exclude)
@@ -753,25 +753,38 @@ def get_archives_vcs(l_pinfo_vcs, sat, config, logger, tmp_working_dir):
     # clean the source directory of all the vcs products, then use the source 
     # command and thus construct an archive that will not contain the patches
     l_prod_names = [pn for pn, __ in l_pinfo_vcs]
-    # clean
-    logger.write(_("clean sources\n"))
-    args_clean = config.VARS.application
-    args_clean += " --sources --products "
-    args_clean += ",".join(l_prod_names)
-    sat.clean(args_clean, batch=True, verbose=0, logger_add_link = logger)
-    # source
-    logger.write(_("get sources"))
-    args_source = config.VARS.application
-    args_source += " --products "
-    args_source += ",".join(l_prod_names)
-    sat.source(args_source, batch=True, verbose=0, logger_add_link = logger)
-
-    # make the new archives
-    d_archives_vcs = {}
-    for pn, pinfo in l_pinfo_vcs:
-        path_archive = make_archive(pn, pinfo, tmp_working_dir)
-        d_archives_vcs[pn] = (path_archive,
-                              os.path.join(ARCHIVE_DIR, pn + ".tgz"))
+    if False:
+      # clean
+      logger.write(_("\nclean sources\n"))
+      args_clean = config.VARS.application
+      args_clean += " --sources --products "
+      args_clean += ",".join(l_prod_names)
+      logger.write("WARNING: get_archives_vcs clean\n         '%s'\n" % args_clean, 1)
+      sat.clean(args_clean, batch=True, verbose=0, logger_add_link = logger)
+    if True:
+      # source
+      logger.write(_("get sources\n"))
+      args_source = config.VARS.application
+      args_source += " --products "
+      args_source += ",".join(l_prod_names)
+      svgDir = sat.cfg.APPLICATION.workdir
+      sat.cfg.APPLICATION.workdir = tmp_working_dir
+      # DBG.write("SSS sat config.APPLICATION.workdir", sat.cfg.APPLICATION, True)
+      DBG.write("sat config id", id(sat.cfg), True)
+      # shit as config is not same id() as for sat.source()
+      # sat.source(args_source, batch=True, verbose=5, logger_add_link = logger)
+      import source
+      source.run(args_source, sat, logger) #use this mode as runner.cfg reference
+      
+      # make the new archives
+      d_archives_vcs = {}
+      for pn, pinfo in l_pinfo_vcs:
+          path_archive = make_archive(pn, pinfo, tmp_working_dir)
+          logger.write("make archive vcs '%s'\n" % path_archive)
+          d_archives_vcs[pn] = (path_archive,
+                                os.path.join(ARCHIVE_DIR, pn + ".tgz"))
+      sat.cfg.APPLICATION.workdir = svgDir
+      # DBG.write("END sat config", sat.cfg.APPLICATION, True)
     return d_archives_vcs
 
 def make_archive(prod_name, prod_info, where):
@@ -1337,9 +1350,9 @@ Please add it in file:
         if options.sat:
             d_files_to_add.update({"salomeTools" : (runner.cfg.VARS.salometoolsway, "")})
         
-    DBG.write("config for package %s" % project_name, runner.cfg)
-
+    
     if options.project:
+        DBG.write("config for package %s" % project_name, runner.cfg)
         d_files_to_add.update(project_package(runner.cfg, project_name, options.project_file_path, tmp_working_dir, logger))
 
     if not(d_files_to_add):
@@ -1380,15 +1393,16 @@ Please add it in file:
         tar.close()
     except KeyboardInterrupt:
         logger.write(src.printcolors.printcError("\nERROR: forced interruption\n"), 1)
-        logger.write(_("Removing the temporary working directory ... "), 1)
+        logger.write(_("Removing the temporary working directory '%s'... ") % tmp_working_dir, 1)
         # remove the working directory
         shutil.rmtree(tmp_working_dir)
         logger.write(_("OK"), 1)
         logger.write(_("\n"), 1)
         return 1
     
-    # remove the working directory    
-    shutil.rmtree(tmp_working_dir)
+    # remove the working directory
+    DBG.tofix("make shutil.rmtree(tmp_working_dir) effective", "", True)   
+    # shutil.rmtree(tmp_working_dir)
     
     # Print again the path of the package
     logger.write("\n", 2)

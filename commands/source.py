@@ -21,6 +21,7 @@ import shutil
 
 import src
 import prepare
+import src.debug as DBG
 
 # Define all possible option for patch command :  sat patch <options>
 parser = src.options.Options()
@@ -394,7 +395,9 @@ def get_all_product_sources(config, products, logger):
         max_product_name_len = max(map(lambda l: len(l), products[0])) + 4
     
     # The loop on all the products from which to get the sources
+    # DBG.write("source.get_all_product_sources config id", id(config), True)
     for product_name, product_info in products:
+        print "get_all_product_sources", product_name #, product_info
         # get product name, product informations and the directory where to put
         # the sources
         if (not (src.product.product_is_fixed(product_info) or 
@@ -412,11 +415,8 @@ def get_all_product_sources(config, products, logger):
         # the product is not in development mode
         is_dev = src.product.product_is_dev(product_info)
         if source_dir.exists():
-            logger.write('%s  ' % src.printcolors.printc(src.OK_STATUS),
-                         3,
-                         False)
-            msg = _("INFORMATION : Not doing anything because the source"
-                    " directory already exists.\n")
+            logger.write('%s  ' % src.printcolors.printc(src.OK_STATUS), 3, False)
+            msg = _("INFO : Not doing anything because the source directory already exists:\n    %s\n") % source_dir
             logger.write(msg, 3)
             good_result = good_result + 1
             # Do not get the sources and go to next product
@@ -501,6 +501,7 @@ def description():
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with source parameter.
     '''
+    DBG.write("source.run()", args, True)
     # Parse the options
     (options, args) = parser.parse_args(args)
     
