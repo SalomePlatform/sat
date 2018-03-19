@@ -504,10 +504,10 @@ def binary_package(config, logger, options, tmp_working_dir):
          logger.write("""
 WARNING: existing binaries directory from previous detar installation:
          %s
-         To make new package from this, you could: 
+         To make new package from this, you have to: 
          1) install binaries in INSTALL directory with the script "install_bin.sh" 
             see README file for more details
-         2) recompile everything in INSTALL with "sat compile" command 
+         2) or recompile everything in INSTALL with "sat compile" command 
             this step is long, and requires some linux packages to be installed 
             on your system\n
 """ % binaries_from_detar)
@@ -1337,9 +1337,9 @@ Please add it in file:
         if options.sat:
             d_files_to_add.update({"salomeTools" : (runner.cfg.VARS.salometoolsway, "")})
         
-    DBG.write("config for package %s" % project_name, runner.cfg)
 
     if options.project:
+        DBG.write("config for package %s" % project_name, runner.cfg)
         d_files_to_add.update(project_package(runner.cfg, project_name, options.project_file_path, tmp_working_dir, logger))
 
     if not(d_files_to_add):
