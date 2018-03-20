@@ -34,6 +34,8 @@ gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
 parser = src.options.Options()
 parser.add_option('v', 'value', 'string', 'value',
     _("Optional: print the value of CONFIG_VARIABLE."))
+parser.add_option('g', 'debug', 'string', 'debug',
+    _("Optional: print the debugging mode value of CONFIG_VARIABLE."))
 parser.add_option('e', 'edit', 'boolean', 'edit',
     _("Optional: edit the product configuration file."))
 parser.add_option('i', 'info', 'string', 'info',
@@ -860,6 +862,18 @@ def run(args, runner, logger):
         else:
             print_value(runner.cfg, options.value, not options.no_label, logger, 
                         level=0, show_full_path=False)
+    
+    # case : print a debug value of the config
+    if options.debug:
+        if options.debug == ".":
+            # if argument is ".", print all the config
+            res = DBG.indent(DBG.getStrConfigDbg(runner.cfg))
+            logger.write("\nConfig of application %s:\n\n%s\n" % (runner.cfg.VARS.application, res))
+        else:
+            exec("a = runner.cfg.%s" % options.debug)
+            res = DBG.indent(DBG.getStrConfigDbg(a))
+            logger.write("\nConfig.%s of application %s:\n\n%s\n" % (options.debug, runner.cfg.VARS.application, res))
+
     
     # case : edit user pyconf file or application file
     elif options.edit:
