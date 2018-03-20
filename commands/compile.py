@@ -19,6 +19,7 @@
 import os
 
 import src
+import src.debug as DBG
 
 # Compatibility python 2/3 for input function
 # input stays input for python 3 and input = raw_input for python 2
@@ -30,8 +31,8 @@ except NameError:
 # Define all possible option for the compile command :  sat compile <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to configure. This option can be'
-    ' passed several time to configure several products.'))
+    _('Optional: products to compile. This option can be'
+    ' passed several time to compile several products.'))
 parser.add_option('', 'with_fathers', 'boolean', 'fathers',
     _("Optional: build all necessary products to the given product (KERNEL is "
       "build before building GUI)."), False)
@@ -313,7 +314,7 @@ def compile_all_products(sat, config, options, products_infos, logger):
         # Clean the build and the install directories 
         # if the corresponding options was called
         if options.clean_all:
-            log_step(logger, header, "CLEAN BUILD AND INSTALL")
+            log_step(logger, header, "CLEAN BUILD AND INSTALL ")
             sat.clean(config.VARS.application + 
                       " --products " + p_name + 
                       " --build --install",
@@ -324,7 +325,7 @@ def compile_all_products(sat, config, options, products_infos, logger):
         # Clean the the install directory 
         # if the corresponding option was called
         if options.clean_install and not options.clean_all:
-            log_step(logger, header, "CLEAN INSTALL")
+            log_step(logger, header, "CLEAN INSTALL ")
             sat.clean(config.VARS.application + 
                       " --products " + p_name + 
                       " --install",
@@ -335,6 +336,13 @@ def compile_all_products(sat, config, options, products_infos, logger):
         # Recompute the product information to get the right install_dir
         # (it could change if there is a clean of the install directory)
         p_info = src.product.get_product_config(config, p_name)
+        
+        # Check if sources was already successfully installed
+        check_source = src.product.check_source(p_info)
+        if not check_source:
+            logger.write(_("Sources of product not found (try 'sat -h prepare')\n"))
+            res += 1 #BUG
+            continue
         
         # Check if it was already successfully installed
         if src.product.check_installation(p_info):
@@ -358,13 +366,8 @@ def compile_all_products(sat, config, options, products_infos, logger):
             continue
         
         # Call the function to compile the product
-        res_prod, len_end_line, error_step = compile_product(sat,
-                                                             p_name_info,
-                                                             config,
-                                                             options,
-                                                             logger,
-                                                             header,
-                                                             len_end_line)
+        res_prod, len_end_line, error_step = compile_product(
+             sat, p_name_info, config, options, logger, header, len_end_line)
         
         if res_prod != 0:
             res += 1
@@ -635,7 +638,7 @@ def description():
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with compile parameter.
     '''
-    
+    # DBG.write("compile runner.cfg", runner.cfg, True)
     # Parse the options
     (options, args) = parser.parse_args(args)
 

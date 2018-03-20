@@ -23,8 +23,8 @@ import src
 # Define all possible option for the check command :  sat check <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to configure. This option can be'
-    ' passed several time to configure several products.'))
+    _('Optional: products to check. This option can be'
+    ' passed several time to check several products.'))
 
 CHECK_PROPERTY = "has_unit_tests"
 

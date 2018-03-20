@@ -123,7 +123,7 @@ def get_source_from_archive(product_info, source_dir, logger):
     '''
     # check archive exists
     if not os.path.exists(product_info.archive_info.archive_name):
-        raise src.SatException(_("Archive not found: '%s'") % 
+        raise src.SatException(_("Archive not found in config.PATHS.ARCHIVEPATH: '%s'") % 
                                product_info.archive_info.archive_name)
 
     logger.write('arc:%s ... ' % 
@@ -397,7 +397,6 @@ def get_all_product_sources(config, products, logger):
     # The loop on all the products from which to get the sources
     # DBG.write("source.get_all_product_sources config id", id(config), True)
     for product_name, product_info in products:
-        print "get_all_product_sources", product_name #, product_info
         # get product name, product informations and the directory where to put
         # the sources
         if (not (src.product.product_is_fixed(product_info) or 
@@ -501,7 +500,7 @@ def description():
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with source parameter.
     '''
-    DBG.write("source.run()", args, True)
+    DBG.write("source.run()", args)
     # Parse the options
     (options, args) = parser.parse_args(args)
     

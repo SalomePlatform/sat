@@ -24,6 +24,7 @@ import gettext
 import sys
 
 import src
+import src.debug as DBG
 
 # internationalization
 satdir  = os.path.dirname(os.path.realpath(__file__))
@@ -351,10 +352,11 @@ class ConfigManager:
         cfg.PATHS["ARCHIVEPATH"].append(cfg.LOCAL.archive_dir, "")
 
         # Loop over the projects in order to complete the PATHS variables
+        # as /data/tmpsalome/salome/prerequis/archives for example ARCHIVEPATH
         for project in cfg.PROJECTS.projects:
             for PATH in ["APPLICATIONPATH",
                          "PRODUCTPATH",
-                         "ARCHIVEPATH",
+                         "ARCHIVEPATH", #comment this for default archive  	#8646
                          "JOBPATH",
                          "MACHINEPATH"]:
                 if PATH not in cfg.PROJECTS.projects[project]:

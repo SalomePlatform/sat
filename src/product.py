@@ -23,6 +23,7 @@ import os
 import re
 
 import src
+import src.debug as DBG
 
 AVAILABLE_VCS = ['git', 'svn', 'cvs']
 config_expression = "^config-\d+$"
@@ -175,10 +176,13 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
             arch_path = src.find_file_in_lpath(arch_name,
                                                config.PATHS.ARCHIVEPATH)
             if not arch_path:
-                msg = _("Archive %(1)s for %(2)s not found.\n") % \
+                msg = _("Archive %(1)s for %(2)s not found in config.PATHS.ARCHIVEPATH") % \
                        {"1" : arch_name, "2" : prod_info.name}
-                raise src.SatException(msg)
-            prod_info.archive_info.archive_name = arch_path
+                DBG.tofix(msg, config.PATHS.ARCHIVEPATH)
+                prod_info.archive_info.archive_name = arch_name #without path
+                # raise src.SatException(msg) #may be a warning, continue #8646
+            else:
+                prod_info.archive_info.archive_name = arch_path
         else:
             if (os.path.basename(prod_info.archive_info.archive_name) == 
                                         prod_info.archive_info.archive_name):
@@ -187,9 +191,11 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
                                             arch_name,
                                             config.PATHS.ARCHIVEPATH)
                 if not arch_path:
-                    msg = _("Archive %(1)s for %(2)s not found:\n") % \
+                    msg = _("Archive %(1)s for %(2)s not found in config.PATHS.ARCHIVEPATH") % \
                            {"1" : arch_name, "2" : prod_info.name}
-                    raise src.SatException(msg)
+                    DBG.tofix(msg, config.PATHS.ARCHIVEPATH) #avoid 2 messages in compile
+                    prod_info.archive_info.archive_name = arch_name #without path
+                    # raise src.SatException(msg) #may be a warning, continue #8646
                 prod_info.archive_info.archive_name = arch_path
         
     # If the product compiles with a script, check the script existence
@@ -222,7 +228,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
             #raise src.SatException(
             #        _("Compilation script cannot be executed: %s") % 
             #        prod_info.compil_script)
-            print("WARNING: Compilation script cannot be executed:\n         %s" % prod_info.compil_script)
+            DBG.tofix("Compilation script cannot be executed:", prod_info.compil_script)
     
     # Get the full paths of all the patches
     if product_has_patches(prod_info):
@@ -534,6 +540,26 @@ def check_installation(product_info):
         "install" in product_info.present_files):
         for file_relative_path in product_info.present_files.install:
             file_path = os.path.join(install_dir, file_relative_path)
+            if not os.path.exists(file_path):
+                return False
+    return True
+
+def check_source(product_info):
+    '''Verify if a sources of product is preset. Checks source directory presence
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if it is well installed
+    :rtype: boolean
+    '''
+    DBG.write("check_source product_info", product_info)
+    source_dir = product_info.source_dir
+    if not os.path.exists(source_dir):
+        return False
+    if ("present_files" in product_info and 
+        "source" in product_info.present_files):
+        for file_relative_path in product_info.present_files.source:
+            file_path = os.path.join(source_dir, file_relative_path)
             if not os.path.exists(file_path):
                 return False
     return True

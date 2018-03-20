@@ -753,8 +753,7 @@ def get_archives_vcs(l_pinfo_vcs, sat, config, logger, tmp_working_dir):
     # clean the source directory of all the vcs products, then use the source 
     # command and thus construct an archive that will not contain the patches
     l_prod_names = [pn for pn, __ in l_pinfo_vcs]
-    if False:
-      # clean
+    if False: # clean is dangerous in user/SOURCES, fixed in tmp_working_dir
       logger.write(_("\nclean sources\n"))
       args_clean = config.VARS.application
       args_clean += " --sources --products "
@@ -770,7 +769,7 @@ def get_archives_vcs(l_pinfo_vcs, sat, config, logger, tmp_working_dir):
       svgDir = sat.cfg.APPLICATION.workdir
       sat.cfg.APPLICATION.workdir = tmp_working_dir
       # DBG.write("SSS sat config.APPLICATION.workdir", sat.cfg.APPLICATION, True)
-      DBG.write("sat config id", id(sat.cfg), True)
+      # DBG.write("sat config id", id(sat.cfg), True)
       # shit as config is not same id() as for sat.source()
       # sat.source(args_source, batch=True, verbose=5, logger_add_link = logger)
       import source
