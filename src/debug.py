@@ -38,10 +38,10 @@ to set no show message as production phase:
 
 to set show message temporary as development phase, only in a method:
 >> def aMethodToDebug(...):
->> DBG.push_debug(True)              #force show as appended status
->> etc. method code with some DBG.write()
->> DBG.pop_debug(False)              #restore previous status (show or not show)
->> return
+>>   DBG.push_debug(True)              #force show as appended status
+>>   etc. method code with some DBG.write()
+>>   DBG.pop_debug()                   #restore previous status (show or not show)
+>>   return
 
 to set a message for future fix, as temporary problem to not forget:
 DBG.tofix("aTitle", aVariable, True/False) #True/False in production shown, or not
