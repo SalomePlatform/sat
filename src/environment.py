@@ -22,6 +22,8 @@ import string
 import sys
 
 import src
+import src.debug as DBG
+import pprint as PP
 
 class Environ:
     '''Class to manage the environment context
@@ -40,9 +42,7 @@ class Environ:
     def __repr__(self):
         """easy non exhaustive quick resume for debug print
         """
-        res={}
-        res["environ"]=self.environ
-        return self.__class__.__name__ + str(res)[0:-1] + " ...etc...}"
+        return "%s(\n%s\n)" % (self.__class__.__name__, PP.pformat(self.environ))
 
     def _expandvars(self, value):
         '''replace some $VARIABLE into its actual value in the environment
@@ -191,11 +191,13 @@ class SalomeEnviron:
         self.silent = False
 
     def __repr__(self):
-        """easy non exhaustive quick resume for debug print"""
-        res={}
-        res["environ"]=str(self.environ)
-        res["forBuild"]=self.forBuild
-        return self.__class__.__name__ + str(res)[0:-1] + " ...etc...}"
+        """easy almost exhaustive quick resume for debug print"""
+        res = {
+          "environ" : self.environ,
+          "forBuild" : self.forBuild,
+          "for_package" : self.for_package,
+        }
+        return "%s(\n%s\n)" % (self.__class__.__name__, PP.pformat(res))
 
     def append(self, key, value, sep=os.pathsep):
         '''append value to key using sep
@@ -333,6 +335,13 @@ class SalomeEnviron:
         :param logger Logger: The logger instance to display messages
         """
         
+        # add variable PRODUCT_ROOT_DIR as $workdir in APPLICATION.environ section if not present
+        try: 
+          tmp = self.cfg.APPLICATION.environ.PRODUCT_ROOT_DIR
+        except:
+          self.cfg.APPLICATION.environ.PRODUCT_ROOT_DIR = src.pyconf.Reference(self.cfg, src.pyconf.DOLLAR, "workdir")
+          DBG.write("set_application_env add default Config.APPLICATION.environ.PRODUCT_ROOT_DIR", self.cfg.APPLICATION.environ)
+          
         # Set the variables defined in the "environ" section
         if 'environ' in self.cfg.APPLICATION:
             # we write PRODUCT environment it in order to conform to 
@@ -363,6 +372,7 @@ class SalomeEnviron:
         :param logger Logger: The logger instance to display messages        
         """
         # set root dir
+        DBG.write("set_salome_minimal_product_env", product_info)
         root_dir = product_info.name + "_ROOT_DIR"
         if not self.is_defined(root_dir):
             if 'install_dir' in product_info and product_info.install_dir:
@@ -677,6 +687,8 @@ class SalomeEnviron:
         :param logger Logger: The logger instance to display messages
         :param env_info list: the list of products
         """
+        DBG.write("set_full_environ for", env_info)
+        # DBG.write("set_full_environ config", self.cfg.APPLICATION.environ, True)
         # set product environ
         self.set_application_env(logger)
 

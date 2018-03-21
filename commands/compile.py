@@ -299,8 +299,10 @@ def compile_all_products(sat, config, options, products_infos, logger):
         logger.flush()
 
         # Do nothing if the product is not compilable
-        if ("properties" in p_info and "compilation" in p_info.properties and 
-                                            p_info.properties.compilation == "no"):
+        if ("properties" in p_info and
+            "compilation" in p_info.properties and
+            p_info.properties.compilation == "no"):
+
             log_step(logger, header, "ignored")
             logger.write("\n", 3, False)
             continue
@@ -340,18 +342,18 @@ def compile_all_products(sat, config, options, products_infos, logger):
         # Check if sources was already successfully installed
         check_source = src.product.check_source(p_info)
         if not check_source:
-            logger.write(_("Sources of product not found (try 'sat -h prepare')\n"))
+            logger.write(_("Sources of product not found (try 'sat -h prepare') "))
             res += 1 #BUG
             continue
         
         # Check if it was already successfully installed
         if src.product.check_installation(p_info):
-            logger.write(_("Already installed\n"))
+            logger.write(_("Already installed "))
             continue
         
         # If the show option was called, do not launch the compilation
         if options.no_compile:
-            logger.write(_("Not installed\n"))
+            logger.write(_("Not installed "))
             continue
         
         # Check if the dependencies are installed

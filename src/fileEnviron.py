@@ -17,6 +17,8 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
+import pprint as PP
+import src.debug as DBG
 
 bat_header="""@echo off
 
@@ -97,7 +99,7 @@ def get_file_environ(output, shell, environ=None):
         return ContextFileEnviron(output, environ)
     raise Exception("FileEnviron: Unknown shell = %s" % shell)
 
-class FileEnviron:
+class FileEnviron(object):
     """Base class for shell environment
     """
     def __init__(self, output, environ=None):
@@ -108,6 +110,15 @@ class FileEnviron:
         """
         self._do_init(output, environ)
 
+    def __repr__(self):
+        """easy non exhaustive quick resume for debug print"""
+        res = {
+          "output" : self.output,
+          "environ" : self.environ,
+        }
+        return "%s(\n%s\n)" % (self.__class__.__name__, PP.pformat(res))
+        
+
     def _do_init(self, output, environ=None):
         """Initialization
         
@@ -117,9 +128,13 @@ class FileEnviron:
         self.output = output
         self.toclean = []
         if environ is not None:
+            #if str(type(environ)) == "<type 'instance'>":
+            if id(environ) == id(os.environ):
+               DBG.tofix("set %s environ as python os.environ, are you sure it is safe ?" % self.__class__.__name__, True)
             self.environ = environ
         else:
-            self.environ = os.environ
+            DBG.tofix("set %s environ as COPY of python os.environ, are you sure it is safe ?" % self.__class__.__name__, True)
+            self.environ = dict(os.environ) #make a copy cvw 180320
 
     def add_line(self, number):
         """Add some empty lines in the shell file

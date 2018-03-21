@@ -23,6 +23,7 @@ import imp
 import subprocess
 
 import src
+import src.debug as DBG
 
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
