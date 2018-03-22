@@ -256,7 +256,7 @@ def create_test_report(config,
 
     # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
     #               de remontee de log des tests
-    print "TRACES OP - test.py/create_test_report() : xml_history_path = '#%s#'" %xml_history_path
+    #print "TRACES OP - test.py/create_test_report() : xml_history_path = '#%s#'" %xml_history_path
     
     if withappli:
         if not first_time:
@@ -705,9 +705,9 @@ def run(args, runner, logger):
 
     # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
     #               de remontee de log des tests
-    print "TRACES OP - test.py/run() : historic_xml_path = '#%s#'" %historic_xml_path
-    print "TRACES OP - test.py/run() : log_dir           = '#%s#'" %log_dir
-    print "TRACES OP - test.py/run() : name_xml_board    = '#%s#'" %name_xml_board
+    #print "TRACES OP - test.py/run() : historic_xml_path = '#%s#'" %historic_xml_path
+    #print "TRACES OP - test.py/run() : log_dir           = '#%s#'" %log_dir
+    #print "TRACES OP - test.py/run() : name_xml_board    = '#%s#'" %name_xml_board
 
     logger.l_logFiles.append(xml_board_path)
     logger.add_link(os.path.join("TEST", name_xml_board),

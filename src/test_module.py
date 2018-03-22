@@ -449,7 +449,7 @@ class Test:
                             stdout=subprocess.PIPE,
                             shell=True,
                             executable='/bin/bash').communicate()
-            print "TRACES OP - test_module.py/Test.get_tmp_dir() subproc_res = "
+            #print "TRACES OP - test_module.py/Test.get_tmp_dir() subproc_res = "
             for resLine in subproc_res:
                 print "- '#%s#'" %resLine
             
@@ -457,7 +457,7 @@ class Test:
 
         # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
         #               de remontee de log des tests
-        print "TRACES OP - test_module.py/Test.get_tmp_dir() root_dir = '#%s#'" %root_dir
+        #print "TRACES OP - test_module.py/Test.get_tmp_dir() root_dir = '#%s#'" %root_dir
         
         # import grid salome_utils from KERNEL that gives 
         # the right getTmpDir function
