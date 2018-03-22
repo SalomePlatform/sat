@@ -348,12 +348,12 @@ def compile_all_products(sat, config, options, products_infos, logger):
         
         # Check if it was already successfully installed
         if src.product.check_installation(p_info):
-            logger.write(_("Already installed "))
+            logger.write(_("Already installed\n"))
             continue
         
         # If the show option was called, do not launch the compilation
         if options.no_compile:
-            logger.write(_("Not installed "))
+            logger.write(_("Not installed\n"))
             continue
         
         # Check if the dependencies are installed
