@@ -20,6 +20,7 @@ import re
 import os
 
 import src
+import src.debug as DBG
 
 # Define all possible option for prepare command :  sat prepare <options>
 parser = src.options.Options()
@@ -72,14 +73,23 @@ def remove_products(arguments, l_products_info, logger):
     :return: The updated arguments.
     :rtype: str
     '''
-    args = arguments
-    for i, (product_name, __) in enumerate(l_products_info):
-        args = args.replace(',' + product_name, '')
-        end_text = ', '
-        if i+1 == len(l_products_info):
-            end_text = '\n'            
-        logger.write(product_name + end_text, 1)
-    return args
+    args = str(arguments) #copy of "--products ,XDATA,TESSCODE,cmake" for example
+    largs = args.split(',')
+    DBG.write("largs", largs)
+    toRemove = [name for name,_ in l_products_info]
+    DBG.write("remove_products", toRemove)
+    removed = []
+    notRemoved = []
+    for name in largs[1:]: # skip largs[0] as "--products "
+      if name in toRemove:
+        removed.append(name)
+      else:
+        notRemoved.append(name)
+    # DBG.write(removed, removed, True)
+    logger.write("  %s\n" % ",".join(removed), 1)
+    DBG.write("notRemoved", notRemoved)
+    res = largs[0] + ",".join(notRemoved)
+    return res
 
 def find_products_already_getted(l_products):
     '''function that returns the list of products that have an existing source 
@@ -149,9 +159,10 @@ def run(args, runner, logger):
     if not options.force and len(ldev_products) > 0:
         l_products_not_getted = find_products_already_getted(ldev_products)
         if len(l_products_not_getted) > 0:
-            msg = _("Do not get the source of the following products "
-                    "in development mode\nUse the --force option to"
-                    " overwrite it.\n")
+            msg = _("""\
+Do not get the source of the following products in development mode
+Use the --force option to overwrite it.
+""")
             logger.write(src.printcolors.printcWarning(msg), 1)
             args_product_opt_clean = remove_products(args_product_opt_clean,
                                                      l_products_not_getted,
@@ -163,9 +174,10 @@ def run(args, runner, logger):
     if not options.force_patch and len(ldev_products) > 0:
         l_products_with_patchs = find_products_with_patchs(ldev_products)
         if len(l_products_with_patchs) > 0:
-            msg = _("do not patch the following products "
-                    "in development mode\nUse the --force_patch option to"
-                    " overwrite it.\n")
+            msg = _("""\
+do not patch the following products in development mode
+Use the --force_patch option to overwrite it.
+""")
             logger.write(src.printcolors.printcWarning(msg), 1)
             args_product_opt_patch = remove_products(args_product_opt_patch,
                                                      l_products_with_patchs,

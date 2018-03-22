@@ -226,11 +226,10 @@ def run(args, runner, logger):
     
     if len(l_dir_to_suppress) == 0:
         logger.write(src.printcolors.printcWarning(_("Nothing to suppress\n")))
-        sat_command = (runner.cfg.VARS.salometoolsway +
-                       runner.cfg.VARS.sep +
-                       "sat -h clean") 
-        logger.write(_("Please specify what you want to suppress: "
-                       "tap \"%s\"\n" % sat_command))
+        logger.write(_("""\
+Please specify what you want to suppress:
+try 'sat --help clean' and 'sat clean ... --products ... --sources --build --install
+"""))
         return
     
     # Check with the user if he really wants to suppress the directories

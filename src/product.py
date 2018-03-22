@@ -233,20 +233,23 @@ Please provide a 'compil_script' key in its definition.""") % product_name
     # Get the full paths of all the patches
     if product_has_patches(prod_info):
         patches = []
-        for patch in prod_info.patches:
-            patch_path = patch
-            # If only a filename, then search for the patch in the PRODUCTPATH
-            if os.path.basename(patch_path) == patch_path:
-                # Search in the PRODUCTPATH/patches
-                patch_path = src.find_file_in_lpath(patch,
-                                                    config.PATHS.PRODUCTPATH,
-                                                    "patches")
-                if not patch_path:
-                    msg = _("Patch %(patch_name)s for %(prod_name)s not found:"
-                            "\n" % {"patch_name" : patch,
-                                     "prod_name" : prod_info.name}) 
-                    raise src.SatException(msg)
-            patches.append(patch_path)
+        try:
+          for patch in prod_info.patches:
+              patch_path = patch
+              # If only a filename, then search for the patch in the PRODUCTPATH
+              if os.path.basename(patch_path) == patch_path:
+                  # Search in the PRODUCTPATH/patches
+                  patch_path = src.find_file_in_lpath(patch,
+                                                      config.PATHS.PRODUCTPATH,
+                                                      "patches")
+                  if not patch_path:
+                      msg = _("Patch %(patch_name)s for %(prod_name)s not found:"
+                              "\n" % {"patch_name" : patch,
+                                       "prod_name" : prod_info.name}) 
+                      raise src.SatException(msg)
+              patches.append(patch_path)
+        except:
+          DBG.tofix("problem in prod_info.patches", prod_info)
         prod_info.patches = patches
 
     # Get the full paths of the environment scripts
@@ -621,7 +624,10 @@ def product_is_dev(product_info):
     :rtype: boolean
     '''
     dev = product_info.dev
-    return dev.lower() == 'yes'
+    res = (dev.lower() == 'yes')
+    DBG.write('product_is_dev %s' % product_info.name, res)
+    # if product_info.name == "XDATA": return True #test #10569
+    return res
 
 def product_is_debug(product_info):
     '''Know if a product is in debug mode
@@ -734,8 +740,11 @@ def product_has_patches(product_info):
                                the product
     :return: True if the product has one or more patches
     :rtype: boolean
-    '''
-    return "patches" in product_info and len(product_info.patches) > 0
+    '''   
+    res = ( "patches" in product_info and len(product_info.patches) > 0 )
+    DBG.write('product_has_patches %s' % product_info.name, res)
+    # if product_info.name == "XDATA": return True #test #10569
+    return res
 
 def product_has_logo(product_info):
     '''Know if a product has a logo (YACSGEN generate)
