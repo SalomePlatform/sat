@@ -753,7 +753,7 @@ def get_archives_vcs(l_pinfo_vcs, sat, config, logger, tmp_working_dir):
     # clean the source directory of all the vcs products, then use the source 
     # command and thus construct an archive that will not contain the patches
     l_prod_names = [pn for pn, __ in l_pinfo_vcs]
-    if False: # clean is dangerous in user/SOURCES, fixed in tmp_working_dir
+    if False: # clean is dangerous in user/SOURCES, fixed in tmp_local_working_dir
       logger.write(_("\nclean sources\n"))
       args_clean = config.VARS.application
       args_clean += " --sources --products "
@@ -767,7 +767,8 @@ def get_archives_vcs(l_pinfo_vcs, sat, config, logger, tmp_working_dir):
       args_source += " --products "
       args_source += ",".join(l_prod_names)
       svgDir = sat.cfg.APPLICATION.workdir
-      sat.cfg.APPLICATION.workdir = tmp_working_dir
+      tmp_local_working_dir = os.path.join(sat.cfg.APPLICATION.workdir, "tmp_package")  # to avoid too much big files in /tmp
+      sat.cfg.APPLICATION.workdir = tmp_local_working_dir
       # DBG.write("SSS sat config.APPLICATION.workdir", sat.cfg.APPLICATION, True)
       # DBG.write("sat config id", id(sat.cfg), True)
       # shit as config is not same id() as for sat.source()
@@ -778,7 +779,7 @@ def get_archives_vcs(l_pinfo_vcs, sat, config, logger, tmp_working_dir):
       # make the new archives
       d_archives_vcs = {}
       for pn, pinfo in l_pinfo_vcs:
-          path_archive = make_archive(pn, pinfo, tmp_working_dir)
+          path_archive = make_archive(pn, pinfo, tmp_local_working_dir)
           logger.write("make archive vcs '%s'\n" % path_archive)
           d_archives_vcs[pn] = (path_archive,
                                 os.path.join(ARCHIVE_DIR, pn + ".tgz"))

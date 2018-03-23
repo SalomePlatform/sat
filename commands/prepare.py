@@ -76,7 +76,7 @@ def remove_products(arguments, l_products_info, logger):
     args = str(arguments) #copy of "--products ,XDATA,TESSCODE,cmake" for example
     largs = args.split(',')
     DBG.write("largs", largs)
-    toRemove = [name for name,_ in l_products_info]
+    toRemove = [name for name, xx in l_products_info]
     DBG.write("remove_products", toRemove)
     removed = []
     notRemoved = []
