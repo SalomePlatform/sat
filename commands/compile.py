@@ -346,6 +346,30 @@ def compile_all_products(sat, config, options, products_infos, logger):
             res += 1 #BUG
             continue
         
+        if src.product.product_is_salome(p_info):
+            # For salome modules, we check if the sources of configuration modules are present
+            # configuration modules have the property "configure_dependency"
+
+            # get the list of all modules in application 
+            all_products_infos = src.product.get_products_infos(config.APPLICATION.products,
+                                                                config)
+            check_source = True
+            # for configuration modules, check if sources are present
+            for product_name, product_info in all_products_infos:
+                if ("properties" in product_info and
+                    "configure_dependency" in product_info.properties and
+                    product_info.properties.configure_dependency == "yes"):
+                    check_source = check_source and src.product.check_source(product_info)
+                    if not check_source:
+                        logger.write(_("\nERROR : SOURCES of %s not found! It is required for" 
+                                       " the configuration\n" % product_name))
+                        logger.write(_("        Get it with the command : sat prepare %s -p %s \n" % 
+                                      (config.APPLICATION.name, product_name)))
+            if not check_source:
+                # if at least one configuration module is not present, we stop compilation
+                res += 1
+                continue
+        
         # Check if it was already successfully installed
         if src.product.check_installation(p_info):
             logger.write(_("Already installed\n"))

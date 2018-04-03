@@ -567,20 +567,6 @@ def check_source(product_info):
                 return False
     return True
 
-def product_is_sample(product_info):
-    '''Know if a product has the sample type
-    
-    :param product_info Config: The configuration specific to 
-                               the product
-    :return: True if the product has the sample type, else False
-    :rtype: boolean
-    '''
-    if 'type' in product_info:
-        ptype = product_info.type
-        return ptype.lower() == 'sample'
-    else:
-        return False
-
 def product_is_salome(product_info):
     '''Know if a product is a SALOME module
     
