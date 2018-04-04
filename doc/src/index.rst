@@ -32,6 +32,7 @@ List of Commands
    launcher <commands/launcher>
    application <commands/application>
    log <commands/log>
+   environ <commands/environ>
 
 Code documentation
 ==================
