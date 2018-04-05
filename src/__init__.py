@@ -420,3 +420,14 @@ def get_property_in_product_cfg(product_cfg, pprty):
     if not pprty in product_cfg.properties:
         return None
     return product_cfg.properties[pprty]
+
+def activate_mesa_property(config):
+    """Add mesa property into application properties
+    
+    :param config Config: The global configuration. It must have an application!
+    """
+    # Verify the existence of the file
+    if not 'properties' in config.APPLICATION:
+        config.APPLICATION.addMapping( 'properties', src.pyconf.Mapping(), None )
+    config.APPLICATION.properties.use_mesa="yes"
+

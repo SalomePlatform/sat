@@ -465,6 +465,7 @@ def binary_package(config, logger, options, tmp_working_dir):
     l_source_dir = []
     l_not_installed = []
     l_sources_not_present = []
+    generate_mesa_launcher = False  # a flag to know if we generate a mesa launcher
     for prod_name, prod_info in l_product_info:
 
         # Add the sources of the products that have the property 
@@ -475,6 +476,10 @@ def binary_package(config, logger, options, tmp_working_dir):
                 l_source_dir.append((prod_name, prod_info.source_dir))
             else:
                 l_sources_not_present.append(prod_name)
+
+        # if at least one of the application products has the "is_mesa" property
+        if src.get_property_in_product_cfg(prod_info, "is_mesa") == "yes":
+            generate_mesa_launcher = True  # we will generate a mesa launcher
 
         # ignore the native and fixed products for install directories
         if (src.product.product_is_native(prod_info) 
@@ -574,8 +579,36 @@ WARNING: existing binaries directory from previous detar installation:
                                                  launcher_name,
                                                  binaries_dir_name,
                                                  not(options.without_commercial))
-        
             d_products["launcher"] = (launcher_package, launcher_name)
+
+            # if the application contains mesa products, we generate in addition to the 
+            # classical salome launcher a launcher using mesa and called mesa_salome 
+            # (the mesa launcher will be used for remote usage through ssh).
+            if generate_mesa_launcher:
+                #if there is one : store the use_mesa property
+                restore_use_mesa_option=None
+                if ('properties' in config.APPLICATION and 
+                    'use_mesa' in config.APPLICATION.properties):
+                    restore_use_mesa_option = config.APPLICATION.properties.use_mesa
+
+                # activate mesa property, and generate a mesa launcher
+                src.activate_mesa_property(config)  #activate use_mesa property
+                launcher_mesa_name="mesa_"+launcher_name
+                launcher_package_mesa = produce_relative_launcher(config,
+                                                     logger,
+                                                     tmp_working_dir,
+                                                     launcher_mesa_name,
+                                                     binaries_dir_name,
+                                                     not(options.without_commercial))
+                d_products["launcher (mesa)"] = (launcher_package_mesa, launcher_mesa_name)
+
+                # if there was a use_mesa value, we restore it
+                # else we set it to the default value "no"
+                if restore_use_mesa_option != None:
+                    config.APPLICATION.properties.use_mesa=restore_use_mesa_option
+                else:
+                    config.APPLICATION.properties.use_mesa="no"
+
             if options.sources:
                 # if we mix binaries and sources, we add a copy of the launcher, 
                 # prefixed  with "bin",in order to avoid clashes

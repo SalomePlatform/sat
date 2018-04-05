@@ -5,9 +5,8 @@ Binaries
 This package includes a binary installation of the application ¤{application}.
 The binaries are stored in BINARIES directory.
 
-Warning : This binary installation depends upon some native packages. 
+Warning : This binary installation depends upon some native linux packages. 
 If some of these packages are missing on your system, the execution may fail. 
-If this is the case, please check if the file *_dep_sys_rpms.txt is present (it contains the known dependencies), 
-and install the missing ones.
+If this is the case, please install the missing ones with your linux package manager.
 
 

@@ -24,6 +24,7 @@ import subprocess
 import stat
 
 import src
+import src.debug as DBG
 
 parser = src.options.Options()
 
@@ -36,6 +37,9 @@ parser.add_option('', 'gencat', 'string', 'gencat',
     _("Optional: Create a resources catalog for the specified machines "
       "(separated with ',') \n\tNOTICE: this command will ssh to retrieve"
       " information to each machine in the list"))
+parser.add_option('', 'use_mesa', 'boolean', 'use_mesa',
+    _("Optional: Create a launcher that will use mesa products\n\t"
+      "It can be usefull whan salome is used on a remote machine through ssh"))
 
 def generate_launch_file(config,
                          logger,
@@ -255,6 +259,10 @@ def run(args, runner, logger):
                                          runner.cfg,
                                          logger)
         additional_environ = copy_catalog(runner.cfg, catalog_path)
+
+    # activate mesa use in the generated launcher
+    if options.use_mesa:
+        src.activate_mesa_property(runner.cfg)
 
     # Generate the launcher
     launcherPath = generate_launch_file( runner.cfg,

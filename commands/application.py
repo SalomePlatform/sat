@@ -42,6 +42,9 @@ parser.add_option('', 'gencat', 'string', 'gencat',
 parser.add_option('m', 'module', 'list2', 'modules',
     _("Optional: the restricted list of module(s) to include in the "
       "application"))
+parser.add_option('', 'use_mesa', 'boolean', 'use_mesa',
+    _("Optional: Create a launcher that will use mesa products\n\t"
+      "It can be usefull whan salome is used on a remote machine through ssh"))
 
 ##
 # Creates an alias for runAppli.
@@ -415,6 +418,10 @@ def run(args, runner, logger):
     # set list of modules
     if options.modules:
         runner.cfg.APPLICATION.virtual_app['modules'] = options.modules
+
+    # activate mesa use in the generated application
+    if options.use_mesa:
+        src.activate_mesa_property(runner.cfg)
 
     # set name and application_name
     if options.name:
