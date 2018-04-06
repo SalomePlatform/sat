@@ -718,6 +718,7 @@ withProfile =  """#! /usr/bin/env python
 
 import os
 import sys
+import subprocess
 
 
 # Add the pwdPath to able to run the launcher after unpacking a package
@@ -738,6 +739,24 @@ def __initialize():
     print e
     sys.exit(1)
 # End of preliminary work
+
+# salome doc only works for virtual applications. Therefore we overwrite it with this function
+def _showDoc(modules):
+    for module in modules:
+      modulePath = os.getenv(module+"_ROOT_DIR")
+      if modulePath != None:
+        baseDir = os.path.join(modulePath, "share", "doc", "salome")
+        docfile = os.path.join(baseDir, "gui", module.upper(), "index.html")
+        if not os.path.isfile(docfile):
+          docfile = os.path.join(baseDir, "tui", module.upper(), "index.html")
+        if not os.path.isfile(docfile):
+          docfile = os.path.join(baseDir, "dev", module.upper(), "index.html")
+        if os.path.isfile(docfile):
+          out, err = subprocess.Popen(["xdg-open", docfile]).communicate()
+        else:
+          print "Online documentation is not accessible for module:", module
+      else:
+        print module+"_ROOT_DIR not found!"
 
 def main(args):
   # Identify application path then locate configuration files
@@ -771,6 +790,10 @@ def main(args):
 
     context.setVariable(r"PRODUCT_ROOT_DIR", out_dir_Path, overwrite=True)
     # here your local standalone environment
+
+    if len(args) >1 and args[0]=='doc':
+        _showDoc(args[1:])
+        return
 
     # Start SALOME, parsing command line arguments
     context.runSalome(args)

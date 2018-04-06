@@ -192,12 +192,28 @@ def produce_relative_launcher(config,
     else:
         bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin","salome") 
 
+    # check if the application contains an application module
+    l_product_info = src.product.get_products_infos(config.APPLICATION.products.keys(),
+                                                    config)
+    salome_application_name="Not defined" 
+    for prod_name, prod_info in l_product_info:
+        # look for a salome application
+        if src.get_property_in_product_cfg(prod_info, "is_salome_application") == "yes":
+            salome_application_name=prod_info.name
+            continue
+    # if the application contains an application module, we set ABSOLUTE_APPLI_PATH to it
+    # if not we set it to KERNEL_INSTALL_DIR, which is sufficient, except for salome test
+    if salome_application_name == "Not defined":
+        app_root_dir=kernel_root_dir
+    else:
+        app_root_dir=os.path.join(binaries_dir_name, salome_application_name)
+
     # Get the launcher template and do substitutions
     withProfile = src.fileEnviron.withProfile
 
     withProfile = withProfile.replace(
         "ABSOLUTE_APPLI_PATH'] = 'KERNEL_INSTALL_DIR'",
-        "ABSOLUTE_APPLI_PATH'] = out_dir_Path + '" + config.VARS.sep + kernel_root_dir + "'")
+        "ABSOLUTE_APPLI_PATH'] = out_dir_Path + '" + config.VARS.sep + app_root_dir + "'")
     withProfile = withProfile.replace(
         " 'BIN_KERNEL_INSTALL_DIR'",
         " out_dir_Path + '" + config.VARS.sep + bin_kernel_install_dir + "'")

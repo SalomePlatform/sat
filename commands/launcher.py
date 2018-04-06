@@ -73,6 +73,7 @@ def generate_launch_file(config,
     additional_env['APPLI'] = filepath
 
 
+
     # get KERNEL bin installation path 
     # (in order for the launcher to get python salomeContext API)
     kernel_cfg = src.product.get_product_config(config, "KERNEL")
@@ -86,10 +87,27 @@ def generate_launch_file(config,
     else:
         bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin","salome") 
 
+    # check if the application contains an application module
+    l_product_info = src.product.get_products_infos(config.APPLICATION.products.keys(),
+                                                    config)
+    salome_application_name="Not defined" 
+    for prod_name, prod_info in l_product_info:
+        # look for a salome application
+        if src.get_property_in_product_cfg(prod_info, "is_salome_application") == "yes":
+            salome_application_name=prod_info.install_dir
+            continue
+
+    # if the application contains an application module, we set ABSOLUTE_APPLI_PATH to it.
+    # if not we set it to KERNEL_INSTALL_DIR, which is sufficient, except for salome test
+    if salome_application_name == "Not defined":
+        app_root_dir=kernel_root_dir
+    else:
+        app_root_dir=salome_application_name
+
     # Get the launcher template
     withProfile = src.fileEnviron.withProfile\
                      .replace("BIN_KERNEL_INSTALL_DIR", bin_kernel_install_dir)\
-                     .replace("KERNEL_INSTALL_DIR", kernel_root_dir)
+                     .replace("KERNEL_INSTALL_DIR", app_root_dir)
 
     before, after = withProfile.split(
                                 "# here your local standalone environment\n")
