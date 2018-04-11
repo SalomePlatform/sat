@@ -342,7 +342,7 @@ def compile_all_products(sat, config, options, products_infos, logger):
         # Check if sources was already successfully installed
         check_source = src.product.check_source(p_info)
         if not check_source:
-            logger.write(_("Sources of product not found (try 'sat -h prepare') "))
+            logger.write(_("Sources of product not found (try 'sat -h prepare') \n"))
             res += 1 #BUG
             continue
         

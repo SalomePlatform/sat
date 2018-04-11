@@ -522,18 +522,19 @@ class SalomeEnviron:
         # Get the informations corresponding to the product
         pi = src.product.get_product_config(self.cfg, product)
 
-        # skip mesa product, unless use_mesa property was activated
-        
-        if not ("APPLICATION" in self.cfg  and
-                "properties" in self.cfg.APPLICATION  and
-                "use_mesa" in self.cfg.APPLICATION.properties  and
-                self.cfg.APPLICATION.properties.use_mesa == "yes") :
-            if ("properties" in pi and
-                "is_mesa" in pi.properties  and
-                pi.properties.is_mesa == "yes") :
-                logger.write(_("Skip mesa product %s\n") % pi.name, 4)
-                return
-           
+        # skip mesa products (if any) at run time, 
+        # unless use_mesa property was activated
+        if not self.forBuild:
+            if not ("APPLICATION" in self.cfg  and
+                    "properties" in self.cfg.APPLICATION  and
+                    "use_mesa" in self.cfg.APPLICATION.properties  and
+                    self.cfg.APPLICATION.properties.use_mesa == "yes") :
+                if ("properties" in pi and
+                    "is_mesa" in pi.properties  and
+                    pi.properties.is_mesa == "yes") :
+                    logger.write(_("Skip mesa product %s\n") % pi.name, 4)
+                    return
+               
         
         if self.for_package:
             pi.install_dir = os.path.join("out_dir_Path",
