@@ -1,7 +1,6 @@
 from View import *
 from TreeWidgetItem import TreeWidgetItem
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from qtsalome import *
 
 class CircleTreeWidgetItem( TreeWidgetItem ) :
 

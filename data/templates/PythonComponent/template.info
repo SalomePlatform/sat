@@ -4,8 +4,8 @@
 # description of the template to be displayed with option --info
 info = """
 Author: CEA
-Version: 1.0
-Date: 01/03/2012
+Version: 1.1
+Date: 29/03/2018
 Description: This template can be used to create a python module for SALOME.
 """
 
@@ -39,29 +39,34 @@ pyconf = """
     'default':
     {
         name : "%(NAME)s"
-        has_gui : "yes"
-        get_source : '%(get_method)s'
-        build_source : 'autotools'
+
+        get_source   : '%(get_method)s'
+        build_source : 'cmake'
         git_info:
         {
             repo : 'to be filled'
             tag : 'to be filled'
         }
-        archive_info:
-        {
-            archive_name : '%(NAME)s.tar.gz'
-        }
-        nb_proc : 1
-        source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
-        build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
+
+	environ : { }
         depend : [ 'Python', 'KERNEL', 'GUI' ]
         opt_depend : []
+
         type : "salome"
+
+        source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
+        build_dir  : $APPLICATION.workdir + $VARS.sep + 'BUILD'   + $VARS.sep + $name
+
         properties :
         {
+            has_salome_gui   : 'yes'
             is_SALOME_module : 'yes'
-            has_unit_tests : True
-            has_salome_gui : 'yes'
+            has_unit_tests   : True
+        }
+
+        archive_info:
+        {
+            archive_name : '%(NAME)s.tgz'
         }
     }
 """

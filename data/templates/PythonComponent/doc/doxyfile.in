@@ -24,7 +24,7 @@
 # Project related configuration options
 #---------------------------------------------------------------------------
 PROJECT_NAME      = ":sat:{PYCMP} sample module reference manual v.@VERSION@"
-OUTPUT_DIRECTORY  = .
+OUTPUT_DIRECTORY  = :sat:{PYCMP}
 CREATE_SUBDIRS	  = NO
 OUTPUT_LANGUAGE   = English
 TAB_SIZE          = 5
@@ -38,10 +38,10 @@ WARNINGS          = YES
 #---------------------------------------------------------------------------
 #Input related options
 #---------------------------------------------------------------------------
-INPUT             = @srcdir@
+INPUT             = @CMAKE_CURRENT_SOURCE_DIR@
 FILE_PATTERNS     = *.doc
 EXCLUDE           = 
-IMAGE_PATH        = @srcdir@/images
+IMAGE_PATH        = @CMAKE_CURRENT_SOURCE_DIR@/images
 EXAMPLE_PATH      = 
 
 #---------------------------------------------------------------------------
@@ -49,9 +49,9 @@ EXAMPLE_PATH      =
 #---------------------------------------------------------------------------
 GENERATE_HTML     = YES
 HTML_OUTPUT       = .
-HTML_HEADER       = @builddir@/static/header.html
-HTML_FOOTER       = @srcdir@/static/footer.html
-HTML_STYLESHEET   = @srcdir@/static/doxygen.css
+HTML_HEADER       = @CMAKE_CURRENT_SOURCE_DIR@/static/header.html
+HTML_FOOTER       = @CMAKE_CURRENT_SOURCE_DIR@/static/footer.html
+HTML_STYLESHEET   = @CMAKE_CURRENT_SOURCE_DIR@/static/doxygen.css
 TOC_EXPAND        = YES
 DISABLE_INDEX     = NO
 GENERATE_TREEVIEW = YES

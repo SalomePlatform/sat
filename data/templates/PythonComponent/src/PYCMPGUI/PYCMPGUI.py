@@ -29,8 +29,7 @@ import traceback
 import string
 import os
 import sys
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from qtsalome import *
 
 #from :sat:{PYCMP}_utils import *
 
