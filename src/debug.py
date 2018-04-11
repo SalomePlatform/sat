@@ -45,6 +45,10 @@ to set show message temporary as development phase, only in a method:
 
 to set a message for future fix, as temporary problem to not forget:
 DBG.tofix("aTitle", aVariable, True/False) #True/False in production shown, or not
+
+in command line interface you could redirect stderr to file 'myDebug.log':
+>> sat compile ... 2> myDebug.log   # only stderr
+>> sat compile ... &> myDebug.log   # stdout and stderr
 """
 
 import os
