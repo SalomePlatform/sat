@@ -42,6 +42,7 @@ List of Commands
    environ <commands/environ>
    clean <commands/clean>
    package <commands/package>
+   generate <commands/generate>
 
 Code documentation
 ==================

@@ -32,7 +32,8 @@ Usage
 * Clean the build and install directories before starting compilation: ::
 
     sat compile <application> --products GEOM  --clean_all
-    Note: a warning will be shown if option --products is missing (as it will clean everything!)
+    Note: a warning will be shown if option --products is missing 
+    (as it will clean everything!)
 
 * Clean only the install directories before starting compilation: ::
 
