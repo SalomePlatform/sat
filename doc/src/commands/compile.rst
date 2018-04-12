@@ -32,7 +32,9 @@ Usage
 * Clean the build and install directories before starting compilation: ::
 
     sat compile <application> --products GEOM  --clean_all
-    Note: a warning will be shown if option --products is missing (as it will clean everything!)
+
+  .. note:: | a warning will be shown if option --products is missing
+            | (as it will clean everything)
 
 * Clean only the install directories before starting compilation: ::
 
@@ -59,8 +61,9 @@ Usage
     sat compile <application> --show
 
 
-Configuration
-=============
+Some useful configuration pathes
+=================================
+
 The way to compile a product is defined in the product configuration file (pyconf).
 The main options are: 
 

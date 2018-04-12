@@ -38,8 +38,9 @@ Usage
   This will create a catalog by querying each machine through ssh protocol (memory, number of processor) with ssh.
 
 
-Configuration
-=============
+Some useful configuration pathes
+=================================
+
 The virtual application can be configured with the virtual_app section of the configutation file.
 * APPLICATION.virtual_app
 

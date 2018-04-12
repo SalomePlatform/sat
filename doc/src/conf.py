@@ -28,7 +28,7 @@ import os
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = ['sphinx.ext.autodoc']
 
-# do not use rst_prolog please
+# do not use rst_prolog please use doc/rst_prolog.rst and '.. include:: ../rst_prolog.rst'
 # https://github.com/sphinx-doc/sphinx/issues/2445
 
 # Add any paths that contain templates here, relative to this directory.

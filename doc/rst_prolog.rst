@@ -15,4 +15,7 @@
 .. _CLI: https://en.wikipedia.org/wiki/Command-line_interface
 .. _Tar: https://en.wikipedia.org/wiki/Tar_(computing)
 .. _OS: https://en.wikipedia.org/wiki/Operating_system
+.. _VCS: https://en.wikipedia.org/wiki/Version_control
+.. _CVS: https://fr.wikipedia.org/wiki/Concurrent_versions_system
+.. _SVN: https://en.wikipedia.org/wiki/Apache_Subversion
 
