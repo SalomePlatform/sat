@@ -1,15 +1,21 @@
+
+.. include:: ../rst_prolog.rst
+
 ************
-SAlome Tools
+Salome Tools
 ************
 
 .. note:: This documentation is under construction.
 
-**SA**lome**T**ools (**sat**) is a suite of commands that can be used to perform operations 
-on SALOME.
+The **Sa**\ lome\ **T**\ ools (sat) is a suite of commands 
+that can be used to perform operations on SALOME_.
 
 For example, sat allows you to compile SALOME's codes 
 (prerequisites, products)
 create application, run tests, create package, etc.
+
+This utility code is a set of Python_ scripts files.
+
 
 Quick start
 ===========
@@ -34,6 +40,8 @@ List of Commands
    application <commands/application>
    log <commands/log>
    environ <commands/environ>
+   clean <commands/clean>
+   package <commands/package>
 
 Code documentation
 ==================

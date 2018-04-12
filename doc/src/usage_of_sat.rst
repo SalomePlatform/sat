@@ -1,10 +1,13 @@
+
+.. include:: ../rst_prolog.rst
+
 ********************
 Usage of SAlomeTools
 ********************
 
 Usage
 =====
-sat usage is a Command Line Interface (CLI).
+sat usage is a Command Line Interface (CLI_).
 
 .. code-block:: bash
 

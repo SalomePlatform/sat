@@ -5,11 +5,13 @@ Command environ
 Description
 ===========
 The **environ** command generates the environment files used to run and compile SALOME.
-Please note that these files are not required!  SalomeTool set the environment himself, when compiling.
+Please note that these files are not required any more, 
+salomeTool set the environment himself, when compiling.
 And so does the salome launcher.
-These files are useful when one want to check the environment.
-They are also used in debug mode to set the environment for gdb.
-The configuration part at the end of this page explains how to specify the environment which will be used by sat (at build or run time), 
+These files are useful when someone wants to check the environment.
+They could be used in debug mode to set the environment for gdb.
+The configuration part at the end of this page explains how 
+to specify the environment which will be used by sat (at build or run time), 
 and which is written in files by sat environ command.
 
 Usage

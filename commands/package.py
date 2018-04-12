@@ -1157,14 +1157,21 @@ def description():
     :return: The text to display for the package command description.
     :rtype: str
     '''
-    return _("The package command creates an archive.\nThere are 4 kinds of "
-             "archive, which can be mixed:\n  1- The binary archive. It contains all the product "
-             "installation directories and a launcher,\n  2- The sources archive."
-             " It contains the products archives, a project corresponding to "
-             "the application and salomeTools,\n  3- The project archive. It "
-             "contains a project (give the project file path as argument),\n  4-"
-             " The salomeTools archive. It contains salomeTools.\n\nexample:"
-             "\nsat package SALOME-master --bineries --sources")
+    return _("""
+The package command creates an tar archive of a product.
+There are four kinds of archive, which can be mixed:
+
+ 1 - The binary archive. 
+     It contains the product installation directories plus a launcher.
+ 2 - The sources archive. 
+     It contains the product archives, a project (the application plus salomeTools).
+ 3 - The project archive. 
+     It contains a project (give the project file path as argument).
+ 4 - The salomeTools archive. 
+     It contains code utility salomeTools.
+
+example:
+ >> sat package SALOME-master --binaries --sources""")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with package parameter.

@@ -1,9 +1,14 @@
-***************
-Write a command
-***************
+
+
+Add a user custom command
+***************************
 
 Introduction
 ============
+
+.. note:: This documentation is for python developers.
+
+
 The salomeTools product provides a simple way to develop commands. 
 The first thing to do is to add a file with ".py" extension in the **commands** directory of salomeTools.
 
