@@ -1,6 +1,6 @@
-******
-config
-******
+
+Command config
+******************
 
 Description
 ===========

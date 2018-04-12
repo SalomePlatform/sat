@@ -1,6 +1,7 @@
-***
-log
-***
+
+
+Command log
+****************
 
 Description
 ===========

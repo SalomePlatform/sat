@@ -1,6 +1,6 @@
-*******
-prepare
-*******
+
+Command prepare
+****************
 
 Description
 ===========

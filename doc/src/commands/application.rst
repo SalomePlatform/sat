@@ -1,6 +1,6 @@
-***********
-application
-***********
+
+Command application
+*********************
 
 Description
 ===========

@@ -2,13 +2,14 @@
 SAlome Tools
 ************
 
-.. note::
-    
-    This documentation is under construction.
+.. note:: This documentation is under construction.
 
-SAlomeTools (sat) is a suite of commands that can be used to perform operations on SALOME.
+**SA**lome**T**ools (**sat**) is a suite of commands that can be used to perform operations 
+on SALOME.
 
-For example, sat allows you to compile SALOME's modules or prerequisites, create an application, run tests, create a package...
+For example, sat allows you to compile SALOME's codes 
+(prerequisites, products)
+create application, run tests, create package, etc.
 
 Quick start
 ===========
@@ -16,9 +17,9 @@ Quick start
 .. toctree::
     :maxdepth: 1
 
-    Installation of salomeTools (to be competed)
-    Configuration (to be competed)
-    Usage of salomeTools (to be competed)
+    Installation of salomeTools <installation_of_sat>
+    Configuration <configuration>
+    Usage of salomeTools <usage_of_sat>
 
 List of Commands
 ================
@@ -42,7 +43,7 @@ Code documentation
    
    SAT modules <commands/apidoc/modules.rst>
 
-developer documentation
+Developer documentation
 =======================
  
 .. toctree::
@@ -52,10 +53,9 @@ developer documentation
 
 Release Notes
 =============
-Here are the release notes for sat:
 
 .. toctree::
     :maxdepth: 1
 
-    Release Notes 5.0.0 (to be completed)
+    Release Notes 5.0.0 <release_notes/release_notes_5.0.0>
 

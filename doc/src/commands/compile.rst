@@ -1,6 +1,6 @@
-*******
-compile
-*******
+
+Command compile
+****************
 
 Description
 ===========
