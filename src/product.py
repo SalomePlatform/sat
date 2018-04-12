@@ -196,7 +196,9 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
                     DBG.tofix(msg, config.PATHS.ARCHIVEPATH) #avoid 2 messages in compile
                     prod_info.archive_info.archive_name = arch_name #without path
                     # raise src.SatException(msg) #may be a warning, continue #8646
-                prod_info.archive_info.archive_name = arch_path
+                else:
+                    prod_info.archive_info.archive_name = arch_path
+
         
     # If the product compiles with a script, check the script existence
     # and if it is executable

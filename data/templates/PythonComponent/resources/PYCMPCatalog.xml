@@ -1,3 +1,4 @@
+<?xml version='1.0' encoding='us-ascii' ?>
 <!--
   Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 
@@ -21,25 +22,28 @@
   See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 
 -->
-<document>
+ 
+<!-- XML component catalog -->
+<begin-catalog>
 
-  <section name=":sat:{PYCMP}">
-    <!-- Major module parameters -->
-    <parameter name="name"            value=":sat:{PYCMPCompoName}"/>
-    <parameter name="icon"            value=":sat:{PYCMP}.png"/>
-    <parameter name="version"         value="8.4.0"/>
-    <parameter name="library"         value="SalomePyQtGUI"/>
-    <parameter name="documentation"   value=":sat:{PYCMP}_help"/>
-  </section>
+<!-- Path prefix information -->
 
-  <section name="resources">
-    <!-- Module resources -->
-    <parameter name=":sat:{PYCMP}"    value="%:sat:{PYCMP}_ROOT_DIR%/share/salome/resources/:sat:{PYCMP_minus}"/>
-  </section>
+<path-prefix-list>
+</path-prefix-list>
 
-  <section name=":sat:{PYCMP}_help" >
-    <parameter name="sub_menu"        value="%1 module"/>
-    <parameter name="User's Guide"    value="%:sat:{PYCMP}_ROOT_DIR%/share/doc/salome/gui/:sat:{PYCMP}/index.html"/>
-  </section>
-
-</document>
+<!-- Component list -->
+<component-list>
+    <component>
+        <!-- Component identification -->
+        <component-name>:sat:{PYCMP}</component-name>
+        <component-username>:sat:{PYCMP} GUI</component-username>
+        <component-type>Data</component-type>
+        <component-author>CEA</component-author>
+        <component-version>1.0</component-version>
+        <component-comment></component-comment>
+        <component-multistudy>1</component-multistudy>
+        <component-icone>:sat:{PYCMP}.png</component-icone>
+        <constraint></constraint>
+    </component>
+</component-list>
+</begin-catalog>

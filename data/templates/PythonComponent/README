@@ -1,12 +1,1 @@
-This module is a Salome example of a module implemented in Python with PyQt GUI
-
-Installation and compilation is like every Salome modules :
- src_dir/build_configure
- mkdir build_dir
- mkdir instal_dir
- cd build_dir
- src_dir/configure --prefix=instal_dir
- make
- make install
-
-Documentation can be found in /doc directory.
+This module is a SALOME example of a module implemented in Python with PyQt GUI

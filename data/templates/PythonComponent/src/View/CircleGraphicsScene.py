@@ -1,6 +1,5 @@
 from GraphicsScene import GraphicsScene
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from qtsalome import *
 from GraphicsRectItem import GraphicsRectItem
 
 class CircleGraphicsScene(  GraphicsScene ) :

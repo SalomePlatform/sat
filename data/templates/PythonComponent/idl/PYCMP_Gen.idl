@@ -21,10 +21,9 @@
 //
 
 // ---
-// File   : :sat:{PYCMP}GUI.py
-// Author : Vadim SANDLER, Open CASCADE S.A.S. (vadim.sandler@opencascade.com)
+// File: :sat:{PYCMP}GUI.py
 // ---
-//
+
 #ifndef __:sat:{PYCMP}_GEN__
 #define __:sat:{PYCMP}_GEN__
 
@@ -36,7 +35,7 @@ module :sat:{PYCMP}_ORB
 {
   interface :sat:{PYCMP}_Gen : Engines::EngineComponent, SALOMEDS::Driver
   {
-    string makeBanner(in string name)
+    string touch(in string name)
       raises (SALOME::SALOME_Exception);
     
     void createObject(in SALOMEDS::Study theStudy,

@@ -1,16 +1,18 @@
 from Polyline import Polyline
 from Circle import Circle
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from qtsalome import *
 
 class GraphicsView( QGraphicsView ) :
+
+   moved    = pyqtSignal(QPointF)
+   released = pyqtSignal(QPointF)
 
    def __init__( self, scene ) :
        QGraphicsView.__init__( self, scene )
        self.setMouseTracking( True )
        self._selectedItem = None
-       self.connect( self, SIGNAL("moved(QPointF)"), self.execMouseMoveEvent )
-       self.connect( self, SIGNAL("released(QPointF)"), self.execMouseReleaseEvent )
+       self.moved[QPointF].connect(self.execMouseMoveEvent)
+       self.released[QPointF].connect(self.execMouseReleaseEvent)
        pass
 
    def mousePressEvent( self, mouseEvent ) :
@@ -23,7 +25,7 @@ class GraphicsView( QGraphicsView ) :
        QGraphicsView.mouseMoveEvent( self, mouseEvent )
        pt = mouseEvent.pos()
        currentPos = self.mapToScene( pt )
-       self.emit( SIGNAL("moved(QPointF)"), currentPos )
+       self.moved.emit(currentPos)
        pass
 
    def mouseReleaseEvent( self, mouseEvent ) :
@@ -31,7 +33,7 @@ class GraphicsView( QGraphicsView ) :
        if mouseEvent.button() == Qt.LeftButton :
           pt = mouseEvent.pos()
           newPos = self.mapToScene( pt )
-          self.emit( SIGNAL("released(QPointF)"), newPos )
+          self.released.emit(newPos)
           self._selectedItem = None
           pass
        pass

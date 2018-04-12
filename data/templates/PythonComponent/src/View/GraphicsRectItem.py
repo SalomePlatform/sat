@@ -1,5 +1,4 @@
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from qtsalome import *
 
 class GraphicsRectItem( QGraphicsRectItem ) :
 

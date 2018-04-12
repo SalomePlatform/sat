@@ -1,5 +1,4 @@
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from qtsalome import *
 from Menu import Menu
 from RenameDialog import RenameDialog
 from EditPointDialog import EditPointDialog
@@ -30,7 +29,7 @@ class TreeWidget( QTreeWidget ) :
 
        #Creating popup menu
        self.setContextMenuPolicy( Qt.CustomContextMenu )
-       self.connect ( self, SIGNAL("customContextMenuRequested(const QPoint)"), self.createPopups )
+       self.customContextMenuRequested[QPoint].connect(self.createPopups)
        pass
 
    def createPopups( self, point ) :
@@ -39,16 +38,16 @@ class TreeWidget( QTreeWidget ) :
        self.menu = Menu( item )
        for action in item.getActionsList():
           if action == "Show" :
-             self.connect( self.menu.addAction( action ), SIGNAL('triggered()'), self.show )
+             self.menu.addAction(action).triggered.connect(self.show)
              pass
           elif action == 'Rename' :
-             self.connect( self.menu.addAction( action ), SIGNAL('triggered()'), self.showRenameDialog )
+             self.menu.addAction(action).triggered.connect(self.showRenameDialog)
              pass
           elif action == 'Delete' :
-             self.connect( self.menu.addAction( action ), SIGNAL('triggered()'), self.delete )
+             self.menu.addAction(action).triggered.connect(self.delete)
              pass
           else :
-             self.connect( self.menu.addAction( action ), SIGNAL('triggered()'), self.showEditDialog )
+             self.menu.addAction(action).triggered.connect(self.showEditDialog)
              pass
           pass
        self. menu.exec_( QCursor.pos() )

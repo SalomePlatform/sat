@@ -1,5 +1,4 @@
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from qtsalome import *
 
 class DialogEdit( QDialog ) :
 
@@ -55,9 +54,9 @@ class DialogEdit( QDialog ) :
        pass
 
    def connectSlots( self ) :
-       self.connect( self.bOk, SIGNAL( 'clicked()' ), self.apply )
-       self.connect( self.bHelp, SIGNAL( 'clicked()' ), self.help )
-       self.connect( self.bCancel, SIGNAL( 'clicked()' ), self.close )
+       self.bOk.clicked.connect(self.apply)
+       self.bHelp.clicked.connect(self.help)
+       self.bCancel.clicked.connect(self.close)
        pass
 
    def apply( self ) :

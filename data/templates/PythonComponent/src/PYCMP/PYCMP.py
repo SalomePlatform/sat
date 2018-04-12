@@ -52,11 +52,11 @@ class :sat:{PYCMP}(:sat:{PYCMP}_ORB__POA.:sat:{PYCMP}_Gen,
         pass
 
     """
-    Generate banner.
+    Touch the component
     """
-    def makeBanner( self, name ):
-        banner = "Hello %s!" % name
-        return banner
+    def touch(self, name):
+        message = "Touch: %s!" % name
+        return message
 
     """
     Create object.

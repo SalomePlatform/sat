@@ -1,6 +1,5 @@
 from Dialog import Dialog
-from PyQt4.QtGui import *
-from PyQt4.QtCore import *
+from qtsalome import *
 
 class CreatePolylineDialog( Dialog ) :
 
