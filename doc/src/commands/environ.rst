@@ -42,8 +42,9 @@ Usage
     It is useful when you want to visualise which environment uses sat to compile a given product.
 
 
-Configuration
-=============
+Some useful configuration pathes
+=================================
+
 The specification of the environment can be done through sevaral mechanisms.
 
 1. For salome products (the products with the property is_SALOME_module : "yes") the environment is set automatically by sat, in respect with Salomé requirements.

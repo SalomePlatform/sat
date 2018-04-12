@@ -60,8 +60,9 @@ Usage
     sat prepare <application> --force_patch
 
 
-Configuration
-=============
+Some useful configuration pathes
+=================================
+
 * sat prepare uses the pyconf configuration of each product to know how to get the sources.
 
   * **get_method**: the method to use to prepare the module, possible values are cvs, git, archive, dir.

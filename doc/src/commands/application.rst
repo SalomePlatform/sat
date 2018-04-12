@@ -41,8 +41,9 @@ Usage
 
     sat launcher <application> --use_mesa
 
-Configuration
-=============
+Some useful configuration pathes
+=================================
+
 The virtual application can be configured with the virtual_app section of the configutation file.
 * APPLICATION.virtual_app
 

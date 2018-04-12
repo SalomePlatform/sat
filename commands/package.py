@@ -1158,7 +1158,7 @@ def description():
     :rtype: str
     '''
     return _("""
-The package command creates an tar archive of a product.
+The package command creates a tar file archive of a product.
 There are four kinds of archive, which can be mixed:
 
  1 - The binary archive. 
