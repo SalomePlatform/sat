@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
-# salomeTools documentation build configuration file, created by
-# sphinx-quickstart on Wed Sep 14 11:55:14 2011.
+# sat documentation build configuration file, created by
+# sphinx-quickstart on Fri Apr 13 10:08:59 2018.
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -26,7 +26,7 @@ import os
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.todo', 'sphinx.ext.mathjax', 'sphinx.ext.viewcode']
 
 # do not use rst_prolog please use doc/rst_prolog.rst and '.. include:: ../rst_prolog.rst'
 # https://github.com/sphinx-doc/sphinx/issues/2445
@@ -45,7 +45,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'salomeTools'
-copyright = u'2010-2018, CEA'
+copyright = u'2018, CEA'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -96,7 +96,7 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 # default sphinxdoc scrolls agogo traditional nature haiku
-html_theme = 'alabaster'
+html_theme = 'alabaster' #added in _theme dir
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -174,8 +174,20 @@ htmlhelp_basename = 'salomeToolsdoc'
 
 # -- Options for LaTeX output --------------------------------------------------
 
+latex_elements = {
+  # The paper size ('letterpaper' or 'a4paper').
+  'papersize': 'a4paper',
+
+  # The font size ('10pt', '11pt' or '12pt').
+  'pointsize': '10pt',
+
+  # Additional stuff for the LaTeX preamble.
+  #'preamble': '',
+}
+
+
 # The paper size ('letter' or 'a4').
-latex_paper_size = 'a4'
+#latex_paper_size = 'a4'
 
 # The font size ('10pt', '11pt' or '12pt').
 #latex_font_size = '10pt'
@@ -184,7 +196,7 @@ latex_paper_size = 'a4'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'salomeTools.tex', u'salomeTools Documentation',
-   u'CEA', 'manual'),
+   u'CEA DEN/DANS/DM2S/STMF/LGLS', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -199,7 +211,7 @@ latex_documents = [
 #latex_show_pagerefs = False
 
 # If true, show URL addresses after external links.
-#latex_show_urls = False
+latex_show_urls = True
 
 # Additional stuff for the LaTeX preamble.
 #latex_preamble = ''
@@ -217,8 +229,10 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'salometools', u'salomeTools Documentation',
-     [u'CEA'], 1)
+     [u'CEA DEN/DANS/DM2S/STMF/LGLS'], 1)
 ]
 
 # Append source folder to path in order to enable autodoc
-sys.path.append(os.path.join('..'))
+currentPath = os.path.dirname(__file__)
+print "file conf.py currentPath", currentPath
+sys.path.append(os.path.join(currentPath, '..', '..'))

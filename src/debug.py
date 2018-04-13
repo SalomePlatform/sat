@@ -17,8 +17,9 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-"""
+"""\
 This file assume DEBUG functionalities use
+
 - print debug messages in sys.stderr for salomeTools
 - show pretty print debug representation from instances of SAT classes
   (pretty print src.pyconf.Config), and python dict/list etc. (as 'aVariable')
@@ -71,7 +72,7 @@ def write(title, var="", force=None, fmt="\n#### DEBUG: %s:\n%s\n"):
     return
 
 def tofix(title, var="", force=None):
-    """
+    """\
     write sys.stderr a message if _debug[-1]==True or optionaly force=True
     use this only if no logger accessible for classic 
     logger.warning(message) or logger.debug(message)
@@ -122,15 +123,16 @@ def saveConfigStd(config, aStream):
     config.__save__(aStream, indent) 
 
 def getStrConfigStd(config):
-    """set string as saveConfigStd, 
-    as file .pyconf"""
+    """set string as saveConfigStd, as file .pyconf"""
     outStream = OutStream()
     saveConfigStd(config, outStream)
     return outStream.value
 
 def getStrConfigDbg(config):
-    """set string as saveConfigDbg, 
-    as (path expression evaluation) for debug"""
+    """\
+    set string as saveConfigDbg, 
+    as (path expression evaluation) for debug
+    """
     outStream = OutStream()
     saveConfigDbg(config, outStream)
     return outStream.value

@@ -16,6 +16,11 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
+
+"""\
+initial imports and utilities methods for salomeTools
+"""
+
 import os
 import shutil
 import errno
@@ -49,23 +54,22 @@ TIMEOUT_STATUS = "TIMEOUT"
 CONFIG_FILENAME = "sat-config.pyconf"
 
 class SatException(Exception):
-    '''rename Exception Class
-    '''
+    """rename Exception Class"""
     pass
 
 def ensure_path_exists(p):
-    '''Create a path if not existing
+    """Create a path if not existing
     
     :param p str: The path.
-    '''
+    """
     if not os.path.exists(p):
         os.makedirs(p)
         
 def check_config_has_application( config, details = None ):
-    '''check that the config has the key APPLICATION. Else raise an exception.
+    """check that the config has the key APPLICATION. Else raise an exception.
     
     :param config class 'common.pyconf.Config': The config.
-    '''
+    """
     if 'APPLICATION' not in config:
         message = _("An APPLICATION is required. Use 'config --list' to get"
                     " the list of available applications.\n")
@@ -74,11 +78,12 @@ def check_config_has_application( config, details = None ):
         raise SatException( message )
 
 def check_config_has_profile( config, details = None ):
-    '''check that the config has the key APPLICATION.profile.
-       Else, raise an exception.
+    """\
+    check that the config has the key APPLICATION.profile.
+    else, raise an exception.
     
     :param config class 'common.pyconf.Config': The config.
-    '''
+    """
     check_config_has_application(config)
     if 'profile' not in config.APPLICATION:
         message = _("A profile section is required in your application.\n")
@@ -90,26 +95,29 @@ def config_has_application( config ):
     return 'APPLICATION' in config
 
 def get_cfg_param(config, param_name, default):
-    '''Search for param_name value in config.
-       If param_name is not in config, then return default,
-       else, return the found value
+    """\
+    eearch for param_name value in config.
+    if param_name is not in config 
+    then return default,
+    else return the found value
        
     :param config class 'common.pyconf.Config': The config.
     :param param_name str: the name of the parameter to get the value
     :param default str: The value to return if param_name is not in config
     :return: see initial description of the function
     :rtype: str
-    '''
+    """
     if param_name in config:
         return config[param_name]
     return default
 
 def print_info(logger, info):
-    '''Prints the tuples that are in info variable in a formatted way.
+    """\
+    Prints the tuples that are in info variable in a formatted way.
     
     :param logger Logger: The logging instance to use for the prints.
     :param info list: The list of tuples to display
-    '''
+    """
     # find the maximum length of the first value of the tuples in info
     smax = max(map(lambda l: len(l[0]), info))
     # Print each item of info with good indentation
@@ -119,12 +127,13 @@ def print_info(logger, info):
     logger.write("\n", 2)
 
 def get_base_path(config):
-    '''Returns the path of the products base.
+    """\
+    Returns the path of the products base.
     
     :param config Config: The global Config instance.
     :return: The path of the products base.
     :rtype: str
-    '''
+    """
     if "base" not in config.LOCAL:
         local_file_path = os.path.join(config.VARS.salometoolsway,
                                       "data",
@@ -137,12 +146,13 @@ def get_base_path(config):
     return base_path
 
 def get_launcher_name(config):
-    '''Returns the name of salome launcher.
+    """\
+    Returns the name of salome launcher.
     
     :param config Config: The global Config instance.
     :return: The name of salome launcher.
     :rtype: str
-    '''
+    """
     check_config_has_application(config)
     if 'profile' in config.APPLICATION and 'launcher_name' in config.APPLICATION.profile:
         launcher_name = config.APPLICATION.profile.launcher_name
@@ -152,12 +162,13 @@ def get_launcher_name(config):
     return launcher_name
 
 def get_log_path(config):
-    '''Returns the path of the logs.
+    """\
+    Returns the path of the logs.
     
     :param config Config: The global Config instance.
     :return: The path of the logs.
     :rtype: str
-    '''
+    """
     if "log_dir" not in config.LOCAL:
         local_file_path = os.path.join(config.VARS.salometoolsway,
                                       "data",
@@ -320,11 +331,15 @@ class Path:
             return False
 
 def find_file_in_lpath(file_name, lpath, additional_dir = ""):
-    """Find in all the directories in lpath list the file that has the same name
-       as file_name. If it is found, return the full path of the file, else,
-       return False. 
-       The additional_dir (optional) is the name of the directory to add to all 
-       paths in lpath.
+    """\
+    Find in all the directories in lpath list the file that has the same name
+    as file_name. 
+    If it is found 
+    then return the full path of the file
+    else return False.
+ 
+    The additional_dir (optional) is the name of the directory to add to all 
+    paths in lpath.
     
     :param file_name str: The file name to search
     :param lpath List: The list of directories where to search
@@ -351,7 +366,8 @@ def handleRemoveReadonly(func, path, exc):
         raise
 
 def deepcopy_list(input_list):
-    """ Do a deep copy of a list
+    """\
+    Do a deep copy of a list
     
     :param input_list List: The list to copy
     :return: The copy of the list
@@ -363,7 +379,8 @@ def deepcopy_list(input_list):
     return res
 
 def remove_item_from_list(input_list, item):
-    """ Remove all occurences of item from input_list
+    """\
+    Remove all occurences of item from input_list
     
     :param input_list List: The list to modify
     :return: The without any item
@@ -377,7 +394,8 @@ def remove_item_from_list(input_list, item):
     return res
 
 def parse_date(date):
-    """Transform YYYYMMDD_hhmmss into YYYY-MM-DD hh:mm:ss.
+    """\
+    Transform YYYYMMDD_hhmmss into YYYY-MM-DD hh:mm:ss.
     
     :param date str: The date to transform
     :return: The date in the new format
@@ -394,18 +412,17 @@ def parse_date(date):
     return res
 
 def merge_dicts(*dict_args):
-    '''
+    """\
     Given any number of dicts, shallow copy and merge into a new dict,
     precedence goes to key value pairs in latter dicts.
-    '''
+    """
     result = {}
     for dictionary in dict_args:
         result.update(dictionary)
     return result
 
 def replace_in_file(filein, strin, strout):
-    '''Replace <strin> by <strout> in file <filein>
-    '''
+    """Replace <strin> by <strout> in file <filein>"""
     shutil.move(filein, filein + "_old")
     fileout= filein
     filein = filein + "_old"

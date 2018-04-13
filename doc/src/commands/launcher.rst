@@ -37,7 +37,7 @@ Usage
 Some useful configuration pathes
 =================================
 
-* APPLICATION.profile
+* **APPLICATION.profile**
 
   * **product**: the name of the profile product (the product in charge of holding the application stuff, like logos, splashscreen)
   * **launcher_name**: the name of the launcher.

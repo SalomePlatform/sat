@@ -276,7 +276,7 @@ class ConfigOutputStream(object):
         self.stream.close()
 
 def defaultStreamOpener(name):
-    """
+    """\
     This function returns a read-only stream, given its name. The name passed
     in should correspond to an existing stream, otherwise an exception will be
     raised.
@@ -343,25 +343,20 @@ def isWord(s):
     return s.isalnum()
 
 def makePath(prefix, suffix):
-    """
+    """\
     Make a path from a prefix and suffix.
 
-    Examples::
+    Examples:
+    makePath('', 'suffix') -> 'suffix'
+    makePath('prefix', 'suffix') -> 'prefix.suffix'
+    makePath('prefix', '[1]') -> 'prefix[1]'
 
-        makePath('', 'suffix') -> 'suffix'
-        makePath('prefix', 'suffix') -> 'prefix.suffix'
-        makePath('prefix', '[1]') -> 'prefix[1]'
-
-    @param prefix:  The prefix to use. If it evaluates as false, the suffix
-                    is returned.
-    @type prefix:   str
-    @param suffix:  The suffix to use. It is either an identifier or an
-                    index in brackets.
-    @type suffix:   str
-    @return:        The path concatenation of prefix and suffix, with a
-                    dot if the suffix is not a bracketed index.
-    @rtype:         str
-
+    @param prefix: The prefix to use. If it evaluates as false, the suffix is returned.
+    @type prefix: str
+    @param suffix: The suffix to use. It is either an identifier or an index in brackets.
+    @type suffix: str
+    @return: The path concatenation of prefix and suffix, with adot if the suffix is not a bracketed index.
+    @rtype: str
     """
     if not prefix:
         rv = suffix
@@ -1526,9 +1521,9 @@ RCURLY, COMMA, found %r"
             ref.addElement(LBRACK, tv)
 
 def defaultMergeResolve(map1, map2, key):
-    """
-    A default resolver for merge conflicts. Returns a string
-    indicating what action to take to resolve the conflict.
+    """\
+    A default resolver for merge conflicts. 
+    Returns a string indicating what action to take to resolve the conflict.
 
     @param map1: The map being merged into.
     @type map1: L{Mapping}.
@@ -1536,11 +1531,13 @@ def defaultMergeResolve(map1, map2, key):
     @type map2: L{Mapping}.
     @param key: The key in map2 (which also exists in map1).
     @type key: str
+
     @return: One of "merge", "append", "mismatch" or "overwrite"
              indicating what action should be taken. This should
              be appropriate to the objects being merged - e.g.
              there is no point returning "merge" if the two objects
              are instances of L{Sequence}.
+
     @rtype: str
     """
     obj1 = map1[key]

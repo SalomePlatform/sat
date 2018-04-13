@@ -42,7 +42,8 @@ Some useful configuration pathes
 =================================
 
 The virtual application can be configured with the virtual_app section of the configutation file.
-* APPLICATION.virtual_app
+
+* **APPLICATION.virtual_app**
 
   * **name**: name of the launcher (to replace the default runAppli).
   * **application_name**: (optional) the name of the virtual application directory.

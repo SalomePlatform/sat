@@ -65,85 +65,86 @@ But there are some useful services provided by salomeTools :
         (options, args) = parser.parse_args(args)
         # algorithm
 
-How to access to salomeTools config and other commands ?
+HowTo access salomeTools config and other commands
 ========================================================
 
-The runner variable is an instance of the Sat class. It gives access to cfg : the data model that is read from all configuration files of salomeTools (*.pyconf) For example, runner.cfg.APPLICATION.out_dir will contain the root directory of the application on which you are working.
+The *runner* variable is an python instance of *Sat* class. 
+It gives access to *runner.cfg* : the data model that is read from all 
+configuration files of salomeTools (*.pyconf) 
+For example, *runner.cfg.APPLICATION.workdir* will 
+contain the root directory of the application on which you are working.
 
-It gives also access to all other commands of salomeTools :
+The *runner* variable gives also access to other commands of salomeTools:
 
 .. code-block:: python
 
     runner.prepare(runner.cfg.VARS.application)
 
-How to log ?
-============
+HowTo logger
+==============
 
-The logger variable is an instance of the Logger class. It gives access to the write method.
+The logger variable is an instance of the Logger class. 
+It gives access to the write method.
 
-When this method is called, the message passed as parameter will be displayed in the termnial and written in an xml log file.
+When this method is called, the message passed as parameter 
+will be displayed in the terminal and written in an xml log file.
 
 .. code-block:: python
 
     logger.write("My message", 3)
 
-The second argument defines the level of verbosity that is wanted for this message. It has to be between 1 and 5 (the most verbose level).
+The second argument defines the level of verbosity 
+that is wanted for this message. 
+It has to be between 1 and 5 (the most verbose level).
 
-HELLO WORLD !
-=============
+HELLO example
+==============
 
-Here is a hello world command :
+Here is a 'hello' command, file *commands/hello.py*:
 
 .. code-block:: python
 
     import src
 
-    # Define all possible option for mycommand command :  sat mycommand <options>
+    """
+    hello.py
+    Define all possible options for hello command: 
+    sat hello <options>
+    """
     parser = src.options.Options()
-    parser.add_option('m', 'myoption', 'boolean', 'myoption', "My option changes the behavior of my command.")
+    parser.add_option('f', 'french', 'boolean', 'french', "french set hello message in french.")
 
     def description():
-        return _("The help of mycommand.")
+        return _("The help of hello.")
     
     def run(args, runner, logger):
         # Parse the options
         (options, args) = parser.parse_args(args)
         # algorithm
-        if options.myoption:
-            logger.write('HELLO, WORLD !\n')
+        if not options.french:
+            logger.write('HELLO! WORLD!\n')
         else:
-            logger.write('WORLD, HELLO !\n')
+            logger.write('Bonjour tout le monde!\n')
             
-A first call of mycommand:
+A first call of hello:
 
 .. code-block:: bash
 
-    >./sat mycommand --myoption
-    HELLO, WORLD !
+    # Get the help of hello:
+    ./sat --help hello
 
-    Tap the following command to get the log :
-    /path/to/salomeTools/sat log
+    # To get bonjour
+    ./sat hello -f
+    Bonjour tout le monde!
+ 
+    # To get hello
+    ./sat hello
+    HELLO! WORLD!
+
+    # To get the log
+    ./sat log
+
+
+
     
-Another call of mycommand:
 
-.. code-block:: bash
-
-    >./sat mycommand
-    WORLD, HELLO !
-
-    Tap the following command to get the log :
-    /path/to/salomeTools/sat log
-    
-Get the help of mycommand:
-
-.. code-block:: bash
-
-    >./sat --help mycommand
-    Version: 5.0.0dev
-
-    Description:
-    The help of mycommand.
-
-    Available options are:
-     -m, --myoption (boolean)
-             My option changes the behavior of my command.

@@ -20,7 +20,8 @@ import os
 import pprint as PP
 import src.debug as DBG
 
-bat_header="""@echo off
+bat_header="""\
+@echo off
 
 rem The following variables are used only in case of a sat package
 set out_dir_Path=%~dp0
@@ -30,7 +31,8 @@ set prereq_build_Path=%out_dir_Path%\PREREQUISITES\BUILD
 """
 
 
-bash_header="""#!/bin/bash
+bash_header="""\
+#!/bin/bash
 ##########################################################################
 #
 #### cleandup ###
@@ -76,11 +78,13 @@ export PRODUCT_ROOT_DIR=${PRODUCT_OUT_DIR}
 ###########################################################################
 """
 
-cfg_header='''[SALOME Configuration]
-'''
+cfg_header="""\
+[SALOME Configuration]
+"""
 
-Launcher_header='''# a generated SALOME Configuration file using python syntax
-'''
+Launcher_header="""\
+# a generated SALOME Configuration file using python syntax
+"""
 
 def get_file_environ(output, shell, environ=None):
     """Instantiate correct FileEnvironment sub-class.
@@ -100,10 +104,12 @@ def get_file_environ(output, shell, environ=None):
     raise Exception("FileEnviron: Unknown shell = %s" % shell)
 
 class FileEnviron(object):
-    """Base class for shell environment
+    """\
+    Base class for shell environment
     """
     def __init__(self, output, environ=None):
-        """Initialization
+        """\
+        Initialization
         
         :param output file: the output file stream.
         :param environ dict: a potential additional environment.
@@ -111,7 +117,8 @@ class FileEnviron(object):
         self._do_init(output, environ)
 
     def __repr__(self):
-        """easy non exhaustive quick resume for debug print"""
+        """\
+        easy non exhaustive quick resume for debug print"""
         res = {
           "output" : self.output,
           "environ" : self.environ,
@@ -120,7 +127,8 @@ class FileEnviron(object):
         
 
     def _do_init(self, output, environ=None):
-        """Initialization
+        """\
+        Initialization
         
         :param output file: the output file stream.
         :param environ dict: a potential additional environment.
@@ -137,110 +145,122 @@ class FileEnviron(object):
             self.environ = dict(os.environ) #make a copy cvw 180320
 
     def add_line(self, number):
-        """Add some empty lines in the shell file
+        """\
+        Add some empty lines in the shell file
         
         :param number int: the number of lines to add
         """
         self.output.write("\n" * number)
 
     def add_comment(self, comment):
-        """Add a comment in the shell file
+        """\
+        Add a comment in the shell file
         
         :param comment str: the comment to add
         """
         self.output.write("# %s\n" % comment)
 
     def add_echo(self, text):
-        """Add a "echo" in the shell file
+        """\
+        Add a "echo" in the shell file
         
         :param text str: the text to echo
         """
         self.output.write('echo %s"\n' % text)
 
     def add_warning(self, warning):
-        """Add a warning "echo" in the shell file
+        """\
+        Add a warning "echo" in the shell file
         
         :param warning str: the text to echo
         """
         self.output.write('echo "WARNING %s"\n' % warning)
 
     def append_value(self, key, value, sep=os.pathsep):
-        '''append value to key using sep
+        """\
+        append value to key using sep
         
         :param key str: the environment variable to append
         :param value str: the value to append to key
         :param sep str: the separator string
-        '''
+        """
         self.set(key, self.get(key) + sep + value)
         if (key, sep) not in self.toclean:
             self.toclean.append((key, sep))
 
     def append(self, key, value, sep=os.pathsep):
-        '''Same as append_value but the value argument can be a list
+        """\
+        Same as append_value but the value argument can be a list
         
         :param key str: the environment variable to append
         :param value str or list: the value(s) to append to key
         :param sep str: the separator string
-        '''
+        """
         if isinstance(value, list):
             self.append_value(key, sep.join(value), sep)
         else:
             self.append_value(key, value, sep)
 
     def prepend_value(self, key, value, sep=os.pathsep):
-        '''prepend value to key using sep
+        """\
+        prepend value to key using sep
         
         :param key str: the environment variable to prepend
         :param value str: the value to prepend to key
         :param sep str: the separator string
-        '''
+        """
         self.set(key, value + sep + self.get(key))
         if (key, sep) not in self.toclean:
             self.toclean.append((key, sep))
 
     def prepend(self, key, value, sep=os.pathsep):
-        '''Same as prepend_value but the value argument can be a list
+        """\
+        Same as prepend_value but the value argument can be a list
         
         :param key str: the environment variable to prepend
         :param value str or list: the value(s) to prepend to key
         :param sep str: the separator string
-        '''
+        """
         if isinstance(value, list):
             self.prepend_value(key, sep.join(value), sep)
         else:
             self.prepend_value(key, value, sep)
 
     def is_defined(self, key):
-        '''Check if the key exists in the environment
+        """\
+        Check if the key exists in the environment
         
         :param key str: the environment variable to check
-        '''
+        """
         return (key in self.environ)
 
     def set(self, key, value):
-        '''Set the environment variable "key" to value "value"
+        """\
+        Set the environment variable 'key' to value 'value'
         
         :param key str: the environment variable to set
         :param value str: the value
-        '''
+        """
         raise NotImplementedError("set is not implement for this shell!")
 
     def get(self, key):
-        '''Get the value of the environment variable "key"
+        """\
+        Get the value of the environment variable "key"
         
         :param key str: the environment variable
-        '''
+        """
         return '${%s}' % key
 
     def command_value(self, key, command):
-        '''Get the value given by the system command "command" 
-           and put it in the environment variable key.
-           Has to be overwritten in the derived classes
-           This can be seen as a virtual method
+        """\
+        Get the value given by the system command "command" 
+        and put it in the environment variable key.
+        Has to be overwritten in the derived classes
+        This can be seen as a virtual method
         
         :param key str: the environment variable
         :param command str: the command to execute
-        '''
+        """
         raise NotImplementedError("command_value is not implement "
                                   "for this shell!")
 
@@ -254,7 +274,8 @@ class FileEnviron(object):
                 self.output.write('clean %s "%s"\n' % (key, sep))
 
 class BashFileEnviron(FileEnviron):
-    """Class for bash shell.
+    """\
+    Class for bash shell.
     """
     def __init__(self, output, environ=None):
         """Initialization
@@ -266,23 +287,24 @@ class BashFileEnviron(FileEnviron):
         self.output.write(bash_header)
 
     def set(self, key, value):
-        '''Set the environment variable "key" to value "value"
+        """Set the environment variable "key" to value "value"
         
         :param key str: the environment variable to set
         :param value str: the value
-        '''
+        """
         self.output.write('export %s="%s"\n' % (key, value))
         self.environ[key] = value
 
     def command_value(self, key, command):
-        '''Get the value given by the system command "command" 
-           and put it in the environment variable key.
-           Has to be overwritten in the derived classes
-           This can be seen as a virtual method
+        """\
+        Get the value given by the system command "command" 
+        and put it in the environment variable key.
+        Has to be overwritten in the derived classes
+        This can be seen as a virtual method
         
         :param key str: the environment variable
         :param command str: the command to execute
-        '''
+        """
         self.output.write('export %s=$(%s)\n' % (key, command))
 
     def finish(self, required=True):
@@ -295,7 +317,8 @@ class BashFileEnviron(FileEnviron):
         FileEnviron.finish(self, required)
         
 class BatFileEnviron(FileEnviron):
-    """for Windows batch shell.
+    """\
+    for Windows batch shell.
     """
     def __init__(self, output, environ=None):
         """Initialization
@@ -314,36 +337,38 @@ class BatFileEnviron(FileEnviron):
         self.output.write("rem %s\n" % comment)
     
     def get(self, key):
-        '''Get the value of the environment variable "key"
+        """Get the value of the environment variable "key"
         
         :param key str: the environment variable
-        '''
+        """
         return '%%%s%%' % key
     
     def set(self, key, value):
-        '''Set the environment variable "key" to value "value"
+        """Set the environment variable "key" to value "value"
         
         :param key str: the environment variable to set
         :param value str: the value
-        '''
+        """
         self.output.write('set %s=%s\n' % (key, value))
         self.environ[key] = value
 
     def command_value(self, key, command):
-        '''Get the value given by the system command "command" 
-           and put it in the environment variable key.
-           Has to be overwritten in the derived classes
-           This can be seen as a virtual method
+        """\
+        Get the value given by the system command "command" 
+        and put it in the environment variable key.
+        Has to be overwritten in the derived classes
+        This can be seen as a virtual method
         
         :param key str: the environment variable
         :param command str: the command to execute
-        '''
+        """
         self.output.write('%s > tmp.txt\n' % (command))
         self.output.write('set /p %s =< tmp.txt\n' % (key))
 
     def finish(self, required=True):
-        """Add a final instruction in the out file (in case of file generation)
-           In the particular windows case, do nothing
+        """\
+        Add a final instruction in the out file (in case of file generation)
+        In the particular windows case, do nothing
         
         :param required bool: Do nothing if required is False
         """
@@ -362,30 +387,31 @@ class ContextFileEnviron(FileEnviron):
         self.output.write(cfg_header)
 
     def set(self, key, value):
-        '''Set the environment variable "key" to value "value"
+        """Set the environment variable "key" to value "value"
         
         :param key str: the environment variable to set
         :param value str: the value
-        '''
+        """
         self.output.write('%s="%s"\n' % (key, value))
         self.environ[key] = value
 
     def get(self, key):
-        '''Get the value of the environment variable "key"
+        """Get the value of the environment variable "key"
         
         :param key str: the environment variable
-        '''
+        """
         return '%({0})s'.format(key)
 
     def command_value(self, key, command):
-        '''Get the value given by the system command "command" 
-           and put it in the environment variable key.
-           Has to be overwritten in the derived classes
-           This can be seen as a virtual method
+        """\
+        Get the value given by the system command "command" 
+        and put it in the environment variable key.
+        Has to be overwritten in the derived classes
+        This can be seen as a virtual method
         
         :param key str: the environment variable
         :param command str: the command to execute
-        '''
+        """
         raise NotImplementedError("command_value is not implement "
                                   "for salome context files!")
 
@@ -404,21 +430,21 @@ class ContextFileEnviron(FileEnviron):
         self.add_comment("WARNING %s"  % warning)
 
     def prepend_value(self, key, value, sep=os.pathsep):
-        '''prepend value to key using sep
+        """prepend value to key using sep
         
         :param key str: the environment variable to prepend
         :param value str: the value to prepend to key
         :param sep str: the separator string
-        '''
+        """
         self.output.write('ADD_TO_%s: %s\n' % (key, value))
 
     def append_value(self, key, value, sep=os.pathsep):
-        '''append value to key using sep
+        """append value to key using sep
         
         :param key str: the environment variable to append
         :param value str: the value to append to key
         :param sep str: the separator string
-        '''
+        """
         self.prepend_value(key, value)
 
     def finish(self, required=True):
@@ -429,10 +455,11 @@ class ContextFileEnviron(FileEnviron):
         return
 
 def special_path_separator(name):
-    """TCLLIBPATH, TKLIBPATH, PV_PLUGIN_PATH environments variables need
-       some exotic path separator.
-       This function gives the separator regarding the name of the variable
-       to append or prepend.
+    """\
+    TCLLIBPATH, TKLIBPATH, PV_PLUGIN_PATH environments variables need
+    some exotic path separator.
+    This function gives the separator regarding the name of the variable
+    to append or prepend.
        
     :param name str: The name of the variable to find the separator
     """
@@ -444,8 +471,9 @@ def special_path_separator(name):
     return res
 
 class LauncherFileEnviron:
-    """Class to generate a launcher file script 
-       (in python syntax) SalomeContext API
+    """\
+    Class to generate a launcher file script 
+    (in python syntax) SalomeContext API
     """
     def __init__(self, output, environ=None):
         """Initialization
@@ -483,8 +511,6 @@ class LauncherFileEnviron:
                           "PYTHONPATH": "PythonPath"}
 
     def change_to_launcher(self, value):
-        """
-        """
         res=value
         return res
 
@@ -510,84 +536,84 @@ class LauncherFileEnviron:
         self.output.write('# "WARNING %s"\n' % warning)
 
     def append_value(self, key, value, sep=":"):
-        '''append value to key using sep
+        """append value to key using sep
         
         :param key str: the environment variable to append
         :param value str: the value to append to key
         :param sep str: the separator string
-        '''
+        """
         if self.is_defined(key) :
             self.add(key, value)
         else :
             self.set(key, value)
 
     def append(self, key, value, sep=":"):
-        '''Same as append_value but the value argument can be a list
+        """Same as append_value but the value argument can be a list
         
         :param key str: the environment variable to append
         :param value str or list: the value(s) to append to key
         :param sep str: the separator string
-        '''
+        """
         if isinstance(value, list):
             self.append_value(key, sep.join(value), sep)
         else:
             self.append_value(key, value, sep)
 
     def prepend_value(self, key, value, sep=":"):
-        '''prepend value to key using sep
+        """prepend value to key using sep
         
         :param key str: the environment variable to prepend
         :param value str: the value to prepend to key
         :param sep str: the separator string
-        '''
+        """
         if self.is_defined(key) :
             self.add(key, value)
         else :
             self.set(key, value)
 
     def prepend(self, key, value, sep=":"):
-        '''Same as prepend_value but the value argument can be a list
+        """Same as prepend_value but the value argument can be a list
         
         :param key str: the environment variable to prepend
         :param value str or list: the value(s) to prepend to key
         :param sep str: the separator string
-        '''
+        """
         if isinstance(value, list):
             self.prepend_value(key, sep.join(value), sep)
         else:
             self.prepend_value(key, value, sep)
 
     def is_defined(self, key):
-        '''Check if the key exists in the environment
+        """Check if the key exists in the environment
         
         :param key str: the environment variable to check
-        '''
+        """
         return key in self.environ.keys()
 
     def get(self, key):
-        '''Get the value of the environment variable "key"
+        """Get the value of the environment variable "key"
         
         :param key str: the environment variable
-        '''
+        """
         return '${%s}' % key
 
     def set(self, key, value):
-        '''Set the environment variable "key" to value "value"
+        """Set the environment variable "key" to value "value"
         
         :param key str: the environment variable to set
         :param value str: the value
-        '''
+        """
         self.output.write(self.begin+self.setVarEnv+
                           '(r"%s", r"%s", overwrite=True)\n' % 
                           (key, self.change_to_launcher(value)))
         self.environ[key] = value
     
     def add(self, key, value):
-        '''prepend value to key using sep
+        """prepend value to key using sep
         
         :param key str: the environment variable to prepend
         :param value str: the value to prepend to key
-        '''     
+        """     
         if key in self.specialKeys.keys():
             self.output.write(self.begin+'addTo%s(r"%s")\n' % 
                               (self.specialKeys[key],
@@ -605,12 +631,13 @@ class LauncherFileEnviron:
         self.environ[key]+=sep+value #here yes we know os for current execution
 
     def command_value(self, key, command):
-        '''Get the value given by the system command "command" 
-           and put it in the environment variable key.
+        """\
+        Get the value given by the system command "command" 
+        and put it in the environment variable key.
         
         :param key str: the environment variable
         :param command str: the command to execute
-        '''
+        """
         self.output.write(self.indent+'#`%s`\n' % command)
 
         import shlex, subprocess
@@ -649,8 +676,9 @@ class LauncherFileEnviron:
         self.output.write(self.indent+"# %s\n" % comment)
 
     def finish(self, required=True):
-        """Add a final instruction in the out file (in case of file generation)
-           In the particular launcher case, do nothing
+        """\
+        Add a final instruction in the out file (in case of file generation)
+        In the particular launcher case, do nothing
         
         :param required bool: Do nothing if required is False
         """
@@ -709,7 +737,8 @@ class ScreenEnviron(FileEnviron):
         self.write("load", script, "", sign="")
 
 # The SALOME launcher template 
-withProfile =  """#! /usr/bin/env python
+withProfile =  """\
+ #! /usr/bin/env python
 
 ################################################################
 # WARNING: this file is automatically generated by SalomeTools #
@@ -785,9 +814,9 @@ def main(args):
     sys.exit(1)
 #
 def addToSpecial(self, name, value, pathSep=None):
-  "add special dangerous cases: TCLLIBPATH PV_PLUGIN_PATH etc..."
-  #http://computer-programming-forum.com/57-tcl/1dfddc136afccb94.htm
-  #TCLLIBPATH: Tcl treats the contents of that variable as a list. Be happy, for you can now use drive letters on windows.
+  # add special dangerous cases: TCLLIBPATH PV_PLUGIN_PATH etc...
+  # http://computer-programming-forum.com/57-tcl/1dfddc136afccb94.htm
+  # TCLLIBPATH: Tcl treats the contents of that variable as a list. Be happy, for you can now use drive letters on windows.
   if value == '':
     return
   
