@@ -23,7 +23,7 @@ Usage
 
 * Change the directory where the application is created: ::
 
-    sat application <application> --target </my/applications/directory>
+    sat application <application> --target </my/appli/directory>
 
 * Set a specific SALOME resources catalog (it will be used for the distribution of components on distant machines): ::
 
@@ -37,6 +37,9 @@ Usage
 
   This will create a catalog by querying each machine through ssh protocol (memory, number of processor) with ssh.
 
+* Generate a mesa application (if mesa and llvm are parts of the application). Use this option only if you have to use salome through ssh and have problems with ssh X forwarding of OpengGL modules (like Paravis): ::
+
+    sat launcher <application> --use_mesa
 
 Some useful configuration pathes
 =================================

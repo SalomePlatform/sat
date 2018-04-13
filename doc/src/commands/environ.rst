@@ -5,7 +5,7 @@ Command environ
 Description
 ===========
 The **environ** command generates the environment files used to run and compile SALOME.
-Please note that these files are not required any more, 
+Please note that these files are not required, 
 salomeTool set the environment himself, when compiling.
 And so does the salome launcher.
 These files are useful when someone wants to check the environment.
@@ -42,8 +42,8 @@ Usage
     It is useful when you want to visualise which environment uses sat to compile a given product.
 
 
-Some useful configuration pathes
-=================================
+Configuration
+=============
 
 The specification of the environment can be done through sevaral mechanisms.
 
