@@ -6,19 +6,49 @@ Command clean
 
 Description
 ============
-The **clean** command 
-TODO
-TODO
+
+The **clean** command removes products in the SOURCES, BUILD, or INSTALL directories of an application.
+
+Use the options to define what directories you want to suppress and to set the list of products
 
 
 Usage
 =======
-* Create a package for a product (example as *SALOME_xx*): ::
 
-    sat package SALOME_xx
+* Clean all previously created *build* and *install* directories (example application as *SALOME_xx*): ::
+
+    # take care, is long time to restore, sometimes
+    sat clean SALOME-xx --build --install
     
-  This command will create an archive named ``SALOME_xx.tgz`` in the working directory (``$USER.workDir``).
-  If the archive already exists an exception is thrown.
+* Clean previously created *build* and *install* directories, only for products with property *is_salome_module*: ::
+
+    sat clean SALOME-xxx --build --install \
+                         --properties is_salome_module:yes
+
+
+Availables options
+======================
+
+  * **--products**: Products to clean.
+
+  * **--properties**:
+
+    | Filter the products by their properties.
+    | Syntax: --properties <property>:<value>
+
+  * **--sources**: Clean the product source directories.
+
+  * **--build**: Clean the product build directories.
+
+  * **--install**: Clean the product install directories.
+
+  * **--all**: Clean the product source, build and install directories.
+
+  * **--sources_without_dev**:
+
+    | Do not clean the products in development mode.
+    | have they VCS_ commits pending?
+
 
 
 Some useful configuration pathes

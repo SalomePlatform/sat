@@ -1,0 +1,20 @@
+
+# needs sphinx-build
+# to make doc html
+
+cd doc
+make html
+firefox build/html/index.html &
+
+# to make doc pdf
+# needs texlive a jour (done on machines lgls for x86_64-linux)
+# https://www.tug.org/texlive/quickinstall.html
+
+export INFOPATH=/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/doc/info
+export MANPATH=/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/doc/man
+export PATH=/data/tmplgls/wambeke/share/texlive/2017/bin/x86_64-linux:${PATH}
+
+cd doc
+make latexpdf
+evince build/latex/salomeTools.pdf &
+

@@ -49,8 +49,9 @@ parser.add_option('', 'sources_without_dev', 'boolean', 'sources_without_dev',
     _("Optional: do not clean the products in development mode."))
 
 def get_products_list(options, cfg, logger):
-    '''method that gives the product list with their informations from 
-       configuration regarding the passed options.
+    """\
+    method that gives the product list with their informations from 
+    configuration regarding the passed options.
     
     :param options Options: The Options instance that stores the commands 
                             arguments
@@ -58,7 +59,7 @@ def get_products_list(options, cfg, logger):
     :param logger Logger: The logger instance to use for the display and logging
     :return: The list of (product name, product_informations).
     :rtype: List
-    '''
+    """
     # Get the products to be prepared, regarding the options
     if options.products is None:
         # No options, get all products sources
@@ -89,16 +90,17 @@ def get_products_list(options, cfg, logger):
     return products_infos
 
 def get_source_directories(products_infos, without_dev):
-    '''Returns the list of directory source paths corresponding to the list of 
-       product information given as input. If without_dev (bool), then
-       the dev products are ignored.
+    """\
+    Returns the list of directory source paths corresponding 
+    to the list of product information given as input.
+    If without_dev (bool) the dev products are ignored.
     
     :param products_infos list: The list of (name, config) corresponding to one
                                 product.
     :param without_dev boolean: If True, then ignore the dev products.
     :return: the list of source paths.
     :rtype: list
-    '''
+    """
     l_dir_source = []
     for __, product_info in products_infos:
         if product_has_dir(product_info, without_dev):
@@ -106,14 +108,15 @@ def get_source_directories(products_infos, without_dev):
     return l_dir_source
 
 def get_build_directories(products_infos):
-    '''Returns the list of directory build paths corresponding to the list of 
-       product information given as input.
+    """\
+    Returns the list of directory build paths corresponding to the list of 
+    product information given as input.
     
     :param products_infos list: The list of (name, config) corresponding to one
                                 product.
     :return: the list of build paths.
     :rtype: list
-    '''
+    """
     l_dir_build = []
     for __, product_info in products_infos:
         if product_has_dir(product_info):
@@ -122,14 +125,14 @@ def get_build_directories(products_infos):
     return l_dir_build
 
 def get_install_directories(products_infos):
-    '''Returns the list of directory install paths corresponding to the list of 
-       product information given as input.
+    """\
+    Returns the list of directory install paths corresponding to the list of 
+    product information given as input.
     
-    :param products_infos list: The list of (name, config) corresponding to one
-                                product.
+    :param products_infos list: The list of (name, config) corresponding to one product.
     :return: the list of install paths.
     :rtype: list
-    '''
+    """
     l_dir_install = []
     for __, product_info in products_infos:
         if product_has_dir(product_info):
@@ -137,14 +140,14 @@ def get_install_directories(products_infos):
     return l_dir_install
 
 def product_has_dir(product_info, without_dev=False):
-    '''Returns a boolean at True if there is a source, build and install
-       directory corresponding to the product described by product_info.
+    """\
+    Returns a boolean at True if there is a source, build and install
+    directory corresponding to the product described by product_info.
     
     :param products_info Config: The config corresponding to the product.
-    :return: True if there is a source, build and install
-             directory corresponding to the product described by product_info.
+    :return: True if there is a source, build and install directory corresponding to the product described by product_info.
     :rtype: boolean
-    '''
+    """
     if (src.product.product_is_native(product_info) or 
                             src.product.product_is_fixed(product_info)):
         return False
@@ -154,12 +157,11 @@ def product_has_dir(product_info, without_dev=False):
     return True
     
 def suppress_directories(l_paths, logger):
-    '''Suppress the paths given in the list in l_paths.
+    """Suppress the paths given in the list in l_paths.
     
     :param l_paths list: The list of Path to be suppressed
-    :param logger Logger: The logger instance to use for the display and 
-                          logging
-    '''    
+    :param logger Logger: The logger instance to use for the display and logging
+    """    
     for path in l_paths:
         if not path.isdir():
             msg = _("Warning: the path %s does not "
@@ -171,20 +173,23 @@ def suppress_directories(l_paths, logger):
             logger.write('%s\n' % src.printcolors.printc(src.OK_STATUS), 3)
 
 def description():
-    '''method that is called when salomeTools is called with --help option.
+    """method called when salomeTools is called with --help option.
     
     :return: The text to display for the clean command description.
     :rtype: str
-    '''
-    return _("The clean command suppress the source, build, or install "
-             "directories of the application products.\nUse the options to"
-             " define what directories you want to suppress and to reduce "
-             "the list of products\n\nexample:\nsat clean SALOME-master "
-             "--build --install --properties is_salome_module:yes")
+    """
+    return _("""\
+The clean command suppress the SOURCES, BUILD or INSTALL directories of the application products.
+Use the options to define what directories you want to suppress and to set the list of products
+
+example:
+>> sat clean SALOME-xx --build --install --properties is_salome_module:yes
+""")
   
 def run(args, runner, logger):
-    '''method that is called when salomeTools is called with clean parameter.
-    '''
+    """\
+    method called when salomeTools is called with clean parameter.
+    """
     
     # Parse the options
     (options, args) = parser.parse_args(args)

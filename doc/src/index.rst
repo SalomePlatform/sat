@@ -5,6 +5,10 @@
 Salome Tools
 ************
 
+.. image:: images/sat_about.png
+   :scale: 100 %
+   :align: center
+
 .. note:: This documentation is under construction.
 
 The **Sa**\ lome\ **T**\ ools (sat) is a suite of commands 
@@ -44,6 +48,15 @@ List of Commands
    package <commands/package>
    generate <commands/generate>
 
+Developer documentation
+=======================
+ 
+.. toctree::
+   :maxdepth: 1
+   
+   Add a command <write_command>
+
+
 Code documentation
 ==================
  
@@ -52,13 +65,6 @@ Code documentation
    
    SAT modules <commands/apidoc/modules.rst>
 
-Developer documentation
-=======================
- 
-.. toctree::
-   :maxdepth: 1
-   
-   Add a command <write_command>
 
 Release Notes
 =============
