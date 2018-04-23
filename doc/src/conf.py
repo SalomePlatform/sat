@@ -101,7 +101,26 @@ html_theme = 'alabaster' #added in _theme dir
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {}
+html_theme_options = {
+    #'logo': 'logo.png',
+    #'github_user': 'bitprophet',
+    #'github_repo': 'alabaster',
+    #'description': 'MYYY DESCRIPTION',
+    #'sidebar_includehidden': True,
+    #'sidebar_collapse': True,
+    #'show_powered_by': False,
+    'show_related': True,
+    'fixed_sidebar': False,
+    'page_width': '1000px',
+    'sidebar_width': '250px',
+    'font_size': '0.9em', #'1.0625em',
+    'code_font_size': '0.8em',
+    #'note_bg': '#eee',
+    'pre_bg': '#fee', # code-block background
+    #'gray_1': '#00f',
+    #'gray_2': '#f00',
+    #'gray_3': '#0f0',
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 html_theme_path = ["../_themes/alabaster", ]
