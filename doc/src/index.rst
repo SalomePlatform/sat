@@ -1,14 +1,25 @@
+
+.. include:: ../rst_prolog.rst
+
 ************
-SAlome Tools
+Salome Tools
 ************
 
-.. note::
-    
-    This documentation is under construction.
+.. image:: images/sat_about.png
+   :scale: 100 %
+   :align: center
 
-SAlomeTools (sat) is a suite of commands that can be used to perform operations on SALOME.
+.. note:: This documentation is under construction.
 
-For example, sat allows you to compile SALOME's modules or prerequisites, create an application, run tests, create a package...
+The **Sa**\ lome\ **T**\ ools (sat) is a suite of commands 
+that can be used to perform operations on SALOME_.
+
+For example, sat allows you to compile SALOME's codes 
+(prerequisites, products)
+create application, run tests, create package, etc.
+
+This utility code is a set of Python_ scripts files.
+
 
 Quick start
 ===========
@@ -16,9 +27,9 @@ Quick start
 .. toctree::
     :maxdepth: 1
 
-    Installation of salomeTools (to be competed)
-    Configuration (to be competed)
-    Usage of salomeTools (to be competed)
+    Installation of salomeTools <installation_of_sat>
+    Configuration <configuration>
+    Usage of salomeTools <usage_of_sat>
 
 List of Commands
 ================
@@ -32,6 +43,19 @@ List of Commands
    launcher <commands/launcher>
    application <commands/application>
    log <commands/log>
+   environ <commands/environ>
+   clean <commands/clean>
+   package <commands/package>
+   generate <commands/generate>
+
+Developer documentation
+=======================
+ 
+.. toctree::
+   :maxdepth: 1
+   
+   Add a command <write_command>
+
 
 Code documentation
 ==================
@@ -41,20 +65,12 @@ Code documentation
    
    SAT modules <commands/apidoc/modules.rst>
 
-developer documentation
-=======================
- 
-.. toctree::
-   :maxdepth: 1
-   
-   Add a command <write_command>
 
 Release Notes
 =============
-Here are the release notes for sat:
 
 .. toctree::
     :maxdepth: 1
 
-    Release Notes 5.0.0 (to be completed)
+    Release Notes 5.0.0 <release_notes/release_notes_5.0.0>
 

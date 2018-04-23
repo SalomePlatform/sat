@@ -15,9 +15,11 @@
 #  You should have received a copy of the GNU Lesser General Public
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-'''In this file are implemented the methods 
-   relative to the product notion of salomeTools
-'''
+
+"""\
+In this file are implemented the methods 
+relative to the product notion of salomeTools
+"""
 
 import os
 import re
@@ -30,7 +32,7 @@ config_expression = "^config-\d+$"
 VERSION_DELIMITER = "_to_"
 
 def get_product_config(config, product_name, with_install_dir=True):
-    '''Get the specific configuration of a product from the global configuration
+    """Get the specific configuration of a product from the global configuration
     
     :param config Config: The global configuration
     :param product_name str: The name of the product
@@ -39,7 +41,7 @@ def get_product_config(config, product_name, with_install_dir=True):
                                      of the function check_config_exists)
     :return: the specific configuration of the product
     :rtype: Config
-    '''
+    """
     
     # Get the version of the product from the application definition
     version = config.APPLICATION.products[product_name]
@@ -196,9 +198,7 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
                     DBG.tofix(msg, config.PATHS.ARCHIVEPATH) #avoid 2 messages in compile
                     prod_info.archive_info.archive_name = arch_name #without path
                     # raise src.SatException(msg) #may be a warning, continue #8646
-                else:
-                    prod_info.archive_info.archive_name = arch_path
-
+                prod_info.archive_info.archive_name = arch_path
         
     # If the product compiles with a script, check the script existence
     # and if it is executable
@@ -292,7 +292,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
     return prod_info
 
 def get_product_section(config, product_name, version, section=None):
-    '''Get the product description from the configuration
+    """Get the product description from the configuration
     
     :param config Config: The global configuration
     :param product_name str: The product name
@@ -301,7 +301,7 @@ def get_product_section(config, product_name, version, section=None):
                         explicitly given
     :return: The product description
     :rtype: Config
-    '''
+    """
 
     # if section is not None, try to get the corresponding section
     if section:
@@ -347,20 +347,20 @@ def get_product_section(config, product_name, version, section=None):
     return None
     
 def get_install_dir(config, base, version, prod_info):
-    '''Compute the installation directory of a given product 
+    """Compute the installation directory of a given product 
     
     :param config Config: The global configuration
     :param base str: This corresponds to the value given by user in its 
                      application.pyconf for the specific product. If "yes", the
-                    user wants the product to be in base. If "no", he wants the
-                    product to be in the application workdir
+                     user wants the product to be in base. If "no", he wants the
+                     product to be in the application workdir
     :param version str: The version of the product
     :param product_info Config: The configuration specific to 
                                the product
     
     :return: The path of the product installation
     :rtype: str
-    '''
+    """
     install_dir = ""
     in_base = False
     if (("install_dir" in prod_info and prod_info.install_dir == "base") 
@@ -384,7 +384,7 @@ def get_install_dir(config, base, version, prod_info):
     return install_dir
 
 def get_base_install_dir(config, prod_info, version):
-    '''Compute the installation directory of a product in base 
+    """Compute the installation directory of a product in base 
     
     :param config Config: The global configuration
     :param product_info Config: The configuration specific to 
@@ -392,7 +392,7 @@ def get_base_install_dir(config, prod_info, version):
     :param version str: The version of the product    
     :return: The path of the product installation
     :rtype: str
-    '''    
+    """    
     base_path = src.get_base_path(config) 
     prod_dir = os.path.join(base_path, prod_info.name + "-" + version)
     if not os.path.exists(prod_dir):
@@ -416,9 +416,10 @@ def get_base_install_dir(config, prod_info, version):
     return install_dir
 
 def check_config_exists(config, prod_dir, prod_info):
-    '''Verify that the installation directory of a product in a base exists
-       Check all the config-<i> directory and verify the sat-config.pyconf file
-       that is in it 
+    """\
+    Verify that the installation directory of a product in a base exists
+    Check all the config-<i> directory and verify the sat-config.pyconf file
+    that is in it 
     
     :param config Config: The global configuration
     :param prod_dir str: The product installation directory path 
@@ -428,7 +429,7 @@ def check_config_exists(config, prod_dir, prod_info):
     :return: True or false is the installation is found or not 
              and if it is found, the path of the found installation
     :rtype: (boolean, str)
-    '''   
+    """   
     # check if the directories or files of the directory corresponds to the 
     # directory installation of the product
     l_dir_and_files = os.listdir(prod_dir)
@@ -481,14 +482,14 @@ def check_config_exists(config, prod_dir, prod_info):
             
     
 def get_products_infos(lproducts, config):
-    '''Get the specific configuration of a list of products
+    """Get the specific configuration of a list of products
     
     :param lproducts List: The list of product names
     :param config Config: The global configuration
     :return: the list of tuples 
              (product name, specific configuration of the product)
     :rtype: [(str, Config)]
-    '''
+    """
     products_infos = []
     # Loop on product names
     for prod in lproducts:       
@@ -503,15 +504,16 @@ def get_products_infos(lproducts, config):
     return products_infos
 
 def get_product_dependencies(config, product_info):
-    '''Get recursively the list of products that are 
-       in the product_info dependencies
+    """\
+    Get recursively the list of products that are 
+    in the product_info dependencies
     
     :param config Config: The global configuration
     :param product_info Config: The configuration specific to 
                                the product
     :return: the list of products in dependence
     :rtype: list
-    '''
+    """
     if "depend" not in product_info or product_info.depend == []:
         return []
     res = []
@@ -528,14 +530,15 @@ def get_product_dependencies(config, product_info):
     return res
 
 def check_installation(product_info):
-    '''Verify if a product is well installed. Checks install directory presence
-       and some additional files if it is defined in the config 
+    """\
+    Verify if a product is well installed. Checks install directory presence
+    and some additional files if it is defined in the config 
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if it is well installed
     :rtype: boolean
-    '''
+    """
     if not product_compiles(product_info):
         return True
     install_dir = product_info.install_dir
@@ -550,13 +553,13 @@ def check_installation(product_info):
     return True
 
 def check_source(product_info):
-    '''Verify if a sources of product is preset. Checks source directory presence
+    """Verify if a sources of product is preset. Checks source directory presence
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if it is well installed
     :rtype: boolean
-    '''
+    """
     DBG.write("check_source product_info", product_info)
     source_dir = product_info.source_dir
     if not os.path.exists(source_dir):
@@ -569,48 +572,62 @@ def check_source(product_info):
                 return False
     return True
 
+def product_is_sample(product_info):
+    """Know if a product has the sample type
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product has the sample type, else False
+    :rtype: boolean
+    """
+    if 'type' in product_info:
+        ptype = product_info.type
+        return ptype.lower() == 'sample'
+    else:
+        return False
+
 def product_is_salome(product_info):
-    '''Know if a product is a SALOME module
+    """Know if a product is a SALOME module
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product is a SALOME module, else False
     :rtype: boolean
-    '''
+    """
     return ("properties" in product_info and
             "is_SALOME_module" in product_info.properties and
             product_info.properties.is_SALOME_module == "yes")
 
 def product_is_fixed(product_info):
-    '''Know if a product is fixed
+    """Know if a product is fixed
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product is fixed, else False
     :rtype: boolean
-    '''
+    """
     get_src = product_info.get_source
     return get_src.lower() == 'fixed'
 
 def product_is_native(product_info):
-    '''Know if a product is native
+    """Know if a product is native
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product is native, else False
     :rtype: boolean
-    '''
+    """
     get_src = product_info.get_source
     return get_src.lower() == 'native'
 
 def product_is_dev(product_info):
-    '''Know if a product is in dev mode
+    """Know if a product is in dev mode
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product is in dev mode, else False
     :rtype: boolean
-    '''
+    """
     dev = product_info.dev
     res = (dev.lower() == 'yes')
     DBG.write('product_is_dev %s' % product_info.name, res)
@@ -618,93 +635,94 @@ def product_is_dev(product_info):
     return res
 
 def product_is_debug(product_info):
-    '''Know if a product is in debug mode
+    """Know if a product is in debug mode
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product is in debug mode, else False
     :rtype: boolean
-    '''
+    """
     debug = product_info.debug
     return debug.lower() == 'yes'
 
 def product_is_autotools(product_info):
-    '''Know if a product is compiled using the autotools
+    """Know if a product is compiled using the autotools
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product is autotools, else False
     :rtype: boolean
-    '''
+    """
     build_src = product_info.build_source
     return build_src.lower() == 'autotools'
 
 def product_is_cmake(product_info):
-    '''Know if a product is compiled using the cmake
+    """Know if a product is compiled using the cmake
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product is cmake, else False
     :rtype: boolean
-    '''
+    """
     build_src = product_info.build_source
     return build_src.lower() == 'cmake'
 
 def product_is_vcs(product_info):
-    '''Know if a product is download using git, svn or cvs (not archive)
+    """Know if a product is download using git, svn or cvs (not archive)
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product is vcs, else False
     :rtype: boolean
-    '''
+    """
     return product_info.get_source in AVAILABLE_VCS
 
 def product_is_smesh_plugin(product_info):
-    '''Know if a product is a SMESH plugin
+    """Know if a product is a SMESH plugin
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product is a SMESH plugin, else False
     :rtype: boolean
-    '''
+    """
     return ("properties" in product_info and
             "smesh_plugin" in product_info.properties and
             product_info.properties.smesh_plugin == "yes")
 
 def product_is_cpp(product_info):
-    '''Know if a product is cpp
+    """Know if a product is cpp
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product is a cpp, else False
     :rtype: boolean
-    '''
+    """
     return ("properties" in product_info and
             "cpp" in product_info.properties and
             product_info.properties.cpp == "yes")
 
 def product_compiles(product_info):
-    '''Know if a product compiles or not (some products do not have a 
-       compilation procedure)
+    """\
+    Know if a product compiles or not 
+    (some products do not have a compilation procedure)
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product compiles, else False
     :rtype: boolean
-    '''
+    """
     return not("properties" in product_info and
             "compilation" in product_info.properties and
             product_info.properties.compilation == "no")
 
 def product_has_script(product_info):
-    '''Know if a product has a compilation script
+    """Know if a product has a compilation script
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product it has a compilation script, else False
     :rtype: boolean
-    '''
+    """
     if "build_source" not in product_info:
         # Native case
         return False
@@ -712,36 +730,36 @@ def product_has_script(product_info):
     return build_src.lower() == 'script'
 
 def product_has_env_script(product_info):
-    '''Know if a product has an environment script
+    """Know if a product has an environment script
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product it has an environment script, else False
     :rtype: boolean
-    '''
+    """
     return "environ" in product_info and "env_script" in product_info.environ
 
 def product_has_patches(product_info):
-    '''Know if a product has one or more patches
+    """Know if a product has one or more patches
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product has one or more patches
     :rtype: boolean
-    '''   
+    """   
     res = ( "patches" in product_info and len(product_info.patches) > 0 )
     DBG.write('product_has_patches %s' % product_info.name, res)
     # if product_info.name == "XDATA": return True #test #10569
     return res
 
 def product_has_logo(product_info):
-    '''Know if a product has a logo (YACSGEN generate)
+    """Know if a product has a logo (YACSGEN generate)
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: The path of the logo if the product has a logo, else False
     :rtype: Str
-    '''
+    """
     if ("properties" in product_info and
             "logo" in product_info.properties):
         return product_info.properties.logo
@@ -749,48 +767,48 @@ def product_has_logo(product_info):
         return False
 
 def product_has_salome_gui(product_info):
-    '''Know if a product has a SALOME gui
+    """Know if a product has a SALOME gui
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product has a SALOME gui, else False
     :rtype: Boolean
-    '''
+    """
     return ("properties" in product_info and
             "has_salome_gui" in product_info.properties and
             product_info.properties.has_salome_gui == "yes")
 
 def product_is_mpi(product_info):
-    '''Know if a product has openmpi in its dependencies
+    """Know if a product has openmpi in its dependencies
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product has openmpi inits dependencies
     :rtype: boolean
-    '''
+    """
     return "openmpi" in product_info.depend
 
 def product_is_generated(product_info):
-    '''Know if a product is generated (YACSGEN)
+    """Know if a product is generated (YACSGEN)
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: True if the product is generated
     :rtype: boolean
-    '''
+    """
     return ("properties" in product_info and
             "generate" in product_info.properties and
             product_info.properties.generate == "yes")
 
 def get_product_components(product_info):
-    '''Get the component list to generate with the product
+    """Get the component list to generate with the product
     
     :param product_info Config: The configuration specific to 
                                the product
     :return: The list of names of the components
     :rtype: List
     
-    '''
+    """
     if not product_is_generated(product_info):
         return []
     

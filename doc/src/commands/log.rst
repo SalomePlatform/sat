@@ -1,6 +1,7 @@
-***
-log
-***
+
+
+Command log
+****************
 
 Description
 ===========
@@ -34,8 +35,9 @@ Usage
 
 
 
-Configuration
-=============
+Some useful configuration pathes
+=================================
+
 * USER.browser
 
   * **browser**: The browser used to show the log (by default *firefox*).

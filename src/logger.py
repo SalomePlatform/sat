@@ -15,8 +15,10 @@
 #  You should have received a copy of the GNU Lesser General Public
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-'''In this file are implemented the classes and method relative to the logging
-'''
+
+"""\
+Implements the classes and method relative to the logging
+"""
 
 import sys
 import os
@@ -32,19 +34,20 @@ log_macro_command_file_expression = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
 log_all_command_file_expression = "^.*[0-9]{8}_+[0-9]{6}_+.*\.xml$"
 
 class Logger(object):
-    '''Class to handle log mechanism.
-    '''
+    """\
+    Class to handle log mechanism.
+    """
     def __init__(self,
                  config,
                  silent_sysstd=False,
                  all_in_terminal=False,
                  micro_command = False):
-        '''Initialization
+        """Initialization
         
         :param config pyconf.Config: The global configuration.
         :param silent_sysstd boolean: if True, do not write anything
                                       in terminal.
-        '''
+        """
         self.config = config
         self.default_level = 3
         self.silentSysStd = silent_sysstd
@@ -101,9 +104,10 @@ class Logger(object):
             self.logTxtFile = sys.__stdout__
         
     def put_initial_xml_fields(self):
-        '''Method called at class initialization : Put all fields 
-           corresponding to the command context (user, time, ...)
-        '''
+        """\
+        Called at class initialization: Put all fields 
+        corresponding to the command context (user, time, ...)
+        """
         # command name
         self.xmlFile.add_simple_node("Site", attrib={"command" : 
                                                      self.config.VARS.command})
@@ -143,14 +147,14 @@ class Logger(object):
                  command_name,
                  command_res,
                  full_launched_command):
-        '''Add a link to another log file.
+        """Add a link to another log file.
         
         :param log_file_name str: The file name of the link.
         :param command_name str: The name of the command linked.
         :param command_res str: The result of the command linked. "0" or "1"
         :parma full_launched_command str: The full lanch command 
                                           ("sat command ...")
-        '''
+        """
         xmlLinks = self.xmlFile.xmlroot.find("Links")
         src.xmlManager.add_simple_node(xmlLinks,
                                        "link", 
@@ -160,14 +164,15 @@ class Logger(object):
                                            "launchedCommand" : full_launched_command})
 
     def write(self, message, level=None, screenOnly=False):
-        '''the function used in the commands 
-        that will print in the terminal and the log file.
+        """\
+        function used in the commands 
+        to print in the terminal and the log file.
         
         :param message str: The message to print.
         :param level int: The output level corresponding 
                           to the message 0 < level < 6.
         :param screenOnly boolean: if True, do not write in log file.
-        '''
+        """
         # do not write message starting with \r to log file
         if not message.startswith("\r") and not screenOnly:
             self.xmlFile.append_node_text("Log", 
@@ -190,10 +195,10 @@ class Logger(object):
         self.flush()
 
     def error(self, message):
-        '''Print an error.
+        """Print an error.
         
         :param message str: The message to print.
-        '''
+        """
         # Print in the log file
         self.xmlFile.append_node_text("traces", _('ERROR:') + message)
 
@@ -205,19 +210,19 @@ class Logger(object):
             sys.stderr.write(_('ERROR:') + message)
 
     def flush(self):
-        '''Flush terminal
-        '''
+        """Flush terminal"""
         sys.stdout.flush()
         self.logTxtFile.flush()
         
     def end_write(self, attribute):
-        '''Method called just after command end : Put all fields 
-           corresponding to the command end context (time).
-           Write the log xml file on the hard drive.
-           And display the command to launch to get the log
+        """\
+        Called just after command end: Put all fields 
+        corresponding to the command end context (time).
+        Write the log xml file on the hard drive.
+        And display the command to launch to get the log
         
         :param attribute dict: the attribute to add to the node "Site".
-        '''       
+        """       
         # Get current time (end of command) and format it
         dt = datetime.datetime.now()
         Y, m, dd, H, M, S = date_to_datetime(self.config.VARS.datehour)
@@ -256,13 +261,14 @@ class Logger(object):
             pass
 
 def date_to_datetime(date):
-    '''Little method that gets year, mon, day, hour , 
-       minutes and seconds from a str in format YYYYMMDD_HHMMSS
+    """\
+    From a string date in format YYYYMMDD_HHMMSS
+    returns list year, mon, day, hour, minutes, seconds 
     
     :param date str: The date in format YYYYMMDD_HHMMSS
     :return: the same date and time in separate variables.
     :rtype: (str,str,str,str,str,str)
-    '''
+    """
     Y = date[:4]
     m = date[4:6]
     dd = date[6:8]
@@ -272,20 +278,23 @@ def date_to_datetime(date):
     return Y, m, dd, H, M, S
 
 def timedelta_total_seconds(timedelta):
-    '''Little method to replace total_seconds from 
-       datetime module in order to be compatible with old python versions
+    """\
+    Replace total_seconds from datetime module 
+    in order to be compatible with old python versions
     
     :param timedelta datetime.timedelta: The delta between two dates
     :return: The number of seconds corresponding to timedelta.
     :rtype: float
-    '''
+    """
     return (
         timedelta.microseconds + 0.0 +
         (timedelta.seconds + timedelta.days * 24 * 3600) * 10 ** 6) / 10 ** 6
         
 def show_command_log(logFilePath, cmd, application, notShownCommands):
-    '''Used in updateHatXml. Determine if the log xml file logFilePath 
-       has to be shown or not in the hat log.
+    """\
+    Used in updateHatXml. 
+    Determine if the log xml file logFilePath 
+    has to be shown or not in the hat log.
     
     :param logFilePath str: the path to the command xml log file
     :param cmd str: the command of the log file
@@ -297,7 +306,7 @@ def show_command_log(logFilePath, cmd, application, notShownCommands):
     :return: True if cmd is not in notShownCommands and the application 
              in the log file corresponds to application
     :rtype: boolean
-    '''
+    """
     # When the command is not in notShownCommands, no need to go further :
     # Do not show
     if cmd in notShownCommands:
@@ -328,13 +337,13 @@ def show_command_log(logFilePath, cmd, application, notShownCommands):
     return False, None, None
 
 def list_log_file(dirPath, expression):
-    '''Find all files corresponding to expression in dirPath
+    """Find all files corresponding to expression in dirPath
     
     :param dirPath str: the directory where to search the files
     :param expression str: the regular expression of files to find
     :return: the list of files path and informations about it
     :rtype: list
-    '''
+    """
     lRes = []
     for fileName in os.listdir(dirPath):
         # YYYYMMDD_HHMMSS_namecmd.xml
@@ -370,12 +379,13 @@ def list_log_file(dirPath, expression):
     return lRes
 
 def update_hat_xml(logDir, application=None, notShownCommands = []):
-    '''Create the xml file in logDir that contain all the xml file 
-       and have a name like YYYYMMDD_HHMMSS_namecmd.xml
+    """\
+    Create the xml file in logDir that contain all the xml file 
+    and have a name like YYYYMMDD_HHMMSS_namecmd.xml
     
     :param logDir str: the directory to parse
     :param application str: the name of the application if there is any
-    '''
+    """
     # Create an instance of XmlLogFile class to create hat.xml file
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
     xmlHat = src.xmlManager.XmlLogFile(xmlHatFilePath,

@@ -1,0 +1,13 @@
+/* This file intentionally left blank. */
+
+/* 
+http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
+set backquotes: ``text`` for code samples more color red
+*/
+
+tt, code {
+    background-color: #ecf0f3;
+    color: #842;
+    /* padding: 1px 2px; */
+}
+
