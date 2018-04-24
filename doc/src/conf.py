@@ -14,6 +14,17 @@
 import sys
 import os
 
+# Append source folder to path in order to enable autodoc
+currentPath = os.path.dirname(__file__)
+print "sphinx on file", __file__
+sys.path.append(os.path.join(currentPath, '..', '..'))
+
+# https://stackoverflow.com/questions/23462494/how-to-add-a-custom-css-file-to-sphinx
+def setup(app):
+    custom = os.path.join(currentPath, 'custom.css')
+    print "setup add_stylesheet", custom 
+    app.add_stylesheet(custom)
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -251,7 +262,4 @@ man_pages = [
      [u'CEA DEN/DANS/DM2S/STMF/LGLS'], 1)
 ]
 
-# Append source folder to path in order to enable autodoc
-currentPath = os.path.dirname(__file__)
-print "file conf.py currentPath", currentPath
-sys.path.append(os.path.join(currentPath, '..', '..'))
+

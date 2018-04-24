@@ -1,13 +1,15 @@
 
+.. include:: ../../rst_prolog.rst
+
 Command prepare
 ****************
 
 Description
 ===========
-The **prepare** command brings the sources of an application in the SOURCES 
-application directory, in order to compile them with the compile command.
+The **prepare** command brings the sources of an application in the *sources 
+application directory*, in order to compile them with the compile command.
 
-The sources can be prepared from VCS software (*cvs*,*svn*, *git*), an archive or a directory.
+The sources can be prepared from VCS software (*cvs, svn, git*), an archive or a directory.
 
 .. warning:: When sat prepares a product, it first removes the 
              existing directory, except if the development mode is activated.
@@ -25,7 +27,7 @@ For example, to prepare modules from a cvs server, you first need to login once.
 
 To avoid typing a password for each product, 
 you may use a ssh key with passphrase, or store your password 
-(in .cvspass or .gitconfig).
+(in .cvspass or .gitconfig files).
 If you have security concerns, it is also possible to use 
 a bash agent and type your password only once.
 
@@ -38,12 +40,14 @@ By default *prepare* uses *export* mode: it creates an image
 of the sources, corresponding to the tag or branch specified, 
 without any link to the VCS base. 
 To perform a *checkout* (svn, cvs) or a *git clone* (git), 
-you need to declare the product in dev mode in your application configuration.
-For that, edit the application configuration and modify the product declaration: ::
+you need to declare the product in dev mode in your application configuration:
+edit the application configuration file (pyconf) and modify the product declaration:
+
+.. code-block:: bash
 
     sat config <application> -e
-    # edit the product section :
-    # <product> : {tag : "my_tag", dev : "yes", debug : "yes"}
+    # and edit the product section:
+    #   <product> : {tag : "my_tag", dev : "yes", debug : "yes"}
 
 The first time you will execute the *sat prepare* command, 
 your module will be downloaded in *checkout* mode 
@@ -79,11 +83,18 @@ Usage
 Some useful configuration pathes
 =================================
 
-Command *sat prepare* uses the file pyconf configuration of each product to know how to get the sources.
+Command *sat prepare* uses the *pyconf file configuration* of each product to know how to get the sources.
+
+.. note:: to verify configuration of a product, and get name of this *pyconf files configuration*
+
+  .. code-block :: bash
+
+     sat config <application> --info <product>
+
 
 * **get_method**: the method to use to prepare the module, possible values are cvs, git, archive, dir.
-* **git_info**: (used if get_method = git) information to prepare sources from git.
-* **svn_info**: (used if get_method = svn) information to prepare sources from cvs.
-* **cvs_info**: (used if get_method = cvs) information to prepare sources from cvs.
-* **archive_info**: (used if get_method = archive) the path to the archive.
-* **dir_info**: (used if get_method = dir) the directory with the sources.
+* **git_info** : (used if get_method = git) information to prepare sources from git.
+* **svn_info** : (used if get_method = svn) information to prepare sources from cvs.
+* **cvs_info** : (used if get_method = cvs) information to prepare sources from cvs.
+* **archive_info** : (used if get_method = archive) the path to the archive.
+* **dir_info** : (used if get_method = dir) the directory with the sources.

@@ -7,7 +7,7 @@ Command clean
 Description
 ============
 
-The **clean** command removes products in the SOURCES, BUILD, or INSTALL directories of an application.
+The **clean** command removes products in the *source, build, or install* directories of an application. Theses directories are usually named ``SOURCES, BUILD, INSTALL``.
 
 Use the options to define what directories you want to suppress and to set the list of products
 
@@ -46,8 +46,8 @@ Availables options
 
   * **--sources_without_dev**:
 
-    | Do not clean the products in development mode.
-    | have they VCS_ commits pending?
+    | Do not clean the products in development mode,
+    | (they could have VCS_ commits pending).
 
 
 

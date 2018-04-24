@@ -1,4 +1,6 @@
 
+.. include:: ../../rst_prolog.rst
+
 Command config
 ******************
 
@@ -9,11 +11,11 @@ It allows display, manipulation and operation on configuration files
 
 Usage
 =====
-* Edit the user personal configuration file (~/.salomeTools/SAT.pyconf). It is used to store the user personal choices, like the favorite editor, browser, pdf viewer: ::
+* Edit the user personal configuration file ``$HOME/.salomeTools/SAT.pyconf``. It is used to store the user personal choices, like the favorite editor, browser, pdf viewer: ::
 
     sat config --edit
 
-* List the available applications (they come from the sat projects defined in data/local.pyconf): ::
+* List the available applications (they come from the sat projects defined in ``data/local.pyconf``: ::
   
     sat config --list
 
@@ -30,7 +32,7 @@ Usage
   | Use *--no_label* option to get *only* the value, *without* label (useful in automatic scripts).
   | Examples (with *SALOME-xx* as *SALOME-8.4.0* ): 
 
-  ::
+  .. code-block:: bash
 
     # sat config --value <parameter_path>
     sat config --value .         # all the configuration
@@ -50,8 +52,9 @@ Usage
 
     sat config SALOME-xx -g USER
 
-  .. note:: And so, not only for fun, to get **all expressions** of configuration   
-    ::
+  .. note:: And so, *not only for fun*, to get **all expressions** of configuration
+   
+    .. code-block:: bash
 
       sat config SALOME-xx -g . | grep -e "-->"
 
@@ -60,20 +63,22 @@ Usage
 
     sat config SALOME-xx --show_patchs
 
-* Get information on a product configuration: ::
+* Get information on a product configuration: 
+
+  .. code-block:: bash
 
     # sat config <application> --info <product>
-    sat config SALOME-xx--info KERNEL
+    sat config SALOME-xx --info KERNEL
     sat config SALOME-xx --info qt
 
 Some useful configuration pathes
 =================================
 
-To know for exploring a current configuration.
+Exploring a current configuration.
 
-* PATHS: To get list of directories where to find files.
+* **PATHS**: To get list of directories where to find files.
 
-* USER: To get user preferences (editor, pdf viewer, web browser, default working dir).
+* **USER**: To get user preferences (editor, pdf viewer, web browser, default working dir).
 
 sat commands: ::
 

@@ -9,7 +9,7 @@ Salome Tools
    :scale: 100 %
    :align: center
 
-.. note:: This documentation is under construction.
+.. warning:: This documentation is under construction.
 
 The **Sa**\ lome\ **T**\ ools (sat) is a suite of commands 
 that can be used to perform operations on SALOME_.

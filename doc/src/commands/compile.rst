@@ -1,10 +1,12 @@
 
+.. include:: ../../rst_prolog.rst
+
 Command compile
 ****************
 
 Description
 ===========
-The **compile** command allows compiling the products of a SALOME application.
+The **compile** command allows compiling the products of a SALOME_ application.
 
 
 Usage
@@ -17,7 +19,7 @@ Usage
 
     sat compile <application> --products <product1>,<product2> ... 
 
-* Use **sat -t** to duplicate the logs in the terminal (by default the log are stored and displayed with *sat log* command): ::
+* Use *sat -t* to duplicate the logs in the terminal (by default the log are stored and displayed with *sat log* command): ::
 
     sat -t compile <application> --products <product1>
 
@@ -33,7 +35,7 @@ Usage
 
     sat compile <application> --products GEOM  --clean_all
 
-  .. note:: | a warning will be shown if option --products is missing
+  .. note:: | a warning will be shown if option *--products* is missing
             | (as it will clean everything)
 
 * Clean only the install directories before starting compilation: ::
@@ -44,19 +46,19 @@ Usage
 
     sat compile <application> --products <product> --make_flags <flags>
 
-* Use the --check option to execute the unit tests after compilation: ::
+* Use the *--check* option to execute the unit tests after compilation: ::
 
     sat compile <application> --check
 
-* Remove the build directory after successful compilation (some build directory like qt are big!): ::
+* Remove the build directory after successful compilation (some build directory like qt are big): ::
 
     sat compile <application> --products qt --clean_build_after
 
-* Stop the compilation as soon as a the compilation of a module fails: ::
+* Stop the compilation as soon as the compilation of a module fails: ::
   
     sat compile <product> --stop_first_fail
 
-* Do not compile! just show if products are installed or not, and where is the installation: ::
+* Do not compile, just show if products are installed or not, and where is the installation: ::
 
     sat compile <application> --show
 
@@ -64,7 +66,7 @@ Usage
 Some useful configuration pathes
 =================================
 
-The way to compile a product is defined in the product configuration file (pyconf).
+The way to compile a product is defined in the *pyconf file configuration*.
 The main options are: 
 
   * **build_source** : the method used to build the product (cmake/autotools/script)

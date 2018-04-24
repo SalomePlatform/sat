@@ -1,4 +1,6 @@
-****************
+
+.. include:: ../../rst_prolog.rst
+
 Command generate
 ****************
 
@@ -27,11 +29,11 @@ Usage
 
 * Generate only specific modules: ::
 
-    sat generate <application> --products <list of products>
+    sat generate <application> --products <list_of_products>
 
   Remark: modules which don't have the *generate* property are ignored.
 
 * Use a specific version of YACSGEN: ::
 
-    sat generate <application> --yacsgen <path to yacsgen>
+    sat generate <application> --yacsgen <path_to_yacsgen>
 

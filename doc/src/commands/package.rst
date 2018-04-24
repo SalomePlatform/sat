@@ -26,7 +26,7 @@ Usage
     sat package SALOME_xx
     
   This command will create an archive named ``SALOME_xx.tgz`` 
-  in the working directory (``$USER.workDir``).
+  in the working directory (``USER.workDir``).
   If the archive already exists, do nothing.
 
 
@@ -35,7 +35,7 @@ Usage
     sat package SALOME_xx --name YourSpecificName
 
 .. note::
-    By default, the archive is created in the working directory of the user (``$USER.workDir``).
+    By default, the archive is created in the working directory of the user (``USER.workDir``).
     If the option *name* is used with a path (relative or absolute) it will be used.
     If the option *name* is not used and binaries (prerequisites and products) are
     included in the package, the OS_ architecture
@@ -68,7 +68,7 @@ Usage
 
 * Do not delete Version Control System (VCS_) informations from the configurations files of the embedded salomeTools: ::
 
-    sat package <product> --with_vcs
+    sat package SALOME_xx --with_vcs
 
   The version control systems known by this option are CVS_, SVN_ and Git_.
 

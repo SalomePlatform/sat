@@ -1,10 +1,12 @@
 
+.. include:: ../../rst_prolog.rst
+
 Command launcher
 ******************
 
 Description
 ===========
-The **launcher** command creates a SALOME launcher (a python command to start SALOME).
+The **launcher** command creates a SALOME launcher, a python script file to start SALOME_.
 
 
 Usage
@@ -15,11 +17,11 @@ Usage
     
   Generate a launcher in the application directory, i.e ``$APPLICATION.workdir``.
 
-* Create a launcher with a given name (default name is APPLICATION.profile.launcher_name) ::
+* Create a launcher with a given name (default name is ``APPLICATION.profile.launcher_name``) ::
 
     sat launcher <application> --name ZeLauncher
 
-  The launcher will called ZeLauncher.
+  The launcher will be called *ZeLauncher*.
 
 * Set a specific resources catalog: ::
 
@@ -45,6 +47,6 @@ Some useful configuration pathes:
 
 * **APPLICATION.profile**
 
-  * **product**: the name of the profile product (the product in charge of holding the application stuff, like logos, splashscreen)
-  * **launcher_name**: the name of the launcher.
+  * **product** : the name of the profile product (the product in charge of holding the application stuff, like logos, splashscreen)
+  * **launcher_name** : the name of the launcher.
 
