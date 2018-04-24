@@ -36,10 +36,12 @@ Usage
 
 .. note::
     By default, the archive is created in the working directory of the user (``USER.workDir``).
-    If the option *name* is used with a path (relative or absolute) it will be used.
-    If the option *name* is not used and binaries (prerequisites and products) are
-    included in the package, the OS_ architecture
-    will be appended to the name (example: *SALOME_xx-CO7.tgz*).
+    
+    If the option *--name* is used with a path (relative or absolute) it will be used.
+    
+    If the option *--name* is not used and binaries (prerequisites and products) 
+    are included in the package, the OS_ architecture
+    will be appended to the name (example: ``SALOME_xx-CO7.tgz``).
     
     Examples: ::
     
