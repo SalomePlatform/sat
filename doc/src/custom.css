@@ -16,7 +16,7 @@ set 'Note:' etc size less than titles
 div.admonition p.admonition-title {
     font-family: {{ theme_head_font_family }};
     font-weight: normal;
-    font-size: 18px;
+    font-size: 16px;
     margin: 0 0 10px 0;
     padding: 0;
     line-height: 1;
