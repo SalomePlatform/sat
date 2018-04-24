@@ -1,4 +1,8 @@
 
+.. raw:: latex
+
+    \clearpage
+
 
 .. _SALOME: http://www.salome-platform.org
 .. _SPHINX: http://sphinx-doc.org
