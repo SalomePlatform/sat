@@ -20,10 +20,12 @@ print "sphinx on file", __file__
 sys.path.append(os.path.join(currentPath, '..', '..'))
 
 # https://stackoverflow.com/questions/23462494/how-to-add-a-custom-css-file-to-sphinx
-def setup(app):
-    custom = os.path.join(currentPath, 'custom.css')
-    print "setup add_stylesheet", custom 
-    app.add_stylesheet(custom)
+# this needs realpath(custom), cause problem on relocated git clone, 
+# so use file link instead in _themes/alabaster: ln -s ../../../../src/custom.css custom.css
+# def setup(app):
+#     custom = os.path.join('src', 'custom.css')
+#     print "setup add_stylesheet\n  %s as\n  %s" % (custom, os.path.realpath(custom))
+#     app.add_stylesheet(os.path.realpath(custom))
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
