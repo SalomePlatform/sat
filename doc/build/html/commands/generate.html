@@ -1,0 +1,154 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Command generate &mdash; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="/volatile/wambeke/SAT5/SAT5_S840_MATIX24/SAT/doc/src/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../index.html" />
+    <link rel="next" title="Add a user custom command" href="../write_command.html" />
+    <link rel="prev" title="Command package" href="package.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="command-generate">
+<h1>Command generate<a class="headerlink" href="#command-generate" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>generate</strong> command generates and compile SALOME modules from cpp modules using YACSGEN.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This command uses YACSGEN to generate the module. It needs to be specified with <em>--yacsgen</em> option, or defined in the product or by the environment variable <tt class="docutils literal"><span class="pre">$YACSGEN_ROOT_DIR</span></tt>.</p>
+</div>
+</div>
+<div class="section" id="remarks">
+<h2>Remarks<a class="headerlink" href="#remarks" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">This command will only apply on the CPP modules of the application, those who have both properties:</p>
+<div class="highlight-python"><pre>cpp : "yes"
+generate : "yes"</pre>
+</div>
+</li>
+<li><p class="first">The cpp module are usually computational components, and the generated module brings the CORBA layer which allows distributing the compononent on remore machines. cpp modules should conform to YACSGEN/hxx2salome requirements (please refer to YACSGEN documentation)</p>
+</li>
+</ul>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Generate all the modules of a product:</p>
+<div class="highlight-python"><pre>sat generate &lt;application&gt;</pre>
+</div>
+</li>
+<li><p class="first">Generate only specific modules:</p>
+<div class="highlight-python"><pre>sat generate &lt;application&gt; --products &lt;list_of_products&gt;</pre>
+</div>
+<p>Remark: modules which don't have the <em>generate</em> property are ignored.</p>
+</li>
+<li><p class="first">Use a specific version of YACSGEN:</p>
+<div class="highlight-python"><pre>sat generate &lt;application&gt; --yacsgen &lt;path_to_yacsgen&gt;</pre>
+</div>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Command generate</a><ul>
+<li><a class="reference internal" href="#description">Description</a></li>
+<li><a class="reference internal" href="#remarks">Remarks</a></li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="package.html" title="previous chapter">Command package</a></li>
+      <li>Next: <a href="../write_command.html" title="next chapter">Add a user custom command</a></li>
+  </ul></li>
+</ul>
+</div>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/commands/generate.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster </a>
+      
+      |
+      <a href="../_sources/commands/generate.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

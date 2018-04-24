@@ -1,0 +1,964 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.fileEnviron &mdash; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="/volatile/wambeke/SAT5/SAT5_S840_MATIX24/SAT/doc/src/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.fileEnviron</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c">#-*- coding:utf-8 -*-</span>
+<span class="c">#  Copyright (C) 2010-2013  CEA/DEN</span>
+<span class="c">#</span>
+<span class="c">#  This library is free software; you can redistribute it and/or</span>
+<span class="c">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c">#  License as published by the Free Software Foundation; either</span>
+<span class="c">#  version 2.1 of the License.</span>
+<span class="c">#</span>
+<span class="c">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c">#  Lesser General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c">#  License along with this library; if not, write to the Free Software</span>
+<span class="c">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pprint</span> <span class="kn">as</span> <span class="nn">PP</span>
+<span class="kn">import</span> <span class="nn">src.debug</span> <span class="kn">as</span> <span class="nn">DBG</span>
+
+<span class="n">bat_header</span><span class="o">=</span><span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s">@echo off</span>
+
+<span class="s">rem The following variables are used only in case of a sat package</span>
+<span class="s">set out_dir_Path=%~dp0</span>
+<span class="s">set PRODUCT_OUT_DIR=</span><span class="si">%o</span><span class="s">ut_dir_Path%</span>
+<span class="s">set prereq_install_Path=</span><span class="si">%o</span><span class="s">ut_dir_Path%\PREREQUISITES\INSTALL</span>
+<span class="s">set prereq_build_Path=</span><span class="si">%o</span><span class="s">ut_dir_Path%\PREREQUISITES\BUILD</span>
+<span class="s">&quot;&quot;&quot;</span>
+
+
+<span class="n">bash_header</span><span class="o">=</span><span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s">#!/bin/bash</span>
+<span class="s">##########################################################################</span>
+<span class="s">#</span>
+<span class="s">#### cleandup ###</span>
+<span class="s"># cleanup a path (first parameter) from duplicated entries;</span>
+<span class="s"># second parameter is the separator</span>
+<span class="s">cleandup() {</span>
+<span class="s">out_var=`echo $1 | awk -v sep=$2 &#39;{                      </span><span class="se">\\</span><span class="s"></span>
+<span class="s">     na = split($1,a,sep);                               </span><span class="se">\\</span><span class="s"></span>
+<span class="s">     k=0;                                                </span><span class="se">\\</span><span class="s"></span>
+<span class="s">     for(i=0;i&lt;=na;i++) {                                </span><span class="se">\\</span><span class="s"></span>
+<span class="s">       found=0;                                          </span><span class="se">\\</span><span class="s"></span>
+<span class="s">       for(j=0;j&lt;k;j++) {                                </span><span class="se">\\</span><span class="s"></span>
+<span class="s">         if(a[i]==aa[j])                                 </span><span class="se">\\</span><span class="s"></span>
+<span class="s">         {                                               </span><span class="se">\\</span><span class="s"></span>
+<span class="s">           found=1;                                      </span><span class="se">\\</span><span class="s"></span>
+<span class="s">           break;                                        </span><span class="se">\\</span><span class="s"></span>
+<span class="s">         };                                              </span><span class="se">\\</span><span class="s"></span>
+<span class="s">       };                                                </span><span class="se">\\</span><span class="s"></span>
+<span class="s">       if(found==0) {                                    </span><span class="se">\\</span><span class="s"></span>
+<span class="s">         aa[k++]=a[i];                                   </span><span class="se">\\</span><span class="s"></span>
+<span class="s">       };                                                </span><span class="se">\\</span><span class="s"></span>
+<span class="s">     };                                                  </span><span class="se">\\</span><span class="s"></span>
+<span class="s">     ORS=sep;                                            </span><span class="se">\\</span><span class="s"></span>
+<span class="s">     for(i=0;i&lt;k;i++) {                                  </span><span class="se">\\</span><span class="s"></span>
+<span class="s">       print aa[i];                                      </span><span class="se">\\</span><span class="s"></span>
+<span class="s">     }                                                   </span><span class="se">\\</span><span class="s"></span>
+<span class="s">   }&#39; | sed -e &#39;s|</span><span class="se">\\</span><span class="s">(.*</span><span class="se">\\</span><span class="s">)$1|</span><span class="se">\\</span><span class="s">1|g&#39; -e &#39;s|^[:;]||&#39; -e &#39;s|[:;]$||&#39;`</span>
+<span class="s">echo $out_var</span>
+<span class="s">}</span>
+<span class="s">### clean ###</span>
+<span class="s">clean ()</span>
+<span class="s">{</span>
+<span class="s">xenv=`printenv $1`</span>
+<span class="s">out_var=`cleandup $xenv $2`</span>
+<span class="s">export $1=$out_var</span>
+<span class="s">}</span>
+
+<span class="s"># The 3 following variables are used only in case of a sat package</span>
+<span class="s">export out_dir_Path=$(cd $(dirname ${BASH_SOURCE[0]});pwd)</span>
+<span class="s">export PRODUCT_OUT_DIR=${out_dir_Path}</span>
+<span class="s">export PRODUCT_ROOT_DIR=${PRODUCT_OUT_DIR}</span>
+
+<span class="s">###########################################################################</span>
+<span class="s">&quot;&quot;&quot;</span>
+
+<span class="n">cfg_header</span><span class="o">=</span><span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s">[SALOME Configuration]</span>
+<span class="s">&quot;&quot;&quot;</span>
+
+<span class="n">Launcher_header</span><span class="o">=</span><span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s"># a generated SALOME Configuration file using python syntax</span>
+<span class="s">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="get_file_environ"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.get_file_environ">[docs]</a><span class="k">def</span> <span class="nf">get_file_environ</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">shell</span><span class="p">,</span> <span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Instantiate correct FileEnvironment sub-class.</span>
+<span class="sd">    </span>
+<span class="sd">    :param output file: the output file stream.</span>
+<span class="sd">    :param shell str: the type of shell syntax to use.</span>
+<span class="sd">    :param environ dict: a potential additional environment.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">shell</span> <span class="o">==</span> <span class="s">&quot;bash&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">BashFileEnviron</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">shell</span> <span class="o">==</span> <span class="s">&quot;bat&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">BatFileEnviron</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">shell</span> <span class="o">==</span> <span class="s">&quot;cfgForPy&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">LauncherFileEnviron</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">shell</span> <span class="o">==</span> <span class="s">&quot;cfg&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ContextFileEnviron</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;FileEnviron: Unknown shell = </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">shell</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="FileEnviron"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.FileEnviron">[docs]</a><span class="k">class</span> <span class="nc">FileEnviron</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">    Base class for shell environment</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Initialization</span>
+<span class="sd">        </span>
+<span class="sd">        :param output file: the output file stream.</span>
+<span class="sd">        :param environ dict: a potential additional environment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_do_init</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        easy non exhaustive quick resume for debug print&quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">{</span>
+          <span class="s">&quot;output&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">,</span>
+          <span class="s">&quot;environ&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">(</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">PP</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">res</span><span class="p">))</span>
+        
+
+    <span class="k">def</span> <span class="nf">_do_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Initialization</span>
+<span class="sd">        </span>
+<span class="sd">        :param output file: the output file stream.</span>
+<span class="sd">        :param environ dict: a potential additional environment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toclean</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">environ</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c">#if str(type(environ)) == &quot;&lt;type &#39;instance&#39;&gt;&quot;:</span>
+            <span class="k">if</span> <span class="nb">id</span><span class="p">(</span><span class="n">environ</span><span class="p">)</span> <span class="o">==</span> <span class="nb">id</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">):</span>
+               <span class="n">DBG</span><span class="o">.</span><span class="n">tofix</span><span class="p">(</span><span class="s">&quot;set </span><span class="si">%s</span><span class="s"> environ as python os.environ, are you sure it is safe ?&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environ</span> <span class="o">=</span> <span class="n">environ</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">DBG</span><span class="o">.</span><span class="n">tofix</span><span class="p">(</span><span class="s">&quot;set </span><span class="si">%s</span><span class="s"> environ as COPY of python os.environ, are you sure it is safe ?&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="bp">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environ</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">)</span> <span class="c">#make a copy cvw 180320</span>
+
+<div class="viewcode-block" id="FileEnviron.add_line"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.FileEnviron.add_line">[docs]</a>    <span class="k">def</span> <span class="nf">add_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Add some empty lines in the shell file</span>
+<span class="sd">        </span>
+<span class="sd">        :param number int: the number of lines to add</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">*</span> <span class="n">number</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="FileEnviron.add_comment"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.FileEnviron.add_comment">[docs]</a>    <span class="k">def</span> <span class="nf">add_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Add a comment in the shell file</span>
+<span class="sd">        </span>
+<span class="sd">        :param comment str: the comment to add</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;# </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">comment</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="FileEnviron.add_echo"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.FileEnviron.add_echo">[docs]</a>    <span class="k">def</span> <span class="nf">add_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Add a &quot;echo&quot; in the shell file</span>
+<span class="sd">        </span>
+<span class="sd">        :param text str: the text to echo</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;echo </span><span class="si">%s</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">text</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="FileEnviron.add_warning"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.FileEnviron.add_warning">[docs]</a>    <span class="k">def</span> <span class="nf">add_warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">warning</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Add a warning &quot;echo&quot; in the shell file</span>
+<span class="sd">        </span>
+<span class="sd">        :param warning str: the text to echo</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;echo &quot;WARNING </span><span class="si">%s</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">warning</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="FileEnviron.append_value"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.FileEnviron.append_value">[docs]</a>    <span class="k">def</span> <span class="nf">append_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        append value to key using sep</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to append</span>
+<span class="sd">        :param value str: the value to append to key</span>
+<span class="sd">        :param sep str: the separator string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="n">sep</span> <span class="o">+</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">toclean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toclean</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">sep</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="FileEnviron.append"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.FileEnviron.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Same as append_value but the value argument can be a list</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to append</span>
+<span class="sd">        :param value str or list: the value(s) to append to key</span>
+<span class="sd">        :param sep str: the separator string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append_value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append_value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="FileEnviron.prepend_value"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.FileEnviron.prepend_value">[docs]</a>    <span class="k">def</span> <span class="nf">prepend_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        prepend value to key using sep</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to prepend</span>
+<span class="sd">        :param value str: the value to prepend to key</span>
+<span class="sd">        :param sep str: the separator string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="o">+</span> <span class="n">sep</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">toclean</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toclean</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">key</span><span class="p">,</span> <span class="n">sep</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="FileEnviron.prepend"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.FileEnviron.prepend">[docs]</a>    <span class="k">def</span> <span class="nf">prepend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Same as prepend_value but the value argument can be a list</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to prepend</span>
+<span class="sd">        :param value str or list: the value(s) to prepend to key</span>
+<span class="sd">        :param sep str: the separator string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prepend_value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prepend_value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="FileEnviron.is_defined"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.FileEnviron.is_defined">[docs]</a>    <span class="k">def</span> <span class="nf">is_defined</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Check if the key exists in the environment</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to check</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="FileEnviron.set"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.FileEnviron.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Set the environment variable &#39;key&#39; to value &#39;value&#39;</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to set</span>
+<span class="sd">        :param value str: the value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;set is not implement for this shell!&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="FileEnviron.get"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.FileEnviron.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Get the value of the environment variable &quot;key&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s">&#39;${</span><span class="si">%s</span><span class="s">}&#39;</span> <span class="o">%</span> <span class="n">key</span>
+</div>
+<div class="viewcode-block" id="FileEnviron.command_value"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.FileEnviron.command_value">[docs]</a>    <span class="k">def</span> <span class="nf">command_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Get the value given by the system command &quot;command&quot; </span>
+<span class="sd">        and put it in the environment variable key.</span>
+<span class="sd">        Has to be overwritten in the derived classes</span>
+<span class="sd">        This can be seen as a virtual method</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable</span>
+<span class="sd">        :param command str: the command to execute</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;command_value is not implement &quot;</span>
+                                  <span class="s">&quot;for this shell!&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="FileEnviron.finish"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.FileEnviron.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a final instruction in the out file (in case of file generation)</span>
+<span class="sd">        </span>
+<span class="sd">        :param required bool: Do nothing if required is False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">toclean</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">sep</span> <span class="o">!=</span> <span class="s">&#39; &#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;clean </span><span class="si">%s</span><span class="s"> &quot;</span><span class="si">%s</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sep</span><span class="p">))</span>
+</div></div>
+<div class="viewcode-block" id="BashFileEnviron"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.BashFileEnviron">[docs]</a><span class="k">class</span> <span class="nc">BashFileEnviron</span><span class="p">(</span><span class="n">FileEnviron</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">    Class for bash shell.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialization</span>
+<span class="sd">        </span>
+<span class="sd">        :param output file: the output file stream.</span>
+<span class="sd">        :param environ dict: a potential additional environment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_do_init</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">bash_header</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BashFileEnviron.set"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.BashFileEnviron.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the environment variable &quot;key&quot; to value &quot;value&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to set</span>
+<span class="sd">        :param value str: the value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;export </span><span class="si">%s</span><span class="s">=&quot;</span><span class="si">%s</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+<div class="viewcode-block" id="BashFileEnviron.command_value"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.BashFileEnviron.command_value">[docs]</a>    <span class="k">def</span> <span class="nf">command_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Get the value given by the system command &quot;command&quot; </span>
+<span class="sd">        and put it in the environment variable key.</span>
+<span class="sd">        Has to be overwritten in the derived classes</span>
+<span class="sd">        This can be seen as a virtual method</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable</span>
+<span class="sd">        :param command str: the command to execute</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;export </span><span class="si">%s</span><span class="s">=$(</span><span class="si">%s</span><span class="s">)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">command</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="BashFileEnviron.finish"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.BashFileEnviron.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a final instruction in the out file (in case of file generation)</span>
+<span class="sd">        </span>
+<span class="sd">        :param required bool: Do nothing if required is False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">required</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">FileEnviron</span><span class="o">.</span><span class="n">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">required</span><span class="p">)</span>
+        </div></div>
+<div class="viewcode-block" id="BatFileEnviron"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.BatFileEnviron">[docs]</a><span class="k">class</span> <span class="nc">BatFileEnviron</span><span class="p">(</span><span class="n">FileEnviron</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">    for Windows batch shell.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialization</span>
+<span class="sd">        </span>
+<span class="sd">        :param output file: the output file stream.</span>
+<span class="sd">        :param environ dict: a potential additional environment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_do_init</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">bat_header</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BatFileEnviron.add_comment"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.BatFileEnviron.add_comment">[docs]</a>    <span class="k">def</span> <span class="nf">add_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a comment in the shell file</span>
+<span class="sd">        </span>
+<span class="sd">        :param comment str: the comment to add</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;rem </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">comment</span><span class="p">)</span>
+    </div>
+<div class="viewcode-block" id="BatFileEnviron.get"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.BatFileEnviron.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the value of the environment variable &quot;key&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s">&#39;</span><span class="si">%%%s%%</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">key</span>
+    </div>
+<div class="viewcode-block" id="BatFileEnviron.set"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.BatFileEnviron.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the environment variable &quot;key&quot; to value &quot;value&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to set</span>
+<span class="sd">        :param value str: the value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;set </span><span class="si">%s</span><span class="s">=</span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+<div class="viewcode-block" id="BatFileEnviron.command_value"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.BatFileEnviron.command_value">[docs]</a>    <span class="k">def</span> <span class="nf">command_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Get the value given by the system command &quot;command&quot; </span>
+<span class="sd">        and put it in the environment variable key.</span>
+<span class="sd">        Has to be overwritten in the derived classes</span>
+<span class="sd">        This can be seen as a virtual method</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable</span>
+<span class="sd">        :param command str: the command to execute</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s"> &gt; tmp.txt</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">command</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;set /p </span><span class="si">%s</span><span class="s"> =&lt; tmp.txt</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="BatFileEnviron.finish"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.BatFileEnviron.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Add a final instruction in the out file (in case of file generation)</span>
+<span class="sd">        In the particular windows case, do nothing</span>
+<span class="sd">        </span>
+<span class="sd">        :param required bool: Do nothing if required is False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>
+</div></div>
+<div class="viewcode-block" id="ContextFileEnviron"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ContextFileEnviron">[docs]</a><span class="k">class</span> <span class="nc">ContextFileEnviron</span><span class="p">(</span><span class="n">FileEnviron</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class for a salome context configuration file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialization</span>
+<span class="sd">        </span>
+<span class="sd">        :param output file: the output file stream.</span>
+<span class="sd">        :param environ dict: a potential additional environment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_do_init</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">cfg_header</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ContextFileEnviron.set"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ContextFileEnviron.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the environment variable &quot;key&quot; to value &quot;value&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to set</span>
+<span class="sd">        :param value str: the value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;</span><span class="si">%s</span><span class="s">=&quot;</span><span class="si">%s</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+<div class="viewcode-block" id="ContextFileEnviron.get"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ContextFileEnviron.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the value of the environment variable &quot;key&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s">&#39;%({0})s&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ContextFileEnviron.command_value"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ContextFileEnviron.command_value">[docs]</a>    <span class="k">def</span> <span class="nf">command_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Get the value given by the system command &quot;command&quot; </span>
+<span class="sd">        and put it in the environment variable key.</span>
+<span class="sd">        Has to be overwritten in the derived classes</span>
+<span class="sd">        This can be seen as a virtual method</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable</span>
+<span class="sd">        :param command str: the command to execute</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s">&quot;command_value is not implement &quot;</span>
+                                  <span class="s">&quot;for salome context files!&quot;</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ContextFileEnviron.add_echo"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ContextFileEnviron.add_echo">[docs]</a>    <span class="k">def</span> <span class="nf">add_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a comment</span>
+<span class="sd">        </span>
+<span class="sd">        :param text str: the comment to add</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ContextFileEnviron.add_warning"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ContextFileEnviron.add_warning">[docs]</a>    <span class="k">def</span> <span class="nf">add_warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">warning</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a warning</span>
+<span class="sd">        </span>
+<span class="sd">        :param text str: the warning to add</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s">&quot;WARNING </span><span class="si">%s</span><span class="s">&quot;</span>  <span class="o">%</span> <span class="n">warning</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ContextFileEnviron.prepend_value"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ContextFileEnviron.prepend_value">[docs]</a>    <span class="k">def</span> <span class="nf">prepend_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;prepend value to key using sep</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to prepend</span>
+<span class="sd">        :param value str: the value to prepend to key</span>
+<span class="sd">        :param sep str: the separator string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;ADD_TO_</span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ContextFileEnviron.append_value"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ContextFileEnviron.append_value">[docs]</a>    <span class="k">def</span> <span class="nf">append_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;append value to key using sep</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to append</span>
+<span class="sd">        :param value str: the value to append to key</span>
+<span class="sd">        :param sep str: the separator string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepend_value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ContextFileEnviron.finish"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ContextFileEnviron.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a final instruction in the out file (in case of file generation)</span>
+<span class="sd">        </span>
+<span class="sd">        :param required bool: Do nothing if required is False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>
+</div></div>
+<div class="viewcode-block" id="special_path_separator"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.special_path_separator">[docs]</a><span class="k">def</span> <span class="nf">special_path_separator</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">    TCLLIBPATH, TKLIBPATH, PV_PLUGIN_PATH environments variables need</span>
+<span class="sd">    some exotic path separator.</span>
+<span class="sd">    This function gives the separator regarding the name of the variable</span>
+<span class="sd">    to append or prepend.</span>
+<span class="sd">       </span>
+<span class="sd">    :param name str: The name of the variable to find the separator</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">special_blanks_keys</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;TCLLIBPATH&quot;</span><span class="p">,</span> <span class="s">&quot;TKLIBPATH&quot;</span><span class="p">]</span>
+    <span class="n">special_semicolon_keys</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;PV_PLUGIN_PATH&quot;</span><span class="p">]</span>
+    <span class="n">res</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">pathsep</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">special_blanks_keys</span><span class="p">:</span> <span class="n">res</span><span class="o">=</span><span class="s">&quot; &quot;</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">special_semicolon_keys</span><span class="p">:</span> <span class="n">res</span><span class="o">=</span><span class="s">&quot;;&quot;</span>
+    <span class="k">return</span> <span class="n">res</span>
+</div>
+<div class="viewcode-block" id="LauncherFileEnviron"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron">[docs]</a><span class="k">class</span> <span class="nc">LauncherFileEnviron</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">    Class to generate a launcher file script </span>
+<span class="sd">    (in python syntax) SalomeContext API</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialization</span>
+<span class="sd">        </span>
+<span class="sd">        :param output file: the output file stream.</span>
+<span class="sd">        :param environ dict: a potential additional environment.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">output</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toclean</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">environ</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environ</span> <span class="o">=</span> <span class="n">environ</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environ</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span>
+        <span class="c"># Initialize some variables</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s">&quot;PATH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;PATH&quot;</span><span class="p">]</span><span class="o">=</span><span class="s">&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s">&quot;LD_LIBRARY_PATH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">]</span><span class="o">=</span><span class="s">&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s">&quot;PYTHONPATH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;PYTHONPATH&quot;</span><span class="p">]</span><span class="o">=</span><span class="s">&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s">&quot;TCLLIBPATH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;TCLLIBPATH&quot;</span><span class="p">]</span><span class="o">=</span><span class="s">&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s">&quot;TKLIBPATH&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s">&quot;TKLIBPATH&quot;</span><span class="p">]</span><span class="o">=</span><span class="s">&quot;&quot;</span>
+
+        <span class="c"># four whitespaces for first indentation in a python script</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indent</span><span class="o">=</span><span class="s">&quot;    &quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">=</span><span class="s">&quot;context.&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setVarEnv</span><span class="o">=</span><span class="s">&quot;setVariable&quot;</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">begin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">indent</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">prefix</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">Launcher_header</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specialKeys</span><span class="o">=</span><span class="p">{</span><span class="s">&quot;PATH&quot;</span><span class="p">:</span> <span class="s">&quot;Path&quot;</span><span class="p">,</span>
+                          <span class="s">&quot;LD_LIBRARY_PATH&quot;</span><span class="p">:</span> <span class="s">&quot;LdLibraryPath&quot;</span><span class="p">,</span>
+                          <span class="s">&quot;PYTHONPATH&quot;</span><span class="p">:</span> <span class="s">&quot;PythonPath&quot;</span><span class="p">}</span>
+
+<div class="viewcode-block" id="LauncherFileEnviron.change_to_launcher"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron.change_to_launcher">[docs]</a>    <span class="k">def</span> <span class="nf">change_to_launcher</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">res</span><span class="o">=</span><span class="n">value</span>
+        <span class="k">return</span> <span class="n">res</span>
+</div>
+<div class="viewcode-block" id="LauncherFileEnviron.add_line"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron.add_line">[docs]</a>    <span class="k">def</span> <span class="nf">add_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add some empty lines in the launcher file</span>
+<span class="sd">        </span>
+<span class="sd">        :param number int: the number of lines to add</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">*</span> <span class="n">number</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LauncherFileEnviron.add_echo"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron.add_echo">[docs]</a>    <span class="k">def</span> <span class="nf">add_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a comment</span>
+<span class="sd">        </span>
+<span class="sd">        :param text str: the comment to add</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;# </span><span class="si">%s</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">text</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LauncherFileEnviron.add_warning"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron.add_warning">[docs]</a>    <span class="k">def</span> <span class="nf">add_warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">warning</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a warning</span>
+<span class="sd">        </span>
+<span class="sd">        :param text str: the warning to add</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&#39;# &quot;WARNING </span><span class="si">%s</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">warning</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LauncherFileEnviron.append_value"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron.append_value">[docs]</a>    <span class="k">def</span> <span class="nf">append_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">&quot;:&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;append value to key using sep</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to append</span>
+<span class="sd">        :param value str: the value to append to key</span>
+<span class="sd">        :param sep str: the separator string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LauncherFileEnviron.append"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">&quot;:&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Same as append_value but the value argument can be a list</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to append</span>
+<span class="sd">        :param value str or list: the value(s) to append to key</span>
+<span class="sd">        :param sep str: the separator string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append_value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">append_value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LauncherFileEnviron.prepend_value"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron.prepend_value">[docs]</a>    <span class="k">def</span> <span class="nf">prepend_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">&quot;:&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;prepend value to key using sep</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to prepend</span>
+<span class="sd">        :param value str: the value to prepend to key</span>
+<span class="sd">        :param sep str: the separator string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_defined</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span> <span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LauncherFileEnviron.prepend"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron.prepend">[docs]</a>    <span class="k">def</span> <span class="nf">prepend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">&quot;:&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Same as prepend_value but the value argument can be a list</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to prepend</span>
+<span class="sd">        :param value str or list: the value(s) to prepend to key</span>
+<span class="sd">        :param sep str: the separator string</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prepend_value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">sep</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">prepend_value</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LauncherFileEnviron.is_defined"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron.is_defined">[docs]</a>    <span class="k">def</span> <span class="nf">is_defined</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if the key exists in the environment</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to check</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="LauncherFileEnviron.get"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the value of the environment variable &quot;key&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s">&#39;${</span><span class="si">%s</span><span class="s">}&#39;</span> <span class="o">%</span> <span class="n">key</span>
+</div>
+<div class="viewcode-block" id="LauncherFileEnviron.set"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the environment variable &quot;key&quot; to value &quot;value&quot;</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to set</span>
+<span class="sd">        :param value str: the value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">begin</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">setVarEnv</span><span class="o">+</span>
+                          <span class="s">&#39;(r&quot;</span><span class="si">%s</span><span class="s">&quot;, r&quot;</span><span class="si">%s</span><span class="s">&quot;, overwrite=True)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> 
+                          <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_to_launcher</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+    </div>
+<div class="viewcode-block" id="LauncherFileEnviron.add"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;prepend value to key using sep</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable to prepend</span>
+<span class="sd">        :param value str: the value to prepend to key</span>
+<span class="sd">        &quot;&quot;&quot;</span>     
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">specialKeys</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">begin</span><span class="o">+</span><span class="s">&#39;addTo</span><span class="si">%s</span><span class="s">(r&quot;</span><span class="si">%s</span><span class="s">&quot;)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> 
+                              <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specialKeys</span><span class="p">[</span><span class="n">key</span><span class="p">],</span>
+                               <span class="bp">self</span><span class="o">.</span><span class="n">change_to_launcher</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">+=</span><span class="s">&quot;:&quot;</span><span class="o">+</span><span class="n">value</span>
+            <span class="k">return</span>
+        <span class="n">sep</span><span class="o">=</span><span class="n">special_path_separator</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indent</span><span class="o">+</span>
+                          <span class="s">&#39;#temporary solution!!! have to be defined in API a &#39;</span>
+                          <span class="s">&#39;?dangerous? addToSpecial(r&quot;</span><span class="si">%s</span><span class="s">&quot;, r&quot;</span><span class="si">%s</span><span class="s">&quot;)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> 
+                          <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="c">#pathsep not precised because do not know future os launch?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">begin</span><span class="o">+</span><span class="s">&#39;addToSpecial(r&quot;</span><span class="si">%s</span><span class="s">&quot;, r&quot;</span><span class="si">%s</span><span class="s">&quot;)</span><span class="se">\n</span><span class="s">&#39;</span> 
+                          <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_to_launcher</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">+=</span><span class="n">sep</span><span class="o">+</span><span class="n">value</span> <span class="c">#here yes we know os for current execution</span>
+</div>
+<div class="viewcode-block" id="LauncherFileEnviron.command_value"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron.command_value">[docs]</a>    <span class="k">def</span> <span class="nf">command_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Get the value given by the system command &quot;command&quot; </span>
+<span class="sd">        and put it in the environment variable key.</span>
+<span class="sd">        </span>
+<span class="sd">        :param key str: the environment variable</span>
+<span class="sd">        :param command str: the command to execute</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indent</span><span class="o">+</span><span class="s">&#39;#`</span><span class="si">%s</span><span class="s">`</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">command</span><span class="p">)</span>
+
+        <span class="kn">import</span> <span class="nn">shlex</span><span class="o">,</span> <span class="nn">subprocess</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+        <span class="n">res</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">,</span> <span class="n">__</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">communicate</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">begin</span><span class="o">+</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">setVarEnv</span><span class="o">+</span>
+                          <span class="s">&#39;(r&quot;</span><span class="si">%s</span><span class="s">&quot;, r&quot;</span><span class="si">%s</span><span class="s">&quot;, overwrite=True)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">out</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="LauncherFileEnviron.add_comment"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron.add_comment">[docs]</a>    <span class="k">def</span> <span class="nf">add_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="c"># Special comment in case of the distène licence</span>
+        <span class="k">if</span> <span class="n">comment</span><span class="o">==</span><span class="s">&quot;DISTENE license&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indent</span><span class="o">+</span>
+                              <span class="s">&quot;#&quot;</span><span class="o">+</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">+</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">setVarEnv</span><span class="o">+</span>
+                              <span class="s">&#39;(r&quot;</span><span class="si">%s</span><span class="s">&quot;, r&quot;</span><span class="si">%s</span><span class="s">&quot;, overwrite=True)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> 
+                              <span class="p">(</span><span class="s">&#39;DISTENE_LICENSE_FILE&#39;</span><span class="p">,</span> 
+                               <span class="bp">self</span><span class="o">.</span><span class="n">change_to_launcher</span><span class="p">(</span>
+                                            <span class="s">&#39;Use global envvar: DLIM8VAR&#39;</span><span class="p">)))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indent</span><span class="o">+</span>
+                              <span class="s">&quot;#&quot;</span><span class="o">+</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">prefix</span><span class="o">+</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">setVarEnv</span><span class="o">+</span>
+                              <span class="s">&#39;(r&quot;</span><span class="si">%s</span><span class="s">&quot;, r&quot;</span><span class="si">%s</span><span class="s">&quot;, overwrite=True)</span><span class="se">\n</span><span class="s">&#39;</span> <span class="o">%</span> 
+                              <span class="p">(</span><span class="s">&#39;DLIM8VAR&#39;</span><span class="p">,</span> 
+                               <span class="bp">self</span><span class="o">.</span><span class="n">change_to_launcher</span><span class="p">(</span>
+                                                <span class="s">&#39;&lt;your licence&gt;&#39;</span><span class="p">)))</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="s">&quot;setting environ for&quot;</span> <span class="ow">in</span> <span class="n">comment</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indent</span><span class="o">+</span><span class="s">&quot;#[</span><span class="si">%s</span><span class="s">]</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> 
+                              <span class="n">comment</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;setting environ for &quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">indent</span><span class="o">+</span><span class="s">&quot;# </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">comment</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="LauncherFileEnviron.finish"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.LauncherFileEnviron.finish">[docs]</a>    <span class="k">def</span> <span class="nf">finish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">        Add a final instruction in the out file (in case of file generation)</span>
+<span class="sd">        In the particular launcher case, do nothing</span>
+<span class="sd">        </span>
+<span class="sd">        :param required bool: Do nothing if required is False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>
+</div></div>
+<div class="viewcode-block" id="ScreenEnviron"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ScreenEnviron">[docs]</a><span class="k">class</span> <span class="nc">ScreenEnviron</span><span class="p">(</span><span class="n">FileEnviron</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_do_init</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">environ</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defined</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="ScreenEnviron.add_line"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ScreenEnviron.add_line">[docs]</a>    <span class="k">def</span> <span class="nf">add_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="ScreenEnviron.add_comment"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ScreenEnviron.add_comment">[docs]</a>    <span class="k">def</span> <span class="nf">add_comment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comment</span><span class="p">):</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="ScreenEnviron.add_echo"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ScreenEnviron.add_echo">[docs]</a>    <span class="k">def</span> <span class="nf">add_echo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="ScreenEnviron.add_warning"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ScreenEnviron.add_warning">[docs]</a>    <span class="k">def</span> <span class="nf">add_warning</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">warning</span><span class="p">):</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="ScreenEnviron.write"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ScreenEnviron.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sign</span><span class="o">=</span><span class="s">&quot;=&quot;</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">src</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;  </span><span class="si">%s%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> \
+            <span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">printcolors</span><span class="o">.</span><span class="n">printcLabel</span><span class="p">(</span><span class="n">command</span><span class="p">),</span>
+             <span class="s">&quot; &quot;</span> <span class="o">*</span> <span class="p">(</span><span class="mi">12</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">command</span><span class="p">)),</span>
+             <span class="n">src</span><span class="o">.</span><span class="n">printcolors</span><span class="o">.</span><span class="n">printcInfo</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="n">sign</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="ScreenEnviron.is_defined"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ScreenEnviron.is_defined">[docs]</a>    <span class="k">def</span> <span class="nf">is_defined</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">defined</span><span class="o">.</span><span class="n">has_key</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ScreenEnviron.get"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ScreenEnviron.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&quot;${</span><span class="si">%s</span><span class="s">}&quot;</span> <span class="o">%</span> <span class="n">name</span>
+</div>
+<div class="viewcode-block" id="ScreenEnviron.set"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ScreenEnviron.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;set&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defined</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+</div>
+<div class="viewcode-block" id="ScreenEnviron.prepend"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ScreenEnviron.prepend">[docs]</a>    <span class="k">def</span> <span class="nf">prepend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">&quot;:&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span> <span class="o">+</span> <span class="n">sep</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;prepend&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ScreenEnviron.append"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ScreenEnviron.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s">&quot;:&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">sep</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">+</span> <span class="n">sep</span> <span class="o">+</span> <span class="n">value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;append&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="ScreenEnviron.command_value"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ScreenEnviron.command_value">[docs]</a>    <span class="k">def</span> <span class="nf">command_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="ScreenEnviron.run_env_script"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fileEnviron.ScreenEnviron.run_env_script">[docs]</a>    <span class="k">def</span> <span class="nf">run_env_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">module</span><span class="p">,</span> <span class="n">script</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;load&quot;</span><span class="p">,</span> <span class="n">script</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">sign</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">)</span>
+
+<span class="c"># The SALOME launcher template </span></div></div>
+<span class="n">withProfile</span> <span class="o">=</span>  <span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s"> #! /usr/bin/env python</span>
+
+<span class="s">################################################################</span>
+<span class="s"># WARNING: this file is automatically generated by SalomeTools #</span>
+<span class="s"># WARNING: and so could be overwritten at any time.            #</span>
+<span class="s">################################################################</span>
+
+<span class="s">import os</span>
+<span class="s">import sys</span>
+<span class="s">import subprocess</span>
+
+
+<span class="s"># Add the pwdPath to able to run the launcher after unpacking a package</span>
+<span class="s"># Used only in case of a salomeTools package</span>
+<span class="s">out_dir_Path=os.path.abspath(os.path.dirname(__file__))</span>
+
+<span class="s"># Preliminary work to initialize path to SALOME Python modules</span>
+<span class="s">def __initialize():</span>
+
+<span class="s">  sys.path[:0] = [ &#39;BIN_KERNEL_INSTALL_DIR&#39; ]</span>
+<span class="s">  os.environ[&#39;ABSOLUTE_APPLI_PATH&#39;] = &#39;KERNEL_INSTALL_DIR&#39;</span>
+<span class="s">  </span>
+<span class="s">  # define folder to store omniorb config (initially in virtual application folder)</span>
+<span class="s">  try:</span>
+<span class="s">    from salomeContextUtils import setOmniOrbUserPath</span>
+<span class="s">    setOmniOrbUserPath()</span>
+<span class="s">  except Exception, e:</span>
+<span class="s">    print e</span>
+<span class="s">    sys.exit(1)</span>
+<span class="s"># End of preliminary work</span>
+
+<span class="s"># salome doc only works for virtual applications. Therefore we overwrite it with this function</span>
+<span class="s">def _showDoc(modules):</span>
+<span class="s">    for module in modules:</span>
+<span class="s">      modulePath = os.getenv(module+&quot;_ROOT_DIR&quot;)</span>
+<span class="s">      if modulePath != None:</span>
+<span class="s">        baseDir = os.path.join(modulePath, &quot;share&quot;, &quot;doc&quot;, &quot;salome&quot;)</span>
+<span class="s">        docfile = os.path.join(baseDir, &quot;gui&quot;, module.upper(), &quot;index.html&quot;)</span>
+<span class="s">        if not os.path.isfile(docfile):</span>
+<span class="s">          docfile = os.path.join(baseDir, &quot;tui&quot;, module.upper(), &quot;index.html&quot;)</span>
+<span class="s">        if not os.path.isfile(docfile):</span>
+<span class="s">          docfile = os.path.join(baseDir, &quot;dev&quot;, module.upper(), &quot;index.html&quot;)</span>
+<span class="s">        if os.path.isfile(docfile):</span>
+<span class="s">          out, err = subprocess.Popen([&quot;xdg-open&quot;, docfile]).communicate()</span>
+<span class="s">        else:</span>
+<span class="s">          print &quot;Online documentation is not accessible for module:&quot;, module</span>
+<span class="s">      else:</span>
+<span class="s">        print module+&quot;_ROOT_DIR not found!&quot;</span>
+
+<span class="s">def main(args):</span>
+<span class="s">  # Identify application path then locate configuration files</span>
+<span class="s">  __initialize()</span>
+
+<span class="s">  if args == [&#39;--help&#39;]:</span>
+<span class="s">    from salomeContext import usage</span>
+<span class="s">    usage()</span>
+<span class="s">    sys.exit(0)</span>
+
+<span class="s">  #from salomeContextUtils import getConfigFileNames</span>
+<span class="s">  #configFileNames, args, unexisting = getConfigFileNames( args, checkExistence=True )</span>
+<span class="s">  #if len(unexisting) &gt; 0:</span>
+<span class="s">  #  print &quot;ERROR: unexisting configuration file(s): &quot; + &#39;, &#39;.join(unexisting)</span>
+<span class="s">  #  sys.exit(1)</span>
+
+<span class="s">  # Create a SalomeContext which parses configFileNames to initialize environment</span>
+<span class="s">  try:</span>
+<span class="s">    from salomeContext import SalomeContext, SalomeContextException</span>
+<span class="s">    SalomeContext.addToSpecial=addToSpecial</span>
+<span class="s">    context = SalomeContext(None)</span>
+<span class="s">    </span>
+<span class="s">    # Here set specific variables, if needed</span>
+<span class="s">    # context.addToPath(&#39;mypath&#39;)</span>
+<span class="s">    # context.addToLdLibraryPath(&#39;myldlibrarypath&#39;)</span>
+<span class="s">    # context.addToPythonPath(&#39;mypythonpath&#39;)</span>
+<span class="s">    # context.setVariable(&#39;myvarname&#39;, &#39;value&#39;)</span>
+
+<span class="s">    # Logger level error</span>
+<span class="s">    context.getLogger().setLevel(40)</span>
+
+<span class="s">    context.setVariable(r&quot;PRODUCT_ROOT_DIR&quot;, out_dir_Path, overwrite=True)</span>
+<span class="s">    # here your local standalone environment</span>
+
+<span class="s">    if len(args) &gt;1 and args[0]==&#39;doc&#39;:</span>
+<span class="s">        _showDoc(args[1:])</span>
+<span class="s">        return</span>
+
+<span class="s">    # Start SALOME, parsing command line arguments</span>
+<span class="s">    context.runSalome(args)</span>
+<span class="s">    #print &#39;Thank you for using SALOME!&#39;</span>
+
+<span class="s">    # Logger level info</span>
+<span class="s">    context.getLogger().setLevel(20)</span>
+
+<span class="s">  except SalomeContextException, e:</span>
+<span class="s">    import logging</span>
+<span class="s">    logging.getLogger(&quot;salome&quot;).error(e)</span>
+<span class="s">    sys.exit(1)</span>
+<span class="s">#</span>
+<span class="s">def addToSpecial(self, name, value, pathSep=None):</span>
+<span class="s">  # add special dangerous cases: TCLLIBPATH PV_PLUGIN_PATH etc...</span>
+<span class="s">  # http://computer-programming-forum.com/57-tcl/1dfddc136afccb94.htm</span>
+<span class="s">  # TCLLIBPATH: Tcl treats the contents of that variable as a list. Be happy, for you can now use drive letters on windows.</span>
+<span class="s">  if value == &#39;&#39;:</span>
+<span class="s">    return</span>
+<span class="s">  </span>
+<span class="s">  specialBlanksKeys=[&quot;TCLLIBPATH&quot;, &quot;TKLIBPATH&quot;]</span>
+<span class="s">  specialSemicolonKeys=[&quot;PV_PLUGIN_PATH&quot;]</span>
+<span class="s">  res=os.pathsep</span>
+<span class="s">  if name in specialBlanksKeys: res=&quot; &quot;</span>
+<span class="s">  if name in specialSemicolonKeys: res=&quot;;&quot;</span>
+<span class="s">  </span>
+<span class="s">  if pathSep==None:</span>
+<span class="s">    sep=res</span>
+<span class="s">  else:</span>
+<span class="s">    sep=pathSep</span>
+<span class="s">  value = os.path.expandvars(value) # expand environment variables</span>
+<span class="s">  self.getLogger().debug(&quot;Add to </span><span class="si">%s</span><span class="s">: </span><span class="si">%s</span><span class="s">&quot;, name, value)</span>
+<span class="s">  env = os.getenv(name, None)</span>
+<span class="s">  if env is None:</span>
+<span class="s">    os.environ[name] = value</span>
+<span class="s">  else:</span>
+<span class="s">    os.environ[name] = value + sep + env #explicitely or not special path separator ?whitespace, semicolon?</span>
+
+<span class="s">if __name__ == &quot;__main__&quot;:</span>
+<span class="s">  args = sys.argv[1:]</span>
+<span class="s">  main(args)</span>
+<span class="s">#</span>
+<span class="s">&quot;&quot;&quot;</span>
+    
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster </a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

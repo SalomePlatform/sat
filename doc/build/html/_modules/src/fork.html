@@ -1,0 +1,256 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.fork &mdash; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="/volatile/wambeke/SAT5/SAT5_S840_MATIX24/SAT/doc/src/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.fork</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c">#-*- coding:utf-8 -*-</span>
+<span class="c">#  Copyright (C) 2010-2013  CEA/DEN</span>
+<span class="c">#</span>
+<span class="c">#  This library is free software; you can redistribute it and/or</span>
+<span class="c">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c">#  License as published by the Free Software Foundation; either</span>
+<span class="c">#  version 2.1 of the License.</span>
+<span class="c">#</span>
+<span class="c">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c">#  Lesser General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c">#  License along with this library; if not, write to the Free Software</span>
+<span class="c">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+
+<div class="viewcode-block" id="show_progress"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fork.show_progress">[docs]</a><span class="k">def</span> <span class="nf">show_progress</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">delai</span><span class="p">,</span> <span class="n">ss</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;shortcut function to display the progression</span>
+<span class="sd">    </span>
+<span class="sd">    :param logger Logger: The logging instance</span>
+<span class="sd">    :param top int: the number to display</span>
+<span class="sd">    :param delai int: the number max</span>
+<span class="sd">    :param ss str: the string to display</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\r</span><span class="si">%s</span><span class="se">\r</span><span class="si">%s</span><span class="s"> </span><span class="si">%s</span><span class="s"> / </span><span class="si">%s</span><span class="s"> &quot;</span> <span class="o">%</span> <span class="p">((</span><span class="s">&quot; &quot;</span> <span class="o">*</span> <span class="mi">30</span><span class="p">),</span> <span class="n">ss</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="p">(</span><span class="n">delai</span> <span class="o">-</span> <span class="n">top</span><span class="p">)),</span> <span class="mi">4</span><span class="p">,</span>
+                 <span class="bp">False</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+</div>
+<div class="viewcode-block" id="write_back"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fork.write_back">[docs]</a><span class="k">def</span> <span class="nf">write_back</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;shortcut function to write at the begin of the line</span>
+<span class="sd">    </span>
+<span class="sd">    :param logger Logger: The logging instance</span>
+<span class="sd">    :param message str: the text to display</span>
+<span class="sd">    :param level int: the level of verbosity</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\r</span><span class="si">%s</span><span class="se">\r</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">((</span><span class="s">&quot; &quot;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">),</span> <span class="n">message</span><span class="p">),</span> <span class="n">level</span><span class="p">)</span>
+
+<span class="c"># Launch command</span>
+<span class="c"># --------------</span></div>
+<div class="viewcode-block" id="launch_command"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fork.launch_command">[docs]</a><span class="k">def</span> <span class="nf">launch_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[],</span> <span class="n">log</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">log</span><span class="p">:</span>
+        <span class="n">log</span> <span class="o">=</span> <span class="nb">file</span><span class="p">(</span><span class="n">log</span><span class="p">,</span> <span class="s">&quot;a&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;launch: </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">cmd</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">screenOnly</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
+        <span class="n">cmd</span> <span class="o">+=</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">arg</span>
+    <span class="n">prs</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span>
+                           <span class="n">shell</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+                           <span class="n">stdout</span><span class="o">=</span><span class="n">log</span><span class="p">,</span>
+                           <span class="n">stderr</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">,</span>
+                           <span class="n">cwd</span><span class="o">=</span><span class="n">cwd</span><span class="p">,</span>
+                           <span class="n">executable</span><span class="o">=</span><span class="s">&#39;/bin/bash&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">prs</span>
+
+<span class="c"># Launch a batch</span>
+<span class="c"># --------------</span></div>
+<div class="viewcode-block" id="batch"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fork.batch">[docs]</a><span class="k">def</span> <span class="nf">batch</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[],</span> <span class="n">log</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">delai</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">sommeil</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="n">proc</span> <span class="o">=</span> <span class="n">launch_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
+    <span class="n">top</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">softspace</span> <span class="o">=</span> <span class="bp">True</span>
+    <span class="n">begin</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="k">while</span> <span class="n">proc</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">begin</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">show_progress</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">delai</span><span class="p">,</span> <span class="s">&quot;batch:&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">top</span> <span class="o">==</span> <span class="n">delai</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;batch: time out KILL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="kn">import</span> <span class="nn">signal</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">kill</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span> <span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">)</span>
+                <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">begin</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">sommeil</span><span class="p">)</span>
+                <span class="n">top</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">write_back</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="s">&quot;batch: exit (</span><span class="si">%s</span><span class="s">)</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">returncode</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">proc</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span> <span class="n">top</span>
+
+<span class="c"># Launch a salome process</span>
+<span class="c"># -----------------------</span></div>
+<div class="viewcode-block" id="batch_salome"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.fork.batch_salome">[docs]</a><span class="k">def</span> <span class="nf">batch_salome</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">getTmpDir</span><span class="p">,</span>
+    <span class="n">pendant</span><span class="o">=</span><span class="s">&quot;SALOME_Session_Server&quot;</span><span class="p">,</span> <span class="n">fin</span><span class="o">=</span><span class="s">&quot;killSalome.py&quot;</span><span class="p">,</span>
+    <span class="n">log</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">delai</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">sommeil</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">delaiapp</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+
+    <span class="n">beginTime</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    <span class="n">launch_command</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">logger</span><span class="p">,</span> <span class="n">cwd</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">delaiapp</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">delaiapp</span> <span class="o">=</span> <span class="n">delai</span>
+
+    <span class="c"># first launch salome (looking for .pidict file)</span>
+    <span class="n">top</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">found</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">getTmpDir</span><span class="p">()</span>
+    <span class="k">while</span> <span class="p">(</span><span class="ow">not</span> <span class="n">found</span> <span class="ow">and</span> <span class="n">top</span> <span class="o">&lt;</span> <span class="n">delaiapp</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">):</span>
+            <span class="n">listFile</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">listFile</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">file_name</span> <span class="ow">in</span> <span class="n">listFile</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">file_name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s">&quot;pidict&quot;</span><span class="p">):</span>
+                <span class="c"># sometime we get a old file that will be removed by runSalome.</span>
+                <span class="c"># So we test that we can read it.</span>
+                <span class="n">currentTime</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">statinfo</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">))</span>
+                    <span class="n">currentTime</span> <span class="o">=</span> <span class="n">statinfo</span><span class="o">.</span><span class="n">st_mtime</span>
+                <span class="k">except</span><span class="p">:</span> <span class="k">pass</span>
+
+                <span class="k">if</span> <span class="n">currentTime</span> <span class="ow">and</span> <span class="n">currentTime</span> <span class="o">&gt;</span> <span class="n">beginTime</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">file_</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="n">file_name</span><span class="p">),</span> <span class="s">&quot;r&quot;</span><span class="p">)</span>
+                        <span class="n">process_ids</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file_</span><span class="p">)</span>
+                        <span class="n">file_</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                        <span class="k">for</span> <span class="n">process_id</span> <span class="ow">in</span> <span class="n">process_ids</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">__</span><span class="p">,</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">process_id</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                                <span class="k">if</span> <span class="n">cmd</span> <span class="o">==</span> <span class="p">[</span><span class="n">pendant</span><span class="p">]:</span>
+                                    <span class="n">found</span> <span class="o">=</span> <span class="bp">True</span>
+                                    <span class="n">pidictFile</span> <span class="o">=</span> <span class="n">file_name</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="n">file_</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">sommeil</span><span class="p">)</span>
+        <span class="n">top</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">show_progress</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">delaiapp</span><span class="p">,</span> <span class="s">&quot;launching salome or appli:&quot;</span><span class="p">)</span>
+
+    <span class="c"># continue or not</span>
+    <span class="k">if</span> <span class="n">found</span><span class="p">:</span>
+        <span class="n">write_back</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="s">&quot;batch_salome: started</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;batch_salome: FAILED to launch salome or appli</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">False</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="c"># salome launched run the script</span>
+    <span class="n">top</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">while</span> <span class="n">code</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">show_progress</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">delai</span><span class="p">,</span> <span class="s">&quot;running salome or appli:&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">access</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">,</span> <span class="n">pidictFile</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">F_OK</span><span class="p">):</span>
+            <span class="n">write_back</span><span class="p">(</span><span class="n">logger</span><span class="p">,</span> <span class="s">&quot;batch_salome: exit</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">elif</span> <span class="n">top</span> <span class="o">&gt;=</span> <span class="n">delai</span><span class="p">:</span>
+            <span class="c"># timeout kill the test</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">fin</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;batch_salome: time out KILL</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+            <span class="n">code</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c"># still waiting</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">sommeil</span><span class="p">)</span>
+            <span class="n">top</span> <span class="o">=</span> <span class="n">top</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">code</span><span class="p">,</span> <span class="n">top</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster </a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

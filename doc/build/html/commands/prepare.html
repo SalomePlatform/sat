@@ -1,0 +1,211 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Command prepare &mdash; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="/volatile/wambeke/SAT5/SAT5_S840_MATIX24/SAT/doc/src/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../index.html" />
+    <link rel="next" title="Command compile" href="compile.html" />
+    <link rel="prev" title="Command config" href="config.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="command-prepare">
+<h1>Command prepare<a class="headerlink" href="#command-prepare" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>prepare</strong> command brings the sources of an application in the <em>sources
+application directory</em>, in order to compile them with the compile command.</p>
+<p>The sources can be prepared from VCS software (<em>cvs, svn, git</em>), an archive or a directory.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">When sat prepares a product, it first removes the
+existing directory, except if the development mode is activated.
+When you are working on a product, you need to declare in
+the application configuration this product in <strong>dev</strong> mode.</p>
+</div>
+</div>
+<div class="section" id="remarks">
+<h2>Remarks<a class="headerlink" href="#remarks" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="vcs-bases-git-svn-cvs">
+<h3>VCS bases (git, svn, cvs)<a class="headerlink" href="#vcs-bases-git-svn-cvs" title="Permalink to this headline">¶</a></h3>
+<p>The <em>prepare</em> command does not manage authentication on the cvs server.
+For example, to prepare modules from a cvs server, you first need to login once.</p>
+<p>To avoid typing a password for each product,
+you may use a ssh key with passphrase, or store your password
+(in .cvspass or .gitconfig files).
+If you have security concerns, it is also possible to use
+a bash agent and type your password only once.</p>
+</div>
+<div class="section" id="dev-mode">
+<h3>Dev mode<a class="headerlink" href="#dev-mode" title="Permalink to this headline">¶</a></h3>
+<p>By default <em>prepare</em> uses <em>export</em> mode: it creates an image
+of the sources, corresponding to the tag or branch specified,
+without any link to the VCS base.
+To perform a <em>checkout</em> (svn, cvs) or a <em>git clone</em> (git),
+you need to declare the product in dev mode in your application configuration:
+edit the application configuration file (pyconf) and modify the product declaration:</p>
+<div class="highlight-bash"><div class="highlight"><pre>sat config &lt;application&gt; -e
+<span class="c"># and edit the product section:</span>
+<span class="c">#   &lt;product&gt; : {tag : &quot;my_tag&quot;, dev : &quot;yes&quot;, debug : &quot;yes&quot;}</span>
+</pre></div>
+</div>
+<p>The first time you will execute the <em>sat prepare</em> command,
+your module will be downloaded in <em>checkout</em> mode
+(inside the SOURCES directory of the application.
+Then, you can develop in this repository, and finally push
+them in the base when they are ready.
+If you type during the development process by mistake
+a <em>sat prepare</em> command, the sources in dev mode will
+not be altered/removed (Unless you use -f option)</p>
+</div>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Prepare the sources of a complete application in SOURCES directory (all products):</p>
+<div class="highlight-python"><pre>sat prepare &lt;application&gt;</pre>
+</div>
+</li>
+<li><p class="first">Prepare only some modules:</p>
+<div class="highlight-python"><pre>sat prepare &lt;application&gt;  --products &lt;product1&gt;,&lt;product2&gt; ...</pre>
+</div>
+</li>
+<li><p class="first">Use --force to force to prepare the products in development mode
+(this will remove the sources and do a new clone/checkout):</p>
+<div class="highlight-python"><pre>sat prepare &lt;application&gt; --force</pre>
+</div>
+</li>
+<li><p class="first">Use --force_patch to force to apply patch to the products
+in development mode (otherwise they are not applied):</p>
+<div class="highlight-python"><pre>sat prepare &lt;application&gt; --force_patch</pre>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="some-useful-configuration-pathes">
+<h2>Some useful configuration pathes<a class="headerlink" href="#some-useful-configuration-pathes" title="Permalink to this headline">¶</a></h2>
+<p>Command <em>sat prepare</em> uses the <em>pyconf file configuration</em> of each product to know how to get the sources.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>to verify configuration of a product, and get name of this <em>pyconf files configuration</em></p>
+<div class="last highlight-bash"><div class="highlight"><pre>sat config &lt;application&gt; --info &lt;product&gt;
+</pre></div>
+</div>
+</div>
+<ul class="simple">
+<li><strong>get_method</strong>: the method to use to prepare the module, possible values are cvs, git, archive, dir.</li>
+<li><strong>git_info</strong> : (used if get_method = git) information to prepare sources from git.</li>
+<li><strong>svn_info</strong> : (used if get_method = svn) information to prepare sources from cvs.</li>
+<li><strong>cvs_info</strong> : (used if get_method = cvs) information to prepare sources from cvs.</li>
+<li><strong>archive_info</strong> : (used if get_method = archive) the path to the archive.</li>
+<li><strong>dir_info</strong> : (used if get_method = dir) the directory with the sources.</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Command prepare</a><ul>
+<li><a class="reference internal" href="#description">Description</a></li>
+<li><a class="reference internal" href="#remarks">Remarks</a><ul>
+<li><a class="reference internal" href="#vcs-bases-git-svn-cvs">VCS bases (git, svn, cvs)</a></li>
+<li><a class="reference internal" href="#dev-mode">Dev mode</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#some-useful-configuration-pathes">Some useful configuration pathes</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="config.html" title="previous chapter">Command config</a></li>
+      <li>Next: <a href="compile.html" title="next chapter">Command compile</a></li>
+  </ul></li>
+</ul>
+</div>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/commands/prepare.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster </a>
+      
+      |
+      <a href="../_sources/commands/prepare.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,297 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.debug &mdash; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="/volatile/wambeke/SAT5/SAT5_S840_MATIX24/SAT/doc/src/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
+    <link rel="up" title="Module code" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.debug</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c">#-*- coding:utf-8 -*-</span>
+
+<span class="c">#  Copyright (C) 2010-2018  CEA/DEN</span>
+<span class="c">#</span>
+<span class="c">#  This library is free software; you can redistribute it and/or</span>
+<span class="c">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c">#  License as published by the Free Software Foundation; either</span>
+<span class="c">#  version 2.1 of the License.</span>
+<span class="c">#</span>
+<span class="c">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c">#  Lesser General Public License for more details.</span>
+<span class="c">#</span>
+<span class="c">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c">#  License along with this library; if not, write to the Free Software</span>
+<span class="c">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+
+<span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">This file assume DEBUG functionalities use</span>
+
+<span class="sd">- print debug messages in sys.stderr for salomeTools</span>
+<span class="sd">- show pretty print debug representation from instances of SAT classes</span>
+<span class="sd">  (pretty print src.pyconf.Config), and python dict/list etc. (as &#39;aVariable&#39;)</span>
+
+<span class="sd">WARNING: obviously supposedly show messages in SAT development phase, not production</span>
+
+<span class="sd">usage:</span>
+<span class="sd">&gt;&gt; import debug as DBG</span>
+<span class="sd">&gt;&gt; DBG.write(&quot;aTitle&quot;, aVariable)        # not shown in production </span>
+<span class="sd">&gt;&gt; DBG.write(&quot;aTitle&quot;, aVariable, True)  # unconditionaly shown (as show=True)</span>
+
+<span class="sd">to set show message as development phase:</span>
+<span class="sd">&gt;&gt; DBG.push_debug(True)</span>
+
+<span class="sd">to set no show message as production phase:</span>
+<span class="sd">&gt;&gt; DBG.push_debug(False)</span>
+
+<span class="sd">to set show message temporary as development phase, only in a method:</span>
+<span class="sd">&gt;&gt; def aMethodToDebug(...):</span>
+<span class="sd">&gt;&gt;   DBG.push_debug(True)              #force show as appended status</span>
+<span class="sd">&gt;&gt;   etc. method code with some DBG.write()</span>
+<span class="sd">&gt;&gt;   DBG.pop_debug()                   #restore previous status (show or not show)</span>
+<span class="sd">&gt;&gt;   return</span>
+
+<span class="sd">to set a message for future fix, as temporary problem to not forget:</span>
+<span class="sd">DBG.tofix(&quot;aTitle&quot;, aVariable, True/False) #True/False in production shown, or not</span>
+
+<span class="sd">in command line interface you could redirect stderr to file &#39;myDebug.log&#39;:</span>
+<span class="sd">&gt;&gt; sat compile ... 2&gt; myDebug.log   # only stderr</span>
+<span class="sd">&gt;&gt; sat compile ... &amp;&gt; myDebug.log   # stdout and stderr</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">StringIO</span> <span class="kn">as</span> <span class="nn">SIO</span>
+<span class="kn">import</span> <span class="nn">pprint</span> <span class="kn">as</span> <span class="nn">PP</span>
+
+<span class="n">_debug</span> <span class="o">=</span> <span class="p">[</span><span class="bp">False</span><span class="p">]</span> <span class="c">#support push/pop for temporary activate debug outputs</span>
+
+<div class="viewcode-block" id="indent"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.debug.indent">[docs]</a><span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">amount</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ch</span><span class="o">=</span><span class="s">&#39; &#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;indent multi lines message&quot;&quot;&quot;</span>
+    <span class="n">padding</span> <span class="o">=</span> <span class="n">amount</span> <span class="o">*</span> <span class="n">ch</span>
+    <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">padding</span> <span class="o">+</span> <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">splitlines</span><span class="p">(</span><span class="bp">True</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="write"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.debug.write">[docs]</a><span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">var</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">#### DEBUG: </span><span class="si">%s</span><span class="s">:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;write sys.stderr a message if _debug[-1]==True or optionaly force=True&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">_debug</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">or</span> <span class="n">force</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s">&#39;src.pyconf.&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">var</span><span class="p">)):</span> 
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fmt</span> <span class="o">%</span> <span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">indent</span><span class="p">(</span><span class="n">getStrConfigDbg</span><span class="p">(</span><span class="n">var</span><span class="p">))))</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">var</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fmt</span> <span class="o">%</span> <span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">indent</span><span class="p">(</span><span class="n">PP</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">var</span><span class="p">))))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fmt</span> <span class="o">%</span> <span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">indent</span><span class="p">(</span><span class="n">var</span><span class="p">)))</span>
+    <span class="k">return</span>
+</div>
+<div class="viewcode-block" id="tofix"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.debug.tofix">[docs]</a><span class="k">def</span> <span class="nf">tofix</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">var</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">force</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">    write sys.stderr a message if _debug[-1]==True or optionaly force=True</span>
+<span class="sd">    use this only if no logger accessible for classic </span>
+<span class="sd">    logger.warning(message) or logger.debug(message)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fmt</span> <span class="o">=</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">#### TOFIX: </span><span class="si">%s</span><span class="s">:</span><span class="se">\n</span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span>
+    <span class="n">write</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="n">force</span><span class="p">,</span> <span class="n">fmt</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="push_debug"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.debug.push_debug">[docs]</a><span class="k">def</span> <span class="nf">push_debug</span><span class="p">(</span><span class="n">aBool</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;set debug outputs activated, or not&quot;&quot;&quot;</span>
+    <span class="n">_debug</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">aBool</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="pop_debug"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.debug.pop_debug">[docs]</a><span class="k">def</span> <span class="nf">pop_debug</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;restore previous debug outputs status&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">_debug</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_debug</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="se">\n</span><span class="s">ERROR: pop_debug: too much pop.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+<span class="c">###############################################</span>
+<span class="c"># utilitaires divers pour debug</span>
+<span class="c">###############################################</span>
+</div>
+<div class="viewcode-block" id="OutStream"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.debug.OutStream">[docs]</a><span class="k">class</span> <span class="nc">OutStream</span><span class="p">(</span><span class="n">SIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;utility class for pyconf.Config output iostream&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="OutStream.close"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.debug.OutStream.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+      <span class="sd">&quot;&quot;&quot;because Config.__save__ calls close() stream as file</span>
+<span class="sd">      keep value before lost as self.value</span>
+<span class="sd">      &quot;&quot;&quot;</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span>
+      <span class="n">SIO</span><span class="o">.</span><span class="n">StringIO</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+    </div></div>
+<div class="viewcode-block" id="InStream"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.debug.InStream">[docs]</a><span class="k">class</span> <span class="nc">InStream</span><span class="p">(</span><span class="n">SIO</span><span class="o">.</span><span class="n">StringIO</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;utility class for pyconf.Config input iostream&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</div>
+<div class="viewcode-block" id="getLocalEnv"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.debug.getLocalEnv">[docs]</a><span class="k">def</span> <span class="nf">getLocalEnv</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;get string for environment variables representation&quot;&quot;&quot;</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">+=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s"> : </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">res</span>
+
+<span class="c"># save as initial Config.save() moved as Config.__save__() </span></div>
+<div class="viewcode-block" id="saveConfigStd"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.debug.saveConfigStd">[docs]</a><span class="k">def</span> <span class="nf">saveConfigStd</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">aStream</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;returns as file .pyconf&quot;&quot;&quot;</span>
+    <span class="n">indent</span> <span class="o">=</span>  <span class="mi">0</span>
+    <span class="n">config</span><span class="o">.</span><span class="n">__save__</span><span class="p">(</span><span class="n">aStream</span><span class="p">,</span> <span class="n">indent</span><span class="p">)</span> 
+</div>
+<div class="viewcode-block" id="getStrConfigStd"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.debug.getStrConfigStd">[docs]</a><span class="k">def</span> <span class="nf">getStrConfigStd</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;set string as saveConfigStd, as file .pyconf&quot;&quot;&quot;</span>
+    <span class="n">outStream</span> <span class="o">=</span> <span class="n">OutStream</span><span class="p">()</span>
+    <span class="n">saveConfigStd</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">outStream</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">outStream</span><span class="o">.</span><span class="n">value</span>
+</div>
+<div class="viewcode-block" id="getStrConfigDbg"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.debug.getStrConfigDbg">[docs]</a><span class="k">def</span> <span class="nf">getStrConfigDbg</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;\</span>
+<span class="sd">    set string as saveConfigDbg, </span>
+<span class="sd">    as (path expression evaluation) for debug</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">outStream</span> <span class="o">=</span> <span class="n">OutStream</span><span class="p">()</span>
+    <span class="n">saveConfigDbg</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">outStream</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">outStream</span><span class="o">.</span><span class="n">value</span>
+</div>
+<div class="viewcode-block" id="saveConfigDbg"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.debug.saveConfigDbg">[docs]</a><span class="k">def</span> <span class="nf">saveConfigDbg</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">aStream</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;pyconf returns multilines (path expression evaluation) for debug&quot;&quot;&quot;</span>
+    <span class="n">_saveConfigRecursiveDbg</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">aStream</span><span class="p">,</span> <span class="n">indent</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+    <span class="n">aStream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span> <span class="c"># as config.__save__()</span>
+</div>
+<span class="k">def</span> <span class="nf">_saveConfigRecursiveDbg</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">aStream</span><span class="p">,</span> <span class="n">indent</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;pyconf inspired from Mapping.__save__&quot;&quot;&quot;</span>
+    <span class="n">debug</span> <span class="o">=</span> <span class="bp">False</span>
+    <span class="k">if</span> <span class="n">indent</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span> 
+      <span class="n">indentp</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">indentp</span> <span class="o">=</span> <span class="n">indentp</span> <span class="o">+</span> <span class="mi">2</span>
+    <span class="n">indstr</span> <span class="o">=</span> <span class="n">indent</span> <span class="o">*</span> <span class="s">&#39; &#39;</span> <span class="c"># &#39;&#39;:no indent, &#39; &#39;:indent</span>
+    <span class="n">strType</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">config</span><span class="p">))</span>
+    <span class="k">if</span> <span class="s">&quot;Sequence&quot;</span> <span class="ow">in</span> <span class="n">strType</span><span class="p">:</span>
+      <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="p">)):</span>
+        <span class="n">_saveConfigRecursiveDbg</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">aStream</span><span class="p">,</span> <span class="n">indentp</span><span class="p">,</span> <span class="n">path</span><span class="o">+</span><span class="s">&quot;[</span><span class="si">%i</span><span class="s">]&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+      <span class="k">return</span>
+    <span class="k">try</span><span class="p">:</span> 
+      <span class="n">order</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">__getattribute__</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s">&#39;order&#39;</span><span class="p">)</span>
+      <span class="n">data</span> <span class="o">=</span> <span class="nb">object</span><span class="o">.</span><span class="n">__getattribute__</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s">&#39;data&#39;</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+      <span class="n">aStream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s%s</span><span class="s"> : &#39;</span><span class="si">%s</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">indstr</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="p">)))</span>
+      <span class="k">return</span>     
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">order</span><span class="p">):</span>
+      <span class="n">value</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+      <span class="n">strType</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+      <span class="k">if</span> <span class="n">debug</span><span class="p">:</span> <span class="k">print</span> <span class="n">indstr</span> <span class="o">+</span> <span class="s">&#39;strType = </span><span class="si">%s</span><span class="s">&#39;</span> <span class="o">%</span> <span class="n">strType</span><span class="p">,</span> <span class="n">key</span>
+      <span class="k">if</span> <span class="s">&quot;Config&quot;</span> <span class="ow">in</span> <span class="n">strType</span><span class="p">:</span>
+        <span class="n">_saveConfigRecursiveDbg</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">aStream</span><span class="p">,</span> <span class="n">indentp</span><span class="p">,</span> <span class="n">path</span><span class="o">+</span><span class="s">&quot;.&quot;</span><span class="o">+</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">continue</span>
+      <span class="k">if</span> <span class="s">&quot;Mapping&quot;</span> <span class="ow">in</span> <span class="n">strType</span><span class="p">:</span>
+        <span class="n">_saveConfigRecursiveDbg</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">aStream</span><span class="p">,</span> <span class="n">indentp</span><span class="p">,</span> <span class="n">path</span><span class="o">+</span><span class="s">&quot;.&quot;</span><span class="o">+</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">continue</span>
+      <span class="k">if</span> <span class="s">&quot;Sequence&quot;</span> <span class="ow">in</span> <span class="n">strType</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)):</span>
+          <span class="n">_saveConfigRecursiveDbg</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">aStream</span><span class="p">,</span> <span class="n">indentp</span><span class="p">,</span> <span class="n">path</span><span class="o">+</span><span class="s">&quot;.&quot;</span><span class="o">+</span><span class="n">key</span><span class="o">+</span><span class="s">&quot;[</span><span class="si">%i</span><span class="s">]&quot;</span> <span class="o">%</span> <span class="n">i</span><span class="p">)</span>
+        <span class="k">continue</span>
+      <span class="k">if</span> <span class="s">&quot;Expression&quot;</span> <span class="ow">in</span> <span class="n">strType</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+          <span class="n">evaluate</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+          <span class="n">aStream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s%s</span><span class="s">.</span><span class="si">%s</span><span class="s"> : </span><span class="si">%s</span><span class="s"> --&gt; &#39;</span><span class="si">%s</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">indstr</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">evaluate</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>      
+          <span class="n">aStream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s%s</span><span class="s">.</span><span class="si">%s</span><span class="s"> : !!! ERROR: </span><span class="si">%s</span><span class="s"> !!!</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">indstr</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>     
+        <span class="k">continue</span>
+      <span class="k">if</span> <span class="s">&quot;Reference&quot;</span> <span class="ow">in</span> <span class="n">strType</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+          <span class="n">evaluate</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">resolve</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+          <span class="n">aStream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s%s</span><span class="s">.</span><span class="si">%s</span><span class="s"> : </span><span class="si">%s</span><span class="s"> --&gt; &#39;</span><span class="si">%s</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">indstr</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">evaluate</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>  
+          <span class="n">aStream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s%s</span><span class="s">.</span><span class="si">%s</span><span class="s"> : !!! ERROR: </span><span class="si">%s</span><span class="s"> !!!</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">indstr</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>     
+        <span class="k">continue</span>
+      <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="bp">None</span><span class="p">),</span> <span class="nb">unicode</span><span class="p">]:</span>
+        <span class="n">aStream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s%s</span><span class="s">.</span><span class="si">%s</span><span class="s"> : &#39;</span><span class="si">%s</span><span class="s">&#39;</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">indstr</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+        <span class="k">continue</span>
+      <span class="k">try</span><span class="p">:</span>
+        <span class="n">aStream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;!!! TODO fix that </span><span class="si">%s</span><span class="s"> </span><span class="si">%s%s</span><span class="s">.</span><span class="si">%s</span><span class="s"> : </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">indstr</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)))</span>
+      <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>      
+        <span class="n">aStream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s%s</span><span class="s">.</span><span class="si">%s</span><span class="s"> : !!! </span><span class="si">%s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">indstr</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="p">))</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster </a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

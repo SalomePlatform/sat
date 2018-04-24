@@ -1,0 +1,160 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Command launcher &mdash; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="/volatile/wambeke/SAT5/SAT5_S840_MATIX24/SAT/doc/src/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../index.html" />
+    <link rel="next" title="Command application" href="application.html" />
+    <link rel="prev" title="Command compile" href="compile.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="command-launcher">
+<h1>Command launcher<a class="headerlink" href="#command-launcher" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>launcher</strong> command creates a SALOME launcher, a python script file to start <a class="reference external" href="http://www.salome-platform.org">SALOME</a>.</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Create a launcher:</p>
+<div class="highlight-python"><pre>sat launcher &lt;application&gt;</pre>
+</div>
+<p>Generate a launcher in the application directory, i.e <tt class="docutils literal"><span class="pre">$APPLICATION.workdir</span></tt>.</p>
+</li>
+<li><p class="first">Create a launcher with a given name (default name is <tt class="docutils literal"><span class="pre">APPLICATION.profile.launcher_name</span></tt>)</p>
+<div class="highlight-python"><pre>sat launcher &lt;application&gt; --name ZeLauncher</pre>
+</div>
+<p>The launcher will be called <em>ZeLauncher</em>.</p>
+</li>
+<li><p class="first">Set a specific resources catalog:</p>
+<div class="highlight-python"><pre>sat launcher &lt;application&gt;  --catalog  &lt;path of a salome resources catalog&gt;</pre>
+</div>
+<p>Note that the catalog specified will be copied to the profile directory.</p>
+</li>
+<li><p class="first">Generate the catalog for a list of machines:</p>
+<div class="highlight-python"><pre>sat launcher &lt;application&gt; --gencat &lt;list of machines&gt;</pre>
+</div>
+<p>This will create a catalog by querying each machine (memory, number of processor) with ssh.</p>
+</li>
+<li><p class="first">Generate a mesa launcher (if mesa and llvm are parts of the application). Use this option only if you have to use salome through ssh and have problems with ssh X forwarding of OpengGL modules (like Paravis):</p>
+<div class="highlight-python"><pre>sat launcher &lt;application&gt; --use_mesa</pre>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="configuration">
+<h2>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h2>
+<p>Some useful configuration pathes:</p>
+<ul class="simple">
+<li><strong>APPLICATION.profile</strong><ul>
+<li><strong>product</strong> : the name of the profile product (the product in charge of holding the application stuff, like logos, splashscreen)</li>
+<li><strong>launcher_name</strong> : the name of the launcher.</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Command launcher</a><ul>
+<li><a class="reference internal" href="#description">Description</a></li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#configuration">Configuration</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="compile.html" title="previous chapter">Command compile</a></li>
+      <li>Next: <a href="application.html" title="next chapter">Command application</a></li>
+  </ul></li>
+</ul>
+</div>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/commands/launcher.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster </a>
+      
+      |
+      <a href="../_sources/commands/launcher.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

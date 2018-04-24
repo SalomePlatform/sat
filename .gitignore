@@ -7,7 +7,8 @@ sat-py3
 .pydevproject
 .project
 .settings
-doc/build
+# doc/build
+doc/build/latex/salomeTools.log
 .coverage
 test/htmlcov
 test/test_res.html

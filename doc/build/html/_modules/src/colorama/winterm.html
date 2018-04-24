@@ -1,0 +1,257 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>src.colorama.winterm &mdash; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="/volatile/wambeke/SAT5/SAT5_S840_MATIX24/SAT/doc/src/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../../index.html" />
+    <link rel="up" title="Module code" href="../../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for src.colorama.winterm</h1><div class="highlight"><pre>
+<span class="c"># Copyright Jonathan Hartley 2013. BSD 3-Clause license, see LICENSE file.</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">win32</span>
+
+
+<span class="c"># from wincon.h</span>
+<div class="viewcode-block" id="WinColor"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinColor">[docs]</a><span class="k">class</span> <span class="nc">WinColor</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">BLACK</span>   <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">BLUE</span>    <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">GREEN</span>   <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">CYAN</span>    <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">RED</span>     <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">MAGENTA</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">YELLOW</span>  <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">GREY</span>    <span class="o">=</span> <span class="mi">7</span>
+
+<span class="c"># from wincon.h</span></div>
+<div class="viewcode-block" id="WinStyle"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinStyle">[docs]</a><span class="k">class</span> <span class="nc">WinStyle</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">NORMAL</span>              <span class="o">=</span> <span class="mh">0x00</span> <span class="c"># dim text, dim background</span>
+    <span class="n">BRIGHT</span>              <span class="o">=</span> <span class="mh">0x08</span> <span class="c"># bright text, dim background</span>
+    <span class="n">BRIGHT_BACKGROUND</span>   <span class="o">=</span> <span class="mh">0x80</span> <span class="c"># dim text, bright background</span>
+</div>
+<div class="viewcode-block" id="WinTerm"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinTerm">[docs]</a><span class="k">class</span> <span class="nc">WinTerm</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">GetConsoleScreenBufferInfo</span><span class="p">(</span><span class="n">win32</span><span class="o">.</span><span class="n">STDOUT</span><span class="p">)</span><span class="o">.</span><span class="n">wAttributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_attrs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_fore</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_back</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_back</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_default_style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_style</span>
+        <span class="c"># In order to emulate LIGHT_EX in windows, we borrow the BRIGHT style.</span>
+        <span class="c"># So that LIGHT_EX colors and BRIGHT style do not clobber each other,</span>
+        <span class="c"># we track them separately, since LIGHT_EX is overwritten by Fore/Back</span>
+        <span class="c"># and BRIGHT is overwritten by Style codes.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_light</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="WinTerm.get_attrs"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinTerm.get_attrs">[docs]</a>    <span class="k">def</span> <span class="nf">get_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fore</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_back</span> <span class="o">*</span> <span class="mi">16</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_style</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">_light</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="WinTerm.set_attrs"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinTerm.set_attrs">[docs]</a>    <span class="k">def</span> <span class="nf">set_attrs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fore</span> <span class="o">=</span> <span class="n">value</span> <span class="o">&amp;</span> <span class="mi">7</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_back</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">7</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_style</span> <span class="o">=</span> <span class="n">value</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">WinStyle</span><span class="o">.</span><span class="n">BRIGHT</span> <span class="o">|</span> <span class="n">WinStyle</span><span class="o">.</span><span class="n">BRIGHT_BACKGROUND</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="WinTerm.reset_all"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinTerm.reset_all">[docs]</a>    <span class="k">def</span> <span class="nf">reset_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">on_stderr</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_attrs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_default</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_console</span><span class="p">(</span><span class="n">attrs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_default</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="WinTerm.fore"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinTerm.fore">[docs]</a>    <span class="k">def</span> <span class="nf">fore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fore</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">light</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">on_stderr</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">fore</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">fore</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_fore</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fore</span> <span class="o">=</span> <span class="n">fore</span>
+        <span class="c"># Emulate LIGHT_EX with BRIGHT Style</span>
+        <span class="k">if</span> <span class="n">light</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_light</span> <span class="o">|=</span> <span class="n">WinStyle</span><span class="o">.</span><span class="n">BRIGHT</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_light</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">WinStyle</span><span class="o">.</span><span class="n">BRIGHT</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_console</span><span class="p">(</span><span class="n">on_stderr</span><span class="o">=</span><span class="n">on_stderr</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="WinTerm.back"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinTerm.back">[docs]</a>    <span class="k">def</span> <span class="nf">back</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">back</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">light</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">on_stderr</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">back</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">back</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_back</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_back</span> <span class="o">=</span> <span class="n">back</span>
+        <span class="c"># Emulate LIGHT_EX with BRIGHT_BACKGROUND Style</span>
+        <span class="k">if</span> <span class="n">light</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_light</span> <span class="o">|=</span> <span class="n">WinStyle</span><span class="o">.</span><span class="n">BRIGHT_BACKGROUND</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_light</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">WinStyle</span><span class="o">.</span><span class="n">BRIGHT_BACKGROUND</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_console</span><span class="p">(</span><span class="n">on_stderr</span><span class="o">=</span><span class="n">on_stderr</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="WinTerm.style"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinTerm.style">[docs]</a>    <span class="k">def</span> <span class="nf">style</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">on_stderr</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">style</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">style</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_default_style</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_style</span> <span class="o">=</span> <span class="n">style</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_console</span><span class="p">(</span><span class="n">on_stderr</span><span class="o">=</span><span class="n">on_stderr</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="WinTerm.set_console"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinTerm.set_console">[docs]</a>    <span class="k">def</span> <span class="nf">set_console</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">on_stderr</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">attrs</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">attrs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_attrs</span><span class="p">()</span>
+        <span class="n">handle</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">STDOUT</span>
+        <span class="k">if</span> <span class="n">on_stderr</span><span class="p">:</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">STDERR</span>
+        <span class="n">win32</span><span class="o">.</span><span class="n">SetConsoleTextAttribute</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">attrs</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="WinTerm.get_position"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinTerm.get_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">):</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">GetConsoleScreenBufferInfo</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span><span class="o">.</span><span class="n">dwCursorPosition</span>
+        <span class="c"># Because Windows coordinates are 0-based,</span>
+        <span class="c"># and win32.SetConsoleCursorPosition expects 1-based.</span>
+        <span class="n">position</span><span class="o">.</span><span class="n">X</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">position</span><span class="o">.</span><span class="n">Y</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="n">position</span>
+</div>
+<div class="viewcode-block" id="WinTerm.set_cursor_position"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinTerm.set_cursor_position">[docs]</a>    <span class="k">def</span> <span class="nf">set_cursor_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">on_stderr</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">position</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="c"># I&#39;m not currently tracking the position, so there is no default.</span>
+            <span class="c"># position = self.get_position()</span>
+            <span class="k">return</span>
+        <span class="n">handle</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">STDOUT</span>
+        <span class="k">if</span> <span class="n">on_stderr</span><span class="p">:</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">STDERR</span>
+        <span class="n">win32</span><span class="o">.</span><span class="n">SetConsoleCursorPosition</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">position</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="WinTerm.cursor_adjust"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinTerm.cursor_adjust">[docs]</a>    <span class="k">def</span> <span class="nf">cursor_adjust</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">on_stderr</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="n">handle</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">STDOUT</span>
+        <span class="k">if</span> <span class="n">on_stderr</span><span class="p">:</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">STDERR</span>
+        <span class="n">position</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_position</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+        <span class="n">adjusted_position</span> <span class="o">=</span> <span class="p">(</span><span class="n">position</span><span class="o">.</span><span class="n">Y</span> <span class="o">+</span> <span class="n">y</span><span class="p">,</span> <span class="n">position</span><span class="o">.</span><span class="n">X</span> <span class="o">+</span> <span class="n">x</span><span class="p">)</span>
+        <span class="n">win32</span><span class="o">.</span><span class="n">SetConsoleCursorPosition</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">adjusted_position</span><span class="p">,</span> <span class="n">adjust</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="WinTerm.erase_screen"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinTerm.erase_screen">[docs]</a>    <span class="k">def</span> <span class="nf">erase_screen</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">on_stderr</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="c"># 0 should clear from the cursor to the end of the screen.</span>
+        <span class="c"># 1 should clear from the cursor to the beginning of the screen.</span>
+        <span class="c"># 2 should clear the entire screen, and move cursor to (1,1)</span>
+        <span class="n">handle</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">STDOUT</span>
+        <span class="k">if</span> <span class="n">on_stderr</span><span class="p">:</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">STDERR</span>
+        <span class="n">csbi</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">GetConsoleScreenBufferInfo</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+        <span class="c"># get the number of character cells in the current buffer</span>
+        <span class="n">cells_in_screen</span> <span class="o">=</span> <span class="n">csbi</span><span class="o">.</span><span class="n">dwSize</span><span class="o">.</span><span class="n">X</span> <span class="o">*</span> <span class="n">csbi</span><span class="o">.</span><span class="n">dwSize</span><span class="o">.</span><span class="n">Y</span>
+        <span class="c"># get number of character cells before current cursor position</span>
+        <span class="n">cells_before_cursor</span> <span class="o">=</span> <span class="n">csbi</span><span class="o">.</span><span class="n">dwSize</span><span class="o">.</span><span class="n">X</span> <span class="o">*</span> <span class="n">csbi</span><span class="o">.</span><span class="n">dwCursorPosition</span><span class="o">.</span><span class="n">Y</span> <span class="o">+</span> <span class="n">csbi</span><span class="o">.</span><span class="n">dwCursorPosition</span><span class="o">.</span><span class="n">X</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">from_coord</span> <span class="o">=</span> <span class="n">csbi</span><span class="o">.</span><span class="n">dwCursorPosition</span>
+            <span class="n">cells_to_erase</span> <span class="o">=</span> <span class="n">cells_in_screen</span> <span class="o">-</span> <span class="n">cells_before_cursor</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">from_coord</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">COORD</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">cells_to_erase</span> <span class="o">=</span> <span class="n">cells_before_cursor</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">from_coord</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">COORD</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">cells_to_erase</span> <span class="o">=</span> <span class="n">cells_in_screen</span>
+        <span class="c"># fill the entire screen with blanks</span>
+        <span class="n">win32</span><span class="o">.</span><span class="n">FillConsoleOutputCharacter</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="p">,</span> <span class="n">cells_to_erase</span><span class="p">,</span> <span class="n">from_coord</span><span class="p">)</span>
+        <span class="c"># now set the buffer&#39;s attributes accordingly</span>
+        <span class="n">win32</span><span class="o">.</span><span class="n">FillConsoleOutputAttribute</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_attrs</span><span class="p">(),</span> <span class="n">cells_to_erase</span><span class="p">,</span> <span class="n">from_coord</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c"># put the cursor where needed</span>
+            <span class="n">win32</span><span class="o">.</span><span class="n">SetConsoleCursorPosition</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="WinTerm.erase_line"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinTerm.erase_line">[docs]</a>    <span class="k">def</span> <span class="nf">erase_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">on_stderr</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+        <span class="c"># 0 should clear from the cursor to the end of the line.</span>
+        <span class="c"># 1 should clear from the cursor to the beginning of the line.</span>
+        <span class="c"># 2 should clear the entire line.</span>
+        <span class="n">handle</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">STDOUT</span>
+        <span class="k">if</span> <span class="n">on_stderr</span><span class="p">:</span>
+            <span class="n">handle</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">STDERR</span>
+        <span class="n">csbi</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">GetConsoleScreenBufferInfo</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">from_coord</span> <span class="o">=</span> <span class="n">csbi</span><span class="o">.</span><span class="n">dwCursorPosition</span>
+            <span class="n">cells_to_erase</span> <span class="o">=</span> <span class="n">csbi</span><span class="o">.</span><span class="n">dwSize</span><span class="o">.</span><span class="n">X</span> <span class="o">-</span> <span class="n">csbi</span><span class="o">.</span><span class="n">dwCursorPosition</span><span class="o">.</span><span class="n">X</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">from_coord</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">COORD</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">csbi</span><span class="o">.</span><span class="n">dwCursorPosition</span><span class="o">.</span><span class="n">Y</span><span class="p">)</span>
+            <span class="n">cells_to_erase</span> <span class="o">=</span> <span class="n">csbi</span><span class="o">.</span><span class="n">dwCursorPosition</span><span class="o">.</span><span class="n">X</span>
+        <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">from_coord</span> <span class="o">=</span> <span class="n">win32</span><span class="o">.</span><span class="n">COORD</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">csbi</span><span class="o">.</span><span class="n">dwCursorPosition</span><span class="o">.</span><span class="n">Y</span><span class="p">)</span>
+            <span class="n">cells_to_erase</span> <span class="o">=</span> <span class="n">csbi</span><span class="o">.</span><span class="n">dwSize</span><span class="o">.</span><span class="n">X</span>
+        <span class="c"># fill the entire screen with blanks</span>
+        <span class="n">win32</span><span class="o">.</span><span class="n">FillConsoleOutputCharacter</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="s">&#39; &#39;</span><span class="p">,</span> <span class="n">cells_to_erase</span><span class="p">,</span> <span class="n">from_coord</span><span class="p">)</span>
+        <span class="c"># now set the buffer&#39;s attributes accordingly</span>
+        <span class="n">win32</span><span class="o">.</span><span class="n">FillConsoleOutputAttribute</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_attrs</span><span class="p">(),</span> <span class="n">cells_to_erase</span><span class="p">,</span> <span class="n">from_coord</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="WinTerm.set_title"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.winterm.WinTerm.set_title">[docs]</a>    <span class="k">def</span> <span class="nf">set_title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+        <span class="n">win32</span><span class="o">.</span><span class="n">SetConsoleTitle</span><span class="p">(</span><span class="n">title</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster </a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

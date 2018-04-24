@@ -1,0 +1,198 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Command config &mdash; salomeTools 5.0.0dev documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="/volatile/wambeke/SAT5/SAT5_S840_MATIX24/SAT/doc/src/custom.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.0.0dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../index.html" />
+    <link rel="next" title="Command prepare" href="prepare.html" />
+    <link rel="prev" title="Usage of SAlomeTools" href="../usage_of_sat.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="command-config">
+<h1>Command config<a class="headerlink" href="#command-config" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="description">
+<h2>Description<a class="headerlink" href="#description" title="Permalink to this headline">¶</a></h2>
+<p>The <strong>config</strong> command manages sat configuration.
+It allows display, manipulation and operation on configuration files</p>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Edit the user personal configuration file <tt class="docutils literal"><span class="pre">$HOME/.salomeTools/SAT.pyconf</span></tt>. It is used to store the user personal choices, like the favorite editor, browser, pdf viewer:</p>
+<div class="highlight-python"><pre>sat config --edit</pre>
+</div>
+</li>
+<li><p class="first">List the available applications (they come from the sat projects defined in <tt class="docutils literal"><span class="pre">data/local.pyconf</span></tt>:</p>
+<div class="highlight-python"><pre>sat config --list</pre>
+</div>
+</li>
+<li><p class="first">Edit the configuration of an application:</p>
+<div class="highlight-python"><pre>sat config &lt;application&gt; --edit</pre>
+</div>
+</li>
+<li><p class="first">Copy an application configuration file into the user personal directory:</p>
+<div class="highlight-python"><pre>sat config &lt;application&gt; --copy [new_name]</pre>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">Print the value of a configuration parameter.</div>
+<div class="line">Use the automatic completion to get recursively the parameter names.</div>
+<div class="line">Use <em>--no_label</em> option to get <em>only</em> the value, <em>without</em> label (useful in automatic scripts).</div>
+<div class="line">Examples (with <em>SALOME-xx</em> as <em>SALOME-8.4.0</em> ):</div>
+</div>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># sat config --value &lt;parameter_path&gt;</span>
+sat config --value .         <span class="c"># all the configuration</span>
+sat config --value LOCAL
+sat config --value LOCAL.workdir
+
+<span class="c"># sat config &lt;application&gt; --value &lt;parameter_path&gt;</span>
+sat config SALOME-xx --value APPLICATION.workdir
+sat config SALOME-xx --no_label --value APPLICATION.workdir
+</pre></div>
+</div>
+</li>
+<li><div class="first line-block">
+<div class="line">Print in one-line-by-value mode the value of a configuration parameter,</div>
+<div class="line">with its source <em>expression</em>, if any.</div>
+<div class="line">This is a debug mode, useful for developers.</div>
+<div class="line">Prints the parameter path, the source expression if any, and the final value:</div>
+</div>
+<div class="highlight-python"><pre>sat config SALOME-xx -g USER</pre>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>And so, <em>not only for fun</em>, to get <strong>all expressions</strong> of configuration</p>
+<div class="last highlight-bash"><div class="highlight"><pre>sat config SALOME-xx -g . | grep -e <span class="s2">&quot;--&gt;&quot;</span>
+</pre></div>
+</div>
+</div>
+</li>
+<li><p class="first">Print the patches that are applied:</p>
+<div class="highlight-python"><pre>sat config SALOME-xx --show_patchs</pre>
+</div>
+</li>
+<li><p class="first">Get information on a product configuration:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span class="c"># sat config &lt;application&gt; --info &lt;product&gt;</span>
+sat config SALOME-xx --info KERNEL
+sat config SALOME-xx --info qt
+</pre></div>
+</div>
+</li>
+</ul>
+</div>
+<div class="section" id="some-useful-configuration-pathes">
+<h2>Some useful configuration pathes<a class="headerlink" href="#some-useful-configuration-pathes" title="Permalink to this headline">¶</a></h2>
+<p>Exploring a current configuration.</p>
+<ul class="simple">
+<li><strong>PATHS</strong>: To get list of directories where to find files.</li>
+<li><strong>USER</strong>: To get user preferences (editor, pdf viewer, web browser, default working dir).</li>
+</ul>
+<p>sat commands:</p>
+<div class="highlight-python"><pre>sat config SALOME-xx -v PATHS
+sat config SALOME-xx -v USERS</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/sat_v5.0.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Command config</a><ul>
+<li><a class="reference internal" href="#description">Description</a></li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#some-useful-configuration-pathes">Some useful configuration pathes</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../usage_of_sat.html" title="previous chapter">Usage of SAlomeTools</a></li>
+      <li>Next: <a href="prepare.html" title="next chapter">Command prepare</a></li>
+  </ul></li>
+</ul>
+</div>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/commands/config.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, CEA.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.1.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster </a>
+      
+      |
+      <a href="../_sources/commands/config.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
