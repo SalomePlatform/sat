@@ -25,6 +25,7 @@ import os
 import shutil
 import errno
 import stat
+import src
 
 from . import pyconf
 from . import architecture
