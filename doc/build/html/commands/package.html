@@ -2,30 +2,20 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>Command package &mdash; salomeTools 5.0.0dev documentation</title>
-    
+    <title>Command package &#8212; salomeTools 5.0.0dev documentation</title>
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '5.0.0dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Command generate" href="generate.html" />
     <link rel="prev" title="Command clean" href="clean.html" />
    
@@ -34,8 +24,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
@@ -55,55 +44,61 @@ of SALOME products and prerequisites.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
 <p class="last">By default the package includes the sources of prerequisites and products.
-To select a subset use the <em>--without_property</em> or <em>--with_vcs</em> options.</p>
+To select a subset use the <em>–without_property</em> or <em>–with_vcs</em> options.</p>
 </div>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <ul>
 <li><p class="first">Create a package for a product (example as <em>SALOME_xx</em>):</p>
-<div class="highlight-python"><pre>sat package SALOME_xx</pre>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">package</span> <span class="n">SALOME_xx</span>
+</pre></div>
 </div>
-<p>This command will create an archive named <tt class="docutils literal"><span class="pre">SALOME_xx.tgz</span></tt>
-in the working directory (<tt class="docutils literal"><span class="pre">USER.workDir</span></tt>).
+<p>This command will create an archive named <code class="docutils literal notranslate"><span class="pre">SALOME_xx.tgz</span></code>
+in the working directory (<code class="docutils literal notranslate"><span class="pre">USER.workDir</span></code>).
 If the archive already exists, do nothing.</p>
 </li>
 <li><p class="first">Create a package with a specific name:</p>
-<div class="highlight-python"><pre>sat package SALOME_xx --name YourSpecificName</pre>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">package</span> <span class="n">SALOME_xx</span> <span class="o">--</span><span class="n">name</span> <span class="n">YourSpecificName</span>
+</pre></div>
 </div>
 </li>
 </ul>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p>By default, the archive is created in the working directory of the user (<tt class="docutils literal"><span class="pre">USER.workDir</span></tt>).</p>
-<p>If the option <em>--name</em> is used with a path (relative or absolute) it will be used.</p>
-<p>If the option <em>--name</em> is not used and binaries (prerequisites and products)
+<p>By default, the archive is created in the working directory of the user (<code class="docutils literal notranslate"><span class="pre">USER.workDir</span></code>).</p>
+<p>If the option <em>–name</em> is used with a path (relative or absolute) it will be used.</p>
+<p>If the option <em>–name</em> is not used and binaries (prerequisites and products)
 are included in the package, the <a class="reference external" href="https://en.wikipedia.org/wiki/Operating_system">OS</a> architecture
-will be appended to the name (example: <tt class="docutils literal"><span class="pre">SALOME_xx-CO7.tgz</span></tt>).</p>
+will be appended to the name (example: <code class="docutils literal notranslate"><span class="pre">SALOME_xx-CO7.tgz</span></code>).</p>
 <p>Examples:</p>
-<div class="last highlight-python"><pre># Creates SALOME_xx.tgz in $USER.workDir
-sat package SALOME_xx
+<div class="last highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Creates SALOME_xx.tgz in $USER.workDir</span>
+<span class="n">sat</span> <span class="n">package</span> <span class="n">SALOME_xx</span>
 
-# Creates SALOME_xx_&lt;arch&gt;.tgz in $USER.workDir
-sat package SALOME_xx --binaries
+<span class="c1"># Creates SALOME_xx_&lt;arch&gt;.tgz in $USER.workDir</span>
+<span class="n">sat</span> <span class="n">package</span> <span class="n">SALOME_xx</span> <span class="o">--</span><span class="n">binaries</span>
 
-# Creates MySpecificName.tgz in $USER.workDir
-sat package SALOME_xx --name MySpecificName</pre>
+<span class="c1"># Creates MySpecificName.tgz in $USER.workDir</span>
+<span class="n">sat</span> <span class="n">package</span> <span class="n">SALOME_xx</span> <span class="o">--</span><span class="n">name</span> <span class="n">MySpecificName</span>
+</pre></div>
 </div>
 </div>
 <ul>
 <li><p class="first">Force the creation of the archive (if it already exists):</p>
-<div class="highlight-python"><pre>sat package SALOME_xx --force</pre>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">package</span> <span class="n">SALOME_xx</span> <span class="o">--</span><span class="n">force</span>
+</pre></div>
 </div>
 </li>
 <li><p class="first">Include the binaries in the archive (products and prerequisites):</p>
-<div class="highlight-python"><pre>sat package SALOME_xx --binaries</pre>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">package</span> <span class="n">SALOME_xx</span> <span class="o">--</span><span class="n">binaries</span>
+</pre></div>
 </div>
-<p>This command will create an archive named <tt class="docutils literal"><span class="pre">SALOME_xx</span> <span class="pre">_&lt;arch&gt;.tgz</span></tt>
+<p>This command will create an archive named <code class="docutils literal notranslate"><span class="pre">SALOME_xx</span> <span class="pre">_&lt;arch&gt;.tgz</span></code>
 where &lt;arch&gt; is the <a class="reference external" href="https://en.wikipedia.org/wiki/Operating_system">OS</a> architecture of the machine.</p>
 </li>
 <li><p class="first">Do not delete Version Control System (<a class="reference external" href="https://en.wikipedia.org/wiki/Version_control">VCS</a>) informations from the configurations files of the embedded salomeTools:</p>
-<div class="highlight-python"><pre>sat package SALOME_xx --with_vcs</pre>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sat</span> <span class="n">package</span> <span class="n">SALOME_xx</span> <span class="o">--</span><span class="n">with_vcs</span>
+</pre></div>
 </div>
 <p>The version control systems known by this option are <a class="reference external" href="https://fr.wikipedia.org/wiki/Concurrent_versions_system">CVS</a>, <a class="reference external" href="https://en.wikipedia.org/wiki/Apache_Subversion">SVN</a> and <a class="reference external" href="https://git-scm.com">Git</a>.</p>
 </li>
@@ -119,7 +114,7 @@ where &lt;arch&gt; is the <a class="reference external" href="https://en.wikiped
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../index.html">
               <img class="logo" src="../_static/sat_v5.0.png" alt="Logo"/>
@@ -142,22 +137,23 @@ where &lt;arch&gt; is the <a class="reference external" href="https://en.wikiped
   </ul></li>
 </ul>
 </div>
-  <h3>This Page</h3>
-  <ul class="this-page-menu">
-    <li><a href="../_sources/commands/package.txt"
-           rel="nofollow">Show Source</a></li>
-  </ul>
-<div id="searchbox" style="display: none">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/commands/package.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -168,11 +164,11 @@ where &lt;arch&gt; is the <a class="reference external" href="https://en.wikiped
       &copy;2018, CEA.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.1.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster </a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/commands/package.txt"
+      <a href="../_sources/commands/package.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

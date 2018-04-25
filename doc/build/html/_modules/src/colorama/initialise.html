@@ -2,39 +2,27 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>src.colorama.initialise &mdash; salomeTools 5.0.0dev documentation</title>
-    
+    <title>src.colorama.initialise &#8212; salomeTools 5.0.0dev documentation</title>
     <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../../',
-        VERSION:     '5.0.0dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../../index.html" />
-    <link rel="up" title="Module code" href="../../index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
   
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
@@ -43,32 +31,32 @@
           <div class="body" role="main">
             
   <h1>Source code for src.colorama.initialise</h1><div class="highlight"><pre>
-<span class="c"># Copyright Jonathan Hartley 2013. BSD 3-Clause license, see LICENSE file.</span>
+<span></span><span class="c1"># Copyright Jonathan Hartley 2013. BSD 3-Clause license, see LICENSE file.</span>
 <span class="kn">import</span> <span class="nn">atexit</span>
 <span class="kn">import</span> <span class="nn">contextlib</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 
-<span class="kn">from</span> <span class="nn">.ansitowin32</span> <span class="kn">import</span> <span class="n">AnsiToWin32</span>
+<span class="kn">from</span> <span class="nn">.ansitowin32</span> <span class="k">import</span> <span class="n">AnsiToWin32</span>
 
 
-<span class="n">orig_stdout</span> <span class="o">=</span> <span class="bp">None</span>
-<span class="n">orig_stderr</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">orig_stdout</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">orig_stderr</span> <span class="o">=</span> <span class="kc">None</span>
 
-<span class="n">wrapped_stdout</span> <span class="o">=</span> <span class="bp">None</span>
-<span class="n">wrapped_stderr</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">wrapped_stdout</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">wrapped_stderr</span> <span class="o">=</span> <span class="kc">None</span>
 
-<span class="n">atexit_done</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="n">atexit_done</span> <span class="o">=</span> <span class="kc">False</span>
 
 
 <div class="viewcode-block" id="reset_all"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.initialise.reset_all">[docs]</a><span class="k">def</span> <span class="nf">reset_all</span><span class="p">():</span>
-    <span class="k">if</span> <span class="n">AnsiToWin32</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>    <span class="c"># Issue #74: objects might become None at exit</span>
-        <span class="n">AnsiToWin32</span><span class="p">(</span><span class="n">orig_stdout</span><span class="p">)</span><span class="o">.</span><span class="n">reset_all</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">AnsiToWin32</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>    <span class="c1"># Issue #74: objects might become None at exit</span>
+        <span class="n">AnsiToWin32</span><span class="p">(</span><span class="n">orig_stdout</span><span class="p">)</span><span class="o">.</span><span class="n">reset_all</span><span class="p">()</span></div>
 
-</div>
-<div class="viewcode-block" id="init"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.initialise.init">[docs]</a><span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="n">autoreset</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">convert</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">strip</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">wrap</span><span class="o">=</span><span class="bp">True</span><span class="p">):</span>
+
+<div class="viewcode-block" id="init"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.initialise.init">[docs]</a><span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="n">autoreset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">convert</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">strip</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">wrap</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">wrap</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">([</span><span class="n">autoreset</span><span class="p">,</span> <span class="n">convert</span><span class="p">,</span> <span class="n">strip</span><span class="p">]):</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&#39;wrap=False conflicts with any other arg=True&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;wrap=False conflicts with any other arg=True&#39;</span><span class="p">)</span>
 
     <span class="k">global</span> <span class="n">wrapped_stdout</span><span class="p">,</span> <span class="n">wrapped_stderr</span>
     <span class="k">global</span> <span class="n">orig_stdout</span><span class="p">,</span> <span class="n">orig_stderr</span>
@@ -76,13 +64,13 @@
     <span class="n">orig_stdout</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span>
     <span class="n">orig_stderr</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span>
 
-    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">wrapped_stdout</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">wrapped_stdout</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">wrapped_stdout</span> <span class="o">=</span> \
             <span class="n">wrap_stream</span><span class="p">(</span><span class="n">orig_stdout</span><span class="p">,</span> <span class="n">convert</span><span class="p">,</span> <span class="n">strip</span><span class="p">,</span> <span class="n">autoreset</span><span class="p">,</span> <span class="n">wrap</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">wrapped_stderr</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">wrapped_stderr</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">wrapped_stderr</span> <span class="o">=</span> \
             <span class="n">wrap_stream</span><span class="p">(</span><span class="n">orig_stderr</span><span class="p">,</span> <span class="n">convert</span><span class="p">,</span> <span class="n">strip</span><span class="p">,</span> <span class="n">autoreset</span><span class="p">,</span> <span class="n">wrap</span><span class="p">)</span>
@@ -90,45 +78,47 @@
     <span class="k">global</span> <span class="n">atexit_done</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">atexit_done</span><span class="p">:</span>
         <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">reset_all</span><span class="p">)</span>
-        <span class="n">atexit_done</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">atexit_done</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-</div>
+
 <div class="viewcode-block" id="deinit"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.initialise.deinit">[docs]</a><span class="k">def</span> <span class="nf">deinit</span><span class="p">():</span>
-    <span class="k">if</span> <span class="n">orig_stdout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">orig_stdout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">orig_stdout</span>
-    <span class="k">if</span> <span class="n">orig_stderr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">orig_stderr</span>
+    <span class="k">if</span> <span class="n">orig_stderr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">orig_stderr</span></div>
 
-</div>
-<span class="nd">@contextlib.contextmanager</span>
-<div class="viewcode-block" id="colorama_text"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.initialise.colorama_text">[docs]</a><span class="k">def</span> <span class="nf">colorama_text</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+<div class="viewcode-block" id="colorama_text"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.initialise.colorama_text">[docs]</a><span class="nd">@contextlib</span><span class="o">.</span><span class="n">contextmanager</span>
+<span class="k">def</span> <span class="nf">colorama_text</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="n">init</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">yield</span>
     <span class="k">finally</span><span class="p">:</span>
-        <span class="n">deinit</span><span class="p">()</span>
+        <span class="n">deinit</span><span class="p">()</span></div>
 
-</div>
+
 <div class="viewcode-block" id="reinit"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.initialise.reinit">[docs]</a><span class="k">def</span> <span class="nf">reinit</span><span class="p">():</span>
-    <span class="k">if</span> <span class="n">wrapped_stdout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">wrapped_stdout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">wrapped_stdout</span>
-    <span class="k">if</span> <span class="n">wrapped_stderr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">wrapped_stderr</span>
+    <span class="k">if</span> <span class="n">wrapped_stderr</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">wrapped_stderr</span></div>
 
-</div>
+
 <div class="viewcode-block" id="wrap_stream"><a class="viewcode-back" href="../../../commands/apidoc/src.colorama.html#src.colorama.initialise.wrap_stream">[docs]</a><span class="k">def</span> <span class="nf">wrap_stream</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">convert</span><span class="p">,</span> <span class="n">strip</span><span class="p">,</span> <span class="n">autoreset</span><span class="p">,</span> <span class="n">wrap</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">wrap</span><span class="p">:</span>
         <span class="n">wrapper</span> <span class="o">=</span> <span class="n">AnsiToWin32</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span>
             <span class="n">convert</span><span class="o">=</span><span class="n">convert</span><span class="p">,</span> <span class="n">strip</span><span class="o">=</span><span class="n">strip</span><span class="p">,</span> <span class="n">autoreset</span><span class="o">=</span><span class="n">autoreset</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">should_wrap</span><span class="p">():</span>
             <span class="n">stream</span> <span class="o">=</span> <span class="n">wrapper</span><span class="o">.</span><span class="n">stream</span>
-    <span class="k">return</span> <span class="n">stream</span>
-</pre></div></div>
+    <span class="k">return</span> <span class="n">stream</span></div>
+
+
+</pre></div>
 
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../../../index.html">
               <img class="logo" src="../../../_static/sat_v5.0.png" alt="Logo"/>
@@ -141,17 +131,16 @@
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -162,8 +151,8 @@
       &copy;2018, CEA.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.1.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster </a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>
 

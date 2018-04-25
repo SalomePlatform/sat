@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2018.4.13)  24 APR 2018 15:51
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2018.4.13)  25 APR 2018 12:49
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -7,7 +7,7 @@ entering extended mode
 LaTeX2e <2017-04-15>
 Babel <3.18> and hyphenation patterns for 84 language(s) loaded.
 (./sphinxmanual.cls
-Document Class: sphinxmanual 2009/06/02 Document class (Sphinx manual)
+Document Class: sphinxmanual 2017/03/26 v1.6 Document class (Sphinx manual)
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/base/report.cls
 Document Class: report 2014/09/29 v1.4h Standard LaTeX document class
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/base/size10.clo
@@ -344,12 +344,95 @@ Now handling font encoding U ...
    defining Unicode char U+2423 (decimal 9251)
 ))
    defining Unicode char U+00A0 (decimal 160)
-
+   defining Unicode char U+2500 (decimal 9472)
+   defining Unicode char U+2502 (decimal 9474)
+   defining Unicode char U+2514 (decimal 9492)
+   defining Unicode char U+251C (decimal 9500)
+   defining Unicode char U+2572 (decimal 9586)
+ (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/cmap/cmap.sty
+Package: cmap 2008/03/06 v1.0h CMap support: searchable PDF
+)
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/base/fontenc.sty
 Package: fontenc 2017/04/05 v2.0i Standard LaTeX package
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/base/t1enc.def
 File: t1enc.def 2017/04/05 v2.0i Standard LaTeX file
 LaTeX Font Info:    Redeclaring font encoding T1 on input line 48.
+)<<t1.cmap>>)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/amsmath/amsmath.
+sty
+Package: amsmath 2017/09/02 v2.17a AMS math features
+\@mathmargin=\skip43
+
+For additional information on amsmath, use the `?' option.
+
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/amsmath/amstext.
+sty
+Package: amstext 2000/06/29 v2.01 AMS text
+
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/amsmath/amsgen.s
+ty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks16
+\ex@=\dimen103
+))
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/amsmath/amsbsy.s
+ty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen104
+)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/amsmath/amsopn.s
+ty
+Package: amsopn 2016/03/08 v2.02 operator names
+)
+\inf@bad=\count88
+LaTeX Info: Redefining \frac on input line 213.
+\uproot@=\count89
+\leftroot@=\count90
+LaTeX Info: Redefining \overline on input line 375.
+\classnum@=\count91
+\DOTSCASE@=\count92
+LaTeX Info: Redefining \ldots on input line 472.
+LaTeX Info: Redefining \dots on input line 475.
+LaTeX Info: Redefining \cdots on input line 596.
+\Mathstrutbox@=\box26
+\strutbox@=\box27
+\big@size=\dimen105
+LaTeX Font Info:    Redeclaring font encoding OML on input line 712.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 713.
+\macc@depth=\count93
+\c@MaxMatrixCols=\count94
+\dotsspace@=\muskip10
+\c@parentequation=\count95
+\dspbrk@lvl=\count96
+\tag@help=\toks17
+\row@=\count97
+\column@=\count98
+\maxfields@=\count99
+\andhelp@=\toks18
+\eqnshift@=\dimen106
+\alignsep@=\dimen107
+\tagshift@=\dimen108
+\tagwidth@=\dimen109
+\totwidth@=\dimen110
+\lineht@=\dimen111
+\@envbody=\toks19
+\multlinegap=\skip44
+\multlinetaggap=\skip45
+\mathdisplay@stack=\toks20
+LaTeX Info: Redefining \[ on input line 2817.
+LaTeX Info: Redefining \] on input line 2818.
+)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/amsfonts/amssymb
+.sty
+Package: amssymb 2013/01/14 v3.01 AMS font symbols
+
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/amsfonts/amsfont
+s.sty
+Package: amsfonts 2013/01/14 v3.01 Basic AMSFonts support
+\symAMSa=\mathgroup4
+\symAMSb=\mathgroup5
+LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
+(Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
 ))
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/babel/babel.st
 y
@@ -366,12 +449,12 @@ Language: english 2017/06/06 v3.3r English support from the babel system
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/babel/babel.de
 f
 File: babel.def 2018/02/14 3.18 Babel common definitions
-\babel@savecnt=\count88
-\U@D=\dimen103
+\babel@savecnt=\count100
+\U@D=\dimen112
 
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/babel/txtbabel
 .def)
-\bbl@dirlevel=\count89
+\bbl@dirlevel=\count101
 )
 \l@canadian = a dialect from \language\l@american 
 \l@australian = a dialect from \language\l@british 
@@ -379,39 +462,70 @@ File: babel.def 2018/02/14 3.18 Babel common definitions
 ))
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/psnfss/times.sty
 Package: times 2005/04/12 PSNFSS-v9.2a (SPQR) 
-) (./fncychap.sty
-Package: fncychap 2007/07/30 v1.34 LaTeX package (Revised chapters)
-\RW=\skip43
-\mylen=\skip44
-\myhi=\skip45
-\px=\skip46
-\py=\skip47
-\pyy=\skip48
-\pxx=\skip49
-\c@AlphaCnt=\count90
-\c@AlphaDecCnt=\count91
 )
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/tools/longtable.
-sty
-Package: longtable 2014/10/28 v4.11 Multi-page Table package (DPC)
-\LTleft=\skip50
-\LTright=\skip51
-\LTpre=\skip52
-\LTpost=\skip53
-\LTchunksize=\count92
-\LTcapwidth=\dimen104
-\LT@head=\box26
-\LT@firsthead=\box27
-\LT@foot=\box28
-\LT@lastfoot=\box29
-\LT@cols=\count93
-\LT@rows=\count94
-\c@LT@tables=\count95
-\c@LT@chunks=\count96
-\LT@p@ftn=\toks16
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/fncychap/fncycha
+p.sty
+Package: fncychap 2007/07/30 v1.34 LaTeX package (Revised chapters)
+\RW=\skip46
+\mylen=\skip47
+\myhi=\skip48
+\px=\skip49
+\py=\skip50
+\pyy=\skip51
+\pxx=\skip52
+\c@AlphaCnt=\count102
+\c@AlphaDecCnt=\count103
 ) (./sphinx.sty
-Package: sphinx 2010/01/15 LaTeX package (Sphinx markup)
+Package: sphinx 2018/03/11 v1.7.2 LaTeX package (Sphinx markup)
 
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/oberdiek/ltxcm
+ds.sty
+Package: ltxcmds 2016/05/16 v1.23 LaTeX kernel commands for general use (HO)
+)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/graphics/graphic
+x.sty
+Package: graphicx 2017/06/01 v1.1a Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/graphics/keyval.
+sty
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+\KV@toks@=\toks21
+)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/graphics/graphic
+s.sty
+Package: graphics 2017/06/25 v1.2c Standard LaTeX Graphics (DPC,SPQR)
+
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/graphics/trig.st
+y
+Package: trig 2016/01/03 v1.10 sin cos tan (DPC)
+)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/graphics-cfg/gra
+phics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 99.
+
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/graphics-def/pdf
+tex.def
+File: pdftex.def 2018/01/08 v1.0l Graphics/color driver for pdftex
+))
+\Gin@req@height=\dimen113
+\Gin@req@width=\dimen114
+)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/fancyhdr/fancyhd
+r.sty
+Package: fancyhdr 2017/06/30 v3.9a Extensive control of page headers and footer
+s
+\f@nch@headwidth=\skip53
+\f@nch@O@elh=\skip54
+\f@nch@O@erh=\skip55
+\f@nch@O@olh=\skip56
+\f@nch@O@orh=\skip57
+\f@nch@O@elf=\skip58
+\f@nch@O@erf=\skip59
+\f@nch@O@olf=\skip60
+\f@nch@O@orf=\skip61
+)
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/base/textcomp.st
 y
 Package: textcomp 2017/04/05 v2.0i Standard LaTeX package
@@ -569,127 +683,67 @@ Package textcomp Info: Setting pplj sub-encoding to TS1/3 on input line 407.
 Package textcomp Info: Setting ptmx sub-encoding to TS1/4 on input line 408.
 Package textcomp Info: Setting ptmj sub-encoding to TS1/4 on input line 409.
 )
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/fancyhdr/fancyhd
-r.sty
-Package: fancyhdr 2017/06/30 v3.9a Extensive control of page headers and footer
-s
-\f@nch@headwidth=\skip54
-\f@nch@O@elh=\skip55
-\f@nch@O@erh=\skip56
-\f@nch@O@olh=\skip57
-\f@nch@O@orh=\skip58
-\f@nch@O@elf=\skip59
-\f@nch@O@erf=\skip60
-\f@nch@O@olf=\skip61
-\f@nch@O@orf=\skip62
-)
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/fancybox/fancybo
-x.sty
-Package: fancybox 2010/05/15 1.4
-
-Style option: `fancybox' v1.4 <2010/05/15> (tvz)
-\@fancybox=\box30
-\shadowsize=\dimen105
-\@Sbox=\box31
-\do@VerbBox=\toks17
-\the@fancyput=\toks18
-\this@fancyput=\toks19
-\EndVerbatimTokens=\toks20
-\Verbatim@Outfile=\write3
-\Verbatim@Infile=\read1
-)
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/titlesec/titlese
 c.sty
 Package: titlesec 2016/03/21 v2.10.2 Sectioning titles
-\ttl@box=\box32
-\beforetitleunit=\skip63
-\aftertitleunit=\skip64
-\ttl@plus=\dimen106
-\ttl@minus=\dimen107
-\ttl@toksa=\toks21
-\titlewidth=\dimen108
-\titlewidthlast=\dimen109
-\titlewidthfirst=\dimen110
-) (./tabulary.sty
-Package: tabulary 2007/10/02 v0.9 tabulary package (DPC)
+\ttl@box=\box28
+\beforetitleunit=\skip62
+\aftertitleunit=\skip63
+\ttl@plus=\dimen115
+\ttl@minus=\dimen116
+\ttl@toksa=\toks22
+\titlewidth=\dimen117
+\titlewidthlast=\dimen118
+\titlewidthfirst=\dimen119
+)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/tabulary/tabular
+y.sty
+Package: tabulary 2014/06/11 v0.10 tabulary package (DPC)
 
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/tools/array.sty
 Package: array 2016/10/06 v2.4d Tabular extension package (FMi)
-\col@sep=\dimen111
-\extrarowheight=\dimen112
-\NC@list=\toks22
-\extratabsurround=\skip65
-\backup@length=\skip66
+\col@sep=\dimen120
+\extrarowheight=\dimen121
+\NC@list=\toks23
+\extratabsurround=\skip64
+\backup@length=\skip65
 )
-\TY@count=\count97
-\TY@linewidth=\dimen113
-\tymin=\dimen114
-\tymax=\dimen115
-\TY@tablewidth=\dimen116
+\TY@count=\count104
+\TY@linewidth=\dimen122
+\tymin=\dimen123
+\tymax=\dimen124
+\TY@tablewidth=\dimen125
 )
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/amsmath/amsmath.
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/tools/longtable.
 sty
-Package: amsmath 2017/09/02 v2.17a AMS math features
-\@mathmargin=\skip67
-
-For additional information on amsmath, use the `?' option.
-
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/amsmath/amstext.
-sty
-Package: amstext 2000/06/29 v2.01 AMS text
-
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/amsmath/amsgen.s
-ty
-File: amsgen.sty 1999/11/30 v2.0 generic functions
-\@emptytoks=\toks23
-\ex@=\dimen117
-))
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/amsmath/amsbsy.s
-ty
-Package: amsbsy 1999/11/29 v1.2d Bold Symbols
-\pmbraise@=\dimen118
+Package: longtable 2014/10/28 v4.11 Multi-page Table package (DPC)
+\LTleft=\skip66
+\LTright=\skip67
+\LTpre=\skip68
+\LTpost=\skip69
+\LTchunksize=\count105
+\LTcapwidth=\dimen126
+\LT@head=\box29
+\LT@firsthead=\box30
+\LT@foot=\box31
+\LT@lastfoot=\box32
+\LT@cols=\count106
+\LT@rows=\count107
+\c@LT@tables=\count108
+\c@LT@chunks=\count109
+\LT@p@ftn=\toks24
 )
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/amsmath/amsopn.s
-ty
-Package: amsopn 2016/03/08 v2.02 operator names
-)
-\inf@bad=\count98
-LaTeX Info: Redefining \frac on input line 213.
-\uproot@=\count99
-\leftroot@=\count100
-LaTeX Info: Redefining \overline on input line 375.
-\classnum@=\count101
-\DOTSCASE@=\count102
-LaTeX Info: Redefining \ldots on input line 472.
-LaTeX Info: Redefining \dots on input line 475.
-LaTeX Info: Redefining \cdots on input line 596.
-\Mathstrutbox@=\box33
-\strutbox@=\box34
-\big@size=\dimen119
-LaTeX Font Info:    Redeclaring font encoding OML on input line 712.
-LaTeX Font Info:    Redeclaring font encoding OMS on input line 713.
-\macc@depth=\count103
-\c@MaxMatrixCols=\count104
-\dotsspace@=\muskip10
-\c@parentequation=\count105
-\dspbrk@lvl=\count106
-\tag@help=\toks24
-\row@=\count107
-\column@=\count108
-\maxfields@=\count109
-\andhelp@=\toks25
-\eqnshift@=\dimen120
-\alignsep@=\dimen121
-\tagshift@=\dimen122
-\tagwidth@=\dimen123
-\totwidth@=\dimen124
-\lineht@=\dimen125
-\@envbody=\toks26
-\multlinegap=\skip68
-\multlinetaggap=\skip69
-\mathdisplay@stack=\toks27
-LaTeX Info: Redefining \[ on input line 2817.
-LaTeX Info: Redefining \] on input line 2818.
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/varwidth/varwidt
+h.sty
+Package: varwidth 2009/03/30 ver 0.92;  Variable-width minipages
+\@vwid@box=\box33
+\sift@deathcycles=\count110
+\@vwid@loff=\dimen127
+\@vwid@roff=\dimen128
+) (./sphinxmulticell.sty
+Package: sphinxmulticell 2017/02/23 v1.6 better span rows and columns of a tabl
+e (Sphinx team)
+\sphinx@TY@tablewidth=\dimen129
 )
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/base/makeidx.sty
 Package: makeidx 2014/09/29 v1.0m Standard LaTeX package
@@ -698,100 +752,160 @@ Package: makeidx 2014/09/29 v1.0m Standard LaTeX package
 y
 Package: framed 2011/10/22 v 0.96: framed or shaded text with page breaks
 \OuterFrameSep=\skip70
-\fb@frw=\dimen126
-\fb@frh=\dimen127
-\FrameRule=\dimen128
-\FrameSep=\dimen129
+\fb@frw=\dimen130
+\fb@frh=\dimen131
+\FrameRule=\dimen132
+\FrameSep=\dimen133
 )
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/base/ifthen.sty
-Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
-)
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/graphics/color.s
-ty
-Package: color 2016/07/10 v1.1e Standard LaTeX Color (DPC)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/xcolor/xcolor.st
+y
+Package: xcolor 2016/05/11 v2.12 LaTeX color extensions (UK)
 
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/graphics-cfg/col
 or.cfg
 File: color.cfg 2016/01/02 v1.6 sample color configuration
 )
-Package color Info: Driver file: pdftex.def on input line 147.
-
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/graphics-def/pdf
-tex.def
-File: pdftex.def 2018/01/08 v1.0l Graphics/color driver for pdftex
-))
+Package xcolor Info: Driver file: pdftex.def on input line 225.
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1348.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1352.
+Package xcolor Info: Model `RGB' extended on input line 1364.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1366.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1367.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1370.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1371.
+)
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/fancyvrb/fancyvr
 b.sty
 Package: fancyvrb 2008/02/07
 
 Style option: `fancyvrb' v2.7a, with DG/SPQR fixes, and firstline=lastline fix 
 <2008/02/07> (tvz)
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/graphics/keyval.
-sty
-Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
-\KV@toks@=\toks28
+\FV@CodeLineNo=\count111
+\FV@InFile=\read1
+\FV@TabBox=\box34
+\c@FancyVerbLine=\count112
+\FV@StepNumber=\count113
+\FV@OutFile=\write3
+) (./footnotehyper-sphinx.sty
+Package: footnotehyper-sphinx 2017/10/27 v1.7 hyperref aware footnote.sty for s
+phinx (JFB)
+\FNH@notes=\box35
+\FNH@width=\dimen134
 )
-\FV@CodeLineNo=\count110
-\FV@InFile=\read2
-\FV@TabBox=\box35
-\c@FancyVerbLine=\count111
-\FV@StepNumber=\count112
-\FV@OutFile=\write4
-)
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/threeparttable/t
-hreeparttable.sty
-Package: threeparttable 2003/06/13  v 3.0
-\@tempboxb=\box36
-)
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/mdwtools/footnot
-e.sty
-Package: footnote 1997/01/28 1.13 Save footnotes around boxes
-\fn@notes=\box37
-\fn@width=\dimen130
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count114
+\float@exts=\toks25
+\float@box=\box36
+\@float@everytoks=\toks26
+\@floatcapt=\box37
 )
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/wrapfig/wrapfig.
 sty
-\wrapoverhang=\dimen131
-\WF@size=\dimen132
-\c@WF@wrappedlines=\count113
+\wrapoverhang=\dimen135
+\WF@size=\dimen136
+\c@WF@wrappedlines=\count115
 \WF@box=\box38
-\WF@everypar=\toks29
+\WF@everypar=\toks27
 Package: wrapfig 2003/01/31  v 3.6
 )
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/parskip/parskip.
 sty
 Package: parskip 2001/04/09 non-zero parskip adjustments
 )
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/graphics/graphic
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/base/alltt.sty
+Package: alltt 1997/06/16 v2.0g defines alltt environment
+)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/upquote/upquote.
+sty
+Package: upquote 2012/04/19 v1.3 upright-quote and grave-accent glyphs in verba
+tim
+)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/capt-of/capt-of.
+sty
+Package: capt-of 2009/12/29 v0.2 standard captions outside of floats
+)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/needspace/needsp
+ace.sty
+Package: needspace 2010/09/12 v1.3d reserve vertical space
+)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/carlisle/remrese
+t.sty) (./sphinxhighlight.sty
+Package: sphinxhighlight 2016/05/29 stylesheet for highlighting with pygments
+)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/oberdiek/kvoptio
+ns.sty
+Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
+
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/oberdiek/kvset
+keys.sty
+Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
+
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/oberdiek/infwa
+rerr.sty
+Package: infwarerr 2016/05/16 v1.4 Providing info/warning/error messages (HO)
+)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/oberdiek/etexc
+mds.sty
+Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
+
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/oberdiek/iflua
+tex.sty
+Package: ifluatex 2016/05/16 v1.4 Provides the ifluatex switch (HO)
+Package ifluatex Info: LuaTeX not detected.
+)
+Package etexcmds Info: Could not find \expanded.
+(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
+(etexcmds)             that some package has redefined \expanded.
+(etexcmds)             In the latter case, load this package earlier.
+)))
+\sphinxverbatimsep=\dimen137
+\sphinxverbatimborder=\dimen138
+\sphinxshadowsep=\dimen139
+\sphinxshadowsize=\dimen140
+\sphinxshadowrule=\dimen141
+\spx@notice@border=\dimen142
+\spx@image@box=\box39
+\c@literalblock=\count116
+\sphinxcontinuationbox=\box40
+\sphinxvisiblespacebox=\box41
+\sphinxVerbatim@TitleBox=\box42
+\py@argswidth=\skip71
+\lineblockindentation=\skip72
+\DUlineblockindent=\skip73
+)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/geometry/geometr
+y.sty
+Package: geometry 2010/09/12 v5.6 Page Geometry
+
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/oberdiek/ifpdf
+.sty
+Package: ifpdf 2017/03/15 v3.2 Provides the ifpdf switch
+)
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/oberdiek/ifvte
 x.sty
-Package: graphicx 2017/06/01 v1.1a Enhanced LaTeX Graphics (DPC,SPQR)
-
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/graphics/graphic
-s.sty
-Package: graphics 2017/06/25 v1.2c Standard LaTeX Graphics (DPC,SPQR)
-
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/graphics/trig.st
-y
-Package: trig 2016/01/03 v1.10 sin cos tan (DPC)
+Package: ifvtex 2016/05/16 v1.6 Detect VTeX and its facilities (HO)
+Package ifvtex Info: VTeX not detected.
 )
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/graphics-cfg/gra
-phics.cfg
-File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/ifxetex/ifxete
+x.sty
+Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
 )
-Package graphics Info: Driver file: pdftex.def on input line 99.
+\Gm@cnth=\count117
+\Gm@cntv=\count118
+\c@Gm@tempcnt=\count119
+\Gm@bindingoffset=\dimen143
+\Gm@wd@mp=\dimen144
+\Gm@odd@mp=\dimen145
+\Gm@even@mp=\dimen146
+\Gm@layoutwidth=\dimen147
+\Gm@layoutheight=\dimen148
+\Gm@layouthoffset=\dimen149
+\Gm@layoutvoffset=\dimen150
+\Gm@dimlist=\toks28
 )
-\Gin@req@height=\dimen133
-\Gin@req@width=\dimen134
-)
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/pdftex/pdfcolo
-r.tex)
-\distancetoright=\skip71
-\py@argswidth=\skip72
-\py@noticelength=\skip73
-\lineblockindentation=\skip74
-\image@box=\box39
-\image@width=\dimen135
-
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/hyperref/hyperre
 f.sty
 Package: hyperref 2018/02/06 v6.86b Hypertext links for LaTeX
@@ -805,20 +919,14 @@ Package: hobsub-hyperref 2016/05/16 v1.14 Bundle oberdiek, subset hyperref (HO)
 b-generic.sty
 Package: hobsub-generic 2016/05/16 v1.14 Bundle oberdiek, subset generic (HO)
 Package: hobsub 2016/05/16 v1.14 Construct package bundles (HO)
-Package: infwarerr 2016/05/16 v1.4 Providing info/warning/error messages (HO)
-Package: ltxcmds 2016/05/16 v1.23 LaTeX kernel commands for general use (HO)
-Package: ifluatex 2016/05/16 v1.4 Provides the ifluatex switch (HO)
-Package ifluatex Info: LuaTeX not detected.
-Package: ifvtex 2016/05/16 v1.6 Detect VTeX and its facilities (HO)
-Package ifvtex Info: VTeX not detected.
+Package hobsub Info: Skipping package `infwarerr' (already loaded).
+Package hobsub Info: Skipping package `ltxcmds' (already loaded).
+Package hobsub Info: Skipping package `ifluatex' (already loaded).
+Package hobsub Info: Skipping package `ifvtex' (already loaded).
 Package: intcalc 2016/05/16 v1.2 Expandable calculations with integers (HO)
-Package: ifpdf 2017/03/15 v3.2 Provides the ifpdf switch
-Package: etexcmds 2016/05/16 v1.6 Avoid name clashes with e-TeX commands (HO)
-Package etexcmds Info: Could not find \expanded.
-(etexcmds)             That can mean that you are not using pdfTeX 1.50 or
-(etexcmds)             that some package has redefined \expanded.
-(etexcmds)             In the latter case, load this package earlier.
-Package: kvsetkeys 2016/05/16 v1.17 Key value parser (HO)
+Package hobsub Info: Skipping package `ifpdf' (already loaded).
+Package hobsub Info: Skipping package `etexcmds' (already loaded).
+Package hobsub Info: Skipping package `kvsetkeys' (already loaded).
 Package: kvdefinekeys 2016/05/16 v1.4 Define keys (HO)
 Package: pdftexcmds 2018/01/21 v0.26 Utility functions of pdfTeX for LuaTeX (HO
 )
@@ -842,21 +950,13 @@ Package: atbegshi 2016/06/09 v1.18 At begin shipout hook (HO)
 Package: refcount 2016/05/16 v3.5 Data extraction from label references (HO)
 Package: hycolor 2016/05/16 v1.8 Color options for hyperref/bookmark (HO)
 )
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/ifxetex/ifxete
-x.sty
-Package: ifxetex 2010/09/12 v0.6 Provides ifxetex conditional
-)
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/oberdiek/auxhook
 .sty
 Package: auxhook 2016/05/16 v1.4 Hooks for auxiliary files (HO)
 )
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/oberdiek/kvoptio
-ns.sty
-Package: kvoptions 2016/05/16 v3.12 Key value format for package options (HO)
-)
-\@linkdim=\dimen136
-\Hy@linkcounter=\count114
-\Hy@pagecounter=\count115
+\@linkdim=\dimen151
+\Hy@linkcounter=\count120
+\Hy@pagecounter=\count121
 
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/hyperref/pd1enc.
 def
@@ -864,11 +964,19 @@ File: pd1enc.def 2018/02/06 v6.86b Hyperref: PDFDocEncoding definition (HO)
 Now handling font encoding PD1 ...
 ... no UTF-8 mapping file for font encoding PD1
 )
-\Hy@SavedSpaceFactor=\count116
+\Hy@SavedSpaceFactor=\count122
 
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/latexconfig/hype
 rref.cfg
 File: hyperref.cfg 2002/06/06 v1.2 hyperref configuration of TeXLive
+)
+Package hyperref Info: Option `unicode' set `true' on input line 4383.
+
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/hyperref/puenc.d
+ef
+File: puenc.def 2018/02/06 v6.86b Hyperref: PDF Unicode definition (HO)
+Now handling font encoding PU ...
+... no UTF-8 mapping file for font encoding PU
 )
 Package hyperref Info: Option `colorlinks' set `true' on input line 4383.
 Package hyperref Info: Option `breaklinks' set `true' on input line 4383.
@@ -879,17 +987,16 @@ Package hyperref Info: Plain pages OFF on input line 4524.
 Package hyperref Info: Backreferencing OFF on input line 4529.
 Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
 Package hyperref Info: Bookmarks ON on input line 4762.
-\c@Hy@tempcnt=\count117
-
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/url/url.sty
+\c@Hy@tempcnt=\count123
+ (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip11
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
 )
 LaTeX Info: Redefining \url on input line 5115.
-\XeTeXLinkMargin=\dimen137
-\Fld@menulength=\count118
-\Field@Width=\dimen138
-\Fld@charsize=\dimen139
+\XeTeXLinkMargin=\dimen152
+\Fld@menulength=\count124
+\Field@Width=\dimen153
+\Fld@charsize=\dimen154
 Package hyperref Info: Hyper figures OFF on input line 6369.
 Package hyperref Info: Link nesting OFF on input line 6374.
 Package hyperref Info: Hyper index ON on input line 6377.
@@ -899,17 +1006,17 @@ Package hyperref Info: Link coloring with OCG OFF on input line 6394.
 Package hyperref Info: PDF/A mode OFF on input line 6399.
 LaTeX Info: Redefining \ref on input line 6439.
 LaTeX Info: Redefining \pageref on input line 6443.
-\Hy@abspage=\count119
-\c@Item=\count120
-\c@Hfootnote=\count121
+\Hy@abspage=\count125
+\c@Item=\count126
+\c@Hfootnote=\count127
 )
 Package hyperref Info: Driver (autodetected): hpdftex.
 
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/hyperref/hpdftex
 .def
 File: hpdftex.def 2018/02/06 v6.86b Hyperref driver for pdfTeX
-\Fld@listcount=\count122
-\c@bookmark@seq@number=\count123
+\Fld@listcount=\count128
+\c@bookmark@seq@number=\count129
 
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/oberdiek/rerunfi
 lecheck.sty
@@ -917,53 +1024,44 @@ Package: rerunfilecheck 2016/05/16 v1.8 Rerun checks for auxiliary files (HO)
 Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
 82.
 )
-\Hy@SectionHShift=\skip75
+\Hy@SectionHShift=\skip74
 )
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/oberdiek/hypcap.
 sty
 Package: hypcap 2016/05/16 v1.12 Adjusting the anchors of captions (HO)
 )
-\DUlineblockindent=\skip76
-)
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/multirow/multiro
-w.sty
-Package: multirow 2016/11/25 v2.2 Span multiple rows of a table
-\multirow@colwidth=\skip77
-\multirow@cntb=\count124
-\multirow@dima=\skip78
-\bigstrutjot=\dimen140
-)
-\@indexfile=\write5
-\openout5 = `salomeTools.idx'.
+\@indexfile=\write4
+\openout4 = `salomeTools.idx'.
 
 
 Writing index file salomeTools.idx
 (./salomeTools.aux)
 \openout1 = `salomeTools.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 110.
-LaTeX Font Info:    Try loading font information for TS1+cmr on input line 110.
-
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 65.
+LaTeX Font Info:    ... okay on input line 65.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 65.
+LaTeX Font Info:    ... okay on input line 65.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 65.
+LaTeX Font Info:    ... okay on input line 65.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 65.
+LaTeX Font Info:    ... okay on input line 65.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 65.
+LaTeX Font Info:    ... okay on input line 65.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 65.
+LaTeX Font Info:    ... okay on input line 65.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 65.
+LaTeX Font Info:    Try loading font information for TS1+cmr on input line 65.
 
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/base/ts1cmr.fd
 File: ts1cmr.fd 2014/09/29 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 110.
-LaTeX Font Info:    ... okay on input line 110.
-LaTeX Font Info:    Try loading font information for T1+ptm on input line 110.
+LaTeX Font Info:    ... okay on input line 65.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 65.
+LaTeX Font Info:    ... okay on input line 65.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 65.
+LaTeX Font Info:    ... okay on input line 65.
+LaTeX Font Info:    Try loading font information for T1+ptm on input line 65.
 
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/psnfss/t1ptm.fd
 File: t1ptm.fd 2001/06/04 font definitions for T1/ptm.
@@ -971,17 +1069,17 @@ File: t1ptm.fd 2001/06/04 font definitions for T1/ptm.
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/context/base/mkii/supp
 -pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count125
-\scratchdimen=\dimen141
-\scratchbox=\box40
-\nofMPsegments=\count126
-\nofMParguments=\count127
-\everyMPshowfont=\toks30
-\MPscratchCnt=\count128
-\MPscratchDim=\dimen142
-\MPnumerator=\count129
-\makeMPintoPDFobject=\count130
-\everyMPtoPDFconversion=\toks31
+\scratchcounter=\count130
+\scratchdimen=\dimen155
+\scratchbox=\box43
+\nofMPsegments=\count131
+\nofMParguments=\count132
+\everyMPshowfont=\toks29
+\MPscratchCnt=\count133
+\MPscratchDim=\dimen156
+\MPnumerator=\count134
+\makeMPintoPDFobject=\count135
+\everyMPtoPDFconversion=\toks30
 )
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/oberdiek/epstopd
 f-base.sty
@@ -1003,8 +1101,42 @@ opdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
 e
 ))
-\AtBeginShipoutBox=\box41
-Package hyperref Info: Link coloring ON on input line 110.
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: twoside 
+* h-part:(L,W,R)=(72.26999pt, 452.9679pt, 72.26999pt)
+* v-part:(T,H,B)=(72.26999pt, 700.50687pt, 72.26999pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=452.9679pt
+* \textheight=700.50687pt
+* \oddsidemargin=0.0pt
+* \evensidemargin=0.0pt
+* \topmargin=-37.0pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=10.0pt
+* \footskip=30.0pt
+* \marginparwidth=36.135pt
+* \marginparsep=11.0pt
+* \columnsep=10.0pt
+* \skip\footins=9.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidetrue
+* \@mparswitchtrue
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+\AtBeginShipoutBox=\box44
+Package hyperref Info: Link coloring ON on input line 65.
 
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/hyperref/nameref
 .sty
@@ -1014,106 +1146,100 @@ Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
 tlestring.sty
 Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
-\c@section@level=\count131
+\c@section@level=\count136
 )
-LaTeX Info: Redefining \ref on input line 110.
-LaTeX Info: Redefining \pageref on input line 110.
-LaTeX Info: Redefining \nameref on input line 110.
+LaTeX Info: Redefining \ref on input line 65.
+LaTeX Info: Redefining \pageref on input line 65.
+LaTeX Info: Redefining \nameref on input line 65.
  (./salomeTools.out) (./salomeTools.out)
-\@outlinefile=\write6
-\openout6 = `salomeTools.out'.
+\@outlinefile=\write5
+\openout5 = `salomeTools.out'.
 
+Package hyperref Info: Option `pageanchor' set `false' on input line 68.
+LaTeX Font Info:    Try loading font information for T1+phv on input line 68.
 
-Underfull \hbox (badness 10000) in paragraph at lines 113--113
-
- []
-
-LaTeX Font Info:    Try loading font information for T1+phv on input line 113.
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/psnfss/t1phv.fd
 File: t1phv.fd 2001/06/04 scalable font definitions for T1/phv.
 )
+LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <10> not available
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 68.
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <24.88> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 113.
-LaTeX Font Info:    Font shape `T1/phv/m/it' in size <17.28> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 113.
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 68.
+LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <10> not available
+(Font)              Font shape `T1/phv/b/it' tried instead on input line 68.
+LaTeX Font Info:    Font shape `T1/phv/b/it' in size <10> not available
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 68.
 LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <17.28> not available
-(Font)              Font shape `T1/phv/b/it' tried instead on input line 113.
+(Font)              Font shape `T1/phv/b/it' tried instead on input line 68.
 LaTeX Font Info:    Font shape `T1/phv/b/it' in size <17.28> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 113.
+(Font)              Font shape `T1/phv/b/sl' tried instead on input line 68.
 LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <17.28> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 113.
-[1
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 68.
+<<ot1.cmap>><<oml.cmap>><<oms.cmap>><<omx.cmap>>
+LaTeX Font Info:    Try loading font information for U+msa on input line 68.
+
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/amsfonts/umsa.fd
+File: umsa.fd 2013/01/14 v3.01 AMS symbols A
+)
+LaTeX Font Info:    Try loading font information for U+msb on input line 68.
+
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/amsfonts/umsb.fd
+File: umsb.fd 2013/01/14 v3.01 AMS symbols B
+)
+LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <12> not available
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 68.
+ [1
 
 {/data/tmplgls/wambeke/share/texlive/2017/texmf-var/fonts/map/pdftex/updmap/pdf
 tex.map}] [2
 
-] (./salomeTools.toc
+]
+LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <14.4> not available
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 68.
+ (./salomeTools.toc
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <10> not available
 (Font)              Font shape `T1/ptm/b/n' tried instead on input line 2.
 )
-\tf@toc=\write7
-\openout7 = `salomeTools.toc'.
+\tf@toc=\write6
+\openout6 = `salomeTools.toc'.
 
+ [1
 
-Adding blank page after the table of contents.
-LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <10> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 113.
-pdfTeX warning (ext4): destination with the same identifier (name{page.i}) has 
-been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.113 \tableofcontents
-                       [1
+] [2
 
-]pdfTeX warning (ext4): destination with the same identifier (name{page.ii}) ha
-s been already used, duplicate ignored
-<to be read again> 
-                   \relax 
-l.113 \tableofcontents
-                       [2]
-<sat_about.png, id=139, 602.25pt x 301.125pt>
+]
+<sat_about.png, id=144, 602.25pt x 301.125pt>
+LaTeX Font Info:    Try loading font information for T1+pcr on input line 74.
+
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/psnfss/t1pcr.fd
+File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
+)
 File: sat_about.png Graphic file (type png)
 <use sat_about.png>
-Package pdftex.def Info: sat_about.png  used on input line 117.
+Package pdftex.def Info: sat_about.png  used on input line 74.
 (pdftex.def)             Requested size: 602.24852pt x 301.12425pt.
-File: sat_about.png Graphic file (type png)
-<use sat_about.png>
-Package pdftex.def Info: sat_about.png  used on input line 117.
-(pdftex.def)             Requested size: 452.96788pt x 226.49104pt.
-
-Underfull \hbox (badness 10000) in paragraph at lines 121--122
-
- []
-
 [1
-
 
  <./sat_about.png>] [2
 
 ]
 Chapter 1.
-LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <14.4> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 133.
-LaTeX Font Info:    Try loading font information for T1+pcr on input line 140.
-(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/psnfss/t1pcr.fd
-File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
-)
 LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <9> not available
-(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 143.
-LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <12> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 158.
-LaTeX Font Info:    Try loading font information for TS1+ptm on input line 163.
+(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 111.
+LaTeX Font Info:    Try loading font information for TS1+ptm on input line 135.
 
 
 (/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/psnfss/ts1ptm.fd
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 ) [3] [4]
-LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <9> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 278.
-LaTeX Font Info:    Font shape `T1/phv/bx/it' in size <9> not available
-(Font)              Font shape `T1/phv/b/it' tried instead on input line 278.
-LaTeX Font Info:    Font shape `T1/phv/b/it' in size <9> not available
-(Font)              Font shape `T1/phv/b/sl' tried instead on input line 278.
+LaTeX Font Info:    Try loading font information for TS1+pcr on input line 268.
+
+
+(/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/psnfss/ts1pcr.fd
+File: ts1pcr.fd 2001/06/04 font definitions for TS1/pcr.
+)
+LaTeX Font Info:    Font shape `TS1/pcr/m/it' in size <9> not available
+(Font)              Font shape `TS1/pcr/m/sl' tried instead on input line 268.
  [5
 
 ] [6]
@@ -1122,97 +1248,79 @@ Chapter 2.
 
 ] [8
 
-] [9]
-Underfull \hbox (badness 10000) in paragraph at lines 489--490
-
- []
-
-[10
+] [9] [10
 
 ] [11] [12
 
 ] [13] [14
 
-]
-Underfull \hbox (badness 10000) in paragraph at lines 816--817
-[]\T1/ptm/m/n/10 Create the vir-tual ap-pli-ca-tion di-rec-tory in the sa-lome-
-Tool ap-pli-ca-tion di-rec-tory
- []
+] [15
 
-[15
-
-]
-Underfull \hbox (badness 10000) in paragraph at lines 905--906
-[]\T1/ptm/m/n/10 The --terminal (or -t) dis-play the log di-rectly in the ter-m
-i-nal, through a [][]CLI[][]
- []
-
-[16
+] [16
 
 ] [17
 
 ]
 LaTeX Font Info:    Font shape `T1/pcr/bx/n' in size <9> not available
-(Font)              Font shape `T1/pcr/b/n' tried instead on input line 1088.
- [18] [19
+(Font)              Font shape `T1/pcr/b/n' tried instead on input line 1176.
+ [18] [19] [20
+
+] [21
 
 ]
-Underfull \hbox (badness 8075) in paragraph at lines 1216--1219
-[]\T1/ptm/m/n/10 This com-mand will cre-ate an archive named \T1/pcr/m/n/10 SAL
-OME_xx.tgz \T1/ptm/m/n/10 in the work-ing di-rec-tory
- []
-
-[20
-
-]
-Overfull \hbox (44.44682pt too wide) in paragraph at lines 1276--1277
-[]\T1/ptm/m/n/10 The ver-sion con-trol sys-tems known by this op-tion are [][]C
-VS[][] (https://fr.wikipedia.org/wiki/Concurrent_versions_system),
- []
-
-[21] [22
-
-]
-Chapter 3.
-[23
+[22] [23
 
 ] [24
 
-] [25] [26]
+]
+Chapter 3.
+[25] [26
+
+] [27] [28]
 Chapter 4.
 LaTeX Font Info:    Font shape `T1/pcr/bx/n' in size <10> not available
-(Font)              Font shape `T1/pcr/b/n' tried instead on input line 1509.
-[27
+(Font)              Font shape `T1/pcr/b/n' tried instead on input line 1664.
+LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <10> not available
+(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 1792.
+[29
 
-] [28] [29] [30] [31] [32] [33]
-Underfull \hbox (badness 10000) in paragraph at lines 2688--2688
+]
+LaTeX Font Info:    Font shape `TS1/pcr/bx/n' in size <10> not available
+(Font)              Font shape `TS1/pcr/b/n' tried instead on input line 1.
+ [30] [31] [32] [33] [34] [35]
+Underfull \hbox (badness 10000) in paragraph at lines 2847--2847
 []\T1/ptm/m/it/10 filename\T1/ptm/m/n/10 , \T1/ptm/m/it/10 ad-di-tional_env={}\
 T1/ptm/m/n/10 , \T1/ptm/m/it/10 for_package=None\T1/ptm/m/n/10 ,
  []
 
-[34] [35] [36] [37] [38] [39] [40] [41]
-Underfull \hbox (badness 10000) in paragraph at lines 4104--4104
+[36] [37] [38] [39] [40] [41] [42] [43] [44]
+Underfull \hbox (badness 10000) in paragraph at lines 4366--4366
 []\T1/ptm/m/it/10 config\T1/ptm/m/n/10 , \T1/ptm/m/it/10 silent_sysstd=False\T1
 /ptm/m/n/10 , \T1/ptm/m/it/10 all_in_terminal=False\T1/ptm/m/n/10 , \T1/ptm/m/i
 t/10 mi-
  []
 
-[42] [43] [44] [45] [46] [47] [48] [49] [50] [51] [52] [53] [54] [55] [56]
-Underfull \hbox (badness 10000) in paragraph at lines 6286--6290
+[45] [46] [47] [48] [49] [50] [51] [52] [53] [54] [55] [56] [57] [58] [59]
+Underfull \hbox (badness 10000) in paragraph at lines 6557--6561
 []\T1/ptm/m/n/10 Examples: makePath(`', `suf-fix') -> `suf-fix' makePath(`prefi
 x', `suf-fix') -> `pre-fix.suffix'
  []
 
-[57] [58] [59] [60] [61] [62] [63] [64] [65] [66
+[60] [61] [62] [63]
+Underfull \hbox (badness 10000) in paragraph at lines 7119--7121
+[]\T1/ptm/m/n/10 its at-tributes {key :
+ []
 
-]
+[64] [65] [66] [67] [68]
 Chapter 5.
-[67] [68
+[69
 
-] [69
+] [70
+
+] [71
 
 
-] (./salomeTools.ind [70
+] (./salomeTools.ind [72
 
 
 ]
@@ -1276,12 +1384,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 28--29
  []
 
 
-Overfull \hbox (6.44356pt too wide) in paragraph at lines 32--33
+Overfull \hbox (6.44354pt too wide) in paragraph at lines 32--33
 []\T1/ptm/m/n/10 ANSI_CSI_RE (src.colorama.ansitowin32.AnsiToWin32
  []
 
 
-Overfull \hbox (10.33357pt too wide) in paragraph at lines 33--34
+Overfull \hbox (10.33356pt too wide) in paragraph at lines 33--34
 []\T1/ptm/m/n/10 ANSI_OSC_RE (src.colorama.ansitowin32.AnsiToWin32
  []
 
@@ -1310,9 +1418,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 52--53
 []\T1/ptm/m/n/10 append_value() (src.fileEnviron.LauncherFileEnviron
  []
 
-[71
 
-]
 Underfull \hbox (badness 10000) in paragraph at lines 72--73
 []\T1/ptm/m/n/10 BRIGHT_BACKGROUND
  []
@@ -1322,8 +1428,10 @@ Underfull \hbox (badness 10000) in paragraph at lines 72--73
 \T1/ptm/m/n/10 (src.colorama.winterm.WinStyle at-tribute),
  []
 
+[73
 
-Overfull \hbox (17.33417pt too wide) in paragraph at lines 79--80
+]
+Overfull \hbox (17.33415pt too wide) in paragraph at lines 79--80
 []\T1/ptm/m/n/10 change_to_launcher() (src.fileEnviron.LauncherFileEnviron
  []
 
@@ -1348,7 +1456,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 102--103
  []
 
 
-Overfull \hbox (2.65422pt too wide) in paragraph at lines 103--104
+Overfull \hbox (2.6542pt too wide) in paragraph at lines 103--104
 []\T1/ptm/m/n/10 command_value() (src.fileEnviron.LauncherFileEnviron
  []
 
@@ -1363,7 +1471,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 106--107
  []
 
 
-Overfull \hbox (1.98415pt too wide) in paragraph at lines 121--122
+Overfull \hbox (1.98413pt too wide) in paragraph at lines 121--122
 []\T1/ptm/m/n/10 convert_ansi() (src.colorama.ansitowin32.AnsiToWin32
  []
 
@@ -1387,8 +1495,8 @@ Underfull \hbox (badness 10000) in paragraph at lines 163--164
 []\T1/ptm/m/n/10 erase_screen() (src.colorama.winterm.WinTerm
  []
 
-[72]
-Overfull \hbox (12.3738pt too wide) in paragraph at lines 169--170
+[74]
+Overfull \hbox (12.37378pt too wide) in paragraph at lines 169--170
 []\T1/ptm/m/n/10 extract_params() (src.colorama.ansitowin32.AnsiToWin32
  []
 
@@ -1408,7 +1516,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 226--227
  []
 
 
-Overfull \hbox (16.98376pt too wide) in paragraph at lines 233--234
+Overfull \hbox (16.98375pt too wide) in paragraph at lines 233--234
 []\T1/ptm/m/n/10 get_win32_calls() (src.colorama.ansitowin32.AnsiToWin32
  []
 
@@ -1422,12 +1530,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 267--268
 []\T1/ptm/m/n/10 is_defined() (src.fileEnviron.LauncherFileEnviron
  []
 
-[73]
+
 Underfull \hbox (badness 10000) in paragraph at lines 269--270
 []\T1/ptm/m/n/10 is_stream_closed() (in mod-ule
  []
 
-
+[75]
 Underfull \hbox (badness 5260) in paragraph at lines 289--290
 []\T1/ptm/m/n/10 LIGHTBLACK_EX (src.colorama.ansi.AnsiFore at-
  []
@@ -1507,7 +1615,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 356--357
 []\T1/ptm/m/n/10 parseMappingBody() (src.pyconf.ConfigReader
  []
 
-[74]
+[76]
 Underfull \hbox (badness 10000) in paragraph at lines 370--371
 []\T1/ptm/m/n/10 prepare_testbase_from_dir() (src.test_module.Test
  []
@@ -1562,7 +1670,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 453--454
 \T1/ptm/m/n/10 (src.environment.SalomeEnviron method),
  []
 
-[75]
+[77]
 Underfull \hbox (badness 10000) in paragraph at lines 475--476
 []\T1/ptm/m/n/10 set_a_product() (src.environment.SalomeEnviron
  []
@@ -1618,7 +1726,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 488--489
  []
 
 
-Overfull \hbox (3.09416pt too wide) in paragraph at lines 492--493
+Overfull \hbox (3.09415pt too wide) in paragraph at lines 492--493
 []\T1/ptm/m/n/10 should_wrap() (src.colorama.ansitowin32.AnsiToWin32
  []
 
@@ -1633,7 +1741,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 554--555
  []
 
 
-Overfull \hbox (25.86401pt too wide) in paragraph at lines 559--560
+Overfull \hbox (25.864pt too wide) in paragraph at lines 559--560
 []\T1/ptm/m/n/10 write_and_convert() (src.colorama.ansitowin32.AnsiToWin32
  []
 
@@ -1642,48 +1750,50 @@ Underfull \hbox (badness 10000) in paragraph at lines 562--563
 []\T1/ptm/m/n/10 write_env_file() (src.environment.FileEnvWriter
  []
 
-[76]
-Overfull \hbox (16.83371pt too wide) in paragraph at lines 563--564
+
+Overfull \hbox (16.8337pt too wide) in paragraph at lines 563--564
 []\T1/ptm/m/n/10 write_plain_text() (src.colorama.ansitowin32.AnsiToWin32
  []
 
-[77
+[78] [79
 
 ])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 7626.
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 7626.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 7901.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 7901.
  (./salomeTools.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 7626.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 7626.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 7901.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 7901.
 
 Package rerunfilecheck Info: File `salomeTools.out' has not changed.
-(rerunfilecheck)             Checksum: 30BE2611C6B1D9A21CC43B549476BD3F;1342.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 7626.
+(rerunfilecheck)             Checksum: 322546514F02DF4090C0B702DC220115;2961.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 7901.
  ) 
 Here is how much of TeX's memory you used:
- 10564 strings out of 492982
- 172056 string characters out of 6124607
- 264129 words of memory out of 5000000
- 13256 multiletter control sequences out of 15000+600000
- 66589 words of font info for 74 fonts, out of 8000000 for 9000
+ 15028 strings out of 492982
+ 234859 string characters out of 6124607
+ 345371 words of memory out of 5000000
+ 17549 multiletter control sequences out of 15000+600000
+ 64980 words of font info for 97 fonts, out of 8000000 for 9000
  1142 hyphenation exceptions out of 8191
- 35i,12n,45p,411b,627s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 37i,12n,45p,550b,631s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/fonts/enc/dvips/base/8r.
-enc}</data/tmplgls/wambeke/share/texlive/2017/texmf-dist/fonts/type1/urw/courie
-r/ucrb8a.pfb></data/tmplgls/wambeke/share/texlive/2017/texmf-dist/fonts/type1/u
-rw/courier/ucrr8a.pfb></data/tmplgls/wambeke/share/texlive/2017/texmf-dist/font
-s/type1/urw/courier/ucrro8a.pfb></data/tmplgls/wambeke/share/texlive/2017/texmf
--dist/fonts/type1/urw/helvetic/uhvb8a.pfb></data/tmplgls/wambeke/share/texlive/
-2017/texmf-dist/fonts/type1/urw/helvetic/uhvbo8a.pfb></data/tmplgls/wambeke/sha
-re/texlive/2017/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></data/tmplgls/w
-ambeke/share/texlive/2017/texmf-dist/fonts/type1/urw/times/utmb8a.pfb></data/tm
-plgls/wambeke/share/texlive/2017/texmf-dist/fonts/type1/urw/times/utmr8a.pfb></
-data/tmplgls/wambeke/share/texlive/2017/texmf-dist/fonts/type1/urw/times/utmri8
-a.pfb>
-Output written on salomeTools.pdf (81 pages, 669542 bytes).
+enc}</data/tmplgls/wambeke/share/texlive/2017/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmmi5.pfb></data/tmplgls/wambeke/share/texlive/2017/texmf-dist/fonts/t
+ype1/public/amsfonts/cm/cmsy5.pfb></data/tmplgls/wambeke/share/texlive/2017/tex
+mf-dist/fonts/type1/urw/courier/ucrb8a.pfb></data/tmplgls/wambeke/share/texlive
+/2017/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></data/tmplgls/wambeke/shar
+e/texlive/2017/texmf-dist/fonts/type1/urw/courier/ucrro8a.pfb></data/tmplgls/wa
+mbeke/share/texlive/2017/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></data/
+tmplgls/wambeke/share/texlive/2017/texmf-dist/fonts/type1/urw/helvetic/uhvbo8a.
+pfb></data/tmplgls/wambeke/share/texlive/2017/texmf-dist/fonts/type1/urw/helvet
+ic/uhvr8a.pfb></data/tmplgls/wambeke/share/texlive/2017/texmf-dist/fonts/type1/
+urw/times/utmb8a.pfb></data/tmplgls/wambeke/share/texlive/2017/texmf-dist/fonts
+/type1/urw/times/utmr8a.pfb></data/tmplgls/wambeke/share/texlive/2017/texmf-dis
+t/fonts/type1/urw/times/utmri8a.pfb>
+Output written on salomeTools.pdf (83 pages, 695099 bytes).
 PDF statistics:
- 1805 PDF objects out of 2073 (max. 8388607)
- 1694 compressed objects within 17 object streams
- 679 named destinations out of 1000 (max. 500000)
- 190 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 1881 PDF objects out of 2073 (max. 8388607)
+ 1760 compressed objects within 18 object streams
+ 703 named destinations out of 1000 (max. 500000)
+ 210 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -70,7 +70,7 @@ The specification of the environment can be done through several mechanisms.
 Within the section, the user can define environment variables. He can also modify PATH variables, by appending or prepending directories.
 In the following example, we prepend *<install_dir>/lib* to ``LD_LIBRARY_PATH`` (note the *left first* underscore), append *<install_dir>/lib* to ``PYTHONPATH`` (note the *right last* underscore), and set ``LAPACK_ROOT_DIR`` to *<install_dir>*:
 
-.. code-block:: python
+.. code-block:: bash
 
     environ :
     {
@@ -81,7 +81,7 @@ In the following example, we prepend *<install_dir>/lib* to ``LD_LIBRARY_PATH`` 
 
 It is possible to distinguish the build environment from the launch environment: use a subsection called *build* or *launch*. In the example below, ``LD_LIBRARY_PATH`` and ``PYTHONPATH`` are only modified at run time, not at compile time:
 
-.. code-block:: python
+.. code-block:: bash
 
     environ :
     {

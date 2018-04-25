@@ -11,9 +11,9 @@
 \contentsline {section}{\numberline {1.3}Usage of SAlomeTools}{5}{section.1.3}
 \contentsline {subsection}{\numberline {1.3.1}Usage}{5}{subsection.1.3.1}
 \contentsline {subsubsection}{Options of sat}{5}{subsubsection*.7}
-\contentsline {paragraph}{\emph {--help or -h}}{5}{paragraph*.8}
-\contentsline {paragraph}{\emph {--debug or -g}}{5}{paragraph*.9}
-\contentsline {paragraph}{\emph {--verbose or -v}}{5}{paragraph*.10}
+\contentsline {paragraph}{\sphinxstyleemphasis {\textendash {}help or -h}}{5}{paragraph*.8}
+\contentsline {paragraph}{\sphinxstyleemphasis {\textendash {}debug or -g}}{5}{paragraph*.9}
+\contentsline {paragraph}{\sphinxstyleemphasis {\textendash {}verbose or -v}}{5}{paragraph*.10}
 \contentsline {subsection}{\numberline {1.3.2}Build a SALOME product}{5}{subsection.1.3.2}
 \contentsline {subsubsection}{Get the list of available products}{5}{subsubsection*.11}
 \contentsline {subsubsection}{Prepare sources of a product}{5}{subsubsection*.12}
@@ -50,55 +50,55 @@
 \contentsline {subsection}{\numberline {2.7.1}Description}{17}{subsection.2.7.1}
 \contentsline {subsection}{\numberline {2.7.2}Usage}{17}{subsection.2.7.2}
 \contentsline {subsection}{\numberline {2.7.3}Configuration}{17}{subsection.2.7.3}
-\contentsline {section}{\numberline {2.8}Command clean}{19}{section.2.8}
-\contentsline {subsection}{\numberline {2.8.1}Description}{19}{subsection.2.8.1}
-\contentsline {subsection}{\numberline {2.8.2}Usage}{19}{subsection.2.8.2}
-\contentsline {subsection}{\numberline {2.8.3}Availables options}{19}{subsection.2.8.3}
-\contentsline {subsection}{\numberline {2.8.4}Some useful configuration pathes}{19}{subsection.2.8.4}
-\contentsline {section}{\numberline {2.9}Command package}{20}{section.2.9}
-\contentsline {subsection}{\numberline {2.9.1}Description}{20}{subsection.2.9.1}
-\contentsline {subsection}{\numberline {2.9.2}Usage}{20}{subsection.2.9.2}
-\contentsline {subsection}{\numberline {2.9.3}Some useful configuration pathes}{21}{subsection.2.9.3}
-\contentsline {section}{\numberline {2.10}Command generate}{22}{section.2.10}
-\contentsline {subsection}{\numberline {2.10.1}Description}{22}{subsection.2.10.1}
-\contentsline {subsection}{\numberline {2.10.2}Remarks}{22}{subsection.2.10.2}
-\contentsline {subsection}{\numberline {2.10.3}Usage}{22}{subsection.2.10.3}
-\contentsline {chapter}{\numberline {3}Developer documentation}{23}{chapter.3}
-\contentsline {section}{\numberline {3.1}Add a user custom command}{24}{section.3.1}
-\contentsline {subsection}{\numberline {3.1.1}Introduction}{24}{subsection.3.1.1}
-\contentsline {subsection}{\numberline {3.1.2}Basic requirements}{24}{subsection.3.1.2}
-\contentsline {subsection}{\numberline {3.1.3}HowTo access salomeTools config and other commands}{25}{subsection.3.1.3}
-\contentsline {subsection}{\numberline {3.1.4}HowTo logger}{25}{subsection.3.1.4}
-\contentsline {subsection}{\numberline {3.1.5}HELLO example}{25}{subsection.3.1.5}
-\contentsline {chapter}{\numberline {4}Code documentation}{27}{chapter.4}
-\contentsline {section}{\numberline {4.1}src}{27}{section.4.1}
-\contentsline {subsection}{\numberline {4.1.1}src Package}{27}{subsection.4.1.1}
-\contentsline {subsubsection}{\texttt {src} Package}{27}{subsubsection*.16}
-\contentsline {subsubsection}{\texttt {ElementTree} Module}{29}{subsubsection*.59}
-\contentsline {subsubsection}{\texttt {architecture} Module}{30}{subsubsection*.91}
-\contentsline {subsubsection}{\texttt {compilation} Module}{31}{subsubsection*.98}
-\contentsline {subsubsection}{\texttt {debug} Module}{32}{subsubsection*.117}
-\contentsline {subsubsection}{\texttt {environment} Module}{33}{subsubsection*.131}
-\contentsline {subsubsection}{\texttt {fileEnviron} Module}{37}{subsubsection*.169}
-\contentsline {subsubsection}{\texttt {fork} Module}{42}{subsubsection*.234}
-\contentsline {subsubsection}{\texttt {logger} Module}{42}{subsubsection*.240}
-\contentsline {subsubsection}{\texttt {options} Module}{44}{subsubsection*.253}
-\contentsline {subsubsection}{\texttt {printcolors} Module}{45}{subsubsection*.259}
-\contentsline {subsubsection}{\texttt {product} Module}{46}{subsubsection*.272}
-\contentsline {subsubsection}{\texttt {pyconf} Module}{50}{subsubsection*.302}
-\contentsline {subsubsection}{\texttt {system} Module}{57}{subsubsection*.374}
-\contentsline {subsubsection}{\texttt {template} Module}{59}{subsubsection*.380}
-\contentsline {subsubsection}{\texttt {test\_module} Module}{59}{subsubsection*.385}
-\contentsline {subsubsection}{\texttt {xmlManager} Module}{60}{subsubsection*.405}
-\contentsline {subsubsection}{Subpackages}{61}{subsubsection*.419}
-\contentsline {paragraph}{colorama Package}{61}{paragraph*.420}
-\contentsline {subparagraph}{\texttt {colorama} Package}{61}{subparagraph*.421}
-\contentsline {subparagraph}{\texttt {ansi} Module}{61}{subparagraph*.423}
-\contentsline {subparagraph}{\texttt {ansitowin32} Module}{63}{subparagraph*.476}
-\contentsline {subparagraph}{\texttt {initialise} Module}{64}{subparagraph*.494}
-\contentsline {subparagraph}{\texttt {win32} Module}{64}{subparagraph*.501}
-\contentsline {subparagraph}{\texttt {winterm} Module}{64}{subparagraph*.504}
-\contentsline {chapter}{\numberline {5}Release Notes}{67}{chapter.5}
-\contentsline {section}{\numberline {5.1}Release notes}{67}{section.5.1}
-\contentsline {chapter}{Python Module Index}{69}{section*.532}
-\contentsline {chapter}{Index}{71}{section*.533}
+\contentsline {section}{\numberline {2.8}Command clean}{20}{section.2.8}
+\contentsline {subsection}{\numberline {2.8.1}Description}{20}{subsection.2.8.1}
+\contentsline {subsection}{\numberline {2.8.2}Usage}{20}{subsection.2.8.2}
+\contentsline {subsection}{\numberline {2.8.3}Availables options}{20}{subsection.2.8.3}
+\contentsline {subsection}{\numberline {2.8.4}Some useful configuration pathes}{20}{subsection.2.8.4}
+\contentsline {section}{\numberline {2.9}Command package}{21}{section.2.9}
+\contentsline {subsection}{\numberline {2.9.1}Description}{21}{subsection.2.9.1}
+\contentsline {subsection}{\numberline {2.9.2}Usage}{21}{subsection.2.9.2}
+\contentsline {subsection}{\numberline {2.9.3}Some useful configuration pathes}{22}{subsection.2.9.3}
+\contentsline {section}{\numberline {2.10}Command generate}{23}{section.2.10}
+\contentsline {subsection}{\numberline {2.10.1}Description}{23}{subsection.2.10.1}
+\contentsline {subsection}{\numberline {2.10.2}Remarks}{23}{subsection.2.10.2}
+\contentsline {subsection}{\numberline {2.10.3}Usage}{23}{subsection.2.10.3}
+\contentsline {chapter}{\numberline {3}Developer documentation}{25}{chapter.3}
+\contentsline {section}{\numberline {3.1}Add a user custom command}{26}{section.3.1}
+\contentsline {subsection}{\numberline {3.1.1}Introduction}{26}{subsection.3.1.1}
+\contentsline {subsection}{\numberline {3.1.2}Basic requirements}{26}{subsection.3.1.2}
+\contentsline {subsection}{\numberline {3.1.3}HowTo access salomeTools config and other commands}{27}{subsection.3.1.3}
+\contentsline {subsection}{\numberline {3.1.4}HowTo logger}{27}{subsection.3.1.4}
+\contentsline {subsection}{\numberline {3.1.5}HELLO example}{27}{subsection.3.1.5}
+\contentsline {chapter}{\numberline {4}Code documentation}{29}{chapter.4}
+\contentsline {section}{\numberline {4.1}src}{29}{section.4.1}
+\contentsline {subsection}{\numberline {4.1.1}src Package}{29}{subsection.4.1.1}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {src}} Package}{29}{subsubsection*.16}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {ElementTree}} Module}{31}{subsubsection*.59}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {architecture}} Module}{32}{subsubsection*.91}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {compilation}} Module}{33}{subsubsection*.98}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {debug}} Module}{34}{subsubsection*.117}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {environment}} Module}{35}{subsubsection*.131}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {fileEnviron}} Module}{39}{subsubsection*.169}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {fork}} Module}{45}{subsubsection*.234}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {logger}} Module}{45}{subsubsection*.240}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {options}} Module}{47}{subsubsection*.253}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {printcolors}} Module}{47}{subsubsection*.259}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {product}} Module}{49}{subsubsection*.272}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {pyconf}} Module}{53}{subsubsection*.302}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {system}} Module}{60}{subsubsection*.374}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {template}} Module}{62}{subsubsection*.380}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {test\_module}} Module}{62}{subsubsection*.385}
+\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {xmlManager}} Module}{62}{subsubsection*.405}
+\contentsline {subsubsection}{Subpackages}{64}{subsubsection*.419}
+\contentsline {paragraph}{colorama Package}{64}{paragraph*.420}
+\contentsline {subparagraph}{\sphinxstyleliteralintitle {\sphinxupquote {colorama}} Package}{64}{subparagraph*.421}
+\contentsline {subparagraph}{\sphinxstyleliteralintitle {\sphinxupquote {ansi}} Module}{64}{subparagraph*.423}
+\contentsline {subparagraph}{\sphinxstyleliteralintitle {\sphinxupquote {ansitowin32}} Module}{66}{subparagraph*.476}
+\contentsline {subparagraph}{\sphinxstyleliteralintitle {\sphinxupquote {initialise}} Module}{67}{subparagraph*.494}
+\contentsline {subparagraph}{\sphinxstyleliteralintitle {\sphinxupquote {win32}} Module}{67}{subparagraph*.501}
+\contentsline {subparagraph}{\sphinxstyleliteralintitle {\sphinxupquote {winterm}} Module}{67}{subparagraph*.504}
+\contentsline {chapter}{\numberline {5}Release Notes}{69}{chapter.5}
+\contentsline {section}{\numberline {5.1}Release notes}{69}{section.5.1}
+\contentsline {chapter}{Python Module Index}{71}{section*.532}
+\contentsline {chapter}{Index}{73}{section*.533}

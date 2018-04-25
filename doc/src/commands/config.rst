@@ -65,7 +65,7 @@ Usage
 
 * Get information on a product configuration: 
 
-  .. code-block:: bash
+.. code-block:: bash
 
     # sat config <application> --info <product>
     sat config SALOME-xx --info KERNEL

@@ -2,39 +2,27 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    
-    <title>src.options &mdash; salomeTools 5.0.0dev documentation</title>
-    
+    <title>src.options &#8212; salomeTools 5.0.0dev documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../../',
-        VERSION:     '5.0.0dev',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
-    </script>
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="salomeTools 5.0.0dev documentation" href="../../index.html" />
-    <link rel="up" title="Module code" href="../index.html" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
   
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
-  </head>
-  <body>
+  </head><body>
   
 
     <div class="document">
@@ -43,29 +31,29 @@
           <div class="body" role="main">
             
   <h1>Source code for src.options</h1><div class="highlight"><pre>
-<span class="c">#!/usr/bin/env python</span>
-<span class="c">#-*- coding:utf-8 -*-</span>
-<span class="c">#  Copyright (C) 2010-2013  CEA/DEN</span>
-<span class="c">#</span>
-<span class="c">#  This library is free software; you can redistribute it and/or</span>
-<span class="c">#  modify it under the terms of the GNU Lesser General Public</span>
-<span class="c">#  License as published by the Free Software Foundation; either</span>
-<span class="c">#  version 2.1 of the License.</span>
-<span class="c">#</span>
-<span class="c">#  This library is distributed in the hope that it will be useful,</span>
-<span class="c">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
-<span class="c">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
-<span class="c">#  Lesser General Public License for more details.</span>
-<span class="c">#</span>
-<span class="c">#  You should have received a copy of the GNU Lesser General Public</span>
-<span class="c">#  License along with this library; if not, write to the Free Software</span>
-<span class="c">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1">#-*- coding:utf-8 -*-</span>
+<span class="c1">#  Copyright (C) 2010-2013  CEA/DEN</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is free software; you can redistribute it and/or</span>
+<span class="c1">#  modify it under the terms of the GNU Lesser General Public</span>
+<span class="c1">#  License as published by the Free Software Foundation; either</span>
+<span class="c1">#  version 2.1 of the License.</span>
+<span class="c1">#</span>
+<span class="c1">#  This library is distributed in the hope that it will be useful,</span>
+<span class="c1">#  but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1">#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU</span>
+<span class="c1">#  Lesser General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1">#  You should have received a copy of the GNU Lesser General Public</span>
+<span class="c1">#  License along with this library; if not, write to the Free Software</span>
+<span class="c1">#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA</span>
 <span class="sd">&#39;&#39;&#39;The Options class that manages the access to all options passed as </span>
 <span class="sd">   parameters in salomeTools command lines</span>
 <span class="sd">&#39;&#39;&#39;</span>
 <span class="kn">import</span> <span class="nn">getopt</span>
 <span class="kn">import</span> <span class="nn">sys</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">printcolors</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">printcolors</span>
 
 <div class="viewcode-block" id="OptResult"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.OptResult">[docs]</a><span class="k">class</span> <span class="nc">OptResult</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;An instance of this class will be the object manipulated</span>
@@ -79,7 +67,7 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Initialization</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Overwrite of the __getattr__ function </span>
@@ -89,10 +77,10 @@
 <span class="sd">        :return: the value corresponding to the attribute.</span>
 <span class="sd">        :rtype: str,int,list,boolean</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span><span class="s">u&quot; is not a valid option&quot;</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="n">name</span> <span class="o">+</span> <span class="n">_</span><span class="p">(</span><span class="sa">u</span><span class="s2">&quot; is not a valid option&quot;</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Overwrite of the __setattr__ function </span>
@@ -103,24 +91,24 @@
 <span class="sd">        :return: Nothing.</span>
 <span class="sd">        :rtype: N\A</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="nb">object</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="n">value</span><span class="p">)</span>
-</div>
+        <span class="nb">object</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="n">name</span><span class="p">,</span><span class="n">value</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Options"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options">[docs]</a><span class="k">class</span> <span class="nc">Options</span><span class="p">:</span>
     <span class="sd">&#39;&#39;&#39;Class to manage all salomeTools options</span>
 <span class="sd">    &#39;&#39;&#39;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Initialization</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c"># The options field stocks all options of a command </span>
-        <span class="c"># in a list that contains dicts</span>
+        <span class="c1"># The options field stocks all options of a command </span>
+        <span class="c1"># in a list that contains dicts</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="c"># The list of available option type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">availableOptions</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;boolean&quot;</span><span class="p">,</span> <span class="s">&quot;string&quot;</span><span class="p">,</span> <span class="s">&quot;int&quot;</span><span class="p">,</span> <span class="s">&quot;float&quot;</span><span class="p">,</span>
-                                  <span class="s">&quot;long&quot;</span><span class="p">,</span> <span class="s">&quot;list&quot;</span><span class="p">,</span> <span class="s">&quot;list2&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="c1"># The list of available option type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">availableOptions</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;boolean&quot;</span><span class="p">,</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;int&quot;</span><span class="p">,</span> <span class="s2">&quot;float&quot;</span><span class="p">,</span>
+                                  <span class="s2">&quot;long&quot;</span><span class="p">,</span> <span class="s2">&quot;list&quot;</span><span class="p">,</span> <span class="s2">&quot;list2&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">default</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="Options.add_option"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options.add_option">[docs]</a>    <span class="k">def</span> <span class="nf">add_option</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">shortName</span><span class="p">,</span> <span class="n">longName</span><span class="p">,</span>
-                    <span class="n">optionType</span><span class="p">,</span> <span class="n">destName</span><span class="p">,</span> <span class="n">helpString</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+                    <span class="n">optionType</span><span class="p">,</span> <span class="n">destName</span><span class="p">,</span> <span class="n">helpString</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">default</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Method to add an option to a command. It gets all attributes</span>
 <span class="sd">           of an option and append it in the options field</span>
 <span class="sd">        </span>
@@ -136,41 +124,41 @@
 <span class="sd">        :rtype: N\A</span>
 <span class="sd">        &#39;&#39;&#39;</span>
         <span class="n">option</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
-        <span class="n">option</span><span class="p">[</span><span class="s">&#39;shortName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shortName</span>
-        <span class="n">option</span><span class="p">[</span><span class="s">&#39;longName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">longName</span>
+        <span class="n">option</span><span class="p">[</span><span class="s1">&#39;shortName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">shortName</span>
+        <span class="n">option</span><span class="p">[</span><span class="s1">&#39;longName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">longName</span>
 
         <span class="k">if</span> <span class="n">optionType</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">availableOptions</span><span class="p">:</span>
-            <span class="k">print</span><span class="p">(</span><span class="s">&quot;error optionType&quot;</span><span class="p">,</span> <span class="n">optionType</span><span class="p">,</span> <span class="s">&quot;not available.&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;error optionType&quot;</span><span class="p">,</span> <span class="n">optionType</span><span class="p">,</span> <span class="s2">&quot;not available.&quot;</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="n">option</span><span class="p">[</span><span class="s">&#39;optionType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">optionType</span>
-        <span class="n">option</span><span class="p">[</span><span class="s">&#39;destName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">destName</span>
-        <span class="n">option</span><span class="p">[</span><span class="s">&#39;helpString&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">helpString</span>
-        <span class="n">option</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">default</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">option</span><span class="p">)</span>
-</div>
+        <span class="n">option</span><span class="p">[</span><span class="s1">&#39;optionType&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">optionType</span>
+        <span class="n">option</span><span class="p">[</span><span class="s1">&#39;destName&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">destName</span>
+        <span class="n">option</span><span class="p">[</span><span class="s1">&#39;helpString&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">helpString</span>
+        <span class="n">option</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">default</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">option</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="Options.print_help"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options.print_help">[docs]</a>    <span class="k">def</span> <span class="nf">print_help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Method that display all options stored in self.options and there help</span>
 <span class="sd">        </span>
 <span class="sd">        :return: Nothing.</span>
 <span class="sd">        :rtype: N\A</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="c"># Do nothing if there are no options</span>
+        <span class="c1"># Do nothing if there are no options</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="c"># for all options, print its values. </span>
-        <span class="c"># &quot;shortname&quot; is an optional field of the options </span>
-        <span class="k">print</span><span class="p">(</span><span class="n">printcolors</span><span class="o">.</span><span class="n">printcHeader</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s">&quot;Available options are:&quot;</span><span class="p">)))</span>
+        <span class="c1"># for all options, print its values. </span>
+        <span class="c1"># &quot;shortname&quot; is an optional field of the options </span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">printcolors</span><span class="o">.</span><span class="n">printcHeader</span><span class="p">(</span><span class="n">_</span><span class="p">(</span><span class="s2">&quot;Available options are:&quot;</span><span class="p">)))</span>
         <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s">&#39;shortName&#39;</span> <span class="ow">in</span> <span class="n">option</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s">&#39;shortName&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&quot; -</span><span class="si">%(shortName)1s</span><span class="s">, --</span><span class="si">%(longName)s</span><span class="s">&quot;</span>
-                      <span class="s">&quot; (</span><span class="si">%(optionType)s</span><span class="s">)</span><span class="se">\n\t</span><span class="si">%(helpString)s</span><span class="se">\n</span><span class="s">&quot;</span> <span class="o">%</span> <span class="n">option</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s1">&#39;shortName&#39;</span> <span class="ow">in</span> <span class="n">option</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s1">&#39;shortName&#39;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; -</span><span class="si">%(shortName)1s</span><span class="s2">, --</span><span class="si">%(longName)s</span><span class="s2">&quot;</span>
+                      <span class="s2">&quot; (</span><span class="si">%(optionType)s</span><span class="s2">)</span><span class="se">\n\t</span><span class="si">%(helpString)s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">option</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">print</span><span class="p">(</span><span class="s">&quot; --</span><span class="si">%(longName)s</span><span class="s"> (</span><span class="si">%(optionType)s</span><span class="s">)</span><span class="se">\n\t</span><span class="si">%(helpString)s</span><span class="se">\n</span><span class="s">&quot;</span>
-                       <span class="o">%</span> <span class="n">option</span><span class="p">)</span>
-</div>
-<div class="viewcode-block" id="Options.parse_args"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options.parse_args">[docs]</a>    <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argList</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot; --</span><span class="si">%(longName)s</span><span class="s2"> (</span><span class="si">%(optionType)s</span><span class="s2">)</span><span class="se">\n\t</span><span class="si">%(helpString)s</span><span class="se">\n</span><span class="s2">&quot;</span>
+                       <span class="o">%</span> <span class="n">option</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Options.parse_args"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options.parse_args">[docs]</a>    <span class="k">def</span> <span class="nf">parse_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argList</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;Method that instantiates the class OptResult </span>
 <span class="sd">           that gives access to all options in the code</span>
 <span class="sd">        </span>
@@ -180,70 +168,71 @@
 <span class="sd">                                   is the full raw list of passed options </span>
 <span class="sd">        :rtype: (class &#39;common.options.OptResult&#39;,list)</span>
 <span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">if</span> <span class="n">argList</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">argList</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">argList</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
         
-        <span class="c"># format shortNameOption and longNameOption </span>
-        <span class="c"># to make right arguments to getopt.getopt function</span>
-        <span class="n">shortNameOption</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+        <span class="c1"># format shortNameOption and longNameOption </span>
+        <span class="c1"># to make right arguments to getopt.getopt function</span>
+        <span class="n">shortNameOption</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="n">longNameOption</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
-            <span class="n">shortNameOption</span> <span class="o">=</span> <span class="n">shortNameOption</span> <span class="o">+</span> <span class="n">option</span><span class="p">[</span><span class="s">&#39;shortName&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s">&#39;shortName&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;&quot;</span> <span class="ow">and</span> <span class="n">option</span><span class="p">[</span><span class="s">&#39;optionType&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;boolean&quot;</span><span class="p">:</span>
-                <span class="n">shortNameOption</span> <span class="o">=</span> <span class="n">shortNameOption</span> <span class="o">+</span> <span class="s">&quot;:&quot;</span>
+            <span class="n">shortNameOption</span> <span class="o">=</span> <span class="n">shortNameOption</span> <span class="o">+</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;shortName&#39;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;shortName&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span> <span class="ow">and</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;optionType&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;boolean&quot;</span><span class="p">:</span>
+                <span class="n">shortNameOption</span> <span class="o">=</span> <span class="n">shortNameOption</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span>
 
-            <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s">&#39;longName&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;&quot;</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s">&#39;optionType&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s">&quot;boolean&quot;</span><span class="p">:</span>
-                    <span class="n">longNameOption</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s">&#39;longName&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s">&quot;=&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;longName&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;optionType&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;boolean&quot;</span><span class="p">:</span>
+                    <span class="n">longNameOption</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s1">&#39;longName&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="n">longNameOption</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s">&#39;longName&#39;</span><span class="p">])</span>
+                    <span class="n">longNameOption</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s1">&#39;longName&#39;</span><span class="p">])</span>
 
-        <span class="c"># call to getopt.getopt function to get the option </span>
-        <span class="c"># passed in the command regarding the available options</span>
+        <span class="c1"># call to getopt.getopt function to get the option </span>
+        <span class="c1"># passed in the command regarding the available options</span>
         <span class="n">optlist</span><span class="p">,</span> <span class="n">args</span> <span class="o">=</span> <span class="n">getopt</span><span class="o">.</span><span class="n">getopt</span><span class="p">(</span><span class="n">argList</span><span class="p">,</span> <span class="n">shortNameOption</span><span class="p">,</span> <span class="n">longNameOption</span><span class="p">)</span>
         
-        <span class="c"># instantiate and completing the optResult that will be returned</span>
+        <span class="c1"># instantiate and completing the optResult that will be returned</span>
         <span class="n">optResult</span> <span class="o">=</span> <span class="n">OptResult</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">option</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">:</span>
-            <span class="n">shortOption</span> <span class="o">=</span> <span class="s">&quot;-&quot;</span> <span class="o">+</span> <span class="n">option</span><span class="p">[</span><span class="s">&#39;shortName&#39;</span><span class="p">]</span>
-            <span class="n">longOption</span> <span class="o">=</span> <span class="s">&quot;--&quot;</span> <span class="o">+</span> <span class="n">option</span><span class="p">[</span><span class="s">&#39;longName&#39;</span><span class="p">]</span>
-            <span class="n">optionType</span> <span class="o">=</span> <span class="n">option</span><span class="p">[</span><span class="s">&#39;optionType&#39;</span><span class="p">]</span>
+            <span class="n">shortOption</span> <span class="o">=</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;shortName&#39;</span><span class="p">]</span>
+            <span class="n">longOption</span> <span class="o">=</span> <span class="s2">&quot;--&quot;</span> <span class="o">+</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;longName&#39;</span><span class="p">]</span>
+            <span class="n">optionType</span> <span class="o">=</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;optionType&#39;</span><span class="p">]</span>
             <span class="k">for</span> <span class="n">opt</span> <span class="ow">in</span> <span class="n">optlist</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">opt</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="n">shortOption</span><span class="p">,</span> <span class="n">longOption</span><span class="p">]:</span>
-                    <span class="k">if</span> <span class="n">optionType</span> <span class="o">==</span> <span class="s">&quot;string&quot;</span><span class="p">:</span>
-                        <span class="n">option</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="k">elif</span> <span class="n">optionType</span> <span class="o">==</span> <span class="s">&quot;boolean&quot;</span><span class="p">:</span>
-                        <span class="n">option</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">True</span>
-                    <span class="k">elif</span> <span class="n">optionType</span> <span class="o">==</span> <span class="s">&quot;int&quot;</span><span class="p">:</span>
-                        <span class="n">option</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                    <span class="k">elif</span> <span class="n">optionType</span> <span class="o">==</span> <span class="s">&quot;float&quot;</span><span class="p">:</span>
-                        <span class="n">option</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                    <span class="k">elif</span> <span class="n">optionType</span> <span class="o">==</span> <span class="s">&quot;long&quot;</span><span class="p">:</span>
-                        <span class="n">option</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">long</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                    <span class="k">elif</span> <span class="n">optionType</span> <span class="o">==</span> <span class="s">&quot;list&quot;</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                            <span class="n">option</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-                        <span class="n">option</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                    <span class="k">elif</span> <span class="n">optionType</span> <span class="o">==</span> <span class="s">&quot;list2&quot;</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-                            <span class="n">option</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
-                        <span class="k">if</span> <span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
-                            <span class="n">option</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="n">optionType</span> <span class="o">==</span> <span class="s2">&quot;string&quot;</span><span class="p">:</span>
+                        <span class="n">option</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="k">elif</span> <span class="n">optionType</span> <span class="o">==</span> <span class="s2">&quot;boolean&quot;</span><span class="p">:</span>
+                        <span class="n">option</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">elif</span> <span class="n">optionType</span> <span class="o">==</span> <span class="s2">&quot;int&quot;</span><span class="p">:</span>
+                        <span class="n">option</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">elif</span> <span class="n">optionType</span> <span class="o">==</span> <span class="s2">&quot;float&quot;</span><span class="p">:</span>
+                        <span class="n">option</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">elif</span> <span class="n">optionType</span> <span class="o">==</span> <span class="s2">&quot;long&quot;</span><span class="p">:</span>
+                        <span class="n">option</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">long</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">elif</span> <span class="n">optionType</span> <span class="o">==</span> <span class="s2">&quot;list&quot;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">option</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+                        <span class="n">option</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">elif</span> <span class="n">optionType</span> <span class="o">==</span> <span class="s2">&quot;list2&quot;</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">option</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">()</span>
+                        <span class="k">if</span> <span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                            <span class="n">option</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
                         <span class="k">else</span><span class="p">:</span>
-                            <span class="n">elts</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">))</span>
-                            <span class="n">option</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">elts</span><span class="p">)</span>
+                            <span class="n">elts</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">l</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="n">opt</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))</span>
+                            <span class="n">option</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">elts</span><span class="p">)</span>
 
-            <span class="n">optResult</span><span class="o">.</span><span class="n">__setattr__</span><span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s">&#39;destName&#39;</span><span class="p">],</span> <span class="n">option</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">])</span>
-            <span class="c"># free the option in order to be able to make </span>
-            <span class="c"># a new free call of options (API case)</span>
-            <span class="n">option</span><span class="p">[</span><span class="s">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="k">return</span> <span class="n">optResult</span><span class="p">,</span> <span class="n">args</span>
-</pre></div></div></div>
+            <span class="n">optResult</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">option</span><span class="p">[</span><span class="s1">&#39;destName&#39;</span><span class="p">],</span> <span class="n">option</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">])</span>
+            <span class="c1"># free the option in order to be able to make </span>
+            <span class="c1"># a new free call of options (API case)</span>
+            <span class="n">option</span><span class="p">[</span><span class="s1">&#39;result&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">optResult</span><span class="p">,</span> <span class="n">args</span></div></div>
+
+</pre></div>
 
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../../index.html">
               <img class="logo" src="../../_static/sat_v5.0.png" alt="Logo"/>
@@ -256,17 +245,16 @@
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
+    <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
+    </div>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -277,8 +265,8 @@
       &copy;2018, CEA.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.1.3</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster </a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
     </div>
 

@@ -16,6 +16,8 @@
 .. _Miniconda: http://conda.pydata.org/miniconda.html
 .. _Git: https://git-scm.com
 .. _GitCheatSheet: https://services.github.com/kit/downloads/github-git-cheat-sheet.pdf
+.. _SatCheatSheet: ../sat-cheat-sheet.pdf
+.. _SatPdf: ./../latex/salomeTools.pdf
 .. _CLI: https://en.wikipedia.org/wiki/Command-line_interface
 .. _Tar: https://en.wikipedia.org/wiki/Tar_(computing)
 .. _OS: https://en.wikipedia.org/wiki/Operating_system
