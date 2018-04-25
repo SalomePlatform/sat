@@ -25,7 +25,6 @@ import os
 import shutil
 import errno
 import stat
-import src
 
 from . import pyconf
 from . import architecture
@@ -446,6 +445,6 @@ def activate_mesa_property(config):
     """
     # Verify the existence of the file
     if not 'properties' in config.APPLICATION:
-        config.APPLICATION.addMapping( 'properties', src.pyconf.Mapping(), None )
+        config.APPLICATION.addMapping( 'properties', pyconf.Mapping(), None )
     config.APPLICATION.properties.use_mesa="yes"
 
