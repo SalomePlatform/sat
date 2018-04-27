@@ -825,11 +825,8 @@ def main(args):
         return
 
     # Start SALOME, parsing command line arguments
-    context.runSalome(args)
-    #print 'Thank you for using SALOME!'
-
-    # Logger level info
-    context.getLogger().setLevel(20)
+    out, err, status = context.runSalome(args)
+    sys.exit(status)
 
   except SalomeContextException, e:
     import logging
