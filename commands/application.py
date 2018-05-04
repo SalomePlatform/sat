@@ -92,6 +92,13 @@ def create_config_file(config, modules, env_file, logger):
     flagline = False
     for m in modules:
         mm = src.product.get_product_config(config, m)
+        # do not include in virtual application application module!
+        if src.get_property_in_product_cfg(mm, "is_salome_application") == "yes":
+            continue
+        # do not include products that do not compile
+        if not src.product.product_compiles(mm):
+            continue
+        #obsolete?
         if src.product.product_is_smesh_plugin(mm):
             continue
 
