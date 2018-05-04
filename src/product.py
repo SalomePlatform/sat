@@ -198,7 +198,9 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
                     DBG.tofix(msg, config.PATHS.ARCHIVEPATH) #avoid 2 messages in compile
                     prod_info.archive_info.archive_name = arch_name #without path
                     # raise src.SatException(msg) #may be a warning, continue #8646
-                prod_info.archive_info.archive_name = arch_path
+                else:
+                    prod_info.archive_info.archive_name = arch_path
+
         
     # If the product compiles with a script, check the script existence
     # and if it is executable
@@ -571,20 +573,6 @@ def check_source(product_info):
             if not os.path.exists(file_path):
                 return False
     return True
-
-def product_is_sample(product_info):
-    """Know if a product has the sample type
-    
-    :param product_info Config: The configuration specific to 
-                               the product
-    :return: True if the product has the sample type, else False
-    :rtype: boolean
-    """
-    if 'type' in product_info:
-        ptype = product_info.type
-        return ptype.lower() == 'sample'
-    else:
-        return False
 
 def product_is_salome(product_info):
     """Know if a product is a SALOME module
