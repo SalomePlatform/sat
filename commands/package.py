@@ -1346,8 +1346,7 @@ Please add it in file:
 
     # Create a working directory for all files that are produced during the
     # package creation and that will be removed at the end of the command
-    tmp_working_dir = os.path.join(runner.cfg.VARS.tmp_root,
-                                   runner.cfg.VARS.datehour)
+    tmp_working_dir = os.path.join(runner.cfg.VARS.tmp_root, runner.cfg.VARS.datehour)
     src.ensure_path_exists(tmp_working_dir)
     logger.write("\n", 5)
     logger.write(_("The temporary working directory: %s\n" % tmp_working_dir),5)
@@ -1417,9 +1416,7 @@ Please add it in file:
         return 1
 
     # Add the README file in the package
-    local_readme_tmp_path = add_readme(runner.cfg,
-                                       options,
-                                       tmp_working_dir)
+    local_readme_tmp_path = add_readme(runner.cfg, options, tmp_working_dir)
     d_files_to_add["README"] = (local_readme_tmp_path, "README")
 
     # Add the additional files of option add_files
@@ -1455,9 +1452,12 @@ Please add it in file:
         logger.write(_("\n"), 1)
         return 1
     
-    # remove the working directory
-    DBG.tofix("make shutil.rmtree(tmp_working_dir) effective", "", True)   
-    # shutil.rmtree(tmp_working_dir)
+    # unconditionaly remove the tmp_local_working_dir
+    tmp_local_working_dir = os.path.join(runner.cfg.APPLICATION.workdir, "tmp_package")
+    shutil.rmtree(tmp_local_working_dir)
+
+    # to decide...
+    DBG.tofix("make shutil.rmtree(%s) effective" % tmp_working_dir, "", True)   
     
     # Print again the path of the package
     logger.write("\n", 2)
