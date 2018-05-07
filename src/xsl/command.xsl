@@ -13,7 +13,7 @@
 			empty-cells : show;
 		      }
 	  td          { vertical-align : center; padding: 15px; }
-	  h1          { text-align : center; }
+	  h1          { text-align : center; font-style: italic; font-size: 20px; }
 	  .legend     { font-weight : bold;
 			text-align : center;
 		      } 
@@ -109,8 +109,8 @@
 		<xsl:variable name="txtLog">
 			<xsl:value-of select="SATcommand/OutLog"/>
 		</xsl:variable>
-		<iframe src="{$txtLog}" frameborder="0" class="center" width="100%" height="3000" scrolling="yes"></iframe>
-		<!--<iframe src="{$txtLog}" frameborder="0" class="center" width="100%" height="1500000" scrolling="no"></iframe>-->
+		<iframe src="{$txtLog}" frameborder="0" class="center" width="99%" height="500" scrolling="yes"></iframe>
+		<!--<iframe src="{$txtLog}" frameborder="0" class="center" width="99%" height="500" scrolling="yes"></iframe>-->
 	</body>
 </xsl:template>
 
