@@ -104,10 +104,15 @@ def generate_launch_file(config,
     else:
         app_root_dir=salome_application_name
 
-    # Get the launcher template
-    withProfile = src.fileEnviron.withProfile\
-                     .replace("BIN_KERNEL_INSTALL_DIR", bin_kernel_install_dir)\
-                     .replace("KERNEL_INSTALL_DIR", app_root_dir)
+    # Get the launcher template (python3 or python2)
+    if "python3" in config.APPLICATION and config.APPLICATION.python3 == "yes":
+        withProfile = src.fileEnviron.withProfile3\
+                         .replace("BIN_KERNEL_INSTALL_DIR", bin_kernel_install_dir)\
+                         .replace("KERNEL_INSTALL_DIR", app_root_dir)
+    else:
+        withProfile = src.fileEnviron.withProfile\
+                         .replace("BIN_KERNEL_INSTALL_DIR", bin_kernel_install_dir)\
+                         .replace("KERNEL_INSTALL_DIR", app_root_dir)
 
     before, after = withProfile.split(
                                 "# here your local standalone environment\n")
