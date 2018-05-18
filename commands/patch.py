@@ -18,6 +18,7 @@
 
 import os
 import subprocess
+import re
 
 import src
 import prepare
@@ -27,6 +28,9 @@ parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
     _('Optional: products to get the sources. This option can be'
     ' passed several time to get the sources of several products.'))
+parser.add_option('', 'properties', 'string', 'properties',
+    _('Optional: Filter the products by their properties.\n\tSyntax: '
+      '--properties <property>:<value>'))
 
 def apply_patch(config, product_info, max_product_name_len, logger):
     '''The method called to apply patches on a product
@@ -139,6 +143,16 @@ def run(args, runner, logger):
     
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
+
+    # Verify the --properties option
+    if options.properties:
+        oExpr = re.compile(prepare.PROPERTY_EXPRESSION)
+        if not oExpr.search(options.properties):
+            msg = _('WARNING: the "--properties" options must have the '
+                    'following syntax:\n--properties <property>:<value>')
+            logger.write(src.printcolors.printcWarning(msg), 1)
+            logger.write("\n", 1)
+            options.properties = None
 
     # Print some informations
     logger.write('Patching sources of the application %s\n' % 

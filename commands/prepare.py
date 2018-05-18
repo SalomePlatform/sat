@@ -22,11 +22,16 @@ import os
 import src
 import src.debug as DBG
 
+PROPERTY_EXPRESSION = "^.+:.+$"
+
 # Define all possible option for prepare command :  sat prepare <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
     _('Optional: products to prepare. This option can be'
     ' passed several time to prepare several products.'))
+parser.add_option('', 'properties', 'string', 'properties',
+    _('Optional: Filter the products by their properties.\n\tSyntax: '
+      '--properties <property>:<value>'))
 parser.add_option('f', 'force', 'boolean', 'force', 
     _("Optional: force to prepare the products in development mode."))
 parser.add_option('', 'force_patch', 'boolean', 'force_patch', 
@@ -61,6 +66,15 @@ def get_products_list(options, cfg, logger):
     # the products name and their definition
     products_infos = src.product.get_products_infos(products, cfg)
     
+    # if the property option was passed, filter the list
+    if options.properties:
+        [prop, value] = options.properties.split(":")
+        products_infos = [(p_name, p_info) for 
+                          (p_name, p_info) in products_infos 
+                          if "properties" in p_info and 
+                          prop in p_info.properties and 
+                          p_info.properties[prop] == value]
+        
     return products_infos
 
 def remove_products(arguments, l_products_info, logger):
@@ -141,6 +155,16 @@ def run(args, runner, logger):
 
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
+
+    # Verify the --properties option
+    if options.properties:
+        oExpr = re.compile(PROPERTY_EXPRESSION)
+        if not oExpr.search(options.properties):
+            msg = _('WARNING: the "--properties" options must have the '
+                    'following syntax:\n--properties <property>:<value>')
+            logger.write(src.printcolors.printcWarning(msg), 1)
+            logger.write("\n", 1)
+            options.properties = None
 
     products_infos = get_products_list(options, runner.cfg, logger)
 

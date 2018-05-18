@@ -17,7 +17,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
-
+import re
 import src
 import src.debug as DBG
 
@@ -28,11 +28,16 @@ try:
 except NameError: 
     pass
 
+PROPERTY_EXPRESSION = "^.+:.+$"
+
 # Define all possible option for the compile command :  sat compile <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
     _('Optional: products to compile. This option can be'
     ' passed several time to compile several products.'))
+parser.add_option('', 'properties', 'string', 'properties',
+    _('Optional: Filter the products by their properties.\n\tSyntax: '
+      '--properties <property>:<value>'))
 parser.add_option('', 'with_fathers', 'boolean', 'fathers',
     _("Optional: build all necessary products to the given product (KERNEL is "
       "build before building GUI)."), False)
@@ -87,7 +92,18 @@ def get_products_list(options, cfg, logger):
     # Construct the list of tuple containing 
     # the products name and their definition
     products_infos = src.product.get_products_infos(products, cfg)
+
+    # if the property option was passed, filter the list
+    if options.properties:
+        [prop, value] = options.properties.split(":")
+        products_infos = [(p_name, p_info) for 
+                          (p_name, p_info) in products_infos 
+                          if "properties" in p_info and 
+                          prop in p_info.properties and 
+                          p_info.properties[prop] == value]
+        
     
+    # get rid of fixed products
     products_infos = [pi for pi in products_infos if not(
                                      src.product.product_is_fixed(pi[1]))]
     
@@ -680,6 +696,16 @@ def run(args, runner, logger):
         
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
+
+    # Verify the --properties option
+    if options.properties:
+        oExpr = re.compile(PROPERTY_EXPRESSION)
+        if not oExpr.search(options.properties):
+            msg = _('WARNING: the "--properties" options must have the '
+                    'following syntax:\n--properties <property>:<value>')
+            logger.write(src.printcolors.printcWarning(msg), 1)
+            logger.write("\n", 1)
+            options.properties = None
 
     # Print some informations
     logger.write(_('Executing the compile commands in the build '

@@ -172,17 +172,17 @@ _salomeTools_complete()
             return 0
             ;;
         source)
-            opts="--products"
+            opts="--products --properties"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
         patch)
-            opts="--products"
+            opts="--products --properties"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
         prepare)
-            opts="--products --force --force_patch"
+            opts="--products --properties --force --force_patch"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
@@ -207,7 +207,7 @@ _salomeTools_complete()
             return 0
             ;;
         compile)
-            opts="--products --with_fathers --with_children --clean_all --clean_make --install_flags --show --stop_first_fail --check --clean_build_after"
+            opts="--products --properties --with_fathers --with_children --clean_all --clean_make --install_flags --show --stop_first_fail --check --clean_build_after"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
