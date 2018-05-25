@@ -1454,7 +1454,8 @@ Please add it in file:
     
     # unconditionaly remove the tmp_local_working_dir
     tmp_local_working_dir = os.path.join(runner.cfg.APPLICATION.workdir, "tmp_package")
-    shutil.rmtree(tmp_local_working_dir)
+    if os.path.isdir(tmp_local_working_dir):
+      shutil.rmtree(tmp_local_working_dir)
 
     # to decide...
     DBG.tofix("make shutil.rmtree(%s) effective" % tmp_working_dir, "", True)   
