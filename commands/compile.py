@@ -277,7 +277,6 @@ def check_dependencies(config, p_name_p_info):
 def log_step(logger, header, step):
     logger.write("\r%s%s" % (header, " " * 30), 3)
     logger.write("\r%s%s" % (header, step), 3)
-    logger.write("\n==== %s \n" % src.printcolors.printcInfo(step), 4)
     logger.flush()
 
 def log_res_step(logger, res):
@@ -306,19 +305,13 @@ def compile_all_products(sat, config, options, products_infos, logger):
         
         # Logging
         len_end_line = 30
-        logger.write("\n", 4, False)
-        logger.write("################ ", 4)
         header = _("Compilation of %s") % src.printcolors.printcLabel(p_name)
         header += " %s " % ("." * (len_end_line - len(p_name)))
         logger.write(header, 3)
-        logger.write("\n", 4, False)
         logger.flush()
 
         # Do nothing if the product is not compilable
-        if ("properties" in p_info and
-            "compilation" in p_info.properties and
-            p_info.properties.compilation == "no"):
-
+        if not src.product.product_compiles(p_info):
             log_step(logger, header, "ignored")
             logger.write("\n", 3, False)
             continue
@@ -357,10 +350,11 @@ def compile_all_products(sat, config, options, products_infos, logger):
         
         # Check if sources was already successfully installed
         check_source = src.product.check_source(p_info)
-        if not check_source:
-            logger.write(_("Sources of product not found (try 'sat -h prepare') \n"))
-            res += 1 #BUG
-            continue
+        if not options.no_compile: # don't check sources with option --show!
+            if not check_source:
+                logger.write(_("Sources of product not found (try 'sat -h prepare') \n"))
+                res += 1 # one more error
+                continue
         
         if src.product.product_is_salome(p_info):
             # For salome modules, we check if the sources of configuration modules are present
@@ -388,12 +382,14 @@ def compile_all_products(sat, config, options, products_infos, logger):
         
         # Check if it was already successfully installed
         if src.product.check_installation(p_info):
-            logger.write(_("Already installed\n"))
+            logger.write(_("Already installed"))
+            logger.write(_(" in %s" % p_info.install_dir), 4)
+            logger.write(_("\n"))
             continue
         
         # If the show option was called, do not launch the compilation
         if options.no_compile:
-            logger.write(_("Not installed\n"))
+            logger.write(_("Not installed in %s\n" % p_info.install_dir))
             continue
         
         # Check if the dependencies are installed
