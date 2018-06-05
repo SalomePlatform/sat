@@ -375,15 +375,6 @@ class SalomeEnviron:
                 self.load_cfg_environment(self.cfg.APPLICATION.environ.launch)
             self.add_line(1)
 
-        # If there is an "environ_script" section, load the scripts
-        if 'environ_script' in self.cfg.APPLICATION:
-            for pscript in self.cfg.APPLICATION.environ_script:
-                self.add_comment("script %s" % pscript)
-                sname = pscript.replace(" ", "_")
-                self.run_env_script("APPLICATION_%s" % sname,
-                                self.cfg.APPLICATION.environ_script[pscript],
-                                logger)
-                self.add_line(1)       
 
     def set_salome_minimal_product_env(self, product_info, logger):
         """\
