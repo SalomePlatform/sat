@@ -51,6 +51,9 @@ class Builder:
         self.debug_mode = False
         if "debug" in self.product_info and self.product_info.debug == "yes":
             self.debug_mode = True
+        self.verbose_mode = False
+        if "verbose" in self.product_info and self.product_info.verbose == "yes":
+            self.verbose_mode = True
 
     ##
     # Shortcut method to log in log file.
@@ -118,7 +121,11 @@ class Builder:
             cmake_option += " -DCMAKE_BUILD_TYPE=Debug"
         else :
             cmake_option += " -DCMAKE_BUILD_TYPE=Release"
-        
+
+        # add verbose option if specified in application for this product.
+        if self.verbose_mode:
+            cmake_option += " -DCMAKE_VERBOSE_MAKEFILE=ON"
+
         # In case CMAKE_GENERATOR is defined in environment, 
         # use it in spite of automatically detect it
         if 'cmake_generator' in self.config.APPLICATION:

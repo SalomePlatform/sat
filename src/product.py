@@ -54,6 +54,7 @@ def get_product_config(config, product_name, with_install_dir=True):
     # current product 
     debug = 'no'
     dev = 'no'
+    verbose = 'no'
     base = 'maybe'
     section = None
     if isinstance(version, src.pyconf.Mapping):
@@ -67,6 +68,10 @@ def get_product_config(config, product_name, with_install_dir=True):
         # Get the debug if any
         if 'debug' in dic_version:
             debug = dic_version.debug
+        
+        # Get the verbose if any
+        if 'verbose' in dic_version:
+            verbose = dic_version.verbose
         
         # Get the dev if any
         if 'dev' in dic_version:
@@ -164,6 +169,7 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
     
     # Set the debug, dev and version keys
     prod_info.debug = debug
+    prod_info.verbose = verbose
     prod_info.dev = dev
     prod_info.version = version
     
@@ -632,6 +638,17 @@ def product_is_debug(product_info):
     """
     debug = product_info.debug
     return debug.lower() == 'yes'
+
+def product_is_verbose(product_info):
+    """Know if a product is in verbose mode
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is in verbose mode, else False
+    :rtype: boolean
+    """
+    verbose = product_info.verbose
+    return verbose.lower() == 'yes'
 
 def product_is_autotools(product_info):
     """Know if a product is compiled using the autotools
