@@ -644,10 +644,22 @@ class SalomeEnviron:
             pyproduct = imp.load_source(product_info.name + "_env_script",
                                         env_script)
             if not native:
-                pyproduct.set_env(self,
-                                  product_info.install_dir,
-                                  product_info.version)
+                if self.forBuild and "set_env_build" in dir(pyproduct):
+                    pyproduct.set_env_build(self,
+                                            product_info.install_dir,
+                                            product_info.version)
+                elif (not self.forBuild) and "set_env_launch" in dir(pyproduct):
+                    pyproduct.set_env_launch(self,
+                                            product_info.install_dir,
+                                            product_info.version)
+                else:
+                    # at least this one is mandatoryi,
+                    # if set_env_build and set_env_build are not defined
+                    pyproduct.set_env(self,
+                                      product_info.install_dir,
+                                      product_info.version)
             else:
+                # not mandatory, if set_nativ_env not defined, we do nothing
                 if "set_nativ_env" in dir(pyproduct):
                     pyproduct.set_nativ_env(self)
         except:
