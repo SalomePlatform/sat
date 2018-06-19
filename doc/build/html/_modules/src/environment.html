@@ -406,17 +406,8 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">load_cfg_environment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">build</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">forBuild</span> <span class="ow">and</span> <span class="s2">&quot;launch&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">load_cfg_environment</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">launch</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
-        <span class="c1"># If there is an &quot;environ_script&quot; section, load the scripts</span>
-        <span class="k">if</span> <span class="s1">&#39;environ_script&#39;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">APPLICATION</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">pscript</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">environ_script</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_comment</span><span class="p">(</span><span class="s2">&quot;script </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">pscript</span><span class="p">)</span>
-                <span class="n">sname</span> <span class="o">=</span> <span class="n">pscript</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">run_env_script</span><span class="p">(</span><span class="s2">&quot;APPLICATION_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sname</span><span class="p">,</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">cfg</span><span class="o">.</span><span class="n">APPLICATION</span><span class="o">.</span><span class="n">environ_script</span><span class="p">[</span><span class="n">pscript</span><span class="p">],</span>
-                                <span class="n">logger</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">add_line</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>       </div>
 
 <div class="viewcode-block" id="SalomeEnviron.set_salome_minimal_product_env"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.environment.SalomeEnviron.set_salome_minimal_product_env">[docs]</a>    <span class="k">def</span> <span class="nf">set_salome_minimal_product_env</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">product_info</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;\</span>
@@ -686,10 +677,22 @@
             <span class="n">pyproduct</span> <span class="o">=</span> <span class="n">imp</span><span class="o">.</span><span class="n">load_source</span><span class="p">(</span><span class="n">product_info</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_env_script&quot;</span><span class="p">,</span>
                                         <span class="n">env_script</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">native</span><span class="p">:</span>
-                <span class="n">pyproduct</span><span class="o">.</span><span class="n">set_env</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                                  <span class="n">product_info</span><span class="o">.</span><span class="n">install_dir</span><span class="p">,</span>
-                                  <span class="n">product_info</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">forBuild</span> <span class="ow">and</span> <span class="s2">&quot;set_env_build&quot;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">pyproduct</span><span class="p">):</span>
+                    <span class="n">pyproduct</span><span class="o">.</span><span class="n">set_env_build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                            <span class="n">product_info</span><span class="o">.</span><span class="n">install_dir</span><span class="p">,</span>
+                                            <span class="n">product_info</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">forBuild</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;set_env_launch&quot;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">pyproduct</span><span class="p">):</span>
+                    <span class="n">pyproduct</span><span class="o">.</span><span class="n">set_env_launch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                            <span class="n">product_info</span><span class="o">.</span><span class="n">install_dir</span><span class="p">,</span>
+                                            <span class="n">product_info</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># at least this one is mandatoryi,</span>
+                    <span class="c1"># if set_env_build and set_env_build are not defined</span>
+                    <span class="n">pyproduct</span><span class="o">.</span><span class="n">set_env</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                      <span class="n">product_info</span><span class="o">.</span><span class="n">install_dir</span><span class="p">,</span>
+                                      <span class="n">product_info</span><span class="o">.</span><span class="n">version</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># not mandatory, if set_nativ_env not defined, we do nothing</span>
                 <span class="k">if</span> <span class="s2">&quot;set_nativ_env&quot;</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">pyproduct</span><span class="p">):</span>
                     <span class="n">pyproduct</span><span class="o">.</span><span class="n">set_nativ_env</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">except</span><span class="p">:</span>
@@ -932,6 +935,8 @@
 <ul>
   <li><a href="../../index.html">Documentation overview</a><ul>
   <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../src.html">src</a><ul>
+  </ul></li>
   </ul></li>
   </ul></li>
 </ul>

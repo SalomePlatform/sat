@@ -1,6 +1,6 @@
 
-# needs sphinx-build
-# to make doc html
+# LINUX Compile documentation procedure:
+# needs prerequisite sphinx-build to make doc html
 
 cd doc
 make html
@@ -17,4 +17,8 @@ export PATH=/data/tmplgls/wambeke/share/texlive/2017/bin/x86_64-linux:${PATH}
 cd doc
 make latexpdf
 evince build/latex/salomeTools.pdf &
+
+#########################################################
+# after compilation success do not forget to 'git push' #
+#########################################################
 

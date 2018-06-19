@@ -1,141 +1,5 @@
-src Package
+src package
 ===========
-
-:mod:`src` Package
-------------------
-
-.. automodule:: src.__init__
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`ElementTree` Module
--------------------------
-
-.. automodule:: src.ElementTree
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`architecture` Module
---------------------------
-
-.. automodule:: src.architecture
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`compilation` Module
--------------------------
-
-.. automodule:: src.compilation
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`debug` Module
--------------------
-
-.. automodule:: src.debug
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`environment` Module
--------------------------
-
-.. automodule:: src.environment
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`fileEnviron` Module
--------------------------
-
-.. automodule:: src.fileEnviron
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`fork` Module
-------------------
-
-.. automodule:: src.fork
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`logger` Module
---------------------
-
-.. automodule:: src.logger
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`options` Module
----------------------
-
-.. automodule:: src.options
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`printcolors` Module
--------------------------
-
-.. automodule:: src.printcolors
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`product` Module
----------------------
-
-.. automodule:: src.product
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`pyconf` Module
---------------------
-
-.. automodule:: src.pyconf
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`system` Module
---------------------
-
-.. automodule:: src.system
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`template` Module
-----------------------
-
-.. automodule:: src.template
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`test_module` Module
--------------------------
-
-.. automodule:: src.test_module
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`xmlManager` Module
-------------------------
-
-.. automodule:: src.xmlManager
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 Subpackages
 -----------
@@ -144,3 +8,142 @@ Subpackages
 
     src.colorama
 
+Submodules
+----------
+
+src.ElementTree module
+----------------------
+
+.. automodule:: src.ElementTree
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.architecture module
+-----------------------
+
+.. automodule:: src.architecture
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.compilation module
+----------------------
+
+.. automodule:: src.compilation
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.debug module
+----------------
+
+.. automodule:: src.debug
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.environment module
+----------------------
+
+.. automodule:: src.environment
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.fileEnviron module
+----------------------
+
+.. automodule:: src.fileEnviron
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.fork module
+---------------
+
+.. automodule:: src.fork
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.logger module
+-----------------
+
+.. automodule:: src.logger
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.options module
+------------------
+
+.. automodule:: src.options
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.printcolors module
+----------------------
+
+.. automodule:: src.printcolors
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.product module
+------------------
+
+.. automodule:: src.product
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.pyconf module
+-----------------
+
+.. automodule:: src.pyconf
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.system module
+-----------------
+
+.. automodule:: src.system
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.template module
+-------------------
+
+.. automodule:: src.template
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.test\_module module
+-----------------------
+
+.. automodule:: src.test_module
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+src.xmlManager module
+---------------------
+
+.. automodule:: src.xmlManager
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: src
+    :members:
+    :undoc-members:
+    :show-inheritance:

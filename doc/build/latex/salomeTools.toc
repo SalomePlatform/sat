@@ -19,50 +19,54 @@
 \contentsline {subsubsection}{Prepare sources of a product}{5}{subsubsection*.12}
 \contentsline {subsubsection}{Compile SALOME}{6}{subsubsection*.13}
 \contentsline {chapter}{\numberline {2}List of Commands}{7}{chapter.2}
-\contentsline {section}{\numberline {2.1}Command config}{8}{section.2.1}
+\contentsline {section}{\numberline {2.1}Command doc}{8}{section.2.1}
 \contentsline {subsection}{\numberline {2.1.1}Description}{8}{subsection.2.1.1}
 \contentsline {subsection}{\numberline {2.1.2}Usage}{8}{subsection.2.1.2}
-\contentsline {subsection}{\numberline {2.1.3}Some useful configuration pathes}{9}{subsection.2.1.3}
-\contentsline {section}{\numberline {2.2}Command prepare}{10}{section.2.2}
-\contentsline {subsection}{\numberline {2.2.1}Description}{10}{subsection.2.2.1}
-\contentsline {subsection}{\numberline {2.2.2}Remarks}{10}{subsection.2.2.2}
-\contentsline {subsubsection}{VCS bases (git, svn, cvs)}{10}{subsubsection*.14}
-\contentsline {subsubsection}{Dev mode}{10}{subsubsection*.15}
-\contentsline {subsection}{\numberline {2.2.3}Usage}{10}{subsection.2.2.3}
-\contentsline {subsection}{\numberline {2.2.4}Some useful configuration pathes}{11}{subsection.2.2.4}
-\contentsline {section}{\numberline {2.3}Command compile}{12}{section.2.3}
-\contentsline {subsection}{\numberline {2.3.1}Description}{12}{subsection.2.3.1}
-\contentsline {subsection}{\numberline {2.3.2}Usage}{12}{subsection.2.3.2}
-\contentsline {subsection}{\numberline {2.3.3}Some useful configuration pathes}{13}{subsection.2.3.3}
-\contentsline {section}{\numberline {2.4}Command launcher}{14}{section.2.4}
-\contentsline {subsection}{\numberline {2.4.1}Description}{14}{subsection.2.4.1}
-\contentsline {subsection}{\numberline {2.4.2}Usage}{14}{subsection.2.4.2}
-\contentsline {subsection}{\numberline {2.4.3}Configuration}{14}{subsection.2.4.3}
-\contentsline {section}{\numberline {2.5}Command application}{15}{section.2.5}
+\contentsline {subsection}{\numberline {2.1.3}Some useful configuration pathes}{8}{subsection.2.1.3}
+\contentsline {section}{\numberline {2.2}Command config}{9}{section.2.2}
+\contentsline {subsection}{\numberline {2.2.1}Description}{9}{subsection.2.2.1}
+\contentsline {subsection}{\numberline {2.2.2}Usage}{9}{subsection.2.2.2}
+\contentsline {subsection}{\numberline {2.2.3}Some useful configuration pathes}{10}{subsection.2.2.3}
+\contentsline {section}{\numberline {2.3}Command prepare}{11}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}Description}{11}{subsection.2.3.1}
+\contentsline {subsection}{\numberline {2.3.2}Remarks}{11}{subsection.2.3.2}
+\contentsline {subsubsection}{VCS bases (git, svn, cvs)}{11}{subsubsection*.14}
+\contentsline {subsubsection}{Dev mode}{11}{subsubsection*.15}
+\contentsline {subsection}{\numberline {2.3.3}Usage}{11}{subsection.2.3.3}
+\contentsline {subsection}{\numberline {2.3.4}Some useful configuration pathes}{12}{subsection.2.3.4}
+\contentsline {section}{\numberline {2.4}Command compile}{13}{section.2.4}
+\contentsline {subsection}{\numberline {2.4.1}Description}{13}{subsection.2.4.1}
+\contentsline {subsection}{\numberline {2.4.2}Usage}{13}{subsection.2.4.2}
+\contentsline {subsection}{\numberline {2.4.3}Some useful configuration pathes}{14}{subsection.2.4.3}
+\contentsline {section}{\numberline {2.5}Command launcher}{15}{section.2.5}
 \contentsline {subsection}{\numberline {2.5.1}Description}{15}{subsection.2.5.1}
 \contentsline {subsection}{\numberline {2.5.2}Usage}{15}{subsection.2.5.2}
-\contentsline {subsection}{\numberline {2.5.3}Some useful configuration pathes}{15}{subsection.2.5.3}
-\contentsline {section}{\numberline {2.6}Command log}{16}{section.2.6}
+\contentsline {subsection}{\numberline {2.5.3}Configuration}{15}{subsection.2.5.3}
+\contentsline {section}{\numberline {2.6}Command application}{16}{section.2.6}
 \contentsline {subsection}{\numberline {2.6.1}Description}{16}{subsection.2.6.1}
 \contentsline {subsection}{\numberline {2.6.2}Usage}{16}{subsection.2.6.2}
 \contentsline {subsection}{\numberline {2.6.3}Some useful configuration pathes}{16}{subsection.2.6.3}
-\contentsline {section}{\numberline {2.7}Command environ}{17}{section.2.7}
+\contentsline {section}{\numberline {2.7}Command log}{17}{section.2.7}
 \contentsline {subsection}{\numberline {2.7.1}Description}{17}{subsection.2.7.1}
 \contentsline {subsection}{\numberline {2.7.2}Usage}{17}{subsection.2.7.2}
-\contentsline {subsection}{\numberline {2.7.3}Configuration}{17}{subsection.2.7.3}
-\contentsline {section}{\numberline {2.8}Command clean}{20}{section.2.8}
-\contentsline {subsection}{\numberline {2.8.1}Description}{20}{subsection.2.8.1}
-\contentsline {subsection}{\numberline {2.8.2}Usage}{20}{subsection.2.8.2}
-\contentsline {subsection}{\numberline {2.8.3}Availables options}{20}{subsection.2.8.3}
-\contentsline {subsection}{\numberline {2.8.4}Some useful configuration pathes}{20}{subsection.2.8.4}
-\contentsline {section}{\numberline {2.9}Command package}{21}{section.2.9}
+\contentsline {subsection}{\numberline {2.7.3}Some useful configuration pathes}{17}{subsection.2.7.3}
+\contentsline {section}{\numberline {2.8}Command environ}{18}{section.2.8}
+\contentsline {subsection}{\numberline {2.8.1}Description}{18}{subsection.2.8.1}
+\contentsline {subsection}{\numberline {2.8.2}Usage}{18}{subsection.2.8.2}
+\contentsline {subsection}{\numberline {2.8.3}Configuration}{18}{subsection.2.8.3}
+\contentsline {section}{\numberline {2.9}Command clean}{21}{section.2.9}
 \contentsline {subsection}{\numberline {2.9.1}Description}{21}{subsection.2.9.1}
 \contentsline {subsection}{\numberline {2.9.2}Usage}{21}{subsection.2.9.2}
-\contentsline {subsection}{\numberline {2.9.3}Some useful configuration pathes}{22}{subsection.2.9.3}
-\contentsline {section}{\numberline {2.10}Command generate}{23}{section.2.10}
-\contentsline {subsection}{\numberline {2.10.1}Description}{23}{subsection.2.10.1}
-\contentsline {subsection}{\numberline {2.10.2}Remarks}{23}{subsection.2.10.2}
-\contentsline {subsection}{\numberline {2.10.3}Usage}{23}{subsection.2.10.3}
+\contentsline {subsection}{\numberline {2.9.3}Availables options}{21}{subsection.2.9.3}
+\contentsline {subsection}{\numberline {2.9.4}Some useful configuration pathes}{21}{subsection.2.9.4}
+\contentsline {section}{\numberline {2.10}Command package}{22}{section.2.10}
+\contentsline {subsection}{\numberline {2.10.1}Description}{22}{subsection.2.10.1}
+\contentsline {subsection}{\numberline {2.10.2}Usage}{22}{subsection.2.10.2}
+\contentsline {subsection}{\numberline {2.10.3}Some useful configuration pathes}{23}{subsection.2.10.3}
+\contentsline {section}{\numberline {2.11}Command generate}{24}{section.2.11}
+\contentsline {subsection}{\numberline {2.11.1}Description}{24}{subsection.2.11.1}
+\contentsline {subsection}{\numberline {2.11.2}Remarks}{24}{subsection.2.11.2}
+\contentsline {subsection}{\numberline {2.11.3}Usage}{24}{subsection.2.11.3}
 \contentsline {chapter}{\numberline {3}Developer documentation}{25}{chapter.3}
 \contentsline {section}{\numberline {3.1}Add a user custom command}{26}{section.3.1}
 \contentsline {subsection}{\numberline {3.1.1}Introduction}{26}{subsection.3.1.1}
@@ -72,33 +76,35 @@
 \contentsline {subsection}{\numberline {3.1.5}HELLO example}{27}{subsection.3.1.5}
 \contentsline {chapter}{\numberline {4}Code documentation}{29}{chapter.4}
 \contentsline {section}{\numberline {4.1}src}{29}{section.4.1}
-\contentsline {subsection}{\numberline {4.1.1}src Package}{29}{subsection.4.1.1}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {src}} Package}{29}{subsubsection*.16}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {ElementTree}} Module}{31}{subsubsection*.59}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {architecture}} Module}{32}{subsubsection*.91}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {compilation}} Module}{33}{subsubsection*.98}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {debug}} Module}{34}{subsubsection*.117}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {environment}} Module}{35}{subsubsection*.131}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {fileEnviron}} Module}{39}{subsubsection*.169}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {fork}} Module}{45}{subsubsection*.234}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {logger}} Module}{45}{subsubsection*.240}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {options}} Module}{47}{subsubsection*.253}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {printcolors}} Module}{47}{subsubsection*.259}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {product}} Module}{49}{subsubsection*.272}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {pyconf}} Module}{53}{subsubsection*.302}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {system}} Module}{60}{subsubsection*.374}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {template}} Module}{62}{subsubsection*.380}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {test\_module}} Module}{62}{subsubsection*.385}
-\contentsline {subsubsection}{\sphinxstyleliteralintitle {\sphinxupquote {xmlManager}} Module}{62}{subsubsection*.405}
-\contentsline {subsubsection}{Subpackages}{64}{subsubsection*.419}
-\contentsline {paragraph}{colorama Package}{64}{paragraph*.420}
-\contentsline {subparagraph}{\sphinxstyleliteralintitle {\sphinxupquote {colorama}} Package}{64}{subparagraph*.421}
-\contentsline {subparagraph}{\sphinxstyleliteralintitle {\sphinxupquote {ansi}} Module}{64}{subparagraph*.423}
-\contentsline {subparagraph}{\sphinxstyleliteralintitle {\sphinxupquote {ansitowin32}} Module}{66}{subparagraph*.476}
-\contentsline {subparagraph}{\sphinxstyleliteralintitle {\sphinxupquote {initialise}} Module}{67}{subparagraph*.494}
-\contentsline {subparagraph}{\sphinxstyleliteralintitle {\sphinxupquote {win32}} Module}{67}{subparagraph*.501}
-\contentsline {subparagraph}{\sphinxstyleliteralintitle {\sphinxupquote {winterm}} Module}{67}{subparagraph*.504}
+\contentsline {subsection}{\numberline {4.1.1}src package}{29}{subsection.4.1.1}
+\contentsline {subsubsection}{Subpackages}{29}{subsubsection*.16}
+\contentsline {paragraph}{src.colorama package}{29}{paragraph*.17}
+\contentsline {subparagraph}{Submodules}{29}{subparagraph*.18}
+\contentsline {subparagraph}{src.colorama.ansi module}{29}{subparagraph*.19}
+\contentsline {subparagraph}{src.colorama.ansitowin32 module}{31}{subparagraph*.72}
+\contentsline {subparagraph}{src.colorama.initialise module}{31}{subparagraph*.90}
+\contentsline {subparagraph}{src.colorama.win32 module}{32}{subparagraph*.97}
+\contentsline {subparagraph}{src.colorama.winterm module}{32}{subparagraph*.100}
+\contentsline {subparagraph}{Module contents}{33}{subparagraph*.128}
+\contentsline {subsubsection}{Submodules}{33}{subsubsection*.129}
+\contentsline {subsubsection}{src.ElementTree module}{33}{subsubsection*.130}
+\contentsline {subsubsection}{src.architecture module}{34}{subsubsection*.162}
+\contentsline {subsubsection}{src.compilation module}{34}{subsubsection*.169}
+\contentsline {subsubsection}{src.debug module}{35}{subsubsection*.188}
+\contentsline {subsubsection}{src.environment module}{36}{subsubsection*.202}
+\contentsline {subsubsection}{src.fileEnviron module}{40}{subsubsection*.240}
+\contentsline {subsubsection}{src.fork module}{46}{subsubsection*.305}
+\contentsline {subsubsection}{src.logger module}{46}{subsubsection*.311}
+\contentsline {subsubsection}{src.options module}{48}{subsubsection*.324}
+\contentsline {subsubsection}{src.printcolors module}{49}{subsubsection*.336}
+\contentsline {subsubsection}{src.product module}{50}{subsubsection*.349}
+\contentsline {subsubsection}{src.pyconf module}{55}{subsubsection*.379}
+\contentsline {subsubsection}{src.system module}{62}{subsubsection*.451}
+\contentsline {subsubsection}{src.template module}{63}{subsubsection*.457}
+\contentsline {subsubsection}{src.test\_module module}{63}{subsubsection*.462}
+\contentsline {subsubsection}{src.xmlManager module}{64}{subsubsection*.482}
+\contentsline {subsubsection}{Module contents}{66}{subsubsection*.496}
 \contentsline {chapter}{\numberline {5}Release Notes}{69}{chapter.5}
 \contentsline {section}{\numberline {5.1}Release notes}{69}{section.5.1}
-\contentsline {chapter}{Python Module Index}{71}{section*.532}
-\contentsline {chapter}{Index}{73}{section*.533}
+\contentsline {chapter}{Python Module Index}{71}{section*.538}
+\contentsline {chapter}{Index}{73}{section*.539}

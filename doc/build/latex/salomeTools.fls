@@ -55,8 +55,8 @@ INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/babel/babe
 INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/babel/txtbabel.def
 INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/psnfss/times.sty
 INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/psnfss/times.sty
-INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/fncychap/fncychap.sty
-INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/fncychap/fncychap.sty
+INPUT fncychap.sty
+INPUT fncychap.sty
 INPUT sphinx.sty
 INPUT sphinx.sty
 INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/generic/oberdiek/ltxcmds.sty
@@ -83,8 +83,8 @@ INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/base/ts1enc.
 INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/base/ts1enc.dfu
 INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/titlesec/titlesec.sty
 INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/titlesec/titlesec.sty
-INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/tabulary/tabulary.sty
-INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/tabulary/tabulary.sty
+INPUT tabulary.sty
+INPUT tabulary.sty
 INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/tools/array.sty
 INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/tools/array.sty
 INPUT /data/tmplgls/wambeke/share/texlive/2017/texmf-dist/tex/latex/tools/longtable.sty

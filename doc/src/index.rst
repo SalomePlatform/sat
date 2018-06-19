@@ -44,6 +44,7 @@ List of Commands
 .. toctree::
    :maxdepth: 1
    
+   doc <commands/doc>
    config <commands/config>
    prepare <commands/prepare>
    compile <commands/compile>

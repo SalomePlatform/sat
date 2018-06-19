@@ -1,51 +1,54 @@
-colorama Package
-================
+src.colorama package
+====================
 
-:mod:`colorama` Package
------------------------
+Submodules
+----------
 
-.. automodule:: src.colorama
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-:mod:`ansi` Module
-------------------
+src.colorama.ansi module
+------------------------
 
 .. automodule:: src.colorama.ansi
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`ansitowin32` Module
--------------------------
+src.colorama.ansitowin32 module
+-------------------------------
 
 .. automodule:: src.colorama.ansitowin32
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`initialise` Module
-------------------------
+src.colorama.initialise module
+------------------------------
 
 .. automodule:: src.colorama.initialise
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`win32` Module
--------------------
+src.colorama.win32 module
+-------------------------
 
 .. automodule:: src.colorama.win32
     :members:
     :undoc-members:
     :show-inheritance:
 
-:mod:`winterm` Module
----------------------
+src.colorama.winterm module
+---------------------------
 
 .. automodule:: src.colorama.winterm
     :members:
     :undoc-members:
     :show-inheritance:
 
+
+Module contents
+---------------
+
+.. automodule:: src.colorama
+    :members:
+    :undoc-members:
+    :show-inheritance:

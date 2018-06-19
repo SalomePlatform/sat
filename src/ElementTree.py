@@ -902,7 +902,7 @@ class iterparse:
     def __init__(self, source, events=None):
         if not hasattr(source, "read"):
             # OP TEST
-            print "iterparse.__init__ source = %s" %source
+            print("iterparse.__init__ source = %s" % source)
             source = open(source, "rb")
         self._file = source
         self._events = []

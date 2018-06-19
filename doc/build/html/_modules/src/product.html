@@ -87,6 +87,7 @@
     <span class="c1"># current product </span>
     <span class="n">debug</span> <span class="o">=</span> <span class="s1">&#39;no&#39;</span>
     <span class="n">dev</span> <span class="o">=</span> <span class="s1">&#39;no&#39;</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="s1">&#39;no&#39;</span>
     <span class="n">base</span> <span class="o">=</span> <span class="s1">&#39;maybe&#39;</span>
     <span class="n">section</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">version</span><span class="p">,</span> <span class="n">src</span><span class="o">.</span><span class="n">pyconf</span><span class="o">.</span><span class="n">Mapping</span><span class="p">):</span>
@@ -100,6 +101,10 @@
         <span class="c1"># Get the debug if any</span>
         <span class="k">if</span> <span class="s1">&#39;debug&#39;</span> <span class="ow">in</span> <span class="n">dic_version</span><span class="p">:</span>
             <span class="n">debug</span> <span class="o">=</span> <span class="n">dic_version</span><span class="o">.</span><span class="n">debug</span>
+        
+        <span class="c1"># Get the verbose if any</span>
+        <span class="k">if</span> <span class="s1">&#39;verbose&#39;</span> <span class="ow">in</span> <span class="n">dic_version</span><span class="p">:</span>
+            <span class="n">verbose</span> <span class="o">=</span> <span class="n">dic_version</span><span class="o">.</span><span class="n">verbose</span>
         
         <span class="c1"># Get the dev if any</span>
         <span class="k">if</span> <span class="s1">&#39;dev&#39;</span> <span class="ow">in</span> <span class="n">dic_version</span><span class="p">:</span>
@@ -197,6 +202,7 @@
     
     <span class="c1"># Set the debug, dev and version keys</span>
     <span class="n">prod_info</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+    <span class="n">prod_info</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
     <span class="n">prod_info</span><span class="o">.</span><span class="n">dev</span> <span class="o">=</span> <span class="n">dev</span>
     <span class="n">prod_info</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
     
@@ -231,7 +237,9 @@
                     <span class="n">DBG</span><span class="o">.</span><span class="n">tofix</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">PATHS</span><span class="o">.</span><span class="n">ARCHIVEPATH</span><span class="p">)</span> <span class="c1">#avoid 2 messages in compile</span>
                     <span class="n">prod_info</span><span class="o">.</span><span class="n">archive_info</span><span class="o">.</span><span class="n">archive_name</span> <span class="o">=</span> <span class="n">arch_name</span> <span class="c1">#without path</span>
                     <span class="c1"># raise src.SatException(msg) #may be a warning, continue #8646</span>
-                <span class="n">prod_info</span><span class="o">.</span><span class="n">archive_info</span><span class="o">.</span><span class="n">archive_name</span> <span class="o">=</span> <span class="n">arch_path</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">prod_info</span><span class="o">.</span><span class="n">archive_info</span><span class="o">.</span><span class="n">archive_name</span> <span class="o">=</span> <span class="n">arch_path</span>
+
         
     <span class="c1"># If the product compiles with a script, check the script existence</span>
     <span class="c1"># and if it is executable</span>
@@ -605,20 +613,6 @@
                 <span class="k">return</span> <span class="kc">False</span>
     <span class="k">return</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="product_is_sample"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_sample">[docs]</a><span class="k">def</span> <span class="nf">product_is_sample</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Know if a product has the sample type</span>
-<span class="sd">    </span>
-<span class="sd">    :param product_info Config: The configuration specific to </span>
-<span class="sd">                               the product</span>
-<span class="sd">    :return: True if the product has the sample type, else False</span>
-<span class="sd">    :rtype: boolean</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s1">&#39;type&#39;</span> <span class="ow">in</span> <span class="n">product_info</span><span class="p">:</span>
-        <span class="n">ptype</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">type</span>
-        <span class="k">return</span> <span class="n">ptype</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;sample&#39;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
-
 <div class="viewcode-block" id="product_is_salome"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_salome">[docs]</a><span class="k">def</span> <span class="nf">product_is_salome</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Know if a product is a SALOME module</span>
 <span class="sd">    </span>
@@ -677,6 +671,17 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">debug</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">debug</span>
     <span class="k">return</span> <span class="n">debug</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;yes&#39;</span></div>
+
+<div class="viewcode-block" id="product_is_verbose"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_verbose">[docs]</a><span class="k">def</span> <span class="nf">product_is_verbose</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Know if a product is in verbose mode</span>
+<span class="sd">    </span>
+<span class="sd">    :param product_info Config: The configuration specific to </span>
+<span class="sd">                               the product</span>
+<span class="sd">    :return: True if the product is in verbose mode, else False</span>
+<span class="sd">    :rtype: boolean</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">product_info</span><span class="o">.</span><span class="n">verbose</span>
+    <span class="k">return</span> <span class="n">verbose</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;yes&#39;</span></div>
 
 <div class="viewcode-block" id="product_is_autotools"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.product.product_is_autotools">[docs]</a><span class="k">def</span> <span class="nf">product_is_autotools</span><span class="p">(</span><span class="n">product_info</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Know if a product is compiled using the autotools</span>
@@ -867,6 +872,8 @@
 <ul>
   <li><a href="../../index.html">Documentation overview</a><ul>
   <li><a href="../index.html">Module code</a><ul>
+  <li><a href="../src.html">src</a><ul>
+  </ul></li>
   </ul></li>
   </ul></li>
 </ul>
