@@ -176,7 +176,10 @@ def run(args, runner, logger):
             args_product_opt += ',' + p_name
     else:
         for p_name, __ in products_infos:
-            args_product_opt += ',' + p_name
+            if args_product_opt == '--products ':
+                args_product_opt += p_name
+            else:
+                args_product_opt += ',' + p_name
 
     ldev_products = [p for p in products_infos if src.product.product_is_dev(p[1])]
     args_product_opt_clean = args_product_opt
