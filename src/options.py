@@ -275,6 +275,8 @@ class Options(object):
     def filterList2(self, aStr):
       """filter a list as 'KERNEL,YACS,etc.'"""
       aList = aStr.strip().split(",")
+      # fix list leading ',' as ',KERNEL,...'
+      aList = [i for i in aList if i != ""] # split old list leadin "," as ",KERNEL,ETC..."
       return aList
       
 
