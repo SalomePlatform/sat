@@ -142,7 +142,7 @@ def run(args, runner, logger):
     products_infos = get_products_list(options, runner.cfg, logger)
 
     # Construct the arguments to pass to the clean, source and patch commands
-    args_appli = config.VARS.application + " "  # useful whitespace
+    args_appli = runner.cfg.VARS.application + " "  # useful whitespace
     if options.products:
         listProd = list(options.products)
     else: # no product interpeted as all products
