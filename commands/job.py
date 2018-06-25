@@ -19,7 +19,7 @@
 import os
 
 import src
-import salomeTools
+import src.salomeTools
 
 # Define all possible option for the make command :  sat make <options>
 parser = src.options.Options()
@@ -35,9 +35,12 @@ def description():
     :return: The text to display for the job command description.
     :rtype: str
     '''
-    return _("Executes the commands of the job defined"
-             " in the jobs configuration file\n\nexample:\nsat job "
-             "--jobs_config my_jobs --name my_job")
+    return _("""\
+The job command executes the commands of the job defined in the jobs configuration file
+
+example:
+>> sat job --jobs_config my_jobs --name my_job
+""")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with job parameter.

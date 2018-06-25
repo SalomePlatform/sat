@@ -1,0 +1,18 @@
+
+  LOCAL :
+  {
+    base : 'default'
+    workdir : 'default'
+    log_dir : 'default'
+    archive_dir : 'default'
+    VCS : None
+    tag : None
+  }
+  PROJECTS :
+  {
+    project_file_paths :
+    [
+    "/home/christian/SAT_SALOME/salome.pyconf"
+    "/home/christian/SAT_MATIX/matix.pyconf"
+    ]
+  }

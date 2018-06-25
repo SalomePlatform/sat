@@ -2,7 +2,7 @@
   LOCAL :
   {
     base : 'default'
-    workdir : '/volatile/wambeke/fromjobs'      #'default'
+    workdir : 'default'
     log_dir : 'default'
     archive_dir : 'default'
     VCS : None
@@ -14,8 +14,8 @@
     [
     "/volatile/wambeke/SAT5/SAT5_S840_MATIX24/SAT_SALOME/salome.pyconf",
     # "/home/uranietm/proJET/saTJOBS/saT5/uranie.pyconf",
-    # cloned 2017/12 for matix
-    "/home/matix/GitRepo/uranie/saT5/uranie.pyconf",
-    "/volatile/wambeke/SAT5/SAT_MATIX/matix.pyconf"
+    # cloned 2017/12 for matix 
+    # "/home/matix/GitRepo/uranie/saT5/uranie.pyconf",
+    # "/volatile/wambeke/SAT5/SAT_MATIX/matix.pyconf"
     ]
   }

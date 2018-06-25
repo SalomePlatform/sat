@@ -17,69 +17,90 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-"""\
-This file assume DEBUG functionalities use
+"""
+This file assume DEBUG functionalities use.
+Print salomeTools debug messages in sys.stderr.
+Show pretty print debug representation from instances of SAT classes 
+(pretty print src.pyconf.Config)
 
-- print debug messages in sys.stderr for salomeTools
-- show pretty print debug representation from instances of SAT classes
-  (pretty print src.pyconf.Config), and python dict/list etc. (as 'aVariable')
-
-WARNING: obviously supposedly show messages in SAT development phase, not production
-
-usage:
->> import debug as DBG
->> DBG.write("aTitle", aVariable)        # not shown in production 
->> DBG.write("aTitle", aVariable, True)  # unconditionaly shown (as show=True)
-
-to set show message as development phase:
->> DBG.push_debug(True)
-
-to set no show message as production phase:
->> DBG.push_debug(False)
-
-to set show message temporary as development phase, only in a method:
->> def aMethodToDebug(...):
->>   DBG.push_debug(True)              #force show as appended status
->>   etc. method code with some DBG.write()
->>   DBG.pop_debug()                   #restore previous status (show or not show)
->>   return
-
-to set a message for future fix, as temporary problem to not forget:
-DBG.tofix("aTitle", aVariable, True/False) #True/False in production shown, or not
-
-in command line interface you could redirect stderr to file 'myDebug.log':
->> sat compile ... 2> myDebug.log   # only stderr
->> sat compile ... &> myDebug.log   # stdout and stderr
+| Warning: supposedly show messages in SAT development phase, not production
+| 
+| Usage:
+| >> import debug as DBG
+| >> DBG.write("aTitle", aVariable)        # not shown in production 
+| >> DBG.write("aTitle", aVariable, True)  # unconditionaly shown (as show=True)
+| 
+| to set show message as development phase:
+| >> DBG.push_debug(True)
+| 
+| to set no show message as production phase:
+| >> DBG.push_debug(False)
+| 
+| to set show message temporary as development phase, only in a method:
+| >> def aMethodToDebug(...):
+| >>   DBG.push_debug(True)              #force show as appended status
+| >>   etc. method code with some DBG.write()
+| >>   DBG.pop_debug()                   #restore previous status (show or not show)
+| >>   return
+| 
+| to set a message for future fix, as temporary problem to not forget:
+| DBG.tofix("aTitle", aVariable, True/False) #True/False in production shown, or not
+| 
+| in command line interface you could redirect stderr to file 'myDebug.log':
+| >> sat compile ... 2> myDebug.log   # only stderr
+| >> sat compile ... &> myDebug.log   # stdout and stderr
 """
 
 import os
 import sys
+import traceback
 import StringIO as SIO
 import pprint as PP
 
 _debug = [False] #support push/pop for temporary activate debug outputs
+
+_user = os.environ['USER']
+# wambeke is christian at home
+_developpers = ["christian", "wambeke", "crouzet"] # crouzet, kloss ...
+
 
 def indent(text, amount=2, ch=' '):
     """indent multi lines message"""
     padding = amount * ch
     return ''.join(padding + line for line in text.splitlines(True))
 
+def isTypeConfig(var):
+    """To know if var is instance from Config/pyconf"""
+    typ = str(type(var))
+    # print "isTypeConfig" ,type, dir(var)
+    if ".pyconf.Config" in typ: return True
+    if ".pyconf.Mapping" in typ: return True
+    if ".pyconf.Sequence" in typ: return True
+    # print "NOT isTypeConfig %s" % typ
+    return False
+    
 def write(title, var="", force=None, fmt="\n#### DEBUG: %s:\n%s\n"):
     """write sys.stderr a message if _debug[-1]==True or optionaly force=True"""
     if _debug[-1] or force:
-        if 'src.pyconf.' in str(type(var)): 
-            sys.stderr.write(fmt % (title, indent(getStrConfigDbg(var))))
-        elif type(var) is not str:
-            sys.stderr.write(fmt % (title, indent(PP.pformat(var))))
-        else:
-            sys.stderr.write(fmt % (title, indent(var)))
+      tvar = type(var)
+      typ = str(tvar)
+      if isTypeConfig(var):
+        sys.stderr.write(fmt % (title, indent(COLS.toColor(getStrConfigDbg(var)))))
+        return
+      if 'UnittestStream' in typ:
+        sys.stderr.write(fmt % (title, indent(var.getLogs())))
+        return  
+      if tvar is not str and tvar is not unicode:
+        sys.stderr.write(fmt % (title, indent(PP.pformat(var))))
+        return
+      sys.stderr.write(fmt % (title, indent(var)))
+      return
     return
 
 def tofix(title, var="", force=None):
-    """\
+    """
     write sys.stderr a message if _debug[-1]==True or optionaly force=True
-    use this only if no logger accessible for classic 
-    logger.warning(message) or logger.debug(message)
+    use this only if no logger accessible for classic logger.warning(message)
     """
     fmt = "\n#### TOFIX: %s:\n%s\n"
     write(title, var, force, fmt)
@@ -96,14 +117,59 @@ def pop_debug():
         sys.stderr.write("\nERROR: pop_debug: too much pop.")
         return None
 
+
+def format_exception(msg, limit=None, trace=None):
+  """
+  Format a stack trace and the exception information.
+  as traceback.format_exception(), without color
+  with traceback only if (_debug) or (DBG._user in DBG._developpers)
+  """
+  etype, value, tb = sys.exc_info()
+  if (_debug[-1]) or (_user in _developpers):
+    res = msg
+    if tb:
+      res += "\nTraceback (most recent call last):\n"
+      res += "".join(traceback.format_tb(tb, limit))  # [:-1])
+    res += "\n"
+    res += "\n".join(traceback.format_exception_only(etype, value))
+    return res
+  else:
+    res = msg
+    res += "".join(traceback.format_exception_only(etype, value))
+    return res
+
+def format_color_exception(msg, limit=None, trace=None):
+  """
+  Format a stack trace and the exception information.
+  as traceback.format_exception(), with color
+  with traceback only if (_debug) or (DBG._user in DBG._developpers)
+  """
+  etype, value, tb = sys.exc_info()
+  if (_debug[-1]) or (_user in _developpers):
+    res = "<red>" + msg
+    if tb:
+      res += "<yellow>\nTraceback (most recent call last):\n"
+      res += "".join(traceback.format_tb(tb, limit))  # [:-1])
+    res += "\n<red>"
+    res += "\n".join(traceback.format_exception_only(etype, value))
+    return res + "<reset>"
+  else:
+    res = "<red>" + msg  # + "<bright>"
+    res += "".join(traceback.format_exception_only(etype, value))
+    return res + "<reset>"
+
+
 ###############################################
 # utilitaires divers pour debug
 ###############################################
 
 class OutStream(SIO.StringIO):
-    """utility class for pyconf.Config output iostream"""
+    """
+    utility class for pyconf.Config output iostream
+    """
     def close(self):
-      """because Config.__save__ calls close() stream as file
+      """
+      because Config.__save__ calls close() stream as file
       keep value before lost as self.value
       """
       self.value = self.getvalue()
@@ -133,7 +199,7 @@ def getStrConfigStd(config):
     return outStream.value
 
 def getStrConfigDbg(config):
-    """\
+    """
     set string as saveConfigDbg, 
     as (path expression evaluation) for debug
     """
@@ -143,41 +209,61 @@ def getStrConfigDbg(config):
 
 def saveConfigDbg(config, aStream, indent=0, path=""):
     """pyconf returns multilines (path expression evaluation) for debug"""
-    _saveConfigRecursiveDbg(config, aStream, indent, path)
+    _saveConfigRecursiveDbg(config, aStream, indent, path, 0)
     aStream.close() # as config.__save__()
 
-def _saveConfigRecursiveDbg(config, aStream, indent, path):
+def _saveConfigRecursiveDbg(config, aStream, indent, path, nb):
     """pyconf inspired from Mapping.__save__"""
     debug = False
+    nbp = nb + 1 # depth recursive
     if indent <= 0: 
       indentp = 0
     else:
-      indentp = indentp + 2
+      indentp = indent + 2
+      
+    if nbp > 10: # protection
+      # raise Exception("!!! ERROR: Circular reference after %s" % aStream.getvalue())
+      # raise Exception("!!! ERROR: Circular reference %s" % path)
+      aStream.write("<red>!!! ERROR: Circular reference after %s<reset>\n" % path)
+      return
+    
     indstr = indent * ' ' # '':no indent, ' ':indent
     strType = str(type(config))
+    if debug: print "saveDbg Type", path, strType
+    
     if "Sequence" in strType:
       for i in range(len(config)):
-        _saveConfigRecursiveDbg(config[i], aStream, indentp, path+"[%i]" % i)
+        _saveConfigRecursiveDbg(config[i], aStream, indentp, path+"[%i]" % i, nbp)
       return
-    try: 
+    '''
+    if "Reference" in strType:
+      try:
+        #evaluate = value.resolve(config)
+        aStream.write("<header>%s%s<reset> : %s <yellow>--> '%s'<reset>\n" % (indstr, path, config, str(config)))
+      except Exception as e:  
+        aStream.write("<header>%s%s<reset> : <red>!!! ERROR: %s !!!<reset>\n" % (indstr, path, e.message))     
+      return
+    '''
+    
+    try: #type config, mapping
       order = object.__getattribute__(config, 'order')
       data = object.__getattribute__(config, 'data')
     except:
       aStream.write("%s%s : '%s'\n" % (indstr, path, str(config)))
       return     
-    for key in sorted(order):
+    for key in sorted(data): #order): # data as sort alphabetical, order as initial order
       value = data[key]
       strType = str(type(value))
-      if debug: print indstr + 'strType = %s' % strType, key
+      if debug: print 'strType', path, key, strType
       if "Config" in strType:
-        _saveConfigRecursiveDbg(value, aStream, indentp, path+"."+key)
+        _saveConfigRecursiveDbg(value, aStream, indentp, path+"."+key, nbp)
         continue
       if "Mapping" in strType:
-        _saveConfigRecursiveDbg(value, aStream, indentp, path+"."+key)
+        _saveConfigRecursiveDbg(value, aStream, indentp, path+"."+key, nbp)
         continue
       if "Sequence" in strType:
         for i in range(len(value)):
-          _saveConfigRecursiveDbg(value[i], aStream, indentp, path+"."+key+"[%i]" % i)
+          _saveConfigRecursiveDbg(value.data[i], aStream, indentp, path+"."+key+"[%i]" % i, nbp)
         continue
       if "Expression" in strType:
         try:

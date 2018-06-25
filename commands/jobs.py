@@ -26,7 +26,13 @@ import csv
 import shutil
 import itertools
 import re
-import paramiko
+
+# generate problem
+try:
+  import paramiko
+except:
+  paramiko = "import paramiko impossible"
+  pass
 
 import src
 import src.ElementTree as etree

@@ -27,8 +27,10 @@ import re
 import tempfile
 
 import src
-from . import printcolors
-from . import xmlManager
+import printcolors
+import xmlManager
+
+import src.debug as DBG
 
 log_macro_command_file_expression = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
 log_all_command_file_expression = "^.*[0-9]{8}_+[0-9]{6}_+.*\.xml$"
@@ -38,7 +40,7 @@ class Logger(object):
     Class to handle log mechanism.
     """
     def __init__(self,
-                 config,
+                 config= None,
                  silent_sysstd=False,
                  all_in_terminal=False,
                  micro_command = False):
@@ -48,6 +50,7 @@ class Logger(object):
         :param silent_sysstd boolean: if True, do not write anything
                                       in terminal.
         """
+        DBG.write("src.logger.Logger", id(self))
         self.config = config
         self.default_level = 3
         self.silentSysStd = silent_sysstd
@@ -173,6 +176,12 @@ class Logger(object):
                           to the message 0 < level < 6.
         :param screenOnly boolean: if True, do not write in log file.
         """
+        # avoid traces if unittest
+        if isCurrentLoggerUnittest():
+            # print("doing unittest")
+            sendMessageToCurrentLogger(message, level)
+            return
+
         # do not write message starting with \r to log file
         if not message.startswith("\r") and not screenOnly:
             self.xmlFile.append_node_text("Log", 
@@ -409,3 +418,75 @@ def update_hat_xml(logDir, application=None, notShownCommands = []):
     
     # Write the file on the hard drive
     xmlHat.write_tree('hat.xsl')
+
+
+# TODO for future
+# prepare skip to logging logger sat5.1
+# suppose only one logger in sat5.1
+_currentLogger = []
+
+def getCurrentLogger():
+  """temporary send all in stdout as simple logging logger"""
+  import src.loggingSimple as LOGSI
+  if len(_currentLogger) == 0:
+    logger = LOGSI.getDefaultLogger()
+    _currentLogger.append(logger)
+    logger.warning("set current logger as default %s" % logger.name)
+  return _currentLogger[0]
+
+def getDefaultLogger():
+  """temporary send all in stdout as simple logging logger"""
+  import src.loggingSimple as LOGSI
+  if len(_currentLogger) == 0:
+    logger = LOGSI.getDefaultLogger()
+    _currentLogger.append(logger)
+    logger.warning("set current logger as default %s" % logger.name)
+  return _currentLogger[0]
+
+def setCurrentLogger(logger):
+  """temporary send all in stdout as simple logging logger"""
+  import src.loggingSimple as LOGSI
+  if len(_currentLogger) == 0:
+    _currentLogger.append(logger)
+  else:
+    logger.warning("quit current logger as default %s" % _currentLogger[0].name)
+    _currentLogger[0] = logger
+    logger.warning("change current logger as default %s" % logger.name)
+  return _currentLogger[0]
+
+def isCurrentLoggerUnittest():
+    logger = getCurrentLogger()
+    if "Unittest" in logger.name:
+      res = True
+    else:
+      res = False
+    DBG.write("isCurrentLoggerUnittest %s" % logger.name, res)
+    return res
+
+def sendMessageToCurrentLogger(message, level):
+    logger = getCurrentLogger()
+    if level is None:
+      lev = 2
+    else:
+      lev = level
+    if lev <= 1:
+      logger.critical(message)
+      return
+    if lev == 2:
+      logger.warning(message)
+      return
+    if lev == 3:
+      logger.info(message)
+      return
+    if lev == 4:
+      logger.step(message)
+      return
+    if lev == 5:
+      logger.trace(message)
+      return
+    if lev >= 6:
+      logger.debug(message)
+      return
+    msg = "What is this level: '%s' for message:\n%s" % (level, message)
+    logger.warning(msg)
+    return

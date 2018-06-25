@@ -33,12 +33,13 @@ def description():
     :rtype: str
     """
     return _("""\
-    Gives access to the sat documentation.
+The doc command gives access to the sat documentation.
     
-    example:
-    >> sat doc         # --html as default
-    >> sat doc --html
-    >> sat doc --pdf""")
+example:
+>> sat doc         # --html as default
+>> sat doc --html
+>> sat doc --pdf
+""")
 
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with log parameter.

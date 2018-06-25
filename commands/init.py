@@ -120,7 +120,7 @@ def description():
     :return: The text to display for the init command description.
     :rtype: str
     '''
-    return _("Changes the local settings of SAT.")
+    return _("The init command Changes the local settings of SAT.")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with init parameter.

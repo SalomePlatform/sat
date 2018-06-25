@@ -149,8 +149,10 @@ class Options(object):
         """
         msg = ""
         # Do nothing if there are no options
-        if len(self.options) == 0:
-            return _("No available options.")
+
+        #there is -h option, always
+        #if len(self.options) == 0:
+        #    return _("No available options.")
 
         # for all options, gets its values. 
         # "shortname" is an mandatory field of the options, could be '' 
@@ -164,15 +166,6 @@ class Options(object):
                 
             msg += "%s\n" % self.indent(ooh, 10)
         return msg
-
-    def print_help(self):
-        """
-        Method that display all options stored in self.options and there help
-        
-        :return: None
-        """
-        print(self.get_help())
-        return
 
     def indent(self, text, amount, car=" "):
         """indent multi lines message"""
@@ -260,7 +253,7 @@ class Options(object):
         
     def filterLevel(self, aLevel):
       """filter level logging values"""
-      import src.loggingSat as LOG
+      import src.loggingSimple as LOG
       aLev = aLevel.upper()
       knownLevels = LOG._knownLevels
       maxLen = max([len(i) for i in knownLevels])

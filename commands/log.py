@@ -193,8 +193,12 @@ def description():
     :return: The text to display for the log command description.
     :rtype: str
     '''
-    return _("Gives access to the logs produced by the salomeTools commands.\n"
-             "\nexample:\nsat log")    
+    return _("""\
+The log command gives access to the logs produced by the salomeTools commands.
+
+example:
+>> sat log
+""")
 
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with log parameter.

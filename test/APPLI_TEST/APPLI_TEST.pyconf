@@ -1,0 +1,45 @@
+
+APPLICATION :
+{
+    name : 'APPLI_TEST'
+    workdir : $LOCAL.workdir + $VARS.sep + $APPLICATION.name + '-' + $VARS.dist
+    base : 'base'
+    tag : 'master'
+    get_method : 'git'
+    environ :
+    {
+        ACCEPT_SALOME_WARNINGS : '1'
+        LC_NUMERIC : 'C'
+        TESTS_ROOT_DIR : "/tmp/" + $VARS.user+ "/TESTS/APPLI_TEST"
+    }
+    products :
+    {
+        # PREREQUISITES :
+        'Python' : 'native'
+
+        # SALOME MODULES :
+        'CONFIGURATION'
+        'MEDCOUPLING'
+        'KERNEL'
+        'GUI'
+        'GEOM'
+        'SMESH'
+
+    }
+    grid_to_test : 'SALOME_V8'
+    profile :
+    {
+        launcher_name : "appli_test"
+        product : "SALOME"
+    }
+    virtual_app:
+    {
+        name : "appli_test"
+        application_name : "APPLI"
+    }
+    test_base : 
+    {
+        name : "SALOME"
+        tag : "SalomeV8"
+    }
+}

@@ -31,8 +31,11 @@ def description():
     :return: The text to display for the shell command description.
     :rtype: str
     '''
-    return _("Executes the shell command passed as argument.\n\nexample:"
-             "\nsat shell --command \"ls \\-l /tmp\"")
+    return _("""\
+The shell command executes the shell commands passed as argument.
+
+example:
+>> sat shell --command "ls -l /tmp" """)
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with shell parameter.
