@@ -691,8 +691,6 @@ class Test:
                 self.nb_run -= 1
             elif script_info.res == "?":
                 self.nb_not_run += 1
-            else:
-                self.logger.write("Unknown Status!!",3)
                 
 
         self.config.TESTS.append(test_info, '')
