@@ -691,6 +691,9 @@ class Test:
                 self.nb_run -= 1
             elif script_info.res == "?":
                 self.nb_not_run += 1
+            else:
+                self.logger.write("Unknown Status!!",3)
+                
 
         self.config.TESTS.append(test_info, '')
 
@@ -864,8 +867,6 @@ class Test:
         self.logger.write("\n", 2, False)
 
         # evaluate results
-        res_count = "%d / %d" % (self.nb_succeed,
-                                 self.nb_run - self.nb_acknoledge)
 
         res_out = _("Tests Results: %(succeed)d / %(total)d\n") % \
             { 'succeed': self.nb_succeed, 'total': self.nb_run }
@@ -877,10 +878,10 @@ class Test:
 
         if self.nb_timeout > 0:
             self.logger.write(_("%d tests TIMEOUT\n") % self.nb_timeout, 1)
-            res_count += " TO: %d" % self.nb_timeout
         if self.nb_not_run > 0:
             self.logger.write(_("%d tests not executed\n") % self.nb_not_run, 1)
-            res_count += " NR: %d" % self.nb_not_run
+        if self.nb_acknoledge > 0:
+            self.logger.write(_("%d tests known failures\n") % self.nb_acknoledge, 1)
 
         status = src.OK_STATUS
         if self.nb_run - self.nb_succeed - self.nb_acknoledge > 0:
