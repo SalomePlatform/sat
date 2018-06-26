@@ -117,7 +117,7 @@ def run(args, runner, logger):
         cmd_exe = command.split(" ")[0] # first part
         if cmd_exe == "sat":
             # use the salomeTools parser to get the options of the command
-            sat_parser = salomeTools.parser
+            sat_parser = src.salomeTools.parser
             input_parser = src.remove_item_from_list(command.split(' ')[1:], "")
             (options, argus) = sat_parser.parse_args(input_parser)
             # Verify if there is a changed option
