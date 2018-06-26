@@ -55,7 +55,7 @@
 
 
 \title{salomeTools Documentation}
-\date{Jun 19, 2018}
+\date{Jun 26, 2018}
 \release{5.0.0dev}
 \author{CEA DEN/DANS/DM2S/STMF/LGLS}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -355,11 +355,11 @@ The \sphinxstylestrong{doc} command displays sat documentation.
 \subsection{Usage}
 \label{\detokenize{commands/doc:usage}}\begin{itemize}
 \item {} 
-Show (in a web browser) the sat documentation:
+Show (in a web browser) the sat documentation in format xml/html:
 
 \fvset{hllines={, ,}}%
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
-\PYG{n}{sat} \PYG{n}{doc} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZhy{}}\PYG{n}{html}
+\PYG{n}{sat} \PYG{n}{doc} \PYG{o}{\PYGZhy{}}\PYG{o}{\PYGZhy{}}\PYG{n}{xml}
 \end{sphinxVerbatim}
 
 \item {} 
@@ -2850,43 +2850,39 @@ output) in the directory \textless{}APPLICATION DIR\textgreater{}/LOGS/\textless
 
 \subsubsection{src.debug module}
 \label{\detokenize{commands/apidoc/src:module-src.debug}}\label{\detokenize{commands/apidoc/src:src-debug-module}}\index{src.debug (module)}
-This file assume DEBUG functionalities use
-\begin{itemize}
-\item {} 
-print debug messages in sys.stderr for salomeTools
+This file assume DEBUG functionalities use.
+Print salomeTools debug messages in sys.stderr.
+Show pretty print debug representation from instances of SAT classes 
+(pretty print src.pyconf.Config)
 
-\item {} 
-show pretty print debug representation from instances of SAT classes
-(pretty print src.pyconf.Config), and python dict/list etc. (as ‘aVariable’)
-
-\end{itemize}
-
-WARNING: obviously supposedly show messages in SAT development phase, not production
-
-usage:
-\textgreater{}\textgreater{} import debug as DBG
-\textgreater{}\textgreater{} DBG.write(“aTitle”, aVariable)        \# not shown in production 
-\textgreater{}\textgreater{} DBG.write(“aTitle”, aVariable, True)  \# unconditionaly shown (as show=True)
-
-to set show message as development phase:
-\textgreater{}\textgreater{} DBG.push\_debug(True)
-
-to set no show message as production phase:
-\textgreater{}\textgreater{} DBG.push\_debug(False)
-
-to set show message temporary as development phase, only in a method:
-\textgreater{}\textgreater{} def aMethodToDebug(…):
-\textgreater{}\textgreater{}   DBG.push\_debug(True)              \#force show as appended status
-\textgreater{}\textgreater{}   etc. method code with some DBG.write()
-\textgreater{}\textgreater{}   DBG.pop\_debug()                   \#restore previous status (show or not show)
-\textgreater{}\textgreater{}   return
-
-to set a message for future fix, as temporary problem to not forget:
-DBG.tofix(“aTitle”, aVariable, True/False) \#True/False in production shown, or not
-
-in command line interface you could redirect stderr to file ‘myDebug.log’:
-\textgreater{}\textgreater{} sat compile … 2\textgreater{} myDebug.log   \# only stderr
-\textgreater{}\textgreater{} sat compile … \&\textgreater{} myDebug.log   \# stdout and stderr
+\begin{DUlineblock}{0em}
+\item[] Warning: supposedly show messages in SAT development phase, not production
+\item[] 
+\item[] Usage:
+\item[] \textgreater{}\textgreater{} import debug as DBG
+\item[] \textgreater{}\textgreater{} DBG.write(“aTitle”, aVariable)        \# not shown in production 
+\item[] \textgreater{}\textgreater{} DBG.write(“aTitle”, aVariable, True)  \# unconditionaly shown (as show=True)
+\item[] 
+\item[] to set show message as development phase:
+\item[] \textgreater{}\textgreater{} DBG.push\_debug(True)
+\item[] 
+\item[] to set no show message as production phase:
+\item[] \textgreater{}\textgreater{} DBG.push\_debug(False)
+\item[] 
+\item[] to set show message temporary as development phase, only in a method:
+\item[] \textgreater{}\textgreater{} def aMethodToDebug(…):
+\item[] \textgreater{}\textgreater{}   DBG.push\_debug(True)              \#force show as appended status
+\item[] \textgreater{}\textgreater{}   etc. method code with some DBG.write()
+\item[] \textgreater{}\textgreater{}   DBG.pop\_debug()                   \#restore previous status (show or not show)
+\item[] \textgreater{}\textgreater{}   return
+\item[] 
+\item[] to set a message for future fix, as temporary problem to not forget:
+\item[] DBG.tofix(“aTitle”, aVariable, True/False) \#True/False in production shown, or not
+\item[] 
+\item[] in command line interface you could redirect stderr to file ‘myDebug.log’:
+\item[] \textgreater{}\textgreater{} sat compile … 2\textgreater{} myDebug.log   \# only stderr
+\item[] \textgreater{}\textgreater{} sat compile … \&\textgreater{} myDebug.log   \# stdout and stderr
+\end{DUlineblock}
 \index{InStream (class in src.debug)}
 
 \begin{fulllineitems}
@@ -2913,6 +2909,26 @@ keep value before lost as self.value
 
 \end{fulllineitems}
 
+
+\end{fulllineitems}
+
+\index{format\_color\_exception() (in module src.debug)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{commands/apidoc/src:src.debug.format_color_exception}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.debug.}}\sphinxbfcode{\sphinxupquote{format\_color\_exception}}}{\emph{msg}, \emph{limit=None}, \emph{trace=None}}{}
+Format a stack trace and the exception information.
+as traceback.format\_exception(), with color
+with traceback only if (\_debug) or (DBG.\_user in DBG.\_developpers)
+
+\end{fulllineitems}
+
+\index{format\_exception() (in module src.debug)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{commands/apidoc/src:src.debug.format_exception}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.debug.}}\sphinxbfcode{\sphinxupquote{format\_exception}}}{\emph{msg}, \emph{limit=None}, \emph{trace=None}}{}
+Format a stack trace and the exception information.
+as traceback.format\_exception(), without color
+with traceback only if (\_debug) or (DBG.\_user in DBG.\_developpers)
 
 \end{fulllineitems}
 
@@ -2946,6 +2962,14 @@ set string as saveConfigStd, as file .pyconf
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{commands/apidoc/src:src.debug.indent}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.debug.}}\sphinxbfcode{\sphinxupquote{indent}}}{\emph{text}, \emph{amount=2}, \emph{ch=' '}}{}
 indent multi lines message
+
+\end{fulllineitems}
+
+\index{isTypeConfig() (in module src.debug)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{commands/apidoc/src:src.debug.isTypeConfig}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.debug.}}\sphinxbfcode{\sphinxupquote{isTypeConfig}}}{\emph{var}}{}
+To know if var is instance from Config/pyconf
 
 \end{fulllineitems}
 
@@ -2986,8 +3010,7 @@ returns as file .pyconf
 \begin{fulllineitems}
 \phantomsection\label{\detokenize{commands/apidoc/src:src.debug.tofix}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.debug.}}\sphinxbfcode{\sphinxupquote{tofix}}}{\emph{title}, \emph{var=''}, \emph{force=None}}{}
 write sys.stderr a message if \_debug{[}-1{]}==True or optionaly force=True
-use this only if no logger accessible for classic 
-logger.warning(message) or logger.debug(message)
+use this only if no logger accessible for classic logger.warning(message)
 
 \end{fulllineitems}
 
@@ -4690,7 +4713,7 @@ Implements the classes and method relative to the logging
 \index{Logger (class in src.logger)}
 
 \begin{fulllineitems}
-\phantomsection\label{\detokenize{commands/apidoc/src:src.logger.Logger}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class }}\sphinxcode{\sphinxupquote{src.logger.}}\sphinxbfcode{\sphinxupquote{Logger}}}{\emph{config}, \emph{silent\_sysstd=False}, \emph{all\_in\_terminal=False}, \emph{micro\_command=False}}{}
+\phantomsection\label{\detokenize{commands/apidoc/src:src.logger.Logger}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class }}\sphinxcode{\sphinxupquote{src.logger.}}\sphinxbfcode{\sphinxupquote{Logger}}}{\emph{config=None}, \emph{silent\_sysstd=False}, \emph{all\_in\_terminal=False}, \emph{micro\_command=False}}{}
 Bases: \sphinxcode{\sphinxupquote{object}}
 
 Class to handle log mechanism.
@@ -4813,6 +4836,36 @@ the same date and time in separate variables.
 
 \end{fulllineitems}
 
+\index{getCurrentLogger() (in module src.logger)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{commands/apidoc/src:src.logger.getCurrentLogger}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.logger.}}\sphinxbfcode{\sphinxupquote{getCurrentLogger}}}{}{}
+get current logging logger, set as DefaultLogger if not set yet
+
+\end{fulllineitems}
+
+\index{getDefaultLogger() (in module src.logger)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{commands/apidoc/src:src.logger.getDefaultLogger}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.logger.}}\sphinxbfcode{\sphinxupquote{getDefaultLogger}}}{}{}
+get simple logging logger DefaultLogger, set it as current
+
+\end{fulllineitems}
+
+\index{getUnittestLogger() (in module src.logger)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{commands/apidoc/src:src.logger.getUnittestLogger}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.logger.}}\sphinxbfcode{\sphinxupquote{getUnittestLogger}}}{}{}
+get simple logging logger UnittestLogger, set it as current
+
+\end{fulllineitems}
+
+\index{isCurrentLoggerUnittest() (in module src.logger)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{commands/apidoc/src:src.logger.isCurrentLoggerUnittest}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.logger.}}\sphinxbfcode{\sphinxupquote{isCurrentLoggerUnittest}}}{}{}
+\end{fulllineitems}
+
 \index{list\_log\_file() (in module src.logger)}
 
 \begin{fulllineitems}
@@ -4835,6 +4888,24 @@ the list of files path and informations about it
 list
 
 \end{description}\end{quote}
+
+\end{fulllineitems}
+
+\index{sendMessageToCurrentLogger() (in module src.logger)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{commands/apidoc/src:src.logger.sendMessageToCurrentLogger}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.logger.}}\sphinxbfcode{\sphinxupquote{sendMessageToCurrentLogger}}}{\emph{message}, \emph{level}}{}
+assume relay from obsolescent
+logger.write(msg, 1/2/3…) to future
+logging.critical/warning/info…(msg) (as logging package tips)
+
+\end{fulllineitems}
+
+\index{setCurrentLogger() (in module src.logger)}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{commands/apidoc/src:src.logger.setCurrentLogger}}\pysiglinewithargsret{\sphinxcode{\sphinxupquote{src.logger.}}\sphinxbfcode{\sphinxupquote{setCurrentLogger}}}{\emph{logger}}{}
+temporary send all in stdout as simple logging logger
 
 \end{fulllineitems}
 
@@ -5052,19 +5123,6 @@ that gives access to all options in the code
 (OptResult, list) as (optResult, args) 
 optResult is the option instance to manipulate in the code. 
 args is the full raw list of passed options
-
-\end{description}\end{quote}
-
-\end{fulllineitems}
-
-\index{print\_help() (src.options.Options method)}
-
-\begin{fulllineitems}
-\phantomsection\label{\detokenize{commands/apidoc/src:src.options.Options.print_help}}\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{print\_help}}}{}{}
-Method that display all options stored in self.options and there help
-\begin{quote}\begin{description}
-\item[{Returns}] \leavevmode
-None
 
 \end{description}\end{quote}
 

@@ -21,7 +21,7 @@ import src
 
 # Define all possible option for log command :  sat doc <options>
 parser = src.options.Options()
-parser.add_option('h', 'html', 'boolean', 'html', "Open sat html documentation in browser", None)
+parser.add_option('x', 'xml', 'boolean', 'xml', "Open sat xml/html documentation in browser (x as firefoX)", None)
 parser.add_option('p', 'pdf', 'boolean', 'pdf', "Open sat pdf documentation in viewer", False)
 parser.add_option('e', 'edit', 'boolean', 'edit', "edit/modify source dodumentation rst files", False)
 parser.add_option('c', 'compile', 'boolean', 'compile', "how to compile html/pdf doc", False)
@@ -36,8 +36,8 @@ def description():
 The doc command gives access to the sat documentation.
     
 example:
->> sat doc         # --html as default
->> sat doc --html
+>> sat doc         # --xml as default
+>> sat doc --xml
 >> sat doc --pdf
 """)
 
@@ -59,7 +59,7 @@ def run(args, runner, logger):
     logger.write("docdir %s\n" % docDir, 6)
     logger.write("options %s\n" % options, 6)
 
-    if options.html:
+    if options.xml:
         src.system.show_in_editor(runner.cfg.USER.browser, htmlFile, logger)
     if options.pdf:
         src.system.show_in_editor(runner.cfg.USER.pdf_viewer, pdfFile, logger)

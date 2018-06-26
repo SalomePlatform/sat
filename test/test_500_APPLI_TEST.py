@@ -32,8 +32,8 @@ class TestCase(unittest.TestCase):
 
   debug = False
   
-  #see test_100, # commands are expected OK
-  TRG = "SALOME-8.4.0"
+  # see test_100, # commands are expected OK
+  TRG = "APPLI_TEST" # "SALOME-8.4.0"
   satCommandsToTestOk = [
     "config -l",
     "config -v .",
@@ -43,14 +43,15 @@ class TestCase(unittest.TestCase):
     "config %s --info KERNEL" %  TRG,
     "config %s --show_patchs" %  TRG,
   ]
-  #see test_110, # commands are expected KO
+  # see test_110, # commands are expected KO
   satCommandsToTestKo = [
     "config %s --info oops" %  TRG,
+    "config --oops",
   ]
-  #see test_120, # commands are expected KO
+  # see test_120, # commands are expected Raise,
+  # but if fixed go to satCommandsToTestKo
   satCommandsToTestRaise = [
     "oopsconfig --oops .",
-    "config --oops",
   ]
   
   def tearDown(self):
@@ -86,7 +87,7 @@ class TestCase(unittest.TestCase):
     DBG.write("test_010 logger", logs)
     self.assertTrue(returnCode.isOk())
     
-  def test_100(self):
+  def xtest_100(self): # TODO
     # test all satCommands expected OK
     logger = LOG.getUnittestLogger()
     dbg = self.debug
@@ -100,7 +101,7 @@ class TestCase(unittest.TestCase):
       self.assertFalse("ERROR    ::" in logs)
       self.assertFalse("CRITICAL ::" in logs)
       
-  def xtest_110(self):
+  def test_110(self):
     # test all satCommands expected KO
     logger = LOG.getUnittestLogger()
     dbg = self.debug
@@ -111,7 +112,7 @@ class TestCase(unittest.TestCase):
       logs = logger.getLogsAndClear()
       DBG.write("logs", logs, dbg)    
       
-  def xtest_120(self):
+  def test_120(self):
     # test all satCommands expected raise
     logger = LOG.getUnittestLogger()
     dbg = self.debug

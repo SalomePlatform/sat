@@ -182,8 +182,10 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="c1"># Do nothing if there are no options</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">_</span><span class="p">(</span><span class="s2">&quot;No available options.&quot;</span><span class="p">)</span>
+
+        <span class="c1">#there is -h option, always</span>
+        <span class="c1">#if len(self.options) == 0:</span>
+        <span class="c1">#    return _(&quot;No available options.&quot;)</span>
 
         <span class="c1"># for all options, gets its values. </span>
         <span class="c1"># &quot;shortname&quot; is an mandatory field of the options, could be &#39;&#39; </span>
@@ -197,15 +199,6 @@
                 
             <span class="n">msg</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">indent</span><span class="p">(</span><span class="n">ooh</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">msg</span></div>
-
-<div class="viewcode-block" id="Options.print_help"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options.print_help">[docs]</a>    <span class="k">def</span> <span class="nf">print_help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Method that display all options stored in self.options and there help</span>
-<span class="sd">        </span>
-<span class="sd">        :return: None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_help</span><span class="p">())</span>
-        <span class="k">return</span></div>
 
 <div class="viewcode-block" id="Options.indent"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options.indent">[docs]</a>    <span class="k">def</span> <span class="nf">indent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">amount</span><span class="p">,</span> <span class="n">car</span><span class="o">=</span><span class="s2">&quot; &quot;</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;indent multi lines message&quot;&quot;&quot;</span>
@@ -293,7 +286,7 @@
         
 <div class="viewcode-block" id="Options.filterLevel"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options.filterLevel">[docs]</a>    <span class="k">def</span> <span class="nf">filterLevel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aLevel</span><span class="p">):</span>
       <span class="sd">&quot;&quot;&quot;filter level logging values&quot;&quot;&quot;</span>
-      <span class="kn">import</span> <span class="nn">src.loggingSat</span> <span class="k">as</span> <span class="nn">LOG</span>
+      <span class="kn">import</span> <span class="nn">src.loggingSimple</span> <span class="k">as</span> <span class="nn">LOG</span>
       <span class="n">aLev</span> <span class="o">=</span> <span class="n">aLevel</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
       <span class="n">knownLevels</span> <span class="o">=</span> <span class="n">LOG</span><span class="o">.</span><span class="n">_knownLevels</span>
       <span class="n">maxLen</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">knownLevels</span><span class="p">])</span>
@@ -308,6 +301,8 @@
 <div class="viewcode-block" id="Options.filterList2"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.options.Options.filterList2">[docs]</a>    <span class="k">def</span> <span class="nf">filterList2</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aStr</span><span class="p">):</span>
       <span class="sd">&quot;&quot;&quot;filter a list as &#39;KERNEL,YACS,etc.&#39;&quot;&quot;&quot;</span>
       <span class="n">aList</span> <span class="o">=</span> <span class="n">aStr</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+      <span class="c1"># fix list leading &#39;,&#39; as &#39;,KERNEL,...&#39;</span>
+      <span class="n">aList</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">aList</span> <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">]</span> <span class="c1"># split old list leadin &quot;,&quot; as &quot;,KERNEL,ETC...&quot;</span>
       <span class="k">return</span> <span class="n">aList</span></div>
       
 

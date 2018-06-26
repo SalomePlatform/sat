@@ -1458,7 +1458,7 @@ Please add it in file:
       shutil.rmtree(tmp_local_working_dir)
 
     # to decide...
-    DBG.tofix("make shutil.rmtree(%s) effective" % tmp_working_dir, "", True)   
+    DBG.tofix("make shutil.rmtree('%s') effective" % tmp_working_dir, "", True)
     
     # Print again the path of the package
     logger.write("\n", 2)

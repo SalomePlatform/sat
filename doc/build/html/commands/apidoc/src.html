@@ -433,32 +433,38 @@ distribution correlation table contained in codes variable.</td>
 </div>
 <div class="section" id="module-src.debug">
 <span id="src-debug-module"></span><h2>src.debug module<a class="headerlink" href="#module-src.debug" title="Permalink to this headline">¶</a></h2>
-<p>This file assume DEBUG functionalities use</p>
-<ul class="simple">
-<li>print debug messages in sys.stderr for salomeTools</li>
-<li>show pretty print debug representation from instances of SAT classes
-(pretty print src.pyconf.Config), and python dict/list etc. (as ‘aVariable’)</li>
-</ul>
-<p>WARNING: obviously supposedly show messages in SAT development phase, not production</p>
-<p>usage:
-&gt;&gt; import debug as DBG
-&gt;&gt; DBG.write(“aTitle”, aVariable)        # not shown in production 
-&gt;&gt; DBG.write(“aTitle”, aVariable, True)  # unconditionaly shown (as show=True)</p>
-<p>to set show message as development phase:
-&gt;&gt; DBG.push_debug(True)</p>
-<p>to set no show message as production phase:
-&gt;&gt; DBG.push_debug(False)</p>
-<p>to set show message temporary as development phase, only in a method:
-&gt;&gt; def aMethodToDebug(…):
-&gt;&gt;   DBG.push_debug(True)              #force show as appended status
-&gt;&gt;   etc. method code with some DBG.write()
-&gt;&gt;   DBG.pop_debug()                   #restore previous status (show or not show)
-&gt;&gt;   return</p>
-<p>to set a message for future fix, as temporary problem to not forget:
-DBG.tofix(“aTitle”, aVariable, True/False) #True/False in production shown, or not</p>
-<p>in command line interface you could redirect stderr to file ‘myDebug.log’:
-&gt;&gt; sat compile … 2&gt; myDebug.log   # only stderr
-&gt;&gt; sat compile … &amp;&gt; myDebug.log   # stdout and stderr</p>
+<p>This file assume DEBUG functionalities use.
+Print salomeTools debug messages in sys.stderr.
+Show pretty print debug representation from instances of SAT classes 
+(pretty print src.pyconf.Config)</p>
+<div class="line-block">
+<div class="line">Warning: supposedly show messages in SAT development phase, not production</div>
+<div class="line"><br /></div>
+<div class="line">Usage:</div>
+<div class="line">&gt;&gt; import debug as DBG</div>
+<div class="line">&gt;&gt; DBG.write(“aTitle”, aVariable)        # not shown in production </div>
+<div class="line">&gt;&gt; DBG.write(“aTitle”, aVariable, True)  # unconditionaly shown (as show=True)</div>
+<div class="line"><br /></div>
+<div class="line">to set show message as development phase:</div>
+<div class="line">&gt;&gt; DBG.push_debug(True)</div>
+<div class="line"><br /></div>
+<div class="line">to set no show message as production phase:</div>
+<div class="line">&gt;&gt; DBG.push_debug(False)</div>
+<div class="line"><br /></div>
+<div class="line">to set show message temporary as development phase, only in a method:</div>
+<div class="line">&gt;&gt; def aMethodToDebug(…):</div>
+<div class="line">&gt;&gt;   DBG.push_debug(True)              #force show as appended status</div>
+<div class="line">&gt;&gt;   etc. method code with some DBG.write()</div>
+<div class="line">&gt;&gt;   DBG.pop_debug()                   #restore previous status (show or not show)</div>
+<div class="line">&gt;&gt;   return</div>
+<div class="line"><br /></div>
+<div class="line">to set a message for future fix, as temporary problem to not forget:</div>
+<div class="line">DBG.tofix(“aTitle”, aVariable, True/False) #True/False in production shown, or not</div>
+<div class="line"><br /></div>
+<div class="line">in command line interface you could redirect stderr to file ‘myDebug.log’:</div>
+<div class="line">&gt;&gt; sat compile … 2&gt; myDebug.log   # only stderr</div>
+<div class="line">&gt;&gt; sat compile … &amp;&gt; myDebug.log   # stdout and stderr</div>
+</div>
 <dl class="class">
 <dt id="src.debug.InStream">
 <em class="property">class </em><code class="descclassname">src.debug.</code><code class="descname">InStream</code><span class="sig-paren">(</span><em>buf=''</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/debug.html#InStream"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.debug.InStream" title="Permalink to this definition">¶</a></dt>
@@ -478,6 +484,22 @@ DBG.tofix(“aTitle”, aVariable, True/False) #True/False in production shown, 
 keep value before lost as self.value</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="function">
+<dt id="src.debug.format_color_exception">
+<code class="descclassname">src.debug.</code><code class="descname">format_color_exception</code><span class="sig-paren">(</span><em>msg</em>, <em>limit=None</em>, <em>trace=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/debug.html#format_color_exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.debug.format_color_exception" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format a stack trace and the exception information.
+as traceback.format_exception(), with color
+with traceback only if (_debug) or (DBG._user in DBG._developpers)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.debug.format_exception">
+<code class="descclassname">src.debug.</code><code class="descname">format_exception</code><span class="sig-paren">(</span><em>msg</em>, <em>limit=None</em>, <em>trace=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/debug.html#format_exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.debug.format_exception" title="Permalink to this definition">¶</a></dt>
+<dd><p>Format a stack trace and the exception information.
+as traceback.format_exception(), without color
+with traceback only if (_debug) or (DBG._user in DBG._developpers)</p>
 </dd></dl>
 
 <dl class="function">
@@ -503,6 +525,12 @@ as (path expression evaluation) for debug</p>
 <dt id="src.debug.indent">
 <code class="descclassname">src.debug.</code><code class="descname">indent</code><span class="sig-paren">(</span><em>text</em>, <em>amount=2</em>, <em>ch=' '</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/debug.html#indent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.debug.indent" title="Permalink to this definition">¶</a></dt>
 <dd><p>indent multi lines message</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.debug.isTypeConfig">
+<code class="descclassname">src.debug.</code><code class="descname">isTypeConfig</code><span class="sig-paren">(</span><em>var</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/debug.html#isTypeConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.debug.isTypeConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>To know if var is instance from Config/pyconf</p>
 </dd></dl>
 
 <dl class="function">
@@ -533,8 +561,7 @@ as (path expression evaluation) for debug</p>
 <dt id="src.debug.tofix">
 <code class="descclassname">src.debug.</code><code class="descname">tofix</code><span class="sig-paren">(</span><em>title</em>, <em>var=''</em>, <em>force=None</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/debug.html#tofix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.debug.tofix" title="Permalink to this definition">¶</a></dt>
 <dd><p>write sys.stderr a message if _debug[-1]==True or optionaly force=True
-use this only if no logger accessible for classic 
-logger.warning(message) or logger.debug(message)</p>
+use this only if no logger accessible for classic logger.warning(message)</p>
 </dd></dl>
 
 <dl class="function">
@@ -2143,7 +2170,7 @@ to append or prepend.</p>
 <p>Implements the classes and method relative to the logging</p>
 <dl class="class">
 <dt id="src.logger.Logger">
-<em class="property">class </em><code class="descclassname">src.logger.</code><code class="descname">Logger</code><span class="sig-paren">(</span><em>config</em>, <em>silent_sysstd=False</em>, <em>all_in_terminal=False</em>, <em>micro_command=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/logger.html#Logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.logger.Logger" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">src.logger.</code><code class="descname">Logger</code><span class="sig-paren">(</span><em>config=None</em>, <em>silent_sysstd=False</em>, <em>all_in_terminal=False</em>, <em>micro_command=False</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/logger.html#Logger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.logger.Logger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Class to handle log mechanism.</p>
 <dl class="method">
@@ -2257,6 +2284,29 @@ returns list year, mon, day, hour, minutes, seconds</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="src.logger.getCurrentLogger">
+<code class="descclassname">src.logger.</code><code class="descname">getCurrentLogger</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/logger.html#getCurrentLogger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.logger.getCurrentLogger" title="Permalink to this definition">¶</a></dt>
+<dd><p>get current logging logger, set as DefaultLogger if not set yet</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.logger.getDefaultLogger">
+<code class="descclassname">src.logger.</code><code class="descname">getDefaultLogger</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/logger.html#getDefaultLogger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.logger.getDefaultLogger" title="Permalink to this definition">¶</a></dt>
+<dd><p>get simple logging logger DefaultLogger, set it as current</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.logger.getUnittestLogger">
+<code class="descclassname">src.logger.</code><code class="descname">getUnittestLogger</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/logger.html#getUnittestLogger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.logger.getUnittestLogger" title="Permalink to this definition">¶</a></dt>
+<dd><p>get simple logging logger UnittestLogger, set it as current</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.logger.isCurrentLoggerUnittest">
+<code class="descclassname">src.logger.</code><code class="descname">isCurrentLoggerUnittest</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/logger.html#isCurrentLoggerUnittest"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.logger.isCurrentLoggerUnittest" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
 <dt id="src.logger.list_log_file">
 <code class="descclassname">src.logger.</code><code class="descname">list_log_file</code><span class="sig-paren">(</span><em>dirPath</em>, <em>expression</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/logger.html#list_log_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.logger.list_log_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find all files corresponding to expression in dirPath</p>
@@ -2278,6 +2328,20 @@ returns list year, mon, day, hour, minutes, seconds</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.logger.sendMessageToCurrentLogger">
+<code class="descclassname">src.logger.</code><code class="descname">sendMessageToCurrentLogger</code><span class="sig-paren">(</span><em>message</em>, <em>level</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/logger.html#sendMessageToCurrentLogger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.logger.sendMessageToCurrentLogger" title="Permalink to this definition">¶</a></dt>
+<dd><p>assume relay from obsolescent
+logger.write(msg, 1/2/3…) to future
+logging.critical/warning/info…(msg) (as logging package tips)</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="src.logger.setCurrentLogger">
+<code class="descclassname">src.logger.</code><code class="descname">setCurrentLogger</code><span class="sig-paren">(</span><em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/logger.html#setCurrentLogger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.logger.setCurrentLogger" title="Permalink to this definition">¶</a></dt>
+<dd><p>temporary send all in stdout as simple logging logger</p>
 </dd></dl>
 
 <dl class="function">
@@ -2468,20 +2532,6 @@ that gives access to all options in the code</p>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">(OptResult, list) as (optResult, args) 
 optResult is the option instance to manipulate in the code. 
 args is the full raw list of passed options</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="src.options.Options.print_help">
-<code class="descname">print_help</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/src/options.html#Options.print_help"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#src.options.Options.print_help" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method that display all options stored in self.options and there help</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
 </tr>
 </tbody>
 </table>

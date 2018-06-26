@@ -60,8 +60,10 @@
 <span class="kn">import</span> <span class="nn">tempfile</span>
 
 <span class="kn">import</span> <span class="nn">src</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">printcolors</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="k">import</span> <span class="n">xmlManager</span>
+<span class="kn">import</span> <span class="nn">printcolors</span>
+<span class="kn">import</span> <span class="nn">xmlManager</span>
+
+<span class="kn">import</span> <span class="nn">src.debug</span> <span class="k">as</span> <span class="nn">DBG</span>
 
 <span class="n">log_macro_command_file_expression</span> <span class="o">=</span> <span class="s2">&quot;^[0-9]</span><span class="si">{8}</span><span class="s2">_+[0-9]</span><span class="si">{6}</span><span class="s2">_+.*\.xml$&quot;</span>
 <span class="n">log_all_command_file_expression</span> <span class="o">=</span> <span class="s2">&quot;^.*[0-9]</span><span class="si">{8}</span><span class="s2">_+[0-9]</span><span class="si">{6}</span><span class="s2">_+.*\.xml$&quot;</span>
@@ -71,7 +73,7 @@
 <span class="sd">    Class to handle log mechanism.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                 <span class="n">config</span><span class="p">,</span>
+                 <span class="n">config</span><span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
                  <span class="n">silent_sysstd</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">all_in_terminal</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">micro_command</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
@@ -81,6 +83,7 @@
 <span class="sd">        :param silent_sysstd boolean: if True, do not write anything</span>
 <span class="sd">                                      in terminal.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">DBG</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;src.logger.Logger&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default_level</span> <span class="o">=</span> <span class="mi">3</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">silentSysStd</span> <span class="o">=</span> <span class="n">silent_sysstd</span>
@@ -206,6 +209,12 @@
 <span class="sd">                          to the message 0 &lt; level &lt; 6.</span>
 <span class="sd">        :param screenOnly boolean: if True, do not write in log file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># avoid traces if unittest</span>
+        <span class="k">if</span> <span class="n">isCurrentLoggerUnittest</span><span class="p">():</span>
+            <span class="c1"># print(&quot;doing unittest&quot;)</span>
+            <span class="n">sendMessageToCurrentLogger</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">level</span><span class="p">)</span>
+            <span class="k">return</span>
+
         <span class="c1"># do not write message starting with \r to log file</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">message</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\r</span><span class="s2">&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">screenOnly</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">xmlFile</span><span class="o">.</span><span class="n">append_node_text</span><span class="p">(</span><span class="s2">&quot;Log&quot;</span><span class="p">,</span> 
@@ -442,6 +451,89 @@
     
     <span class="c1"># Write the file on the hard drive</span>
     <span class="n">xmlHat</span><span class="o">.</span><span class="n">write_tree</span><span class="p">(</span><span class="s1">&#39;hat.xsl&#39;</span><span class="p">)</span></div>
+
+
+<span class="c1"># TODO for future</span>
+<span class="c1"># prepare skip to logging logger sat5.1</span>
+<span class="c1"># suppose only one logger in sat5.1</span>
+<span class="n">_currentLogger</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="getCurrentLogger"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.logger.getCurrentLogger">[docs]</a><span class="k">def</span> <span class="nf">getCurrentLogger</span><span class="p">():</span>
+  <span class="sd">&quot;&quot;&quot;get current logging logger, set as DefaultLogger if not set yet&quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">_currentLogger</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">src.loggingSimple</span> <span class="k">as</span> <span class="nn">LOGSI</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">LOGSI</span><span class="o">.</span><span class="n">getDefaultLogger</span><span class="p">()</span>
+    <span class="n">_currentLogger</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;set by default current logger as </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">logger</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">_currentLogger</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="getDefaultLogger"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.logger.getDefaultLogger">[docs]</a><span class="k">def</span> <span class="nf">getDefaultLogger</span><span class="p">():</span>
+  <span class="sd">&quot;&quot;&quot;get simple logging logger DefaultLogger, set it as current&quot;&quot;&quot;</span>
+  <span class="kn">import</span> <span class="nn">src.loggingSimple</span> <span class="k">as</span> <span class="nn">LOGSI</span>
+  <span class="n">logger</span> <span class="o">=</span> <span class="n">LOGSI</span><span class="o">.</span><span class="n">getDefaultLogger</span><span class="p">()</span>
+  <span class="n">setCurrentLogger</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span> <span class="c1"># set it as current</span>
+  <span class="k">return</span> <span class="n">logger</span></div>
+
+<div class="viewcode-block" id="getUnittestLogger"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.logger.getUnittestLogger">[docs]</a><span class="k">def</span> <span class="nf">getUnittestLogger</span><span class="p">():</span>
+  <span class="sd">&quot;&quot;&quot;get simple logging logger UnittestLogger, set it as current&quot;&quot;&quot;</span>
+  <span class="kn">import</span> <span class="nn">src.loggingSimple</span> <span class="k">as</span> <span class="nn">LOGSI</span>
+  <span class="n">logger</span> <span class="o">=</span> <span class="n">LOGSI</span><span class="o">.</span><span class="n">getUnittestLogger</span><span class="p">()</span>
+  <span class="n">setCurrentLogger</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span> <span class="c1"># set it as current</span>
+  <span class="k">return</span> <span class="n">logger</span></div>
+
+<div class="viewcode-block" id="setCurrentLogger"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.logger.setCurrentLogger">[docs]</a><span class="k">def</span> <span class="nf">setCurrentLogger</span><span class="p">(</span><span class="n">logger</span><span class="p">):</span>
+  <span class="sd">&quot;&quot;&quot;temporary send all in stdout as simple logging logger&quot;&quot;&quot;</span>
+  <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">_currentLogger</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">_currentLogger</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">logger</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;set current logger as </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">logger</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+  <span class="k">else</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">_currentLogger</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">logger</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+      <span class="c1"># logger.debug(&quot;quit current logger as default %s&quot; % _currentLogger[0].name)</span>
+      <span class="n">_currentLogger</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">logger</span>
+      <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;change current logger as </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">logger</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+  <span class="k">return</span> <span class="n">_currentLogger</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="isCurrentLoggerUnittest"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.logger.isCurrentLoggerUnittest">[docs]</a><span class="k">def</span> <span class="nf">isCurrentLoggerUnittest</span><span class="p">():</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">getCurrentLogger</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s2">&quot;Unittest&quot;</span> <span class="ow">in</span> <span class="n">logger</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+      <span class="n">res</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">res</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">DBG</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;isCurrentLoggerUnittest </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">logger</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">res</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="sendMessageToCurrentLogger"><a class="viewcode-back" href="../../commands/apidoc/src.html#src.logger.sendMessageToCurrentLogger">[docs]</a><span class="k">def</span> <span class="nf">sendMessageToCurrentLogger</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    assume relay from obsolescent</span>
+<span class="sd">    logger.write(msg, 1/2/3...) to future</span>
+<span class="sd">    logging.critical/warning/info...(msg) (as logging package tips)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">getCurrentLogger</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">level</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+      <span class="n">lev</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">lev</span> <span class="o">=</span> <span class="n">level</span>
+    <span class="k">if</span> <span class="n">lev</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+      <span class="n">logger</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+      <span class="k">return</span>
+    <span class="k">if</span> <span class="n">lev</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+      <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+      <span class="k">return</span>
+    <span class="k">if</span> <span class="n">lev</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+      <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+      <span class="k">return</span>
+    <span class="k">if</span> <span class="n">lev</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+      <span class="n">logger</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+      <span class="k">return</span>
+    <span class="k">if</span> <span class="n">lev</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+      <span class="n">logger</span><span class="o">.</span><span class="n">trace</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+      <span class="k">return</span>
+    <span class="k">if</span> <span class="n">lev</span> <span class="o">&gt;=</span> <span class="mi">6</span><span class="p">:</span>
+      <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+      <span class="k">return</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;What is this level: &#39;</span><span class="si">%s</span><span class="s2">&#39; for message:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">return</span></div>
 </pre></div>
 
           </div>

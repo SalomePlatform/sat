@@ -167,13 +167,16 @@
 \indexentry{put\_txt\_log\_in\_appli\_log\_dir() (src.compilation.Builder method)|hyperpage}{35}
 \indexentry{wmake() (src.compilation.Builder method)|hyperpage}{35}
 \indexentry{src.debug (module)|hyperpage}{35}
-\indexentry{InStream (class in src.debug)|hyperpage}{35}
-\indexentry{OutStream (class in src.debug)|hyperpage}{35}
-\indexentry{close() (src.debug.OutStream method)|hyperpage}{35}
-\indexentry{getLocalEnv() (in module src.debug)|hyperpage}{35}
-\indexentry{getStrConfigDbg() (in module src.debug)|hyperpage}{35}
+\indexentry{InStream (class in src.debug)|hyperpage}{36}
+\indexentry{OutStream (class in src.debug)|hyperpage}{36}
+\indexentry{close() (src.debug.OutStream method)|hyperpage}{36}
+\indexentry{format\_color\_exception() (in module src.debug)|hyperpage}{36}
+\indexentry{format\_exception() (in module src.debug)|hyperpage}{36}
+\indexentry{getLocalEnv() (in module src.debug)|hyperpage}{36}
+\indexentry{getStrConfigDbg() (in module src.debug)|hyperpage}{36}
 \indexentry{getStrConfigStd() (in module src.debug)|hyperpage}{36}
 \indexentry{indent() (in module src.debug)|hyperpage}{36}
+\indexentry{isTypeConfig() (in module src.debug)|hyperpage}{36}
 \indexentry{pop\_debug() (in module src.debug)|hyperpage}{36}
 \indexentry{push\_debug() (in module src.debug)|hyperpage}{36}
 \indexentry{saveConfigDbg() (in module src.debug)|hyperpage}{36}
@@ -183,18 +186,18 @@
 \indexentry{src.environment (module)|hyperpage}{36}
 \indexentry{Environ (class in src.environment)|hyperpage}{36}
 \indexentry{append() (src.environment.Environ method)|hyperpage}{36}
-\indexentry{append\_value() (src.environment.Environ method)|hyperpage}{36}
-\indexentry{command\_value() (src.environment.Environ method)|hyperpage}{36}
-\indexentry{get() (src.environment.Environ method)|hyperpage}{36}
-\indexentry{is\_defined() (src.environment.Environ method)|hyperpage}{36}
+\indexentry{append\_value() (src.environment.Environ method)|hyperpage}{37}
+\indexentry{command\_value() (src.environment.Environ method)|hyperpage}{37}
+\indexentry{get() (src.environment.Environ method)|hyperpage}{37}
+\indexentry{is\_defined() (src.environment.Environ method)|hyperpage}{37}
 \indexentry{prepend() (src.environment.Environ method)|hyperpage}{37}
 \indexentry{prepend\_value() (src.environment.Environ method)|hyperpage}{37}
 \indexentry{set() (src.environment.Environ method)|hyperpage}{37}
 \indexentry{FileEnvWriter (class in src.environment)|hyperpage}{37}
 \indexentry{write\_cfgForPy\_file() (src.environment.FileEnvWriter method)|hyperpage}{37}
-\indexentry{write\_env\_file() (src.environment.FileEnvWriter method)|hyperpage}{37}
-\indexentry{SalomeEnviron (class in src.environment)|hyperpage}{37}
-\indexentry{add\_comment() (src.environment.SalomeEnviron method)|hyperpage}{37}
+\indexentry{write\_env\_file() (src.environment.FileEnvWriter method)|hyperpage}{38}
+\indexentry{SalomeEnviron (class in src.environment)|hyperpage}{38}
+\indexentry{add\_comment() (src.environment.SalomeEnviron method)|hyperpage}{38}
 \indexentry{add\_line() (src.environment.SalomeEnviron method)|hyperpage}{38}
 \indexentry{add\_warning() (src.environment.SalomeEnviron method)|hyperpage}{38}
 \indexentry{append() (src.environment.SalomeEnviron method)|hyperpage}{38}
@@ -203,19 +206,19 @@
 \indexentry{get() (src.environment.SalomeEnviron method)|hyperpage}{38}
 \indexentry{get\_names() (src.environment.SalomeEnviron method)|hyperpage}{38}
 \indexentry{is\_defined() (src.environment.SalomeEnviron method)|hyperpage}{38}
-\indexentry{load\_cfg\_environment() (src.environment.SalomeEnviron method)|hyperpage}{38}
-\indexentry{prepend() (src.environment.SalomeEnviron method)|hyperpage}{38}
-\indexentry{run\_env\_script() (src.environment.SalomeEnviron method)|hyperpage}{38}
+\indexentry{load\_cfg\_environment() (src.environment.SalomeEnviron method)|hyperpage}{39}
+\indexentry{prepend() (src.environment.SalomeEnviron method)|hyperpage}{39}
+\indexentry{run\_env\_script() (src.environment.SalomeEnviron method)|hyperpage}{39}
 \indexentry{run\_simple\_env\_script() (src.environment.SalomeEnviron method)|hyperpage}{39}
 \indexentry{set() (src.environment.SalomeEnviron method)|hyperpage}{39}
 \indexentry{set\_a\_product() (src.environment.SalomeEnviron method)|hyperpage}{39}
 \indexentry{set\_application\_env() (src.environment.SalomeEnviron method)|hyperpage}{39}
 \indexentry{set\_cpp\_env() (src.environment.SalomeEnviron method)|hyperpage}{39}
 \indexentry{set\_full\_environ() (src.environment.SalomeEnviron method)|hyperpage}{39}
-\indexentry{set\_products() (src.environment.SalomeEnviron method)|hyperpage}{39}
-\indexentry{set\_python\_libdirs() (src.environment.SalomeEnviron method)|hyperpage}{39}
-\indexentry{set\_salome\_generic\_product\_env() (src.environment.SalomeEnviron method)|hyperpage}{39}
-\indexentry{set\_salome\_minimal\_product\_env() (src.environment.SalomeEnviron method)|hyperpage}{39}
+\indexentry{set\_products() (src.environment.SalomeEnviron method)|hyperpage}{40}
+\indexentry{set\_python\_libdirs() (src.environment.SalomeEnviron method)|hyperpage}{40}
+\indexentry{set\_salome\_generic\_product\_env() (src.environment.SalomeEnviron method)|hyperpage}{40}
+\indexentry{set\_salome\_minimal\_product\_env() (src.environment.SalomeEnviron method)|hyperpage}{40}
 \indexentry{Shell (class in src.environment)|hyperpage}{40}
 \indexentry{load\_environment() (in module src.environment)|hyperpage}{40}
 \indexentry{src.fileEnviron (module)|hyperpage}{40}
@@ -223,10 +226,10 @@
 \indexentry{command\_value() (src.fileEnviron.BashFileEnviron method)|hyperpage}{40}
 \indexentry{finish() (src.fileEnviron.BashFileEnviron method)|hyperpage}{40}
 \indexentry{set() (src.fileEnviron.BashFileEnviron method)|hyperpage}{40}
-\indexentry{BatFileEnviron (class in src.fileEnviron)|hyperpage}{40}
-\indexentry{add\_comment() (src.fileEnviron.BatFileEnviron method)|hyperpage}{40}
-\indexentry{command\_value() (src.fileEnviron.BatFileEnviron method)|hyperpage}{40}
-\indexentry{finish() (src.fileEnviron.BatFileEnviron method)|hyperpage}{40}
+\indexentry{BatFileEnviron (class in src.fileEnviron)|hyperpage}{41}
+\indexentry{add\_comment() (src.fileEnviron.BatFileEnviron method)|hyperpage}{41}
+\indexentry{command\_value() (src.fileEnviron.BatFileEnviron method)|hyperpage}{41}
+\indexentry{finish() (src.fileEnviron.BatFileEnviron method)|hyperpage}{41}
 \indexentry{get() (src.fileEnviron.BatFileEnviron method)|hyperpage}{41}
 \indexentry{set() (src.fileEnviron.BatFileEnviron method)|hyperpage}{41}
 \indexentry{ContextFileEnviron (class in src.fileEnviron)|hyperpage}{41}
@@ -234,10 +237,10 @@
 \indexentry{add\_warning() (src.fileEnviron.ContextFileEnviron method)|hyperpage}{41}
 \indexentry{append\_value() (src.fileEnviron.ContextFileEnviron method)|hyperpage}{41}
 \indexentry{command\_value() (src.fileEnviron.ContextFileEnviron method)|hyperpage}{41}
-\indexentry{finish() (src.fileEnviron.ContextFileEnviron method)|hyperpage}{41}
-\indexentry{get() (src.fileEnviron.ContextFileEnviron method)|hyperpage}{41}
-\indexentry{prepend\_value() (src.fileEnviron.ContextFileEnviron method)|hyperpage}{41}
-\indexentry{set() (src.fileEnviron.ContextFileEnviron method)|hyperpage}{41}
+\indexentry{finish() (src.fileEnviron.ContextFileEnviron method)|hyperpage}{42}
+\indexentry{get() (src.fileEnviron.ContextFileEnviron method)|hyperpage}{42}
+\indexentry{prepend\_value() (src.fileEnviron.ContextFileEnviron method)|hyperpage}{42}
+\indexentry{set() (src.fileEnviron.ContextFileEnviron method)|hyperpage}{42}
 \indexentry{FileEnviron (class in src.fileEnviron)|hyperpage}{42}
 \indexentry{add\_comment() (src.fileEnviron.FileEnviron method)|hyperpage}{42}
 \indexentry{add\_echo() (src.fileEnviron.FileEnviron method)|hyperpage}{42}
@@ -245,20 +248,20 @@
 \indexentry{add\_warning() (src.fileEnviron.FileEnviron method)|hyperpage}{42}
 \indexentry{append() (src.fileEnviron.FileEnviron method)|hyperpage}{42}
 \indexentry{append\_value() (src.fileEnviron.FileEnviron method)|hyperpage}{42}
-\indexentry{command\_value() (src.fileEnviron.FileEnviron method)|hyperpage}{42}
-\indexentry{finish() (src.fileEnviron.FileEnviron method)|hyperpage}{42}
-\indexentry{get() (src.fileEnviron.FileEnviron method)|hyperpage}{42}
+\indexentry{command\_value() (src.fileEnviron.FileEnviron method)|hyperpage}{43}
+\indexentry{finish() (src.fileEnviron.FileEnviron method)|hyperpage}{43}
+\indexentry{get() (src.fileEnviron.FileEnviron method)|hyperpage}{43}
 \indexentry{is\_defined() (src.fileEnviron.FileEnviron method)|hyperpage}{43}
 \indexentry{prepend() (src.fileEnviron.FileEnviron method)|hyperpage}{43}
 \indexentry{prepend\_value() (src.fileEnviron.FileEnviron method)|hyperpage}{43}
 \indexentry{set() (src.fileEnviron.FileEnviron method)|hyperpage}{43}
 \indexentry{LauncherFileEnviron (class in src.fileEnviron)|hyperpage}{43}
 \indexentry{add() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{43}
-\indexentry{add\_comment() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{43}
-\indexentry{add\_echo() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{43}
-\indexentry{add\_line() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{43}
-\indexentry{add\_warning() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{43}
-\indexentry{append() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{43}
+\indexentry{add\_comment() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{44}
+\indexentry{add\_echo() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{44}
+\indexentry{add\_line() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{44}
+\indexentry{add\_warning() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{44}
+\indexentry{append() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{44}
 \indexentry{append\_value() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{44}
 \indexentry{change\_to\_launcher() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{44}
 \indexentry{command\_value() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{44}
@@ -266,9 +269,9 @@
 \indexentry{get() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{44}
 \indexentry{is\_defined() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{44}
 \indexentry{prepend() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{44}
-\indexentry{prepend\_value() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{44}
-\indexentry{set() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{44}
-\indexentry{ScreenEnviron (class in src.fileEnviron)|hyperpage}{44}
+\indexentry{prepend\_value() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{45}
+\indexentry{set() (src.fileEnviron.LauncherFileEnviron method)|hyperpage}{45}
+\indexentry{ScreenEnviron (class in src.fileEnviron)|hyperpage}{45}
 \indexentry{add\_comment() (src.fileEnviron.ScreenEnviron method)|hyperpage}{45}
 \indexentry{add\_echo() (src.fileEnviron.ScreenEnviron method)|hyperpage}{45}
 \indexentry{add\_line() (src.fileEnviron.ScreenEnviron method)|hyperpage}{45}
@@ -277,9 +280,9 @@
 \indexentry{command\_value() (src.fileEnviron.ScreenEnviron method)|hyperpage}{45}
 \indexentry{get() (src.fileEnviron.ScreenEnviron method)|hyperpage}{45}
 \indexentry{is\_defined() (src.fileEnviron.ScreenEnviron method)|hyperpage}{45}
-\indexentry{prepend() (src.fileEnviron.ScreenEnviron method)|hyperpage}{45}
-\indexentry{run\_env\_script() (src.fileEnviron.ScreenEnviron method)|hyperpage}{45}
-\indexentry{set() (src.fileEnviron.ScreenEnviron method)|hyperpage}{45}
+\indexentry{prepend() (src.fileEnviron.ScreenEnviron method)|hyperpage}{46}
+\indexentry{run\_env\_script() (src.fileEnviron.ScreenEnviron method)|hyperpage}{46}
+\indexentry{set() (src.fileEnviron.ScreenEnviron method)|hyperpage}{46}
 \indexentry{write() (src.fileEnviron.ScreenEnviron method)|hyperpage}{46}
 \indexentry{get\_file\_environ() (in module src.fileEnviron)|hyperpage}{46}
 \indexentry{special\_path\_separator() (in module src.fileEnviron)|hyperpage}{46}
@@ -289,123 +292,128 @@
 \indexentry{launch\_command() (in module src.fork)|hyperpage}{46}
 \indexentry{show\_progress() (in module src.fork)|hyperpage}{46}
 \indexentry{write\_back() (in module src.fork)|hyperpage}{46}
-\indexentry{src.logger (module)|hyperpage}{46}
-\indexentry{Logger (class in src.logger)|hyperpage}{46}
-\indexentry{add\_link() (src.logger.Logger method)|hyperpage}{46}
+\indexentry{src.logger (module)|hyperpage}{47}
+\indexentry{Logger (class in src.logger)|hyperpage}{47}
+\indexentry{add\_link() (src.logger.Logger method)|hyperpage}{47}
 \indexentry{end\_write() (src.logger.Logger method)|hyperpage}{47}
 \indexentry{error() (src.logger.Logger method)|hyperpage}{47}
 \indexentry{flush() (src.logger.Logger method)|hyperpage}{47}
 \indexentry{put\_initial\_xml\_fields() (src.logger.Logger method)|hyperpage}{47}
 \indexentry{write() (src.logger.Logger method)|hyperpage}{47}
 \indexentry{date\_to\_datetime() (in module src.logger)|hyperpage}{47}
-\indexentry{list\_log\_file() (in module src.logger)|hyperpage}{47}
-\indexentry{show\_command\_log() (in module src.logger)|hyperpage}{47}
-\indexentry{timedelta\_total\_seconds() (in module src.logger)|hyperpage}{47}
+\indexentry{getCurrentLogger() (in module src.logger)|hyperpage}{47}
+\indexentry{getDefaultLogger() (in module src.logger)|hyperpage}{47}
+\indexentry{getUnittestLogger() (in module src.logger)|hyperpage}{47}
+\indexentry{isCurrentLoggerUnittest() (in module src.logger)|hyperpage}{48}
+\indexentry{list\_log\_file() (in module src.logger)|hyperpage}{48}
+\indexentry{sendMessageToCurrentLogger() (in module src.logger)|hyperpage}{48}
+\indexentry{setCurrentLogger() (in module src.logger)|hyperpage}{48}
+\indexentry{show\_command\_log() (in module src.logger)|hyperpage}{48}
+\indexentry{timedelta\_total\_seconds() (in module src.logger)|hyperpage}{48}
 \indexentry{update\_hat\_xml() (in module src.logger)|hyperpage}{48}
 \indexentry{src.options (module)|hyperpage}{48}
 \indexentry{OptResult (class in src.options)|hyperpage}{48}
-\indexentry{Options (class in src.options)|hyperpage}{48}
-\indexentry{add\_option() (src.options.Options method)|hyperpage}{48}
-\indexentry{debug\_write() (src.options.Options method)|hyperpage}{48}
-\indexentry{filterLevel() (src.options.Options method)|hyperpage}{48}
-\indexentry{filterList2() (src.options.Options method)|hyperpage}{48}
-\indexentry{getDetailOption() (src.options.Options method)|hyperpage}{48}
+\indexentry{Options (class in src.options)|hyperpage}{49}
+\indexentry{add\_option() (src.options.Options method)|hyperpage}{49}
+\indexentry{debug\_write() (src.options.Options method)|hyperpage}{49}
+\indexentry{filterLevel() (src.options.Options method)|hyperpage}{49}
+\indexentry{filterList2() (src.options.Options method)|hyperpage}{49}
+\indexentry{getDetailOption() (src.options.Options method)|hyperpage}{49}
 \indexentry{get\_help() (src.options.Options method)|hyperpage}{49}
 \indexentry{indent() (src.options.Options method)|hyperpage}{49}
 \indexentry{parse\_args() (src.options.Options method)|hyperpage}{49}
-\indexentry{print\_help() (src.options.Options method)|hyperpage}{49}
 \indexentry{src.printcolors (module)|hyperpage}{49}
 \indexentry{cleancolor() (in module src.printcolors)|hyperpage}{49}
 \indexentry{print\_color\_map() (in module src.printcolors)|hyperpage}{49}
-\indexentry{print\_color\_range() (in module src.printcolors)|hyperpage}{49}
-\indexentry{print\_value() (in module src.printcolors)|hyperpage}{49}
-\indexentry{printc() (in module src.printcolors)|hyperpage}{49}
+\indexentry{print\_color\_range() (in module src.printcolors)|hyperpage}{50}
+\indexentry{print\_value() (in module src.printcolors)|hyperpage}{50}
+\indexentry{printc() (in module src.printcolors)|hyperpage}{50}
 \indexentry{printcError() (in module src.printcolors)|hyperpage}{50}
 \indexentry{printcHeader() (in module src.printcolors)|hyperpage}{50}
 \indexentry{printcHighlight() (in module src.printcolors)|hyperpage}{50}
 \indexentry{printcInfo() (in module src.printcolors)|hyperpage}{50}
-\indexentry{printcLabel() (in module src.printcolors)|hyperpage}{50}
-\indexentry{printcSuccess() (in module src.printcolors)|hyperpage}{50}
-\indexentry{printcWarning() (in module src.printcolors)|hyperpage}{50}
-\indexentry{src.product (module)|hyperpage}{50}
-\indexentry{check\_config\_exists() (in module src.product)|hyperpage}{50}
+\indexentry{printcLabel() (in module src.printcolors)|hyperpage}{51}
+\indexentry{printcSuccess() (in module src.printcolors)|hyperpage}{51}
+\indexentry{printcWarning() (in module src.printcolors)|hyperpage}{51}
+\indexentry{src.product (module)|hyperpage}{51}
+\indexentry{check\_config\_exists() (in module src.product)|hyperpage}{51}
 \indexentry{check\_installation() (in module src.product)|hyperpage}{51}
 \indexentry{check\_source() (in module src.product)|hyperpage}{51}
 \indexentry{get\_base\_install\_dir() (in module src.product)|hyperpage}{51}
-\indexentry{get\_install\_dir() (in module src.product)|hyperpage}{51}
-\indexentry{get\_product\_components() (in module src.product)|hyperpage}{51}
+\indexentry{get\_install\_dir() (in module src.product)|hyperpage}{52}
+\indexentry{get\_product\_components() (in module src.product)|hyperpage}{52}
 \indexentry{get\_product\_config() (in module src.product)|hyperpage}{52}
 \indexentry{get\_product\_dependencies() (in module src.product)|hyperpage}{52}
 \indexentry{get\_product\_section() (in module src.product)|hyperpage}{52}
-\indexentry{get\_products\_infos() (in module src.product)|hyperpage}{52}
-\indexentry{product\_compiles() (in module src.product)|hyperpage}{52}
-\indexentry{product\_has\_env\_script() (in module src.product)|hyperpage}{52}
+\indexentry{get\_products\_infos() (in module src.product)|hyperpage}{53}
+\indexentry{product\_compiles() (in module src.product)|hyperpage}{53}
+\indexentry{product\_has\_env\_script() (in module src.product)|hyperpage}{53}
 \indexentry{product\_has\_logo() (in module src.product)|hyperpage}{53}
 \indexentry{product\_has\_patches() (in module src.product)|hyperpage}{53}
 \indexentry{product\_has\_salome\_gui() (in module src.product)|hyperpage}{53}
 \indexentry{product\_has\_script() (in module src.product)|hyperpage}{53}
 \indexentry{product\_is\_autotools() (in module src.product)|hyperpage}{53}
-\indexentry{product\_is\_cmake() (in module src.product)|hyperpage}{53}
-\indexentry{product\_is\_cpp() (in module src.product)|hyperpage}{53}
-\indexentry{product\_is\_debug() (in module src.product)|hyperpage}{53}
+\indexentry{product\_is\_cmake() (in module src.product)|hyperpage}{54}
+\indexentry{product\_is\_cpp() (in module src.product)|hyperpage}{54}
+\indexentry{product\_is\_debug() (in module src.product)|hyperpage}{54}
 \indexentry{product\_is\_dev() (in module src.product)|hyperpage}{54}
 \indexentry{product\_is\_fixed() (in module src.product)|hyperpage}{54}
 \indexentry{product\_is\_generated() (in module src.product)|hyperpage}{54}
 \indexentry{product\_is\_mpi() (in module src.product)|hyperpage}{54}
 \indexentry{product\_is\_native() (in module src.product)|hyperpage}{54}
-\indexentry{product\_is\_salome() (in module src.product)|hyperpage}{54}
-\indexentry{product\_is\_smesh\_plugin() (in module src.product)|hyperpage}{54}
-\indexentry{product\_is\_vcs() (in module src.product)|hyperpage}{54}
-\indexentry{product\_is\_verbose() (in module src.product)|hyperpage}{54}
+\indexentry{product\_is\_salome() (in module src.product)|hyperpage}{55}
+\indexentry{product\_is\_smesh\_plugin() (in module src.product)|hyperpage}{55}
+\indexentry{product\_is\_vcs() (in module src.product)|hyperpage}{55}
+\indexentry{product\_is\_verbose() (in module src.product)|hyperpage}{55}
 \indexentry{src.pyconf (module)|hyperpage}{55}
 \indexentry{Config (class in src.pyconf)|hyperpage}{56}
 \indexentry{Config.Namespace (class in src.pyconf)|hyperpage}{56}
 \indexentry{addNamespace() (src.pyconf.Config method)|hyperpage}{56}
 \indexentry{getByPath() (src.pyconf.Config method)|hyperpage}{56}
 \indexentry{load() (src.pyconf.Config method)|hyperpage}{56}
-\indexentry{removeNamespace() (src.pyconf.Config method)|hyperpage}{56}
-\indexentry{ConfigError|hyperpage}{56}
-\indexentry{ConfigFormatError|hyperpage}{56}
-\indexentry{ConfigInputStream (class in src.pyconf)|hyperpage}{56}
-\indexentry{close() (src.pyconf.ConfigInputStream method)|hyperpage}{56}
-\indexentry{read() (src.pyconf.ConfigInputStream method)|hyperpage}{56}
-\indexentry{readline() (src.pyconf.ConfigInputStream method)|hyperpage}{56}
-\indexentry{ConfigList (class in src.pyconf)|hyperpage}{56}
-\indexentry{getByPath() (src.pyconf.ConfigList method)|hyperpage}{56}
+\indexentry{removeNamespace() (src.pyconf.Config method)|hyperpage}{57}
+\indexentry{ConfigError|hyperpage}{57}
+\indexentry{ConfigFormatError|hyperpage}{57}
+\indexentry{ConfigInputStream (class in src.pyconf)|hyperpage}{57}
+\indexentry{close() (src.pyconf.ConfigInputStream method)|hyperpage}{57}
+\indexentry{read() (src.pyconf.ConfigInputStream method)|hyperpage}{57}
+\indexentry{readline() (src.pyconf.ConfigInputStream method)|hyperpage}{57}
+\indexentry{ConfigList (class in src.pyconf)|hyperpage}{57}
+\indexentry{getByPath() (src.pyconf.ConfigList method)|hyperpage}{57}
 \indexentry{ConfigMerger (class in src.pyconf)|hyperpage}{57}
 \indexentry{handleMismatch() (src.pyconf.ConfigMerger method)|hyperpage}{57}
 \indexentry{merge() (src.pyconf.ConfigMerger method)|hyperpage}{57}
 \indexentry{mergeMapping() (src.pyconf.ConfigMerger method)|hyperpage}{57}
-\indexentry{mergeSequence() (src.pyconf.ConfigMerger method)|hyperpage}{57}
-\indexentry{overwriteKeys() (src.pyconf.ConfigMerger method)|hyperpage}{57}
-\indexentry{ConfigOutputStream (class in src.pyconf)|hyperpage}{57}
-\indexentry{close() (src.pyconf.ConfigOutputStream method)|hyperpage}{57}
-\indexentry{flush() (src.pyconf.ConfigOutputStream method)|hyperpage}{57}
-\indexentry{write() (src.pyconf.ConfigOutputStream method)|hyperpage}{57}
-\indexentry{ConfigReader (class in src.pyconf)|hyperpage}{57}
-\indexentry{getChar() (src.pyconf.ConfigReader method)|hyperpage}{57}
-\indexentry{getToken() (src.pyconf.ConfigReader method)|hyperpage}{57}
+\indexentry{mergeSequence() (src.pyconf.ConfigMerger method)|hyperpage}{58}
+\indexentry{overwriteKeys() (src.pyconf.ConfigMerger method)|hyperpage}{58}
+\indexentry{ConfigOutputStream (class in src.pyconf)|hyperpage}{58}
+\indexentry{close() (src.pyconf.ConfigOutputStream method)|hyperpage}{58}
+\indexentry{flush() (src.pyconf.ConfigOutputStream method)|hyperpage}{58}
+\indexentry{write() (src.pyconf.ConfigOutputStream method)|hyperpage}{58}
+\indexentry{ConfigReader (class in src.pyconf)|hyperpage}{58}
+\indexentry{getChar() (src.pyconf.ConfigReader method)|hyperpage}{58}
+\indexentry{getToken() (src.pyconf.ConfigReader method)|hyperpage}{58}
 \indexentry{load() (src.pyconf.ConfigReader method)|hyperpage}{58}
 \indexentry{location() (src.pyconf.ConfigReader method)|hyperpage}{58}
 \indexentry{match() (src.pyconf.ConfigReader method)|hyperpage}{58}
 \indexentry{parseFactor() (src.pyconf.ConfigReader method)|hyperpage}{58}
-\indexentry{parseKeyValuePair() (src.pyconf.ConfigReader method)|hyperpage}{58}
-\indexentry{parseMapping() (src.pyconf.ConfigReader method)|hyperpage}{58}
-\indexentry{parseMappingBody() (src.pyconf.ConfigReader method)|hyperpage}{58}
-\indexentry{parseReference() (src.pyconf.ConfigReader method)|hyperpage}{58}
-\indexentry{parseScalar() (src.pyconf.ConfigReader method)|hyperpage}{58}
-\indexentry{parseSequence() (src.pyconf.ConfigReader method)|hyperpage}{58}
+\indexentry{parseKeyValuePair() (src.pyconf.ConfigReader method)|hyperpage}{59}
+\indexentry{parseMapping() (src.pyconf.ConfigReader method)|hyperpage}{59}
+\indexentry{parseMappingBody() (src.pyconf.ConfigReader method)|hyperpage}{59}
+\indexentry{parseReference() (src.pyconf.ConfigReader method)|hyperpage}{59}
+\indexentry{parseScalar() (src.pyconf.ConfigReader method)|hyperpage}{59}
+\indexentry{parseSequence() (src.pyconf.ConfigReader method)|hyperpage}{59}
 \indexentry{parseSuffix() (src.pyconf.ConfigReader method)|hyperpage}{59}
 \indexentry{parseTerm() (src.pyconf.ConfigReader method)|hyperpage}{59}
 \indexentry{parseValue() (src.pyconf.ConfigReader method)|hyperpage}{59}
 \indexentry{setStream() (src.pyconf.ConfigReader method)|hyperpage}{59}
 \indexentry{ConfigResolutionError|hyperpage}{59}
 \indexentry{Container (class in src.pyconf)|hyperpage}{59}
-\indexentry{evaluate() (src.pyconf.Container method)|hyperpage}{59}
-\indexentry{setPath() (src.pyconf.Container method)|hyperpage}{59}
-\indexentry{writeToStream() (src.pyconf.Container method)|hyperpage}{59}
-\indexentry{writeValue() (src.pyconf.Container method)|hyperpage}{59}
-\indexentry{Expression (class in src.pyconf)|hyperpage}{59}
+\indexentry{evaluate() (src.pyconf.Container method)|hyperpage}{60}
+\indexentry{setPath() (src.pyconf.Container method)|hyperpage}{60}
+\indexentry{writeToStream() (src.pyconf.Container method)|hyperpage}{60}
+\indexentry{writeValue() (src.pyconf.Container method)|hyperpage}{60}
+\indexentry{Expression (class in src.pyconf)|hyperpage}{60}
 \indexentry{evaluate() (src.pyconf.Expression method)|hyperpage}{60}
 \indexentry{Mapping (class in src.pyconf)|hyperpage}{60}
 \indexentry{addMapping() (src.pyconf.Mapping method)|hyperpage}{60}
@@ -413,40 +421,40 @@
 \indexentry{iteritems() (src.pyconf.Mapping method)|hyperpage}{60}
 \indexentry{iterkeys() (src.pyconf.Mapping method)|hyperpage}{60}
 \indexentry{keys() (src.pyconf.Mapping method)|hyperpage}{60}
-\indexentry{writeToStream() (src.pyconf.Mapping method)|hyperpage}{60}
-\indexentry{Reference (class in src.pyconf)|hyperpage}{60}
-\indexentry{addElement() (src.pyconf.Reference method)|hyperpage}{60}
-\indexentry{findConfig() (src.pyconf.Reference method)|hyperpage}{60}
-\indexentry{resolve() (src.pyconf.Reference method)|hyperpage}{60}
-\indexentry{Sequence (class in src.pyconf)|hyperpage}{60}
+\indexentry{writeToStream() (src.pyconf.Mapping method)|hyperpage}{61}
+\indexentry{Reference (class in src.pyconf)|hyperpage}{61}
+\indexentry{addElement() (src.pyconf.Reference method)|hyperpage}{61}
+\indexentry{findConfig() (src.pyconf.Reference method)|hyperpage}{61}
+\indexentry{resolve() (src.pyconf.Reference method)|hyperpage}{61}
+\indexentry{Sequence (class in src.pyconf)|hyperpage}{61}
 \indexentry{Sequence.SeqIter (class in src.pyconf)|hyperpage}{61}
 \indexentry{next() (src.pyconf.Sequence.SeqIter method)|hyperpage}{61}
 \indexentry{append() (src.pyconf.Sequence method)|hyperpage}{61}
 \indexentry{writeToStream() (src.pyconf.Sequence method)|hyperpage}{61}
 \indexentry{deepCopyMapping() (in module src.pyconf)|hyperpage}{61}
 \indexentry{defaultMergeResolve() (in module src.pyconf)|hyperpage}{61}
-\indexentry{defaultStreamOpener() (in module src.pyconf)|hyperpage}{61}
-\indexentry{isWord() (in module src.pyconf)|hyperpage}{61}
-\indexentry{makePath() (in module src.pyconf)|hyperpage}{61}
+\indexentry{defaultStreamOpener() (in module src.pyconf)|hyperpage}{62}
+\indexentry{isWord() (in module src.pyconf)|hyperpage}{62}
+\indexentry{makePath() (in module src.pyconf)|hyperpage}{62}
 \indexentry{overwriteMergeResolve() (in module src.pyconf)|hyperpage}{62}
 \indexentry{src.system (module)|hyperpage}{62}
 \indexentry{archive\_extract() (in module src.system)|hyperpage}{62}
 \indexentry{cvs\_extract() (in module src.system)|hyperpage}{62}
-\indexentry{git\_extract() (in module src.system)|hyperpage}{62}
+\indexentry{git\_extract() (in module src.system)|hyperpage}{63}
 \indexentry{show\_in\_editor() (in module src.system)|hyperpage}{63}
 \indexentry{svn\_extract() (in module src.system)|hyperpage}{63}
-\indexentry{src.template (module)|hyperpage}{63}
-\indexentry{MyTemplate (class in src.template)|hyperpage}{63}
-\indexentry{delimiter (src.template.MyTemplate attribute)|hyperpage}{63}
-\indexentry{pattern (src.template.MyTemplate attribute)|hyperpage}{63}
-\indexentry{substitute() (in module src.template)|hyperpage}{63}
-\indexentry{src.test\_module (module)|hyperpage}{63}
-\indexentry{Test (class in src.test\_module)|hyperpage}{63}
-\indexentry{generate\_launching\_commands() (src.test\_module.Test method)|hyperpage}{63}
-\indexentry{generate\_script() (src.test\_module.Test method)|hyperpage}{63}
-\indexentry{get\_test\_timeout() (src.test\_module.Test method)|hyperpage}{63}
-\indexentry{get\_tmp\_dir() (src.test\_module.Test method)|hyperpage}{63}
-\indexentry{prepare\_testbase() (src.test\_module.Test method)|hyperpage}{63}
+\indexentry{src.template (module)|hyperpage}{64}
+\indexentry{MyTemplate (class in src.template)|hyperpage}{64}
+\indexentry{delimiter (src.template.MyTemplate attribute)|hyperpage}{64}
+\indexentry{pattern (src.template.MyTemplate attribute)|hyperpage}{64}
+\indexentry{substitute() (in module src.template)|hyperpage}{64}
+\indexentry{src.test\_module (module)|hyperpage}{64}
+\indexentry{Test (class in src.test\_module)|hyperpage}{64}
+\indexentry{generate\_launching\_commands() (src.test\_module.Test method)|hyperpage}{64}
+\indexentry{generate\_script() (src.test\_module.Test method)|hyperpage}{64}
+\indexentry{get\_test\_timeout() (src.test\_module.Test method)|hyperpage}{64}
+\indexentry{get\_tmp\_dir() (src.test\_module.Test method)|hyperpage}{64}
+\indexentry{prepare\_testbase() (src.test\_module.Test method)|hyperpage}{64}
 \indexentry{prepare\_testbase\_from\_dir() (src.test\_module.Test method)|hyperpage}{64}
 \indexentry{prepare\_testbase\_from\_git() (src.test\_module.Test method)|hyperpage}{64}
 \indexentry{prepare\_testbase\_from\_svn() (src.test\_module.Test method)|hyperpage}{64}
@@ -463,17 +471,17 @@
 \indexentry{src.xmlManager (module)|hyperpage}{64}
 \indexentry{ReadXmlFile (class in src.xmlManager)|hyperpage}{64}
 \indexentry{getRootAttrib() (src.xmlManager.ReadXmlFile method)|hyperpage}{64}
-\indexentry{get\_attrib() (src.xmlManager.ReadXmlFile method)|hyperpage}{64}
-\indexentry{get\_node\_text() (src.xmlManager.ReadXmlFile method)|hyperpage}{64}
-\indexentry{XmlLogFile (class in src.xmlManager)|hyperpage}{64}
-\indexentry{add\_simple\_node() (src.xmlManager.XmlLogFile method)|hyperpage}{64}
+\indexentry{get\_attrib() (src.xmlManager.ReadXmlFile method)|hyperpage}{65}
+\indexentry{get\_node\_text() (src.xmlManager.ReadXmlFile method)|hyperpage}{65}
+\indexentry{XmlLogFile (class in src.xmlManager)|hyperpage}{65}
+\indexentry{add\_simple\_node() (src.xmlManager.XmlLogFile method)|hyperpage}{65}
 \indexentry{append\_node\_attrib() (src.xmlManager.XmlLogFile method)|hyperpage}{65}
 \indexentry{append\_node\_text() (src.xmlManager.XmlLogFile method)|hyperpage}{65}
 \indexentry{write\_tree() (src.xmlManager.XmlLogFile method)|hyperpage}{65}
 \indexentry{add\_simple\_node() (in module src.xmlManager)|hyperpage}{65}
-\indexentry{append\_node\_attrib() (in module src.xmlManager)|hyperpage}{65}
-\indexentry{find\_node\_by\_attrib() (in module src.xmlManager)|hyperpage}{65}
-\indexentry{write\_report() (in module src.xmlManager)|hyperpage}{65}
+\indexentry{append\_node\_attrib() (in module src.xmlManager)|hyperpage}{66}
+\indexentry{find\_node\_by\_attrib() (in module src.xmlManager)|hyperpage}{66}
+\indexentry{write\_report() (in module src.xmlManager)|hyperpage}{66}
 \indexentry{src (module)|hyperpage}{66}
 \indexentry{Path (class in src)|hyperpage}{66}
 \indexentry{base() (src.Path method)|hyperpage}{66}
@@ -488,26 +496,26 @@
 \indexentry{isfile() (src.Path method)|hyperpage}{66}
 \indexentry{islink() (src.Path method)|hyperpage}{66}
 \indexentry{list() (src.Path method)|hyperpage}{66}
-\indexentry{make() (src.Path method)|hyperpage}{66}
-\indexentry{readlink() (src.Path method)|hyperpage}{66}
-\indexentry{rm() (src.Path method)|hyperpage}{66}
-\indexentry{smartcopy() (src.Path method)|hyperpage}{66}
-\indexentry{symlink() (src.Path method)|hyperpage}{66}
-\indexentry{SatException|hyperpage}{66}
-\indexentry{activate\_mesa\_property() (in module src)|hyperpage}{66}
-\indexentry{check\_config\_has\_application() (in module src)|hyperpage}{66}
-\indexentry{check\_config\_has\_profile() (in module src)|hyperpage}{66}
-\indexentry{config\_has\_application() (in module src)|hyperpage}{66}
-\indexentry{deepcopy\_list() (in module src)|hyperpage}{66}
+\indexentry{make() (src.Path method)|hyperpage}{67}
+\indexentry{readlink() (src.Path method)|hyperpage}{67}
+\indexentry{rm() (src.Path method)|hyperpage}{67}
+\indexentry{smartcopy() (src.Path method)|hyperpage}{67}
+\indexentry{symlink() (src.Path method)|hyperpage}{67}
+\indexentry{SatException|hyperpage}{67}
+\indexentry{activate\_mesa\_property() (in module src)|hyperpage}{67}
+\indexentry{check\_config\_has\_application() (in module src)|hyperpage}{67}
+\indexentry{check\_config\_has\_profile() (in module src)|hyperpage}{67}
+\indexentry{config\_has\_application() (in module src)|hyperpage}{67}
+\indexentry{deepcopy\_list() (in module src)|hyperpage}{67}
 \indexentry{ensure\_path\_exists() (in module src)|hyperpage}{67}
 \indexentry{find\_file\_in\_lpath() (in module src)|hyperpage}{67}
 \indexentry{get\_base\_path() (in module src)|hyperpage}{67}
 \indexentry{get\_cfg\_param() (in module src)|hyperpage}{67}
-\indexentry{get\_launcher\_name() (in module src)|hyperpage}{67}
-\indexentry{get\_log\_path() (in module src)|hyperpage}{67}
-\indexentry{get\_property\_in\_product\_cfg() (in module src)|hyperpage}{67}
-\indexentry{get\_salome\_version() (in module src)|hyperpage}{67}
-\indexentry{get\_tmp\_filename() (in module src)|hyperpage}{67}
+\indexentry{get\_launcher\_name() (in module src)|hyperpage}{68}
+\indexentry{get\_log\_path() (in module src)|hyperpage}{68}
+\indexentry{get\_property\_in\_product\_cfg() (in module src)|hyperpage}{68}
+\indexentry{get\_salome\_version() (in module src)|hyperpage}{68}
+\indexentry{get\_tmp\_filename() (in module src)|hyperpage}{68}
 \indexentry{handleRemoveReadonly() (in module src)|hyperpage}{68}
 \indexentry{merge\_dicts() (in module src)|hyperpage}{68}
 \indexentry{only\_numbers() (in module src)|hyperpage}{68}
@@ -515,4 +523,4 @@
 \indexentry{print\_info() (in module src)|hyperpage}{68}
 \indexentry{read\_config\_from\_a\_file() (in module src)|hyperpage}{68}
 \indexentry{remove\_item\_from\_list() (in module src)|hyperpage}{68}
-\indexentry{replace\_in\_file() (in module src)|hyperpage}{68}
+\indexentry{replace\_in\_file() (in module src)|hyperpage}{69}

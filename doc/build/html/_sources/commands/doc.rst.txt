@@ -10,9 +10,9 @@ The **doc** command displays sat documentation.
 
 Usage
 =====
-* Show (in a web browser) the sat documentation: ::
+* Show (in a web browser) the sat documentation in format xml/html: ::
 
-    sat doc --html
+    sat doc --xml
 
 * Show (in evince, for example) the (same) sat documentation in format pdf: ::
 

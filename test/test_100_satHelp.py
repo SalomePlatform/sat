@@ -101,13 +101,14 @@ class TestCase(unittest.TestCase):
     DBG.write("test_031 logger", logs)
     self.assertTrue("--help" in logs)
 
-  def xxtest_040(self):
+  def test_040(self):
+    logger = LOG.getUnittestLogger()
     cmd = "config --list"
-    s = SAT.Sat(self.logger)
+    s = SAT.Sat(logger)
     returnCode = s.execute_cli(cmd)
     self.assertTrue(returnCode.isOk())
-    logs = self.logger.getLogs()
-    self.assertTrue("--value" in logs)
+    logs = logger.getLogs()
+    self.assertTrue("Applications" in logs)
 
   def test_050(self):
     cmds = SAT.getCommandsList()

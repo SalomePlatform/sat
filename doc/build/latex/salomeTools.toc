@@ -91,20 +91,20 @@
 \contentsline {subsubsection}{src.architecture module}{34}{subsubsection*.162}
 \contentsline {subsubsection}{src.compilation module}{34}{subsubsection*.169}
 \contentsline {subsubsection}{src.debug module}{35}{subsubsection*.188}
-\contentsline {subsubsection}{src.environment module}{36}{subsubsection*.202}
-\contentsline {subsubsection}{src.fileEnviron module}{40}{subsubsection*.240}
-\contentsline {subsubsection}{src.fork module}{46}{subsubsection*.305}
-\contentsline {subsubsection}{src.logger module}{46}{subsubsection*.311}
-\contentsline {subsubsection}{src.options module}{48}{subsubsection*.324}
-\contentsline {subsubsection}{src.printcolors module}{49}{subsubsection*.336}
-\contentsline {subsubsection}{src.product module}{50}{subsubsection*.349}
-\contentsline {subsubsection}{src.pyconf module}{55}{subsubsection*.379}
-\contentsline {subsubsection}{src.system module}{62}{subsubsection*.451}
-\contentsline {subsubsection}{src.template module}{63}{subsubsection*.457}
-\contentsline {subsubsection}{src.test\_module module}{63}{subsubsection*.462}
-\contentsline {subsubsection}{src.xmlManager module}{64}{subsubsection*.482}
-\contentsline {subsubsection}{Module contents}{66}{subsubsection*.496}
-\contentsline {chapter}{\numberline {5}Release Notes}{69}{chapter.5}
-\contentsline {section}{\numberline {5.1}Release notes}{69}{section.5.1}
-\contentsline {chapter}{Python Module Index}{71}{section*.538}
-\contentsline {chapter}{Index}{73}{section*.539}
+\contentsline {subsubsection}{src.environment module}{36}{subsubsection*.205}
+\contentsline {subsubsection}{src.fileEnviron module}{40}{subsubsection*.243}
+\contentsline {subsubsection}{src.fork module}{46}{subsubsection*.308}
+\contentsline {subsubsection}{src.logger module}{47}{subsubsection*.314}
+\contentsline {subsubsection}{src.options module}{48}{subsubsection*.333}
+\contentsline {subsubsection}{src.printcolors module}{49}{subsubsection*.344}
+\contentsline {subsubsection}{src.product module}{51}{subsubsection*.357}
+\contentsline {subsubsection}{src.pyconf module}{55}{subsubsection*.387}
+\contentsline {subsubsection}{src.system module}{62}{subsubsection*.459}
+\contentsline {subsubsection}{src.template module}{64}{subsubsection*.465}
+\contentsline {subsubsection}{src.test\_module module}{64}{subsubsection*.470}
+\contentsline {subsubsection}{src.xmlManager module}{64}{subsubsection*.490}
+\contentsline {subsubsection}{Module contents}{66}{subsubsection*.504}
+\contentsline {chapter}{\numberline {5}Release Notes}{71}{chapter.5}
+\contentsline {section}{\numberline {5.1}Release notes}{71}{section.5.1}
+\contentsline {chapter}{Python Module Index}{73}{section*.546}
+\contentsline {chapter}{Index}{75}{section*.547}

@@ -27,7 +27,7 @@ import src
 import src.debug as DBG
 
 # internationalization
-satdir  = os.path.dirname(os.path.realpath(__file__))
+satdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
 
 # Define all possible option for config command :  sat config <options>
@@ -340,6 +340,7 @@ class ConfigManager:
         cfg.addMapping("PATHS", src.pyconf.Mapping(cfg), "The paths\n")
         cfg.PATHS["APPLICATIONPATH"] = src.pyconf.Sequence(cfg.PATHS)
         cfg.PATHS.APPLICATIONPATH.append(cfg.VARS.personal_applications_dir, "")
+
         
         cfg.PATHS["PRODUCTPATH"] = src.pyconf.Sequence(cfg.PATHS)
         cfg.PATHS.PRODUCTPATH.append(cfg.VARS.personal_products_dir, "")
@@ -369,6 +370,11 @@ class ConfigManager:
         for rule in self.get_command_line_overrides(options, ["PATHS"]):
             exec('cfg.' + rule) # this cannot be factorized because of the exec
 
+        # AT END append APPLI_TEST directory in APPLICATIONPATH, for unittest
+        appli_test_dir = os.path.join(satdir, "test", "APPLI_TEST")
+        if appli_test_dir not in cfg.PATHS.APPLICATIONPATH:
+          cfg.PATHS.APPLICATIONPATH.append(appli_test_dir, "unittest APPLI_TEST path")
+
         # =====================================================================
         # Load APPLICATION config file
         if application is not None:
@@ -379,8 +385,8 @@ class ConfigManager:
             try:
                 application_cfg = src.pyconf.Config(application + '.pyconf')
             except IOError as e:
-                raise src.SatException(_("%s, use 'config --list' to get the"
-                                         " list of available applications.") %e)
+                raise src.SatException(
+                   _("%s, use 'config --list' to get the list of available applications.") % e)
             except src.pyconf.ConfigError as e:
                 if (not ('-e' in parser.parse_args()[1]) 
                                          or ('--edit' in parser.parse_args()[1]) 

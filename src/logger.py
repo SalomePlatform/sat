@@ -426,32 +426,38 @@ def update_hat_xml(logDir, application=None, notShownCommands = []):
 _currentLogger = []
 
 def getCurrentLogger():
-  """temporary send all in stdout as simple logging logger"""
-  import src.loggingSimple as LOGSI
+  """get current logging logger, set as DefaultLogger if not set yet"""
   if len(_currentLogger) == 0:
+    import src.loggingSimple as LOGSI
     logger = LOGSI.getDefaultLogger()
     _currentLogger.append(logger)
-    logger.warning("set current logger as default %s" % logger.name)
+    logger.warning("set by default current logger as %s" % logger.name)
   return _currentLogger[0]
 
 def getDefaultLogger():
-  """temporary send all in stdout as simple logging logger"""
+  """get simple logging logger DefaultLogger, set it as current"""
   import src.loggingSimple as LOGSI
-  if len(_currentLogger) == 0:
-    logger = LOGSI.getDefaultLogger()
-    _currentLogger.append(logger)
-    logger.warning("set current logger as default %s" % logger.name)
-  return _currentLogger[0]
+  logger = LOGSI.getDefaultLogger()
+  setCurrentLogger(logger) # set it as current
+  return logger
+
+def getUnittestLogger():
+  """get simple logging logger UnittestLogger, set it as current"""
+  import src.loggingSimple as LOGSI
+  logger = LOGSI.getUnittestLogger()
+  setCurrentLogger(logger) # set it as current
+  return logger
 
 def setCurrentLogger(logger):
   """temporary send all in stdout as simple logging logger"""
-  import src.loggingSimple as LOGSI
   if len(_currentLogger) == 0:
     _currentLogger.append(logger)
+    logger.warning("set current logger as %s" % logger.name)
   else:
-    logger.warning("quit current logger as default %s" % _currentLogger[0].name)
-    _currentLogger[0] = logger
-    logger.warning("change current logger as default %s" % logger.name)
+    if _currentLogger[0].name != logger.name:
+      # logger.debug("quit current logger as default %s" % _currentLogger[0].name)
+      _currentLogger[0] = logger
+      logger.warning("change current logger as %s" % logger.name)
   return _currentLogger[0]
 
 def isCurrentLoggerUnittest():
@@ -464,6 +470,11 @@ def isCurrentLoggerUnittest():
     return res
 
 def sendMessageToCurrentLogger(message, level):
+    """
+    assume relay from obsolescent
+    logger.write(msg, 1/2/3...) to future
+    logging.critical/warning/info...(msg) (as logging package tips)
+    """
     logger = getCurrentLogger()
     if level is None:
       lev = 2

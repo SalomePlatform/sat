@@ -2,31 +2,31 @@
 \def\bigletter#1{{\Large\sffamily#1}\nopagebreak\vspace{1mm}}
 
   \bigletter A
-  \item activate\_mesa\_property() (in module src), \hyperpage{66}
+  \item activate\_mesa\_property() (in module src), \hyperpage{67}
   \item add() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{43}
-  \item add\_comment() (src.environment.SalomeEnviron method), \hyperpage{37}
-  \item add\_comment() (src.fileEnviron.BatFileEnviron method), \hyperpage{40}
+  \item add\_comment() (src.environment.SalomeEnviron method), \hyperpage{38}
+  \item add\_comment() (src.fileEnviron.BatFileEnviron method), \hyperpage{41}
   \item add\_comment() (src.fileEnviron.FileEnviron method), \hyperpage{42}
-  \item add\_comment() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{43}
+  \item add\_comment() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{44}
   \item add\_comment() (src.fileEnviron.ScreenEnviron method), \hyperpage{45}
   \item add\_echo() (src.fileEnviron.ContextFileEnviron method), \hyperpage{41}
   \item add\_echo() (src.fileEnviron.FileEnviron method), \hyperpage{42}
-  \item add\_echo() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{43}
+  \item add\_echo() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{44}
   \item add\_echo() (src.fileEnviron.ScreenEnviron method), \hyperpage{45}
   \item add\_line() (src.environment.SalomeEnviron method), \hyperpage{38}
   \item add\_line() (src.fileEnviron.FileEnviron method), \hyperpage{42}
-  \item add\_line() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{43}
+  \item add\_line() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{44}
   \item add\_line() (src.fileEnviron.ScreenEnviron method), \hyperpage{45}
-  \item add\_link() (src.logger.Logger method), \hyperpage{46}
-  \item add\_option() (src.options.Options method), \hyperpage{48}
+  \item add\_link() (src.logger.Logger method), \hyperpage{47}
+  \item add\_option() (src.options.Options method), \hyperpage{49}
   \item add\_simple\_node() (in module src.xmlManager), \hyperpage{65}
-  \item add\_simple\_node() (src.xmlManager.XmlLogFile method), \hyperpage{64}
+  \item add\_simple\_node() (src.xmlManager.XmlLogFile method), \hyperpage{65}
   \item add\_warning() (src.environment.SalomeEnviron method), \hyperpage{38}
   \item add\_warning() (src.fileEnviron.ContextFileEnviron method), \hyperpage{41}
   \item add\_warning() (src.fileEnviron.FileEnviron method), \hyperpage{42}
-  \item add\_warning() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{43}
+  \item add\_warning() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{44}
   \item add\_warning() (src.fileEnviron.ScreenEnviron method), \hyperpage{45}
-  \item addElement() (src.pyconf.Reference method), \hyperpage{60}
+  \item addElement() (src.pyconf.Reference method), \hyperpage{61}
   \item addMapping() (src.pyconf.Mapping method), \hyperpage{60}
   \item addNamespace() (src.pyconf.Config method), \hyperpage{56}
   \item ANSI\_CSI\_RE (src.colorama.ansitowin32.AnsiToWin32 attribute), \hyperpage{31}
@@ -40,13 +40,13 @@
   \item append() (src.environment.Environ method), \hyperpage{36}
   \item append() (src.environment.SalomeEnviron method), \hyperpage{38}
   \item append() (src.fileEnviron.FileEnviron method), \hyperpage{42}
-  \item append() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{43}
+  \item append() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{44}
   \item append() (src.fileEnviron.ScreenEnviron method), \hyperpage{45}
   \item append() (src.pyconf.Sequence method), \hyperpage{61}
-  \item append\_node\_attrib() (in module src.xmlManager), \hyperpage{65}
+  \item append\_node\_attrib() (in module src.xmlManager), \hyperpage{66}
   \item append\_node\_attrib() (src.xmlManager.XmlLogFile method), \hyperpage{65}
   \item append\_node\_text() (src.xmlManager.XmlLogFile method), \hyperpage{65}
-  \item append\_value() (src.environment.Environ method), \hyperpage{36}
+  \item append\_value() (src.environment.Environ method), \hyperpage{37}
   \item append\_value() (src.fileEnviron.ContextFileEnviron method), \hyperpage{41}
   \item append\_value() (src.fileEnviron.FileEnviron method), \hyperpage{42}
   \item append\_value() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{44}
@@ -60,7 +60,7 @@
   \item BashFileEnviron (class in src.fileEnviron), \hyperpage{40}
   \item batch() (in module src.fork), \hyperpage{46}
   \item batch\_salome() (in module src.fork), \hyperpage{46}
-  \item BatFileEnviron (class in src.fileEnviron), \hyperpage{40}
+  \item BatFileEnviron (class in src.fileEnviron), \hyperpage{41}
   \item BLACK (src.colorama.ansi.AnsiBack attribute), \hyperpage{29}
   \item BLACK (src.colorama.ansi.AnsiFore attribute), \hyperpage{30}
   \item BLACK (src.colorama.winterm.WinColor attribute), \hyperpage{32}
@@ -78,42 +78,42 @@
   \item call\_win32() (src.colorama.ansitowin32.AnsiToWin32 method), \hyperpage{31}
   \item change\_to\_launcher() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{44}
   \item check() (src.compilation.Builder method), \hyperpage{34}
-  \item check\_config\_exists() (in module src.product), \hyperpage{50}
-  \item check\_config\_has\_application() (in module src), \hyperpage{66}
-  \item check\_config\_has\_profile() (in module src), \hyperpage{66}
+  \item check\_config\_exists() (in module src.product), \hyperpage{51}
+  \item check\_config\_has\_application() (in module src), \hyperpage{67}
+  \item check\_config\_has\_profile() (in module src), \hyperpage{67}
   \item check\_installation() (in module src.product), \hyperpage{51}
   \item check\_source() (in module src.product), \hyperpage{51}
   \item chmod() (src.Path method), \hyperpage{66}
   \item cleancolor() (in module src.printcolors), \hyperpage{49}
   \item clear\_line() (in module src.colorama.ansi), \hyperpage{30}
   \item clear\_screen() (in module src.colorama.ansi), \hyperpage{30}
-  \item close() (src.debug.OutStream method), \hyperpage{35}
+  \item close() (src.debug.OutStream method), \hyperpage{36}
   \item close() (src.ElementTree.TreeBuilder method), \hyperpage{33}
   \item close() (src.ElementTree.XMLTreeBuilder method), \hyperpage{33}
-  \item close() (src.pyconf.ConfigInputStream method), \hyperpage{56}
-  \item close() (src.pyconf.ConfigOutputStream method), \hyperpage{57}
+  \item close() (src.pyconf.ConfigInputStream method), \hyperpage{57}
+  \item close() (src.pyconf.ConfigOutputStream method), \hyperpage{58}
   \item cmake() (src.compilation.Builder method), \hyperpage{34}
   \item code\_to\_chars() (in module src.colorama.ansi), \hyperpage{30}
   \item colorama\_text() (in module src.colorama.initialise), \hyperpage{31}
-  \item command\_value() (src.environment.Environ method), \hyperpage{36}
+  \item command\_value() (src.environment.Environ method), \hyperpage{37}
   \item command\_value() (src.fileEnviron.BashFileEnviron method), \hyperpage{40}
-  \item command\_value() (src.fileEnviron.BatFileEnviron method), \hyperpage{40}
+  \item command\_value() (src.fileEnviron.BatFileEnviron method), \hyperpage{41}
   \item command\_value() (src.fileEnviron.ContextFileEnviron method), \hyperpage{41}
-  \item command\_value() (src.fileEnviron.FileEnviron method), \hyperpage{42}
+  \item command\_value() (src.fileEnviron.FileEnviron method), \hyperpage{43}
   \item command\_value() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{44}
   \item command\_value() (src.fileEnviron.ScreenEnviron method), \hyperpage{45}
   \item Comment() (in module src.ElementTree), \hyperpage{33}
   \item complete\_environment() (src.compilation.Builder method), \hyperpage{34}
   \item Config (class in src.pyconf), \hyperpage{56}
   \item Config.Namespace (class in src.pyconf), \hyperpage{56}
-  \item config\_has\_application() (in module src), \hyperpage{66}
-  \item ConfigError, \hyperpage{56}
-  \item ConfigFormatError, \hyperpage{56}
-  \item ConfigInputStream (class in src.pyconf), \hyperpage{56}
-  \item ConfigList (class in src.pyconf), \hyperpage{56}
+  \item config\_has\_application() (in module src), \hyperpage{67}
+  \item ConfigError, \hyperpage{57}
+  \item ConfigFormatError, \hyperpage{57}
+  \item ConfigInputStream (class in src.pyconf), \hyperpage{57}
+  \item ConfigList (class in src.pyconf), \hyperpage{57}
   \item ConfigMerger (class in src.pyconf), \hyperpage{57}
-  \item ConfigOutputStream (class in src.pyconf), \hyperpage{57}
-  \item ConfigReader (class in src.pyconf), \hyperpage{57}
+  \item ConfigOutputStream (class in src.pyconf), \hyperpage{58}
+  \item ConfigReader (class in src.pyconf), \hyperpage{58}
   \item ConfigResolutionError, \hyperpage{59}
   \item configure() (src.compilation.Builder method), \hyperpage{34}
   \item Container (class in src.pyconf), \hyperpage{59}
@@ -134,13 +134,13 @@
   \bigletter D
   \item data() (src.ElementTree.TreeBuilder method), \hyperpage{33}
   \item date\_to\_datetime() (in module src.logger), \hyperpage{47}
-  \item debug\_write() (src.options.Options method), \hyperpage{48}
-  \item deepcopy\_list() (in module src), \hyperpage{66}
+  \item debug\_write() (src.options.Options method), \hyperpage{49}
+  \item deepcopy\_list() (in module src), \hyperpage{67}
   \item deepCopyMapping() (in module src.pyconf), \hyperpage{61}
   \item defaultMergeResolve() (in module src.pyconf), \hyperpage{61}
-  \item defaultStreamOpener() (in module src.pyconf), \hyperpage{61}
+  \item defaultStreamOpener() (in module src.pyconf), \hyperpage{62}
   \item deinit() (in module src.colorama.initialise), \hyperpage{31}
-  \item delimiter (src.template.MyTemplate attribute), \hyperpage{63}
+  \item delimiter (src.template.MyTemplate attribute), \hyperpage{64}
   \item DIM (src.colorama.ansi.AnsiStyle attribute), \hyperpage{30}
   \item dir() (src.Path method), \hyperpage{66}
   \item do\_batch\_script\_build() (src.compilation.Builder method), \hyperpage{34}
@@ -163,10 +163,10 @@
   \item erase\_line() (src.colorama.winterm.WinTerm method), \hyperpage{32}
   \item erase\_screen() (src.colorama.winterm.WinTerm method), \hyperpage{32}
   \item error() (src.logger.Logger method), \hyperpage{47}
-  \item evaluate() (src.pyconf.Container method), \hyperpage{59}
+  \item evaluate() (src.pyconf.Container method), \hyperpage{60}
   \item evaluate() (src.pyconf.Expression method), \hyperpage{60}
   \item exists() (src.Path method), \hyperpage{66}
-  \item Expression (class in src.pyconf), \hyperpage{59}
+  \item Expression (class in src.pyconf), \hyperpage{60}
   \item extract\_params() (src.colorama.ansitowin32.AnsiToWin32 method), \hyperpage{31}
 
   \indexspace
@@ -174,39 +174,41 @@
   \item feed() (src.ElementTree.XMLTreeBuilder method), \hyperpage{33}
   \item FileEnviron (class in src.fileEnviron), \hyperpage{42}
   \item FileEnvWriter (class in src.environment), \hyperpage{37}
-  \item filterLevel() (src.options.Options method), \hyperpage{48}
-  \item filterList2() (src.options.Options method), \hyperpage{48}
+  \item filterLevel() (src.options.Options method), \hyperpage{49}
+  \item filterList2() (src.options.Options method), \hyperpage{49}
   \item find() (src.ElementTree.ElementTree method), \hyperpage{33}
   \item find\_file\_in\_lpath() (in module src), \hyperpage{67}
-  \item find\_node\_by\_attrib() (in module src.xmlManager), \hyperpage{65}
+  \item find\_node\_by\_attrib() (in module src.xmlManager), \hyperpage{66}
   \item findall() (src.ElementTree.ElementTree method), \hyperpage{33}
-  \item findConfig() (src.pyconf.Reference method), \hyperpage{60}
+  \item findConfig() (src.pyconf.Reference method), \hyperpage{61}
   \item findtext() (src.ElementTree.ElementTree method), \hyperpage{33}
   \item finish() (src.environment.SalomeEnviron method), \hyperpage{38}
   \item finish() (src.fileEnviron.BashFileEnviron method), \hyperpage{40}
-  \item finish() (src.fileEnviron.BatFileEnviron method), \hyperpage{40}
-  \item finish() (src.fileEnviron.ContextFileEnviron method), \hyperpage{41}
-  \item finish() (src.fileEnviron.FileEnviron method), \hyperpage{42}
+  \item finish() (src.fileEnviron.BatFileEnviron method), \hyperpage{41}
+  \item finish() (src.fileEnviron.ContextFileEnviron method), \hyperpage{42}
+  \item finish() (src.fileEnviron.FileEnviron method), \hyperpage{43}
   \item finish() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{44}
   \item flush() (src.logger.Logger method), \hyperpage{47}
-  \item flush() (src.pyconf.ConfigOutputStream method), \hyperpage{57}
+  \item flush() (src.pyconf.ConfigOutputStream method), \hyperpage{58}
   \item fore() (src.colorama.winterm.WinTerm method), \hyperpage{32}
+  \item format\_color\_exception() (in module src.debug), \hyperpage{36}
+  \item format\_exception() (in module src.debug), \hyperpage{36}
   \item FORWARD() (src.colorama.ansi.AnsiCursor method), \hyperpage{30}
   \item fromstring() (in module src.ElementTree), \hyperpage{33}
 
   \indexspace
   \bigletter G
-  \item generate\_launching\_commands() (src.test\_module.Test method), \hyperpage{63}
-  \item generate\_script() (src.test\_module.Test method), \hyperpage{63}
-  \item get() (src.environment.Environ method), \hyperpage{36}
+  \item generate\_launching\_commands() (src.test\_module.Test method), \hyperpage{64}
+  \item generate\_script() (src.test\_module.Test method), \hyperpage{64}
+  \item get() (src.environment.Environ method), \hyperpage{37}
   \item get() (src.environment.SalomeEnviron method), \hyperpage{38}
   \item get() (src.fileEnviron.BatFileEnviron method), \hyperpage{41}
-  \item get() (src.fileEnviron.ContextFileEnviron method), \hyperpage{41}
-  \item get() (src.fileEnviron.FileEnviron method), \hyperpage{42}
+  \item get() (src.fileEnviron.ContextFileEnviron method), \hyperpage{42}
+  \item get() (src.fileEnviron.FileEnviron method), \hyperpage{43}
   \item get() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{44}
   \item get() (src.fileEnviron.ScreenEnviron method), \hyperpage{45}
   \item get() (src.pyconf.Mapping method), \hyperpage{60}
-  \item get\_attrib() (src.xmlManager.ReadXmlFile method), \hyperpage{64}
+  \item get\_attrib() (src.xmlManager.ReadXmlFile method), \hyperpage{65}
   \item get\_attrs() (src.colorama.winterm.WinTerm method), \hyperpage{32}
   \item get\_base\_install\_dir() (in module src.product), \hyperpage{51}
   \item get\_base\_path() (in module src), \hyperpage{67}
@@ -215,39 +217,42 @@
   \item get\_distribution() (in module src.architecture), \hyperpage{34}
   \item get\_file\_environ() (in module src.fileEnviron), \hyperpage{46}
   \item get\_help() (src.options.Options method), \hyperpage{49}
-  \item get\_install\_dir() (in module src.product), \hyperpage{51}
-  \item get\_launcher\_name() (in module src), \hyperpage{67}
-  \item get\_log\_path() (in module src), \hyperpage{67}
+  \item get\_install\_dir() (in module src.product), \hyperpage{52}
+  \item get\_launcher\_name() (in module src), \hyperpage{68}
+  \item get\_log\_path() (in module src), \hyperpage{68}
   \item get\_names() (src.environment.SalomeEnviron method), \hyperpage{38}
   \item get\_nb\_proc() (in module src.architecture), \hyperpage{34}
-  \item get\_node\_text() (src.xmlManager.ReadXmlFile method), \hyperpage{64}
+  \item get\_node\_text() (src.xmlManager.ReadXmlFile method), \hyperpage{65}
   \item get\_position() (src.colorama.winterm.WinTerm method), \hyperpage{32}
-  \item get\_product\_components() (in module src.product), \hyperpage{51}
+  \item get\_product\_components() (in module src.product), \hyperpage{52}
   \item get\_product\_config() (in module src.product), \hyperpage{52}
   \item get\_product\_dependencies() (in module src.product), \hyperpage{52}
   \item get\_product\_section() (in module src.product), \hyperpage{52}
-  \item get\_products\_infos() (in module src.product), \hyperpage{52}
-  \item get\_property\_in\_product\_cfg() (in module src), \hyperpage{67}
+  \item get\_products\_infos() (in module src.product), \hyperpage{53}
+  \item get\_property\_in\_product\_cfg() (in module src), \hyperpage{68}
   \item get\_python\_version() (in module src.architecture), \hyperpage{34}
-  \item get\_salome\_version() (in module src), \hyperpage{67}
-  \item get\_test\_timeout() (src.test\_module.Test method), \hyperpage{63}
-  \item get\_tmp\_dir() (src.test\_module.Test method), \hyperpage{63}
-  \item get\_tmp\_filename() (in module src), \hyperpage{67}
+  \item get\_salome\_version() (in module src), \hyperpage{68}
+  \item get\_test\_timeout() (src.test\_module.Test method), \hyperpage{64}
+  \item get\_tmp\_dir() (src.test\_module.Test method), \hyperpage{64}
+  \item get\_tmp\_filename() (in module src), \hyperpage{68}
   \item get\_user() (in module src.architecture), \hyperpage{34}
   \item get\_win32\_calls() (src.colorama.ansitowin32.AnsiToWin32 method), \hyperpage{31}
   \item getByPath() (src.pyconf.Config method), \hyperpage{56}
-  \item getByPath() (src.pyconf.ConfigList method), \hyperpage{56}
-  \item getChar() (src.pyconf.ConfigReader method), \hyperpage{57}
-  \item getDetailOption() (src.options.Options method), \hyperpage{48}
+  \item getByPath() (src.pyconf.ConfigList method), \hyperpage{57}
+  \item getChar() (src.pyconf.ConfigReader method), \hyperpage{58}
+  \item getCurrentLogger() (in module src.logger), \hyperpage{47}
+  \item getDefaultLogger() (in module src.logger), \hyperpage{47}
+  \item getDetailOption() (src.options.Options method), \hyperpage{49}
   \item getiterator() (src.ElementTree.ElementTree method), \hyperpage{33}
-  \item getLocalEnv() (in module src.debug), \hyperpage{35}
+  \item getLocalEnv() (in module src.debug), \hyperpage{36}
   \item getroot() (src.ElementTree.ElementTree method), \hyperpage{33}
   \item getRootAttrib() (src.xmlManager.ReadXmlFile method), \hyperpage{64}
-  \item getStrConfigDbg() (in module src.debug), \hyperpage{35}
+  \item getStrConfigDbg() (in module src.debug), \hyperpage{36}
   \item getStrConfigStd() (in module src.debug), \hyperpage{36}
   \item getTmpDirDEFAULT() (in module src.test\_module), \hyperpage{64}
-  \item getToken() (src.pyconf.ConfigReader method), \hyperpage{57}
-  \item git\_extract() (in module src.system), \hyperpage{62}
+  \item getToken() (src.pyconf.ConfigReader method), \hyperpage{58}
+  \item getUnittestLogger() (in module src.logger), \hyperpage{47}
+  \item git\_extract() (in module src.system), \hyperpage{63}
   \item GREEN (src.colorama.ansi.AnsiBack attribute), \hyperpage{29}
   \item GREEN (src.colorama.ansi.AnsiFore attribute), \hyperpage{30}
   \item GREEN (src.colorama.winterm.WinColor attribute), \hyperpage{32}
@@ -265,20 +270,22 @@
   \item indent() (src.options.Options method), \hyperpage{49}
   \item init() (in module src.colorama.initialise), \hyperpage{31}
   \item install() (src.compilation.Builder method), \hyperpage{35}
-  \item InStream (class in src.debug), \hyperpage{35}
+  \item InStream (class in src.debug), \hyperpage{36}
   \item is\_a\_tty() (in module src.colorama.ansitowin32), \hyperpage{31}
-  \item is\_defined() (src.environment.Environ method), \hyperpage{36}
+  \item is\_defined() (src.environment.Environ method), \hyperpage{37}
   \item is\_defined() (src.environment.SalomeEnviron method), \hyperpage{38}
   \item is\_defined() (src.fileEnviron.FileEnviron method), \hyperpage{43}
   \item is\_defined() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{44}
   \item is\_defined() (src.fileEnviron.ScreenEnviron method), \hyperpage{45}
   \item is\_stream\_closed() (in module src.colorama.ansitowin32), \hyperpage{31}
   \item is\_windows() (in module src.architecture), \hyperpage{34}
+  \item isCurrentLoggerUnittest() (in module src.logger), \hyperpage{48}
   \item isdir() (src.Path method), \hyperpage{66}
   \item iselement() (in module src.ElementTree), \hyperpage{33}
   \item isfile() (src.Path method), \hyperpage{66}
   \item islink() (src.Path method), \hyperpage{66}
-  \item isWord() (in module src.pyconf), \hyperpage{61}
+  \item isTypeConfig() (in module src.debug), \hyperpage{36}
+  \item isWord() (in module src.pyconf), \hyperpage{62}
   \item iteritems() (src.pyconf.Mapping method), \hyperpage{60}
   \item iterkeys() (src.pyconf.Mapping method), \hyperpage{60}
   \item iterparse (class in src.ElementTree), \hyperpage{33}
@@ -308,15 +315,15 @@
   \item LIGHTYELLOW\_EX (src.colorama.ansi.AnsiBack attribute), \hyperpage{29}
   \item LIGHTYELLOW\_EX (src.colorama.ansi.AnsiFore attribute), \hyperpage{30}
   \item list() (src.Path method), \hyperpage{66}
-  \item list\_log\_file() (in module src.logger), \hyperpage{47}
+  \item list\_log\_file() (in module src.logger), \hyperpage{48}
   \item load() (src.pyconf.Config method), \hyperpage{56}
   \item load() (src.pyconf.ConfigReader method), \hyperpage{58}
-  \item load\_cfg\_environment() (src.environment.SalomeEnviron method), \hyperpage{38}
+  \item load\_cfg\_environment() (src.environment.SalomeEnviron method), \hyperpage{39}
   \item load\_environment() (in module src.environment), \hyperpage{40}
   \item location() (src.pyconf.ConfigReader method), \hyperpage{58}
   \item log() (src.compilation.Builder method), \hyperpage{35}
   \item log\_command() (src.compilation.Builder method), \hyperpage{35}
-  \item Logger (class in src.logger), \hyperpage{46}
+  \item Logger (class in src.logger), \hyperpage{47}
 
   \indexspace
   \bigletter M
@@ -324,15 +331,15 @@
   \item MAGENTA (src.colorama.ansi.AnsiFore attribute), \hyperpage{30}
   \item MAGENTA (src.colorama.winterm.WinColor attribute), \hyperpage{32}
   \item make() (src.compilation.Builder method), \hyperpage{35}
-  \item make() (src.Path method), \hyperpage{66}
-  \item makePath() (in module src.pyconf), \hyperpage{61}
+  \item make() (src.Path method), \hyperpage{67}
+  \item makePath() (in module src.pyconf), \hyperpage{62}
   \item Mapping (class in src.pyconf), \hyperpage{60}
   \item match() (src.pyconf.ConfigReader method), \hyperpage{58}
   \item merge() (src.pyconf.ConfigMerger method), \hyperpage{57}
   \item merge\_dicts() (in module src), \hyperpage{68}
   \item mergeMapping() (src.pyconf.ConfigMerger method), \hyperpage{57}
-  \item mergeSequence() (src.pyconf.ConfigMerger method), \hyperpage{57}
-  \item MyTemplate (class in src.template), \hyperpage{63}
+  \item mergeSequence() (src.pyconf.ConfigMerger method), \hyperpage{58}
+  \item MyTemplate (class in src.template), \hyperpage{64}
 
   \indexspace
   \bigletter N
@@ -344,10 +351,10 @@
   \indexspace
   \bigletter O
   \item only\_numbers() (in module src), \hyperpage{68}
-  \item Options (class in src.options), \hyperpage{48}
+  \item Options (class in src.options), \hyperpage{49}
   \item OptResult (class in src.options), \hyperpage{48}
-  \item OutStream (class in src.debug), \hyperpage{35}
-  \item overwriteKeys() (src.pyconf.ConfigMerger method), \hyperpage{57}
+  \item OutStream (class in src.debug), \hyperpage{36}
+  \item overwriteKeys() (src.pyconf.ConfigMerger method), \hyperpage{58}
   \item overwriteMergeResolve() (in module src.pyconf), \hyperpage{62}
 
   \indexspace
@@ -357,67 +364,66 @@
   \item parse\_args() (src.options.Options method), \hyperpage{49}
   \item parse\_date() (in module src), \hyperpage{68}
   \item parseFactor() (src.pyconf.ConfigReader method), \hyperpage{58}
-  \item parseKeyValuePair() (src.pyconf.ConfigReader method), \hyperpage{58}
-  \item parseMapping() (src.pyconf.ConfigReader method), \hyperpage{58}
-  \item parseMappingBody() (src.pyconf.ConfigReader method), \hyperpage{58}
-  \item parseReference() (src.pyconf.ConfigReader method), \hyperpage{58}
-  \item parseScalar() (src.pyconf.ConfigReader method), \hyperpage{58}
-  \item parseSequence() (src.pyconf.ConfigReader method), \hyperpage{58}
+  \item parseKeyValuePair() (src.pyconf.ConfigReader method), \hyperpage{59}
+  \item parseMapping() (src.pyconf.ConfigReader method), \hyperpage{59}
+  \item parseMappingBody() (src.pyconf.ConfigReader method), \hyperpage{59}
+  \item parseReference() (src.pyconf.ConfigReader method), \hyperpage{59}
+  \item parseScalar() (src.pyconf.ConfigReader method), \hyperpage{59}
+  \item parseSequence() (src.pyconf.ConfigReader method), \hyperpage{59}
   \item parseSuffix() (src.pyconf.ConfigReader method), \hyperpage{59}
   \item parseTerm() (src.pyconf.ConfigReader method), \hyperpage{59}
   \item parseValue() (src.pyconf.ConfigReader method), \hyperpage{59}
   \item Path (class in src), \hyperpage{66}
-  \item pattern (src.template.MyTemplate attribute), \hyperpage{63}
+  \item pattern (src.template.MyTemplate attribute), \hyperpage{64}
   \item PI() (in module src.ElementTree), \hyperpage{33}
   \item pop\_debug() (in module src.debug), \hyperpage{36}
   \item POS() (src.colorama.ansi.AnsiCursor method), \hyperpage{30}
   \item prepare() (src.compilation.Builder method), \hyperpage{35}
-  \item prepare\_testbase() (src.test\_module.Test method), \hyperpage{63}
+  \item prepare\_testbase() (src.test\_module.Test method), \hyperpage{64}
   \item prepare\_testbase\_from\_dir() (src.test\_module.Test method), \hyperpage{64}
   \item prepare\_testbase\_from\_git() (src.test\_module.Test method), \hyperpage{64}
   \item prepare\_testbase\_from\_svn() (src.test\_module.Test method), \hyperpage{64}
   \item prepend() (src.environment.Environ method), \hyperpage{37}
-  \item prepend() (src.environment.SalomeEnviron method), \hyperpage{38}
+  \item prepend() (src.environment.SalomeEnviron method), \hyperpage{39}
   \item prepend() (src.fileEnviron.FileEnviron method), \hyperpage{43}
   \item prepend() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{44}
-  \item prepend() (src.fileEnviron.ScreenEnviron method), \hyperpage{45}
+  \item prepend() (src.fileEnviron.ScreenEnviron method), \hyperpage{46}
   \item prepend\_value() (src.environment.Environ method), \hyperpage{37}
-  \item prepend\_value() (src.fileEnviron.ContextFileEnviron method), \hyperpage{41}
+  \item prepend\_value() (src.fileEnviron.ContextFileEnviron method), \hyperpage{42}
   \item prepend\_value() (src.fileEnviron.FileEnviron method), \hyperpage{43}
-  \item prepend\_value() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{44}
+  \item prepend\_value() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{45}
   \item print\_color\_map() (in module src.printcolors), \hyperpage{49}
-  \item print\_color\_range() (in module src.printcolors), \hyperpage{49}
-  \item print\_help() (src.options.Options method), \hyperpage{49}
+  \item print\_color\_range() (in module src.printcolors), \hyperpage{50}
   \item print\_info() (in module src), \hyperpage{68}
-  \item print\_value() (in module src.printcolors), \hyperpage{49}
-  \item printc() (in module src.printcolors), \hyperpage{49}
+  \item print\_value() (in module src.printcolors), \hyperpage{50}
+  \item printc() (in module src.printcolors), \hyperpage{50}
   \item printcError() (in module src.printcolors), \hyperpage{50}
   \item printcHeader() (in module src.printcolors), \hyperpage{50}
   \item printcHighlight() (in module src.printcolors), \hyperpage{50}
   \item printcInfo() (in module src.printcolors), \hyperpage{50}
-  \item printcLabel() (in module src.printcolors), \hyperpage{50}
-  \item printcSuccess() (in module src.printcolors), \hyperpage{50}
-  \item printcWarning() (in module src.printcolors), \hyperpage{50}
+  \item printcLabel() (in module src.printcolors), \hyperpage{51}
+  \item printcSuccess() (in module src.printcolors), \hyperpage{51}
+  \item printcWarning() (in module src.printcolors), \hyperpage{51}
   \item ProcessingInstruction() (in module src.ElementTree), \hyperpage{33}
-  \item product\_compiles() (in module src.product), \hyperpage{52}
-  \item product\_has\_env\_script() (in module src.product), \hyperpage{52}
+  \item product\_compiles() (in module src.product), \hyperpage{53}
+  \item product\_has\_env\_script() (in module src.product), \hyperpage{53}
   \item product\_has\_logo() (in module src.product), \hyperpage{53}
   \item product\_has\_patches() (in module src.product), \hyperpage{53}
   \item product\_has\_salome\_gui() (in module src.product), \hyperpage{53}
   \item product\_has\_script() (in module src.product), \hyperpage{53}
   \item product\_is\_autotools() (in module src.product), \hyperpage{53}
-  \item product\_is\_cmake() (in module src.product), \hyperpage{53}
-  \item product\_is\_cpp() (in module src.product), \hyperpage{53}
-  \item product\_is\_debug() (in module src.product), \hyperpage{53}
+  \item product\_is\_cmake() (in module src.product), \hyperpage{54}
+  \item product\_is\_cpp() (in module src.product), \hyperpage{54}
+  \item product\_is\_debug() (in module src.product), \hyperpage{54}
   \item product\_is\_dev() (in module src.product), \hyperpage{54}
   \item product\_is\_fixed() (in module src.product), \hyperpage{54}
   \item product\_is\_generated() (in module src.product), \hyperpage{54}
   \item product\_is\_mpi() (in module src.product), \hyperpage{54}
   \item product\_is\_native() (in module src.product), \hyperpage{54}
-  \item product\_is\_salome() (in module src.product), \hyperpage{54}
-  \item product\_is\_smesh\_plugin() (in module src.product), \hyperpage{54}
-  \item product\_is\_vcs() (in module src.product), \hyperpage{54}
-  \item product\_is\_verbose() (in module src.product), \hyperpage{54}
+  \item product\_is\_salome() (in module src.product), \hyperpage{55}
+  \item product\_is\_smesh\_plugin() (in module src.product), \hyperpage{55}
+  \item product\_is\_vcs() (in module src.product), \hyperpage{55}
+  \item product\_is\_verbose() (in module src.product), \hyperpage{55}
   \item push\_debug() (in module src.debug), \hyperpage{36}
   \item put\_initial\_xml\_fields() (src.logger.Logger method), \hyperpage{47}
   \item put\_txt\_log\_in\_appli\_log\_dir() (src.compilation.Builder method), \hyperpage{35}
@@ -428,31 +434,31 @@
 
   \indexspace
   \bigletter R
-  \item read() (src.pyconf.ConfigInputStream method), \hyperpage{56}
+  \item read() (src.pyconf.ConfigInputStream method), \hyperpage{57}
   \item read\_config\_from\_a\_file() (in module src), \hyperpage{68}
   \item read\_results() (src.test\_module.Test method), \hyperpage{64}
-  \item readline() (src.pyconf.ConfigInputStream method), \hyperpage{56}
-  \item readlink() (src.Path method), \hyperpage{66}
+  \item readline() (src.pyconf.ConfigInputStream method), \hyperpage{57}
+  \item readlink() (src.Path method), \hyperpage{67}
   \item ReadXmlFile (class in src.xmlManager), \hyperpage{64}
   \item RED (src.colorama.ansi.AnsiBack attribute), \hyperpage{29}
   \item RED (src.colorama.ansi.AnsiFore attribute), \hyperpage{30}
   \item RED (src.colorama.winterm.WinColor attribute), \hyperpage{32}
-  \item Reference (class in src.pyconf), \hyperpage{60}
+  \item Reference (class in src.pyconf), \hyperpage{61}
   \item reinit() (in module src.colorama.initialise), \hyperpage{31}
   \item remove\_item\_from\_list() (in module src), \hyperpage{68}
-  \item removeNamespace() (src.pyconf.Config method), \hyperpage{56}
-  \item replace\_in\_file() (in module src), \hyperpage{68}
+  \item removeNamespace() (src.pyconf.Config method), \hyperpage{57}
+  \item replace\_in\_file() (in module src), \hyperpage{69}
   \item RESET (src.colorama.ansi.AnsiBack attribute), \hyperpage{29}
   \item RESET (src.colorama.ansi.AnsiFore attribute), \hyperpage{30}
   \item RESET\_ALL (src.colorama.ansi.AnsiStyle attribute), \hyperpage{30}
   \item reset\_all() (in module src.colorama.initialise), \hyperpage{31}
   \item reset\_all() (src.colorama.ansitowin32.AnsiToWin32 method), \hyperpage{31}
   \item reset\_all() (src.colorama.winterm.WinTerm method), \hyperpage{32}
-  \item resolve() (src.pyconf.Reference method), \hyperpage{60}
-  \item rm() (src.Path method), \hyperpage{66}
+  \item resolve() (src.pyconf.Reference method), \hyperpage{61}
+  \item rm() (src.Path method), \hyperpage{67}
   \item run\_all\_tests() (src.test\_module.Test method), \hyperpage{64}
-  \item run\_env\_script() (src.environment.SalomeEnviron method), \hyperpage{38}
-  \item run\_env\_script() (src.fileEnviron.ScreenEnviron method), \hyperpage{45}
+  \item run\_env\_script() (src.environment.SalomeEnviron method), \hyperpage{39}
+  \item run\_env\_script() (src.fileEnviron.ScreenEnviron method), \hyperpage{46}
   \item run\_grid\_tests() (src.test\_module.Test method), \hyperpage{64}
   \item run\_script() (src.test\_module.Test method), \hyperpage{64}
   \item run\_session\_tests() (src.test\_module.Test method), \hyperpage{64}
@@ -462,22 +468,23 @@
 
   \indexspace
   \bigletter S
-  \item SalomeEnviron (class in src.environment), \hyperpage{37}
-  \item SatException, \hyperpage{66}
+  \item SalomeEnviron (class in src.environment), \hyperpage{38}
+  \item SatException, \hyperpage{67}
   \item saveConfigDbg() (in module src.debug), \hyperpage{36}
   \item saveConfigStd() (in module src.debug), \hyperpage{36}
-  \item ScreenEnviron (class in src.fileEnviron), \hyperpage{44}
+  \item ScreenEnviron (class in src.fileEnviron), \hyperpage{45}
   \item search\_known\_errors() (src.test\_module.Test method), \hyperpage{64}
-  \item Sequence (class in src.pyconf), \hyperpage{60}
+  \item sendMessageToCurrentLogger() (in module src.logger), \hyperpage{48}
+  \item Sequence (class in src.pyconf), \hyperpage{61}
   \item Sequence.SeqIter (class in src.pyconf), \hyperpage{61}
   \item set() (src.environment.Environ method), \hyperpage{37}
   \item set() (src.environment.SalomeEnviron method), \hyperpage{39}
   \item set() (src.fileEnviron.BashFileEnviron method), \hyperpage{40}
   \item set() (src.fileEnviron.BatFileEnviron method), \hyperpage{41}
-  \item set() (src.fileEnviron.ContextFileEnviron method), \hyperpage{41}
+  \item set() (src.fileEnviron.ContextFileEnviron method), \hyperpage{42}
   \item set() (src.fileEnviron.FileEnviron method), \hyperpage{43}
-  \item set() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{44}
-  \item set() (src.fileEnviron.ScreenEnviron method), \hyperpage{45}
+  \item set() (src.fileEnviron.LauncherFileEnviron method), \hyperpage{45}
+  \item set() (src.fileEnviron.ScreenEnviron method), \hyperpage{46}
   \item set\_a\_product() (src.environment.SalomeEnviron method), \hyperpage{39}
   \item set\_application\_env() (src.environment.SalomeEnviron method), \hyperpage{39}
   \item set\_attrs() (src.colorama.winterm.WinTerm method), \hyperpage{32}
@@ -485,21 +492,22 @@
   \item set\_cpp\_env() (src.environment.SalomeEnviron method), \hyperpage{39}
   \item set\_cursor\_position() (src.colorama.winterm.WinTerm method), \hyperpage{32}
   \item set\_full\_environ() (src.environment.SalomeEnviron method), \hyperpage{39}
-  \item set\_products() (src.environment.SalomeEnviron method), \hyperpage{39}
-  \item set\_python\_libdirs() (src.environment.SalomeEnviron method), \hyperpage{39}
-  \item set\_salome\_generic\_product\_env() (src.environment.SalomeEnviron method), \hyperpage{39}
-  \item set\_salome\_minimal\_product\_env() (src.environment.SalomeEnviron method), \hyperpage{39}
+  \item set\_products() (src.environment.SalomeEnviron method), \hyperpage{40}
+  \item set\_python\_libdirs() (src.environment.SalomeEnviron method), \hyperpage{40}
+  \item set\_salome\_generic\_product\_env() (src.environment.SalomeEnviron method), \hyperpage{40}
+  \item set\_salome\_minimal\_product\_env() (src.environment.SalomeEnviron method), \hyperpage{40}
   \item set\_title() (in module src.colorama.ansi), \hyperpage{30}
   \item set\_title() (src.colorama.winterm.WinTerm method), \hyperpage{32}
   \item SetConsoleTextAttribute() (in module src.colorama.win32), \hyperpage{32}
-  \item setPath() (src.pyconf.Container method), \hyperpage{59}
+  \item setCurrentLogger() (in module src.logger), \hyperpage{48}
+  \item setPath() (src.pyconf.Container method), \hyperpage{60}
   \item setStream() (src.pyconf.ConfigReader method), \hyperpage{59}
   \item Shell (class in src.environment), \hyperpage{40}
   \item should\_wrap() (src.colorama.ansitowin32.AnsiToWin32 method), \hyperpage{31}
-  \item show\_command\_log() (in module src.logger), \hyperpage{47}
+  \item show\_command\_log() (in module src.logger), \hyperpage{48}
   \item show\_in\_editor() (in module src.system), \hyperpage{63}
   \item show\_progress() (in module src.fork), \hyperpage{46}
-  \item smartcopy() (src.Path method), \hyperpage{66}
+  \item smartcopy() (src.Path method), \hyperpage{67}
   \item special\_path\_separator() (in module src.fileEnviron), \hyperpage{46}
   \item src (module), \hyperpage{66}
   \item src.architecture (module), \hyperpage{34}
@@ -515,27 +523,27 @@
   \item src.environment (module), \hyperpage{36}
   \item src.fileEnviron (module), \hyperpage{40}
   \item src.fork (module), \hyperpage{46}
-  \item src.logger (module), \hyperpage{46}
+  \item src.logger (module), \hyperpage{47}
   \item src.options (module), \hyperpage{48}
   \item src.printcolors (module), \hyperpage{49}
-  \item src.product (module), \hyperpage{50}
+  \item src.product (module), \hyperpage{51}
   \item src.pyconf (module), \hyperpage{55}
   \item src.system (module), \hyperpage{62}
-  \item src.template (module), \hyperpage{63}
-  \item src.test\_module (module), \hyperpage{63}
+  \item src.template (module), \hyperpage{64}
+  \item src.test\_module (module), \hyperpage{64}
   \item src.xmlManager (module), \hyperpage{64}
   \item start() (src.ElementTree.TreeBuilder method), \hyperpage{33}
   \item StreamWrapper (class in src.colorama.ansitowin32), \hyperpage{31}
   \item style() (src.colorama.winterm.WinTerm method), \hyperpage{32}
   \item SubElement() (in module src.ElementTree), \hyperpage{33}
-  \item substitute() (in module src.template), \hyperpage{63}
+  \item substitute() (in module src.template), \hyperpage{64}
   \item svn\_extract() (in module src.system), \hyperpage{63}
-  \item symlink() (src.Path method), \hyperpage{66}
+  \item symlink() (src.Path method), \hyperpage{67}
 
   \indexspace
   \bigletter T
-  \item Test (class in src.test\_module), \hyperpage{63}
-  \item timedelta\_total\_seconds() (in module src.logger), \hyperpage{47}
+  \item Test (class in src.test\_module), \hyperpage{64}
+  \item timedelta\_total\_seconds() (in module src.logger), \hyperpage{48}
   \item tofix() (in module src.debug), \hyperpage{36}
   \item tostring() (in module src.ElementTree), \hyperpage{33}
   \item TreeBuilder (class in src.ElementTree), \hyperpage{33}
@@ -561,24 +569,24 @@
   \item write() (src.ElementTree.ElementTree method), \hyperpage{33}
   \item write() (src.fileEnviron.ScreenEnviron method), \hyperpage{46}
   \item write() (src.logger.Logger method), \hyperpage{47}
-  \item write() (src.pyconf.ConfigOutputStream method), \hyperpage{57}
+  \item write() (src.pyconf.ConfigOutputStream method), \hyperpage{58}
   \item write\_and\_convert() (src.colorama.ansitowin32.AnsiToWin32 method), \hyperpage{31}
   \item write\_back() (in module src.fork), \hyperpage{46}
   \item write\_cfgForPy\_file() (src.environment.FileEnvWriter method), \hyperpage{37}
-  \item write\_env\_file() (src.environment.FileEnvWriter method), \hyperpage{37}
+  \item write\_env\_file() (src.environment.FileEnvWriter method), \hyperpage{38}
   \item write\_plain\_text() (src.colorama.ansitowin32.AnsiToWin32 method), \hyperpage{31}
-  \item write\_report() (in module src.xmlManager), \hyperpage{65}
+  \item write\_report() (in module src.xmlManager), \hyperpage{66}
   \item write\_test\_margin() (src.test\_module.Test method), \hyperpage{64}
   \item write\_tree() (src.xmlManager.XmlLogFile method), \hyperpage{65}
-  \item writeToStream() (src.pyconf.Container method), \hyperpage{59}
-  \item writeToStream() (src.pyconf.Mapping method), \hyperpage{60}
+  \item writeToStream() (src.pyconf.Container method), \hyperpage{60}
+  \item writeToStream() (src.pyconf.Mapping method), \hyperpage{61}
   \item writeToStream() (src.pyconf.Sequence method), \hyperpage{61}
-  \item writeValue() (src.pyconf.Container method), \hyperpage{59}
+  \item writeValue() (src.pyconf.Container method), \hyperpage{60}
 
   \indexspace
   \bigletter X
   \item XML() (in module src.ElementTree), \hyperpage{33}
-  \item XmlLogFile (class in src.xmlManager), \hyperpage{64}
+  \item XmlLogFile (class in src.xmlManager), \hyperpage{65}
   \item XMLTreeBuilder (class in src.ElementTree), \hyperpage{33}
 
   \indexspace
