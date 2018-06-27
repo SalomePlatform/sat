@@ -25,6 +25,7 @@ import os
 import datetime
 import re
 import tempfile
+import shutil
 
 import src
 import printcolors
@@ -159,12 +160,9 @@ class Logger(object):
                                           ("sat command ...")
         """
         xmlLinks = self.xmlFile.xmlroot.find("Links")
-        src.xmlManager.add_simple_node(xmlLinks,
-                                       "link", 
-                                       text = log_file_name,
-                                       attrib = {"command" : command_name,
-                                                 "passed" : command_res,
-                                           "launchedCommand" : full_launched_command})
+        flc = src.xmlManager.escapeSequence(full_launched_command)
+        att = {"command" : command_name, "passed" : command_res, "launchedCommand" : flc}
+        src.xmlManager.add_simple_node(xmlLinks, "link", text = log_file_name, attrib = att)
 
     def write(self, message, level=None, screenOnly=False):
         """\
@@ -254,10 +252,28 @@ class Logger(object):
         
         # Call the method to write the xml file on the hard drive
         self.xmlFile.write_tree(stylesheet = "command.xsl")
+
+        # so unconditionnaly copy stylesheet file(s)
+        xslDir = os.path.join(self.config.VARS.srcDir, 'xsl')
+        xslCommand = "command.xsl"
+        # xslHat = "hat.xsl" # have to be completed (one time at end)
+        xsltest = "test.xsl"
+        imgLogo = "LOGO-SAT.png"
+        files_to_copy = [xslCommand, xsltest, imgLogo]
+
+        logDir = src.get_log_path(self.config)
+        # copy the stylesheets in the log directory as soon as possible here
+        # because referenced in self.xmlFile.write_tree above
+        # OP We use copy instead of copy2 to update the creation date
+        #    So we can clean the LOGS directories easily
+        for f in files_to_copy:
+          f_init = os.path.join(xslDir, f)
+          f_target = os.path.join(logDir, f)
+          if not os.path.isfile(f_target): # do not overrride
+            shutil.copy(f_init, logDir)
         
         # Dump the config in a pyconf file in the log directory
-        logDir = src.get_log_path(self.config)
-        dumpedPyconfFileName = (self.config.VARS.datehour 
+        dumpedPyconfFileName = (self.config.VARS.datehour
                                 + "_" 
                                 + self.config.VARS.command 
                                 + ".pyconf")

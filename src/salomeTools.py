@@ -515,6 +515,7 @@ class Sat(object):
                                                 options_launched,
                                                 __nameCmd__, 
                                                 ' '.join(argv_0)])
+                    # TODO may be no need as call escapeSequence xml
                     launchedCommand = launchedCommand.replace('"', "'")
                     
                     # Add a link to the parent command      

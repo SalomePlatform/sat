@@ -44,8 +44,40 @@ class XmlLogFile(object):
         src.ensure_path_exists(os.path.dirname(filePath))
         # Initialize the field that contain the xml in memory
         self.xmlroot = etree.Element(rootname, attrib = attrib)
-    
-    def write_tree(self, stylesheet=None, file_path = None):
+
+    def escapeSequence(self, aStr):
+        """
+        See xml specification:
+        The ampersand character(&) and the left angle bracket(<) MUST NOT appear in their
+        literal form, except when used as markup delimiters, or within a comment, a processing
+        instruction, or a CDATA section.
+        If they are needed elsewhere, they MUST be escaped using either numeric character references
+        or the strings '&amp;' and '&lt;' respectively.
+        The right angle bracket(>) may be
+        represented using the string '&gt;', and MUST,
+        for compatibility, be escaped using either '&gt;' or a character reference
+        when it appears in the string " ]]> " in content,
+        when that string is not marking the end of a CDATA section.
+        You can use these escape sequences:
+        < (less - than) as &#60; or &lt;
+        > (greater - than) as &#62; or &gt;
+        & (ampersand) as &#38;
+        ' (apostrophe or single quote) as &#39;
+        " (double-quote) as &#34;
+        """
+        replaces = [ ('&', '&amp;'),
+                     ('>', '&gt;'),
+                     ('<', '&lt;'),
+                     ("'", '&#39;'),
+                     ('"', '&#34;'),
+                    ]
+        res = aStr
+        for ini, fin in replaces: # order matters
+          res = res.replace(ini, fin)
+        return res
+
+
+def write_tree(self, stylesheet=None, file_path = None):
         '''Write the xml tree in the log file path. Add the stylesheet if asked.
         
         :param stylesheet str: The stylesheet to apply to the xml file
