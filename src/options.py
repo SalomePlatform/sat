@@ -253,7 +253,7 @@ class Options(object):
         
     def filterLevel(self, aLevel):
       """filter level logging values"""
-      import src.loggingSat as LOG
+      import src.loggingSimple as LOG
       aLev = aLevel.upper()
       knownLevels = LOG._knownLevels
       maxLen = max([len(i) for i in knownLevels])
