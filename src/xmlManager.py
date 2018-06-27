@@ -77,7 +77,7 @@ class XmlLogFile(object):
         return res
 
 
-def write_tree(self, stylesheet=None, file_path = None):
+    def write_tree(self, stylesheet=None, file_path = None):
         '''Write the xml tree in the log file path. Add the stylesheet if asked.
         
         :param stylesheet str: The stylesheet to apply to the xml file

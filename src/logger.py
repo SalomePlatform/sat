@@ -468,7 +468,7 @@ def setCurrentLogger(logger):
   """temporary send all in stdout as simple logging logger"""
   if len(_currentLogger) == 0:
     _currentLogger.append(logger)
-    logger.warning("set current logger as %s" % logger.name)
+    logger.debug("set current logger as %s" % logger.name)
   else:
     if _currentLogger[0].name != logger.name:
       # logger.debug("quit current logger as default %s" % _currentLogger[0].name)

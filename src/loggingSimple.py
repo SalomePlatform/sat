@@ -410,7 +410,7 @@ def initLoggerAsDefault(logger, fmt=None, level=None):
   if level is not None:  # level could be modified during execution
     handler.setLevel(level)  # on screen log as user wants
   else:
-    handler.setLevel(LOGI.STEP)  # on screen no log step, which are in xml files
+    handler.setLevel(LOGI.INFO)  # on screen no log step, which are in xml files
   return
 
 
