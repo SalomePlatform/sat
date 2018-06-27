@@ -18,7 +18,6 @@
 
 import re
 import os
-import pprint as PP
 
 import src
 import src.debug as DBG
@@ -77,6 +76,34 @@ def get_products_list(options, cfg, logger):
                           p_info.properties[prop] == value]
         
     return products_infos
+
+def remove_products(arguments, l_products_info, logger):
+    '''function that removes the products in l_products_info from arguments list.
+    
+    :param arguments str: The arguments from which to remove products
+    :param l_products_info list: List of 
+                                 (str, Config) => (product_name, product_info)
+    :param logger Logger: The logger instance to use for the display and logging
+    :return: The updated arguments.
+    :rtype: str
+    '''
+    args = str(arguments) #copy of "--products ,XDATA,TESSCODE,cmake" for example
+    largs = args.split(',')
+    DBG.write("largs", largs)
+    toRemove = [name for name, xx in l_products_info]
+    DBG.write("remove_products", toRemove)
+    removed = []
+    notRemoved = []
+    for name in largs[1:]: # skip largs[0] as "--products "
+      if name in toRemove:
+        removed.append(name)
+      else:
+        notRemoved.append(name)
+    # DBG.write(removed, removed, True)
+    logger.write("  %s\n" % ",".join(removed), 1)
+    DBG.write("notRemoved", notRemoved)
+    res = largs[0] + ",".join(notRemoved)
+    return res
 
 def find_products_already_getted(l_products):
     '''function that returns the list of products that have an existing source 
@@ -142,55 +169,58 @@ def run(args, runner, logger):
     products_infos = get_products_list(options, runner.cfg, logger)
 
     # Construct the arguments to pass to the clean, source and patch commands
-    args_appli = runner.cfg.VARS.application + " "  # useful whitespace
+    args_appli = runner.cfg.VARS.application + ' '
+    args_product_opt = '--products '
     if options.products:
-        listProd = list(options.products)
-    else: # no product interpeted as all products
-        listProd = [name for name, tmp in products_infos]
-
-    DBG.write("prepare products", sorted(listProd))
-    args_product_opt = '--products ' + ",".join(listProd)
-    do_source = (len(listProd) > 0)
-
+        for p_name in options.products:
+            args_product_opt += ',' + p_name
+    else:
+        for p_name, __ in products_infos:
+            args_product_opt += ',' + p_name
 
     ldev_products = [p for p in products_infos if src.product.product_is_dev(p[1])]
-    newList = listProd # default
+    args_product_opt_clean = args_product_opt
     if not options.force and len(ldev_products) > 0:
         l_products_not_getted = find_products_already_getted(ldev_products)
-        listNot = [i for i, tmp in l_products_not_getted]
-        newList, removedList = removeInList(listProd, listNot)
-        if len(removedList) > 0:
+        if len(l_products_not_getted) > 0:
             msg = _("""\
-Do not get the source of the following products in development mode.
+Do not get the source of the following products in development mode
 Use the --force option to overwrite it.
 """)
-            msg += "\n%s\n" % ",".join(removedList)
             logger.write(src.printcolors.printcWarning(msg), 1)
+            args_product_opt_clean = remove_products(args_product_opt_clean,
+                                                     l_products_not_getted,
+                                                     logger)
+            logger.write("\n", 1)
 
-    args_product_opt_clean = '--products ' + ",".join(newList)
-    do_clean = (len(newList) > 0)
     
-    newList = listProd # default
+    args_product_opt_patch = args_product_opt
     if not options.force_patch and len(ldev_products) > 0:
         l_products_with_patchs = find_products_with_patchs(ldev_products)
-        listNot = [i for i, tmp in l_products_with_patchs]
-        newList, removedList = removeInList(listProd, listNot)
-        if len(removedList) > 0:
+        if len(l_products_with_patchs) > 0:
             msg = _("""\
-Do not patch the following products in development mode.
+do not patch the following products in development mode
 Use the --force_patch option to overwrite it.
 """)
-            msg += "\n%s\n" % ",".join(removedList)
             logger.write(src.printcolors.printcWarning(msg), 1)
-                                                     
-    args_product_opt_patch = '--products ' + ",".join(newList)
-    do_patch = (len(newList) > 0)
-      
+            args_product_opt_patch = remove_products(args_product_opt_patch,
+                                                     l_products_with_patchs,
+                                                     logger)
+            logger.write("\n", 1)
+
     # Construct the final commands arguments
     args_clean = args_appli + args_product_opt_clean + " --sources"
     args_source = args_appli + args_product_opt  
     args_patch = args_appli + args_product_opt_patch
-      
+
+    # If there is no more any product in the command arguments,
+    # do not call the concerned command 
+    oExpr = re.compile("^--products *$")
+    do_clean = not(oExpr.search(args_product_opt_clean))
+    do_source = not(oExpr.search(args_product_opt))
+    do_patch = not(oExpr.search(args_product_opt_patch))
+    
+    
     # Initialize the results to a failing status
     res_clean = 1
     res_source = 1
@@ -201,7 +231,8 @@ Use the --force_patch option to overwrite it.
         msg = _("Clean the source directories ...")
         logger.write(msg, 3)
         logger.flush()
-        res_clean = runner.clean(args_clean, batch=True, verbose = 0, logger_add_link = logger)
+        res_clean = runner.clean(args_clean, batch=True, verbose = 0,
+                                    logger_add_link = logger)
         if res_clean == 0:
             logger.write('%s\n' % src.printcolors.printc(src.OK_STATUS), 3)
         else:
@@ -209,7 +240,8 @@ Use the --force_patch option to overwrite it.
     if do_source:
         msg = _("Get the sources of the products ...")
         logger.write(msg, 5)
-        res_source = runner.source(args_source, logger_add_link = logger)
+        res_source = runner.source(args_source,
+                                    logger_add_link = logger)
         if res_source == 0:
             logger.write('%s\n' % src.printcolors.printc(src.OK_STATUS), 5)
         else:
@@ -217,24 +249,11 @@ Use the --force_patch option to overwrite it.
     if do_patch:
         msg = _("Patch the product sources (if any) ...")
         logger.write(msg, 5)
-        res_patch = runner.patch(args_patch, logger_add_link = logger)
+        res_patch = runner.patch(args_patch,
+                                    logger_add_link = logger)
         if res_patch == 0:
             logger.write('%s\n' % src.printcolors.printc(src.OK_STATUS), 5)
         else:
             logger.write('%s\n' % src.printcolors.printc(src.KO_STATUS), 5)
     
     return res_clean + res_source + res_patch
-
-
-def removeInList(aList, removeList):
-    """Removes elements of removeList list from aList
-    
-    :param aList: (list) The list from which to remove elements
-    :param removeList: (list) The list which contains elements to remove
-    :return: (list, list) (list with elements removed, list of elements removed) 
-    """
-    res1 = [i for i in aList if i not in removeList]
-    res2 = [i for i in aList if i in removeList]
-    return (res1, res2)
-
-
