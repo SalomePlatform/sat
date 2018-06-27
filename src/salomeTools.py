@@ -65,7 +65,10 @@ import commands.config as CONFIG
 # load resources for internationalization
 gettext.install("salomeTools", os.path.join(srcdir, "i18n"))
 
-_LANG = os.environ["LANG"] # original locale
+try:
+  _LANG = os.environ["LANG"] # original locale
+except:
+  _LANG = "en_US.utf8" #default
 
 # The possible hooks : 
 # pre is for hooks to be executed before commands

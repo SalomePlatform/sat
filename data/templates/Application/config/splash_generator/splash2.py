@@ -6,7 +6,12 @@
 
 import os, sys
 
-__LANG__=os.getenv("LANG")
+
+try:
+  __LANG__ = os.environ["LANG"] # original locale
+except:
+  __LANG__ = "en_US.utf8" #default
+
 __FR__={
     "This script requires the Image, ImageDraw and ImageFont libraries":
         "Ce script a besoin de Image, ImageDraw et ImageFont python librairies",
