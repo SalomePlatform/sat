@@ -189,7 +189,7 @@ LOGI.LogRecord.getMessage = getMessage  # better message if error
 
 
 #################################################################
-class LoggerSimple(LOGI.Logger):
+class LoggerSimple(LOGI.Logger, object): # object force new-style classes in logging 0.5.0.5 python 2.6
   """
   Inherited class logging.Logger for logger salomeTools
 
@@ -264,7 +264,7 @@ class LoggerSimple(LOGI.Logger):
 
 
 #################################################################
-class UnittestFormatter(LOGI.Formatter):
+class UnittestFormatter(LOGI.Formatter, object): # object force new-style classes in logging 0.5.0.5 python 2.6
   """
   this formatter prefixes level name and indents all messages
   """
@@ -276,7 +276,7 @@ class UnittestFormatter(LOGI.Formatter):
     return res
 
 #################################################################
-class DefaultFormatter(LOGI.Formatter):
+class DefaultFormatter(LOGI.Formatter, object): # object force new-style classes in logging 0.5.0.5 python 2.6
   """
   this formatter prefixes level name and indents all messages but INFO stay "as it"
   """
@@ -325,7 +325,7 @@ class UnittestStream(object):
 
 
 #################################################################
-class StreamHandlerSimple(LOGI.StreamHandler):
+class StreamHandlerSimple(LOGI.StreamHandler, object): # object force new-style classes in logging 0.5.0.5 python 2.6
   """
   A handler class which writes logging records, appropriately formatted,
   to a stream. Note that this class does not close the stream, as
@@ -394,7 +394,8 @@ def initLoggerAsDefault(logger, fmt=None, level=None):
   log("initLoggerAsDefault name=%s\nfmt='%s' level='%s'" % (logger.name, fmt, level))
   #handler = StreamHandlerSimple(sys.stdout)  # Logging vers console
   handler = LOGI.StreamHandler(sys.stdout)  # Logging vers console
-  handler.set_name(logger.name + "_console")
+  # set_name absent in logging 0.5.0.5 python 2.6
+  handler._name = logger.name + "_console"
   if fmt is not None:
     # formatter = UnittestFormatter(fmt, "%y-%m-%d %H:%M:%S")
     formatter = DefaultFormatter(fmt, "%y-%m-%d %H:%M:%S")
@@ -423,7 +424,8 @@ def initLoggerAsUnittest(logger, fmt=None, level=None):
   log("initLoggerAsUnittest name=%s\nfmt='%s' level='%s'" % (logger.name, fmt, level))
   stream = UnittestStream()
   handler = LOGI.StreamHandler(stream)  # Logging vers stream
-  handler.set_name(logger.name + "_unittest")
+  # set_name absent in logging 0.5.0.5 python 2.6
+  handler._name = logger.name + "_unittest"
   if fmt is not None:
     # formatter = LOGI.Formatter(fmt, "%Y-%m-%d %H:%M:%S")
     formatter = UnittestFormatter(fmt, "%Y-%m-%d %H:%M:%S")
