@@ -117,7 +117,8 @@ def getStrHandler(handler):
   h = handler  # shortcut
   msg = "%s(name=%s)"
   cName = h.__class__.__name__
-  res = msg % (cName, h.get_name())
+  # get_name absent in logging 0.5.0.5 python 2.6
+  res = msg % (cName, h._name)
   return res
 
 
