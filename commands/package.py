@@ -128,7 +128,10 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
     
     success = 0
     # loop over each directory or file stored in the d_content dictionary
-    for name in sorted(d_content.keys()):
+    names = sorted(d_content.keys())
+    DBG.write("add tar names", names)
+
+    for name in names:
         # display information
         len_points = max_len - len(name)
         local_path, archive_path = d_content[name]
@@ -218,8 +221,7 @@ def produce_relative_launcher(config,
         " 'BIN_KERNEL_INSTALL_DIR'",
         " out_dir_Path + '" + config.VARS.sep + bin_kernel_install_dir + "'")
 
-    before, after = withProfile.split(
-                                "# here your local standalone environment\n")
+    before, after = withProfile.split("# here your local standalone environment\n")
 
     # create an environment file writer
     writer = src.environment.FileEnvWriter(config,

@@ -85,7 +85,7 @@ def write(title, var="", force=None, fmt="\n#### DEBUG: %s:\n%s\n"):
       tvar = type(var)
       typ = str(tvar)
       if isTypeConfig(var):
-        sys.stderr.write(fmt % (title, indent(COLS.toColor(getStrConfigDbg(var)))))
+        sys.stderr.write(fmt % (title, indent(getStrConfigDbg(var))))
         return
       if 'UnittestStream' in typ:
         sys.stderr.write(fmt % (title, indent(var.getLogs())))

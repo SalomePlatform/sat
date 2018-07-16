@@ -309,7 +309,8 @@ class SalomeEnviron:
         """
         if 'finish' in dir(self.environ):
             self.environ.add_line(1)
-            self.environ.add_comment("clean all the path")
+            # what for ?
+            # self.environ.add_comment("clean all the path")
             self.environ.finish(required)
 
     def set_python_libdirs(self):
@@ -349,7 +350,7 @@ class SalomeEnviron:
                 lProdName.append(ProdName)
         return lProdName
 
-    def set_application_env(self, logger):
+    def set_application_env(self, logger, no_PRODUCT_ROOT_DIR=False):
         """\
         Sets the environment defined in the APPLICATION file.
         
@@ -357,11 +358,14 @@ class SalomeEnviron:
         """
         
         # add variable PRODUCT_ROOT_DIR as $workdir in APPLICATION.environ section if not present
-        try: 
-          tmp = self.cfg.APPLICATION.environ.PRODUCT_ROOT_DIR
-        except:
-          self.cfg.APPLICATION.environ.PRODUCT_ROOT_DIR = src.pyconf.Reference(self.cfg, src.pyconf.DOLLAR, "workdir")
-          DBG.write("set_application_env add default Config.APPLICATION.environ.PRODUCT_ROOT_DIR", self.cfg.APPLICATION.environ)
+        # but if sat launcher or sat package do not duplicate line context.setVariable(r"PRODUCT_ROOT_DIR", ...
+        # no_PRODUCT_ROOT_DIR used only for write_cfgForPy_file
+        if not no_PRODUCT_ROOT_DIR: # do not duplicate context.setVariable(r"PRODUCT_ROOT_DIR"
+          try:
+            tmp = self.cfg.APPLICATION.environ.PRODUCT_ROOT_DIR
+          except:
+            self.cfg.APPLICATION.environ.PRODUCT_ROOT_DIR = src.pyconf.Reference(self.cfg, src.pyconf.DOLLAR, "workdir")
+            DBG.write("set_application_env: add APPLICATION.environ.PRODUCT_ROOT_DIR", self.cfg.APPLICATION.environ)
           
         # Set the variables defined in the "environ" section
         if 'environ' in self.cfg.APPLICATION:
@@ -736,6 +740,7 @@ class SalomeEnviron:
         """
         DBG.write("set_full_environ for", env_info)
         # DBG.write("set_full_environ config", self.cfg.APPLICATION.environ, True)
+
         # set product environ
         self.set_application_env(logger)
 
@@ -829,9 +834,9 @@ class FileEnvWriter:
                               src.printcolors.printcLabel(filename.name), 3)
 
         # create then env object
-        tmp = src.fileEnviron.get_file_environ(filename, 
-                                               "cfgForPy", 
-                                               {})
+        tmp = src.fileEnviron.get_file_environ(filename, "cfgForPy", {})
+        # DBG.write("fileEnviron.get_file_environ %s" % filename, tmp, True)
+
         # environment for launch
         env = SalomeEnviron(self.config,
                             tmp,
@@ -840,19 +845,23 @@ class FileEnvWriter:
                             enable_simple_env_script = with_commercial)
         env.silent = self.silent
 
+        DBG.write("write_cfgForPy_file", self.config.APPLICATION.environ)
+
         if self.env_info is not None:
             env.set_full_environ(self.logger, self.env_info)
+            DBG.write("set_full_environ", self.env_info)
+
         else:
             # set env from PRODUCT
-            env.set_application_env(self.logger)
+            env.set_application_env(self.logger, no_PRODUCT_ROOT_DIR=True)
 
             # The list of products to launch
             lProductsName = env.get_names(self.config.APPLICATION.products.keys())
-            env.set( "SALOME_MODULES",    ','.join(lProductsName))
+            env.set("SALOME_MODULES", ','.join(lProductsName))
 
             # set the products
-            env.set_products(self.logger,
-                            src_root=self.src_root)
+            env.set_products(self.logger, src_root=self.src_root)
+            DBG.write("set_application_env without PRODUCT_ROOT_DIR", self.config.APPLICATION.environ)
 
         # Add the additional environment if it is not empty
         if len(additional_env) != 0:
