@@ -25,6 +25,9 @@ import subprocess
 import os
 import tarfile
 
+import debug as DBG
+import utilsSat as UTS
+
 from . import printcolors
 
 def show_in_editor(editor, filePath, logger):
@@ -52,44 +55,90 @@ def show_in_editor(editor, filePath, logger):
 
 
 def git_extract(from_what, tag, where, logger, environment=None):
-    '''Extracts sources from a git repository.
-    
-    :param from_what str: The remote git repository.
-    :param tag str: The tag.
-    :param where str: The path where to extract.
-    :param logger Logger: The logger instance to use.
-    :param environment src.environment.Environ: The environment to source when
-                                                extracting.
-    :return: True if the extraction is successful
-    :rtype: boolean
-    '''
-    if not where.exists():
-        where.make()
-    if tag == "master" or tag == "HEAD":
-        command = "git clone %(remote)s %(where)s" % \
-                    { 'remote': from_what, 'tag': tag, 'where': str(where) }
-    else:
-        # NOTICE: this command only works with recent version of git
-        #         because --work-tree does not work with an absolute path
-        where_git = os.path.join( str(where), ".git" )
-        command = "rmdir %(where)s && git clone %(remote)s %(where)s && " + \
-                  "git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s"
-        command = command % {'remote': from_what, 
-                             'tag': tag, 
-                             'where': str(where), 
-                             'where_git': where_git }
+  '''Extracts sources from a git repository.
 
-    logger.write(command + "\n", 5)
+  :param from_what str: The remote git repository.
+  :param tag str: The tag.
+  :param where str: The path where to extract.
+  :param logger Logger: The logger instance to use.
+  :param environment src.environment.Environ: The environment to source when extracting.
+  :return: True if the extraction is successful
+  :rtype: boolean
+  '''
+  DBG.write("git_extract", [from_what, tag, str(where)])
+  if not where.exists():
+    where.make()
+  if tag == "master" or tag == "HEAD":
+    command = "git clone %(remote)s %(where)s" % \
+              {'remote': from_what, 'tag': tag, 'where': str(where)}
+  else:
+    # NOTICE: this command only works with recent version of git
+    #         because --work-tree does not work with an absolute path
+    where_git = os.path.join(str(where), ".git")
+    command = "rmdir %(where)s && git clone %(remote)s %(where)s && " + \
+              "git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s"
+    command = command % {'remote': from_what,
+                         'tag': tag,
+                         'where': str(where),
+                         'where_git': where_git}
 
-    logger.logTxtFile.write("\n" + command + "\n")
-    logger.logTxtFile.flush()
-    res = subprocess.call(command,
-                          cwd=str(where.dir()),
-                          env=environment.environ.environ,
-                          shell=True,
-                          stdout=logger.logTxtFile,
-                          stderr=subprocess.STDOUT)
-    return (res == 0)
+  logger.write(command + "\n", 5)
+
+  logger.logTxtFile.write("\n" + command + "\n")
+  logger.logTxtFile.flush()
+  res = subprocess.call(command,
+                        cwd=str(where.dir()),
+                        env=environment.environ.environ,
+                        shell=True,
+                        stdout=logger.logTxtFile,
+                        stderr=subprocess.STDOUT)
+  return (res == 0)
+
+
+def git_extract_sub_dir(from_what, tag, where, sub_dir, logger, environment=None):
+  '''Extracts sources from a subtree sub_dir of a git repository.
+
+  :param from_what str: The remote git repository.
+  :param tag str: The tag.
+  :param where str: The path where to extract.
+  :param sub_dir str: The relative path of subtree to extract.
+  :param logger Logger: The logger instance to use.
+  :param environment src.environment.Environ: The environment to source when extracting.
+  :return: True if the extraction is successful
+  :rtype: boolean
+  '''
+  strWhere = str(where)
+  tmpWhere = strWhere + '_tmp'
+  parentWhere = os.path.dirname(strWhere)
+  if not os.path.exists(parentWhere):
+    logger.error("not existing directory: %s" % parentWhere)
+    return False
+  if os.path.isdir(strWhere):
+    logger.error("do not override existing directory: %s" % strWhere)
+    return False
+  aDict = {'remote': from_what,
+           'tag': tag,
+           'sub_dir': sub_dir,
+           'where': strWhere,
+           'parentWhere': parentWhere,
+           'tmpWhere': tmpWhere,
+           }
+  DBG.write("git_extract_sub_dir", aDict)
+
+  cmd = r"""
+export tmpDir=%(tmpWhere)s && \
+rm -rf $tmpDir && \
+git clone %(remote)s $tmpDir && \
+cd $tmpDir && \
+git checkout %(tag)s && \
+mv %(sub_dir)s %(where)s && \
+git log -1 > %(where)s/README_git_log.txt && \
+rm -rf $tmpDir
+""" % aDict
+  DBG.write("cmd", cmd)
+  rc = UTS.Popen(cmd, cwd=parentWhere, env=environment.environ.environ, logger=logger)
+  return rc.isOk()
+
 
 def archive_extract(from_what, where, logger):
     '''Extracts sources from an archive.

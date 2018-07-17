@@ -108,10 +108,24 @@ def get_source_from_git(product_info,
                  False)
     logger.flush()
     logger.write('\n', 5, False)
-    # Call the system function that do the extraction in git mode
-    retcode = src.system.git_extract(repo_git,
-                                 product_info.git_info.tag,
-                                 source_dir, logger, environ)
+
+    sub_dir = None
+    if not is_dev and "sub_dir" in product_info.git_info:
+        sub_dir = product_info.git_info.sub_dir
+
+    if sub_dir  is None:
+      # Call the system function that do the extraction in git mode
+      retcode = src.system.git_extract(repo_git,
+                                   product_info.git_info.tag,
+                                   source_dir, logger, environ)
+    else:
+      # Call the system function that do the extraction of a sub_dir in git mode
+      logger.write("sub_dir:%s " % sub_dir, 3)
+      retcode = src.system.git_extract_sub_dir(repo_git,
+                                   product_info.git_info.tag,
+                                   source_dir, sub_dir, logger, environ)
+
+
     return retcode
 
 def get_source_from_archive(product_info, source_dir, logger):

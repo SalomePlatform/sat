@@ -201,20 +201,57 @@ class Logger(object):
                 sys.stdout.write(message)
         self.flush()
 
-    def error(self, message):
-        """Print an error.
-        
-        :param message str: The message to print.
-        """
-        # Print in the log file
-        self.xmlFile.append_node_text("traces", _('ERROR:') + message)
+    def error(self, message, prefix="ERROR: "):
+      """Print an error.
 
-        # Print in the terminal and clean colors if the terminal 
-        # is redirected by user
-        if not ('isatty' in dir(sys.stderr) and sys.stderr.isatty()):
-            sys.stderr.write(printcolors.printcError(_('ERROR:') + message))
-        else:
-            sys.stderr.write(_('ERROR:') + message)
+      :param message str: The message to print.
+      """
+      # Print in the log file
+      self.xmlFile.append_node_text("traces", prefix + message)
+
+      # Print in the terminal and clean colors if the terminal
+      # is redirected by user
+      if not ('isatty' in dir(sys.stderr) and sys.stderr.isatty()):
+        sys.stderr.write(printcolors.printcError(prefix + message + "\n"))
+      else:
+        sys.stderr.write(prefix + message + "\n")
+
+    def step(self, message):
+      """Print an step message.
+
+      :param message str: The message to print.
+      """
+      self.write('STEP: ' + message, level=4)
+
+    def trace(self, message):
+      """Print an trace message.
+
+      :param message str: The message to print.
+      """
+      self.write('TRACE: ' + message, level=5)
+
+    def debug(self, message):
+      """Print an debug message.
+
+      :param message str: The message to print.
+      """
+      self.write('DEBUG: ' + message, level=6)
+
+    def warning(self, message):
+      """Print an warning message.
+
+      :param message str: The message to print.
+      """
+      self.error(message, prefix="WARNING: ")
+
+    def critical(self, message):
+      """Print an critical message.
+
+      :param message str: The message to print.
+      """
+      self.error(message, prefix="CRITICAL: ")
+
+
 
     def flush(self):
         """Flush terminal"""

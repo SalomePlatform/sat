@@ -59,12 +59,12 @@ def Popen(command, shell=True, cwd=None, env=None, stdout=SP.PIPE, stderr=SP.PIP
     
     if rc == 0:
       if logger is not None:
-        logger.trace("<OK> launch command rc=%s cwd=<info>%s<reset>:\n%s" % (rc, cwd, command))
+        logger.trace("<OK> launch command rc=%s cwd=%s:\n%s" % (rc, cwd, command))
         logger.trace("<OK> result command stdout&stderr:\n%s" % res_out)
       return RCO.ReturnCode("OK", "Popen command done", value=res_out)
     else:
       if logger is not None:
-        logger.warning("<KO> launch command rc=%s cwd=<info>%s<reset>:\n%s" % (rc, cwd, command))
+        logger.warning("<KO> launch command rc=%s cwd=%s:\n%s" % (rc, cwd, command))
         logger.warning("<KO> result command stdout&stderr:\n%s" % res_out)
       return RCO.ReturnCode("KO", "Popen command problem", value=res_out)
   else: #except Exception as e:
