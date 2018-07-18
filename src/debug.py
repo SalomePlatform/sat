@@ -64,6 +64,11 @@ _user = os.environ['USER']
 _developpers = ["christian", "wambeke", "crouzet"] # crouzet, kloss ...
 
 
+def isDevelopper():
+    """if you are a developper, sometimes you want verbose traces etc."""
+    res = _user in _developpers
+    return res
+
 def indent(text, amount=2, ch=' '):
     """indent multi lines message"""
     padding = amount * ch

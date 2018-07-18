@@ -1434,7 +1434,8 @@ Please add it in file:
 
     logger.write(src.printcolors.printcLabel(_("Actually do the package")), 2)
     logger.write("\n", 2)
-    
+
+    res = 0
     try:
         # Creating the object tarfile
         tar = tarfile.open(path_targz, mode='w:gz')
@@ -1443,7 +1444,7 @@ Please add it in file:
         filter_function = exclude_VCS_and_extensions
 
         # Add the files to the tarfile object
-        res = add_files(tar, archive_name, d_files_to_add, logger, f_exclude=filter_function)
+        # res = add_files(tar, archive_name, d_files_to_add, logger, f_exclude=filter_function)
         tar.close()
     except KeyboardInterrupt:
         logger.write(src.printcolors.printcError("\nERROR: forced interruption\n"), 1)
@@ -1459,8 +1460,8 @@ Please add it in file:
     if os.path.isdir(tmp_local_working_dir):
       shutil.rmtree(tmp_local_working_dir)
 
-    # to decide...
-    DBG.tofix("make shutil.rmtree('%s') effective" % tmp_working_dir, "", True)
+    # have to decide some time
+    DBG.tofix("make shutil.rmtree('%s') effective" % tmp_working_dir, "", DBG.isDevelopper())
     
     # Print again the path of the package
     logger.write("\n", 2)
