@@ -110,6 +110,12 @@ def get_source_from_git(product_info,
     logger.write('\n', 5, False)
 
     sub_dir = None
+
+    # what do we do with git tree structure and history
+    if is_dev and "sub_dir" in product_info.git_info:
+        logger.error("dev mode for product is incompatible with 'sub_dir' option")
+        return False
+
     if not is_dev and "sub_dir" in product_info.git_info:
         sub_dir = product_info.git_info.sub_dir
 
