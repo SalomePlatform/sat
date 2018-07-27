@@ -485,6 +485,9 @@ def binary_package(config, logger, options, tmp_working_dir):
     l_sources_not_present = []
     generate_mesa_launcher = False  # a flag to know if we generate a mesa launcher
     for prod_name, prod_info in l_product_info:
+        # skip product with property not_in_package set to yes
+        if src.get_property_in_product_cfg(prod_info, "not_in_package") == "yes":
+            continue  
 
         # Add the sources of the products that have the property 
         # sources_in_package : "yes"
@@ -731,6 +734,9 @@ def get_archives(config, logger):
     d_archives = {}
     l_pinfo_vcs = []
     for p_name, p_info in l_product_info:
+        # skip product with property not_in_package set to yes
+        if src.get_property_in_product_cfg(p_info, "not_in_package") == "yes":
+            continue  
         # ignore the native and fixed products
         if (src.product.product_is_native(p_info) 
                 or src.product.product_is_fixed(p_info)):
@@ -907,6 +913,9 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs):
     lproducts_name = config.APPLICATION.products.keys()
     l_products = src.product.get_products_infos(lproducts_name, config)
     for p_name, p_info in l_products:
+        # skip product with property not_in_package set to yes
+        if src.get_property_in_product_cfg(p_info, "not_in_package") == "yes":
+            continue  
         find_product_scripts_and_pyconf(p_name,
                                         p_info,
                                         config,
