@@ -77,7 +77,7 @@ sys.path.insert(0, cmdsdir) # TODO remove that
 
 _user = os.environ['USER']
 # wambeke is christian at home
-_developpers = ["christian", "wambeke",] #  ...who wants
+_developers = ["christian", "wambeke",] #  ...who wants
 
 def errPrint(aStr):
   """stderr to avoid write in html or xml file log message"""
@@ -148,10 +148,10 @@ def format_exception(msg, limit=None, trace=None):
     """
     Format a stack trace and the exception information.
     as traceback.format_exception(),
-    with all traceback only if user in ._developpers
+    with all traceback only if user in ._developers
     """
     etype, value, tb = sys.exc_info()
-    if _user in _developpers:
+    if _user in _developers:
       res = "\n" + msg
       if tb:
           res += "\nTraceback (most recent call last):\n"

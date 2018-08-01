@@ -1444,7 +1444,7 @@ Please add it in file:
         filter_function = exclude_VCS_and_extensions
 
         # Add the files to the tarfile object
-        # res = add_files(tar, archive_name, d_files_to_add, logger, f_exclude=filter_function)
+        res = add_files(tar, archive_name, d_files_to_add, logger, f_exclude=filter_function)
         tar.close()
     except KeyboardInterrupt:
         logger.write(src.printcolors.printcError("\nERROR: forced interruption\n"), 1)
@@ -1461,7 +1461,7 @@ Please add it in file:
       shutil.rmtree(tmp_local_working_dir)
 
     # have to decide some time
-    DBG.tofix("make shutil.rmtree('%s') effective" % tmp_working_dir, "", DBG.isDevelopper())
+    DBG.tofix("make shutil.rmtree('%s') effective" % tmp_working_dir, "", DBG.isDeveloper())
     
     # Print again the path of the package
     logger.write("\n", 2)

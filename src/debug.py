@@ -61,12 +61,12 @@ _debug = [False] #support push/pop for temporary activate debug outputs
 
 _user = os.environ['USER']
 # wambeke is christian at home
-_developpers = ["christian", "wambeke", "crouzet"] # crouzet, kloss ...
+_developers = ["christian", "wambeke", "crouzet"] # crouzet, kloss ...
 
 
-def isDevelopper():
-    """if you are a developper, sometimes you want verbose traces etc."""
-    res = _user in _developpers
+def isDeveloper():
+    """if you are a developer, sometimes you want verbose traces etc."""
+    res = _user in _developers
     return res
 
 def indent(text, amount=2, ch=' '):
@@ -127,10 +127,10 @@ def format_exception(msg, limit=None, trace=None):
   """
   Format a stack trace and the exception information.
   as traceback.format_exception(), without color
-  with traceback only if (_debug) or (DBG._user in DBG._developpers)
+  with traceback only if (_debug) or (DBG._user in DBG._developers)
   """
   etype, value, tb = sys.exc_info()
-  if (_debug[-1]) or (_user in _developpers):
+  if _debug[-1] or isDeveloper():
     res = msg
     if tb:
       res += "\nTraceback (most recent call last):\n"
@@ -147,10 +147,10 @@ def format_color_exception(msg, limit=None, trace=None):
   """
   Format a stack trace and the exception information.
   as traceback.format_exception(), with color
-  with traceback only if (_debug) or (DBG._user in DBG._developpers)
+  with traceback only if _debug or isDeveloper())
   """
   etype, value, tb = sys.exc_info()
-  if (_debug[-1]) or (_user in _developpers):
+  if _debug[-1] or isDeveloper():
     res = "<red>" + msg
     if tb:
       res += "<yellow>\nTraceback (most recent call last):\n"
