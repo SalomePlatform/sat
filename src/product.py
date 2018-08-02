@@ -227,11 +227,18 @@ Please provide a 'compil_script' key in its definition.""") % product_name
                                                  config.PATHS.PRODUCTPATH,
                                                  "compil_scripts")
             if not script_path:
-                raise src.SatException(
-                    _("Compilation script not found: %s") % script_name)
+                raise src.SatException(_("Compilation script not found: %s") % script_name)
             prod_info.compil_script = script_path
             if src.architecture.is_windows():
-                prod_info.compil_script = prod_info.compil_script[:-len(".sh")] + ".bat"
+                if ".sh" in script_path:
+                  DBG.write("automatic switch '.sh' to '.bat' for script windows file %s" % script_path, True)
+                  prod_info.compil_script = prod_info.compil_script[:-len(".sh")] + ".bat"
+                else:
+                  if ".bat" not in script_path:
+                    DBG.write("No expected extension ('.sh' or '.bat') file name for script windows file %s" % script_path, True)
+                  else:
+                    pass # mode olivier .bat present yet nothing to do
+
        
         # Check that the script is executable
         if not os.access(prod_info.compil_script, os.X_OK):
