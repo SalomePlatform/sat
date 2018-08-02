@@ -218,26 +218,19 @@ No compilation script found for the product %s.
 Please provide a 'compil_script' key in its definition.""") % product_name
             raise src.SatException(msg)
         
-        # Get the path of the script
+        # Get the path of the script file
+        # if windows supposed '.bat', if linux supposed '.sh'
+        # but user set extension script file in his pyconf as he wants, no obligation.
         script = prod_info.compil_script
         script_name = os.path.basename(script)
         if script == script_name:
             # Only a name is given. Search in the default directory
-            script_path = src.find_file_in_lpath(script_name,
-                                                 config.PATHS.PRODUCTPATH,
-                                                 "compil_scripts")
+            script_path = src.find_file_in_lpath(script_name, config.PATHS.PRODUCTPATH, "compil_scripts")
             if not script_path:
-                raise src.SatException(_("Compilation script not found: %s") % script_name)
+                msg = _("Compilation script not found: %s") % script_name
+                DBG.tofix(msg, config.PATHS.PRODUCTPATH, True) # say where searched
+                raise src.SatException(msg)
             prod_info.compil_script = script_path
-            if src.architecture.is_windows():
-                if ".sh" in script_path:
-                  DBG.write("automatic switch '.sh' to '.bat' for script windows file", script_path, True)
-                  prod_info.compil_script = prod_info.compil_script[:-len(".sh")] + ".bat"
-                else:
-                  if ".bat" not in script_path:
-                    DBG.write("No expected extension ('.sh' or '.bat') file name for script windows file", script_path, True)
-                  else:
-                    pass # mode olivier .bat present yet nothing to do
 
        
         # Check that the script is executable
@@ -245,7 +238,8 @@ Please provide a 'compil_script' key in its definition.""") % product_name
             #raise src.SatException(
             #        _("Compilation script cannot be executed: %s") % 
             #        prod_info.compil_script)
-            DBG.tofix("Compilation script cannot be executed:", prod_info.compil_script)
+            # just as warning, problem later...
+            DBG.tofix("Compilation script is not execute mode file", prod_info.compil_script, True)
     
     # Get the full paths of all the patches
     if product_has_patches(prod_info):
