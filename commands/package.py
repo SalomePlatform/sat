@@ -212,7 +212,10 @@ def produce_relative_launcher(config,
         app_root_dir=os.path.join(binaries_dir_name, salome_application_name)
 
     # Get the launcher template and do substitutions
-    withProfile = src.fileEnviron.withProfile
+    if "python3" in config.APPLICATION and config.APPLICATION.python3 == "yes":
+        withProfile = src.fileEnviron.withProfile3
+    else:
+        withProfile = src.fileEnviron.withProfile
 
     withProfile = withProfile.replace(
         "ABSOLUTE_APPLI_PATH'] = 'KERNEL_INSTALL_DIR'",
