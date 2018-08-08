@@ -752,7 +752,7 @@ import subprocess
 
 # Add the pwdPath to able to run the launcher after unpacking a package
 # Used only in case of a salomeTools package
-out_dir_Path=os.path.abspath(os.path.dirname(__file__))
+out_dir_Path=os.path.dirname(os.path.realpath(__file__))
 
 # Preliminary work to initialize path to SALOME Python modules
 def __initialize():
@@ -879,7 +879,7 @@ import subprocess
 
 # Add the pwdPath to able to run the launcher after unpacking a package
 # Used only in case of a salomeTools package
-out_dir_Path=os.path.abspath(os.path.dirname(__file__))
+out_dir_Path=os.path.dirname(os.path.realpath(__file__))
 
 # Preliminary work to initialize path to SALOME Python modules
 def __initialize():
