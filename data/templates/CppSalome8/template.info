@@ -1,0 +1,78 @@
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+
+# description of the template to be displayed with option --info
+info = """
+Author: CEA
+Description: This template can be used to create c++ component.
+Remark:
+ * The name of the module must be suffixed with 'CPP'.
+ * This module will compiled with med 3.
+ * Once the module is compiled use the generate command to create the SALOME module.
+ * The generate command requires a version of YACSGEN greater or equal to 6.5.0.
+"""
+
+# code to subsitute with component name
+file_subst = "Cpp_Template_"
+
+# delimiter used in the template (default is ':sat:')
+#delimiter = ":sat:"
+
+# filter of files to ignore for substitution
+# if not defined all files will be parsed
+ignore_filters = '*.png'
+
+# list of parameters
+# a string = parameter name
+# a tuple = (parameter name, default value, prompt, validation method)
+parameters = [
+    (file_subst, "%(NAME)s"),
+    ("get_method", "dir", "archive", "get method for prepare", lambda l: l in ['cvs', 'git', 'archive', 'dir'])
+    ]
+
+# configuration to use this component with sat
+pyconf = """
+    default :
+    {
+        name : "%(NAME)sCPP"
+        component_name : "%(NAME)s"
+        get_source : '%(get_method)s'
+        build_source : 'autotools'
+        git_info:
+        {
+            repo : 'to be filled'
+            tag : 'to be filled'
+        }
+        archive_info:
+        {
+            archive_name : '%(target)s'
+        }
+        dir_info:
+        {
+            dir : '%(target)s'
+        }
+        source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
+        build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
+        depend : [ 
+                   'hdf5',
+                   'med',
+                   'qt',
+                   'Python',
+                   'omniORB',
+                   'omniORBpy',
+                   'boost' ,
+                   'cppunit' ,
+                   'KERNEL',
+                   'GUI',
+                   'MED'
+                 ]
+        opt_depend : []
+        properties :
+        {
+            cpp : "yes"
+            generate : "yes"
+            has_salome_gui : "yes"
+            logo : $source_dir + "/resources/%(NAME)s.png"
+        }
+    }
+"""
