@@ -153,7 +153,6 @@ def generate_component(config, compo, product_info, context, header, logger):
         mg = module_generator.Module(compo, components=[salome_compo],
                                      prefix=generate_dir, gui=gui_files)
         g = sat_generator(mg, context)
-        print "CNC generate component!"
         g.generate()
 
         if use_autotools:

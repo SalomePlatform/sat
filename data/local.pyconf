@@ -12,13 +12,5 @@
   {
     project_file_paths :
     [
-    "/volatile/crouzet/SAT/TEST/TUTORIAL_COUPLING/Workdir/YACS/TUTO_COUPLING_PROJECT/tutorial_coupling.pyconf",
-    "/volatile/crouzet/SAT/TEST/SAT_NURESIM/nuresim.pyconf",
-    "/volatile/crouzet/SAT/TEST/SAT_SALOME/salome.pyconf",
-    "/volatile/crouzet/SAT/TEST/SAT_CORPUS/corpus.pyconf",
-    "/data/tmpsalome/salome/SAT-PROJECTS/NUMODIS/numodis.pyconf",
-    "/home/salome/SPN_PRIVATE/SAT5/PPGP-PROJECT/ppgp.pyconf",
-    "/home/salome/SPN_PRIVATE/SAT5/OSCAR-PROJECT/oscar.pyconf",
-    "/home/uranietm/proJET/saTJOBS/saT5/uranie.pyconf",
     ]
   }
