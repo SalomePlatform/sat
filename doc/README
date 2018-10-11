@@ -1,24 +1,42 @@
 
-# LINUX Compile documentation procedure:
-# needs prerequisite sphinx-build to make doc html
+#########################################################
+# LINUX Compile this documentation in-place procedure
+# to get ready-to-read documentation when
+# user just done 'git-clone' SAT
+#########################################################
 
+# prerequisites:
+# needs sphinx-build to make doc html
+# needs texlive up-to-date to make doc pdf
+
+# make doc html
 cd doc
 make html
 firefox build/html/index.html &
 
-# to make doc pdf
-# needs texlive a jour (done on machines lgls for x86_64-linux)
-# https://www.tug.org/texlive/quickinstall.html
+# to make doc pdf without error
+# user needs texlive up-to-date
+# see https://www.tug.org/texlive/quickinstall.html
 
-export INFOPATH=/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/doc/info
-export MANPATH=/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/doc/man
-export PATH=/data/tmplgls/wambeke/share/texlive/2017/bin/x86_64-linux:${PATH}
+# on machines Centos7 dm2s/lgls as x86_64-linux his is not good,
+# see https://www.centos.org/forums/viewtopic.php?t=54410
+# so user simply have to set PATH on one correct texlive package
+# compiled here:
 
+# export INFOPATH=/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/doc/info
+# export MANPATH=/data/tmplgls/wambeke/share/texlive/2017/texmf-dist/doc/man
+# export PATH=/data/tmplgls/wambeke/share/texlive/2017/bin/x86_64-linux:${PATH}
+# and then ...
+
+
+# make doc pdf
 cd doc
 make latexpdf
 evince build/latex/salomeTools.pdf &
 
+
 #########################################################
-# after compilation success do not forget to 'git push' #
+# after doc compilation success
+# do not forget to do 'git push' !!!!!!!!!!!!!!
 #########################################################
 
