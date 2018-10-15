@@ -26,38 +26,6 @@ parser.add_option('p', 'products', 'list2', 'products',
     _('Optional: products to install. This option can be'
     ' passed several time to install several products.'))
 
-def get_products_list(options, cfg, logger):
-    '''method that gives the product list with their informations from 
-       configuration regarding the passed options.
-    
-    :param options Options: The Options instance that stores the commands 
-                            arguments
-    :param cfg Config: The global configuration
-    :param logger Logger: The logger instance to use for the display and logging
-    :return: The list of (product name, product_informations).
-    :rtype: List
-    '''
-    # Get the products to be prepared, regarding the options
-    if options.products is None:
-        # No options, get all products sources
-        products = cfg.APPLICATION.products
-    else:
-        # if option --products, check that all products of the command line
-        # are present in the application.
-        products = options.products
-        for p in products:
-            if p not in cfg.APPLICATION.products:
-                raise src.SatException(_("Product %(product)s "
-                            "not defined in application %(application)s") %
-                        { 'product': p, 'application': cfg.VARS.application} )
-    
-    # Construct the list of tuple containing 
-    # the products name and their definition
-    products_infos = src.product.get_products_infos(products, cfg)
-    
-    products_infos = [pi for pi in products_infos if not(src.product.product_is_native(pi[1]) or src.product.product_is_fixed(pi[1]))]
-    
-    return products_infos
 
 def log_step(logger, header, step):
     logger.write("\r%s%s" % (header, " " * 20), 3)
@@ -180,7 +148,7 @@ def run(args, runner, logger):
     src.check_config_has_application( runner.cfg )
 
     # Get the list of products to treat
-    products_infos = get_products_list(options, runner.cfg, logger)
+    products_infos = src.product.get_products_list(options, runner.cfg, logger)
 
     # Print some informations
     logger.write(_('Executing the make install command in the build directories of the application %s\n') % 

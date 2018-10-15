@@ -27,17 +27,13 @@ try:
 except NameError: 
     pass
 
-PROPERTY_EXPRESSION = "^.+:.+$"
 
 # Define all possible option for the clean command :  sat clean <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
     _('Optional: Products to clean. This option can be'
     ' passed several time to clean several products.'))
-parser.add_option('', 'properties', 'string', 'properties',
-    _('Optional: Filter the products by their properties.\n\tSyntax: '
-      '--properties <property>:<value>'))
-parser.add_option('s', 'sources', 'boolean', 'sources', 
+parser.add_option('s', 'sources', 'boolean', 'sources',
     _("Optional: Clean the product source directories."))
 parser.add_option('b', 'build', 'boolean', 'build', 
     _("Optional: Clean the product build directories."))
@@ -48,46 +44,6 @@ parser.add_option('a', 'all', 'boolean', 'all',
 parser.add_option('', 'sources_without_dev', 'boolean', 'sources_without_dev', 
     _("Optional: do not clean the products in development mode."))
 
-def get_products_list(options, cfg, logger):
-    """\
-    method that gives the product list with their informations from 
-    configuration regarding the passed options.
-    
-    :param options Options: The Options instance that stores the commands 
-                            arguments
-    :param config Config: The global configuration
-    :param logger Logger: The logger instance to use for the display and logging
-    :return: The list of (product name, product_informations).
-    :rtype: List
-    """
-    # Get the products to be prepared, regarding the options
-    if options.products is None:
-        # No options, get all products sources
-        products = cfg.APPLICATION.products
-    else:
-        # if option --products, check that all products of the command line
-        # are present in the application.
-        products = options.products
-        for p in products:
-            if p not in cfg.APPLICATION.products:
-                raise src.SatException(_("Product %(product)s "
-                            "not defined in application %(application)s") %
-                        { 'product': p, 'application': cfg.VARS.application} )
-    
-    # Construct the list of tuple containing 
-    # the products name and their definition
-    products_infos = src.product.get_products_infos(products, cfg)
-    
-    # if the property option was passed, filter the list
-    if options.properties:
-        [prop, value] = options.properties.split(":")
-        products_infos = [(p_name, p_info) for 
-                          (p_name, p_info) in products_infos 
-                          if "properties" in p_info and 
-                          prop in p_info.properties and 
-                          p_info.properties[prop] == value]
-        
-    return products_infos
 
 def get_source_directories(products_infos, without_dev):
     """\
@@ -197,19 +153,9 @@ def run(args, runner, logger):
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
 
-    # Verify the --properties option
-    if options.properties:
-        oExpr = re.compile(PROPERTY_EXPRESSION)
-        if not oExpr.search(options.properties):
-            msg = _('WARNING: the "--properties" options must have the '
-                    'following syntax:\n--properties <property>:<value>')
-            logger.write(src.printcolors.printcWarning(msg), 1)
-            logger.write("\n", 1)
-            options.properties = None
-            
 
     # Get the list of products to threat
-    products_infos = get_products_list(options, runner.cfg, logger)
+    products_infos = src.product.get_products_list(options, runner.cfg, logger)
 
     # Construct the list of directories to suppress
     l_dir_to_suppress = []

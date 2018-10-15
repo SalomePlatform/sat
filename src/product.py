@@ -23,6 +23,7 @@ relative to the product notion of salomeTools
 
 import os
 import re
+import pprint as PP
 
 import src
 import src.debug as DBG
@@ -507,10 +508,88 @@ def get_products_infos(lproducts, config):
         if prod_info is not None:
             products_infos.append((prod, prod_info))
         else:
-            msg = _("The %s product has no definition "
-                    "in the configuration.") % prod
+            msg = _("The %s product has no definition in the configuration.") % prod
             raise src.SatException(msg)
     return products_infos
+
+
+def get_products_list(options, cfg, logger):
+    """
+    method that gives the product list with their informations from
+    configuration regarding the passed options.
+
+    :param options Options: The Options instance that stores the commands arguments
+    :param cfg Config: The global configuration
+    :param logger Logger: The logger instance to use for the display and logging
+    :return: The list of (product name, product_informations).
+    :rtype: List
+    """
+    # Get the products to be prepared, regarding the options
+    if options.products is None:
+        # No options, get all products sources
+        products = cfg.APPLICATION.products
+    else:
+        # if option --products, check that all products of the command line
+        # are present in the application.
+        products = options.products
+        for p in products:
+            if p not in cfg.APPLICATION.products:
+                raise src.SatException(_("Product %(product)s "
+                            "not defined in application %(application)s") %
+                        { 'product': p, 'application': cfg.VARS.application} )
+
+    # Construct the list of tuple containing
+    # the products name and their definition
+    resAll = src.product.get_products_infos(products, cfg)
+
+    # if the property option was passed, filter the list
+    if options.properties: # existing properties
+      ok = []
+      ko = []
+      res =[]
+      prop, value = options.properties # for example 'is_SALOME_module', 'yes'
+      for p_name, p_info in resAll:
+        try:
+          if p_info.properties[prop] == value:
+            res.append((p_name, p_info))
+            ok.append(p_name)
+          else:
+            ko.append(p_name)
+        except:
+          ok.append(p_name)
+
+      if len(ok) != len(resAll):
+        logger.trace("on properties %s\n products accepted:\n %s\n products rejected:\n %s\n" %
+                       (options.properties, PP.pformat(sorted(ok)), PP.pformat(sorted(ko))))
+      else:
+        logger.warning("properties %s\n seems useless with no products rejected" %
+                       (options.properties))
+    else:
+      res = resAll # not existing properties as all accepted
+
+
+    ok = []
+    ko = []
+    products_infos = []
+    for p_name, p_info in res:
+      try:
+        if src.product.product_is_native(p_info) or src.product.product_is_fixed(p_info):
+          ko.append(p_name)
+        else:
+          products_infos.append((p_name, p_info))
+          ok.append(p_name)
+      except:
+        msg = "problem on 'is_native' or 'is_fixed' for product %s" % p_name
+        raise Exception(msg)
+
+    if len(ko) > 0:
+      logger.warning("on is_native or is_fixed\n products accepted:\n %s\n products rejected:\n %s\n" %
+                    (PP.pformat(sorted(ok)), PP.pformat(sorted(ko))))
+
+    logger.debug("products selected:\n %s\n" % PP.pformat(sorted(ok)))
+
+    return res
+
 
 def get_product_dependencies(config, product_info):
     """\

@@ -29,9 +29,6 @@ parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
     _('Optional: products from which to get the sources. This option can be'
     ' passed several time to get the sources of several products.'))
-parser.add_option('', 'properties', 'string', 'properties',
-    _('Optional: Filter the products by their properties.\n\tSyntax: '
-      '--properties <property>:<value>'))
 
 def get_source_for_dev(config, product_info, source_dir, logger, pad):
     '''The method called if the product is in development mode
@@ -531,16 +528,6 @@ def run(args, runner, logger):
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
 
-    # Verify the --properties option
-    if options.properties:
-        oExpr = re.compile(prepare.PROPERTY_EXPRESSION)
-        if not oExpr.search(options.properties):
-            msg = _('WARNING: the "--properties" options must have the '
-                    'following syntax:\n--properties <property>:<value>')
-            logger.write(src.printcolors.printcWarning(msg), 1)
-            logger.write("\n", 1)
-            options.properties = None
-
     # Print some informations
     logger.write(_('Getting sources of the application %s\n') % 
                 src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
@@ -549,7 +536,7 @@ def run(args, runner, logger):
     logger.write("\n", 2, False)
        
     # Get the products list with products informations regarding the options
-    products_infos = prepare.get_products_list(options, runner.cfg, logger)
+    products_infos = src.product.get_products_list(options, runner.cfg, logger)
     
     # Call to the function that gets all the sources
     good_result, results = get_all_product_sources(runner.cfg, 
