@@ -14,6 +14,7 @@ test/htmlcov
 test/test_res.html
 doc/src/commands/apidoc*
 .idea
+.spyderproject
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

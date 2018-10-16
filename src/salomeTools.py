@@ -89,9 +89,9 @@ parser.add_option('v', 'verbose', 'int', "output_verbose_level",
 parser.add_option('b', 'batch', 'boolean', "batch", 
                   _("batch mode (no question)."))
 parser.add_option('t', 'all_in_terminal', 'boolean', "all_in_terminal", 
-                  _("All traces in the terminal (for example compilation logs)."))
+                  _("all traces in the terminal (for example compilation logs)."))
 parser.add_option('l', 'logs_paths_in_file', 'string', "logs_paths_in_file", 
-                  _("Put the command result and paths to log files in ."))
+                  _("put the command results and paths to log files."))
 
 
 ########################################################################
@@ -724,7 +724,7 @@ def get_help():
     msg += "\n"
     # Explain how to get the help for a specific command
     msg += src.printcolors.printcHeader(
-        _("Getting the help for a specific command: ")) + \
+        _("Get help for a specific command:")) + \
         "\n>> sat --help <command>\n"
     return msg
 

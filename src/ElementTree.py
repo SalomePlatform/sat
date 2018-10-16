@@ -587,9 +587,6 @@ class ElementTree:
 
     def parse(self, source, parser=None):
         if not hasattr(source, "read"):
-            # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
-            #               de remontee de log des tests
-            #print "TRACES OP - ElementTree.py/ElementTree.parse() source = '#%s#'" %source
             source = open(source, "rb")
         if not parser:
             parser = XMLTreeBuilder()
@@ -881,9 +878,6 @@ def fixtag(tag, namespaces):
 # @return An ElementTree instance
 
 def parse(source, parser=None):
-    # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
-    #               de remontee de log des tests
-    #print "TRACES OP - ElementTree.py/parse() source = '#%s#'" %source
     tree = ElementTree()
     tree.parse(source, parser)
     return tree

@@ -17,7 +17,11 @@ import os
 # Append source folder to path in order to enable autodoc
 currentPath = os.path.dirname(__file__)
 print "sphinx on file", __file__
-sys.path.append(os.path.join(currentPath, '..', '..'))
+dirAutodoc = os.path.realpath(os.path.join(currentPath, '..', '..'))
+print "autodoc on dir", dirAutodoc 
+sys.path.append(dirAutodoc)
+sys.path.append(dirAutodoc + "/commands")
+
 
 # https://stackoverflow.com/questions/23462494/how-to-add-a-custom-css-file-to-sphinx
 # this needs realpath(custom), cause problem on relocated git clone, 

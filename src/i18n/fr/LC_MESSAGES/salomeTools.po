@@ -1,41 +1,1972 @@
-msgid "shows global help or help on a specific command."
-msgstr "affiche l'aide gnrale ou pour une commande spcifique."
+# stuff to fix removed french accentued characters on msgmerge 
+msgid ""
+msgstr ""
+"Project-Id-Version: sat5\n"
+"Report-Msgid-Bugs-To: andrea@nonymous.net \n"
+"POT-Creation-Date: 2016-01-25 18:51+0100\n"
+"PO-Revision-Date: 2016-01-25 19:53+0100\n"
+"Last-Translator: Andrea Nonymous <andrea@nonymous.net>\n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-msgid " is not a valid command"
-msgstr " n'est pas une commande valide"
+# for test_i18n.py
+#, python-format
+msgid "Harvey writes '%(1)s' for %(2)s."
+msgstr "pour %(2)s Hervé écrit '%(1)s'."
 
-msgid "Usage: "
-msgstr "Utilisation : "
+# for test_i18n.py
+msgid "hello"
+msgstr "bonjour"
 
-msgid "Available commands are:\n"
-msgstr "Les commandes disponibles sont:\n"
+msgid "Ooops"
+msgstr ""
+
+msgid ""
+"Optional: The name of the application (default is APPLICATION.virtual_app."
+"name or runAppli)"
+msgstr ""
+
+msgid "Optional: The resources catalog to use"
+msgstr ""
+
+msgid ""
+"Optional: The directory where to create the application (default is "
+"APPLICATION.workdir)"
+msgstr ""
+
+msgid ""
+"Optional: Create a resources catalog for the specified machines (separated "
+"with ',')\n"
+"\tNOTICE: this command will ssh to retrieve information to each machine in "
+"the list"
+msgstr ""
+
+msgid ""
+"Optional: the restricted list of module(s) to include in the application"
+msgstr ""
+
+msgid ""
+"Optional: Create a launcher that will use mesa products\n"
+"\tIt can be usefull whan salome is used on a remote machine through ssh"
+msgstr ""
+
+#, python-format
+msgid "Cannot create the alias '%s'\n"
+msgstr ""
+
+#, python-format
+msgid "WARNING: module %s not installed"
+msgstr ""
+
+#, fuzzy
+#| msgid "'lsb_release' is not installed"
+msgid "KERNEL is not installed"
+msgstr "'lsb_release' n'est pas installé"
+
+#, python-format
+msgid "Cannot create application, code = %d\n"
+msgstr ""
+
+#, python-format
+msgid "WARNING: module %s is required to create application\n"
+msgstr ""
+
+msgid "To launch the application, type:\n"
+msgstr ""
+
+#, python-format
+msgid "Catalog not found: %s"
+msgstr ""
+
+msgid "Creating environment files"
+msgstr ""
+
+msgid "Building application"
+msgstr ""
+
+msgid "Generate Resources Catalog"
+msgstr ""
+
+msgid ""
+"The application command creates a SALOME application.\n"
+"WARNING: it works only for SALOME 6. Use the \"launcher\" command for newer "
+"versions of SALOME\n"
+"\n"
+"example:\n"
+"sat application SALOME-6.6.0"
+msgstr ""
+
+#, python-format
+msgid "Building application for %s\n"
+msgstr ""
+
+msgid "The section APPLICATION.virtual_app is not defined in the product."
+msgstr ""
+
+msgid "Application directory"
+msgstr ""
+
+msgid "Resources Catalog"
+msgstr ""
+
+msgid "Removing previous application directory"
+msgstr ""
+
+msgid ""
+"Optional: products to check. This option can be passed several time to check "
+"several products."
+msgstr ""
+
+#, python-format
+msgid "Check of %s"
+msgstr ""
+
+#, python-format
+msgid "The product %s is defined as not having tests. product ignored."
+msgstr ""
+
+#, python-format
+msgid "No build_dir key defined in the config file of %s: product ignored."
+msgstr ""
+
+#, python-format
+msgid "The product %s is defined as not compiling. product ignored."
+msgstr ""
+
+#, python-format
+msgid ""
+"WARNING: The product %s is defined as having tests. But it is compiled using "
+"a script and the key \"test_build\" is not defined in the definition of %s"
+msgstr ""
+
+msgid ""
+"The check command executes the \"check\" command in the build directory of "
+"all the products of the application.\n"
+"It is possible to reduce the list of products to check by using the --"
+"products option\n"
+"\n"
+"example\n"
+"sat check SALOME-master --products KERNEL,GUI,GEOM"
+msgstr ""
+
+#, python-format
+msgid ""
+"Executing the check command in the build directories of the application %s\n"
+msgstr ""
+
+msgid "BUILD directory"
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"Check: %(status)s (%(valid_result)d/%(nb_products)d)\n"
+msgstr ""
+
+msgid ""
+"Optional: Products to clean. This option can be passed several time to clean "
+"several products."
+msgstr ""
+
+msgid "Optional: Clean the product source directories."
+msgstr ""
+
+msgid "Optional: Clean the product build directories."
+msgstr ""
+
+msgid "Optional: Clean the product install directories."
+msgstr ""
+
+msgid "Optional: Clean the product source, build and install directories."
+msgstr ""
+
+msgid "Optional: do not clean the products in development mode."
+msgstr ""
+
+#, python-format
+msgid "Warning: the path %s does not exists (or is not a directory)\n"
+msgstr ""
+
+#, python-format
+msgid "Removing %s ..."
+msgstr ""
+
+msgid ""
+"The clean command suppress the SOURCES, BUILD or INSTALL directories of the "
+"application products.\n"
+"Use the options to define what directories you want to suppress and to set "
+"the list of products\n"
+"\n"
+"example:\n"
+">> sat clean SALOME-xx --build --install --properties is_salome_module:yes\n"
+msgstr ""
+
+msgid "Nothing to suppress\n"
+msgstr ""
+
+msgid ""
+"Please specify what you want to suppress:\n"
+"try 'sat --help clean' and 'sat clean ... --products ... --sources --build --"
+"install\n"
+msgstr ""
+
+msgid "Remove the following directories ?\n"
+msgstr ""
+
+msgid "Are you sure you want to continue? [Yes/No] "
+msgstr ""
+
+msgid "YES"
+msgstr ""
+
+msgid ""
+"Optional: products to compile. This option can be passed several time to "
+"compile several products."
+msgstr ""
+
+msgid ""
+"Optional: build all necessary products to the given product (KERNEL is build "
+"before building GUI)."
+msgstr ""
+
+msgid ""
+"Optional: build all products using the given product (all SMESH plugins are "
+"build after SMESH)."
+msgstr ""
+
+msgid "Optional: clean BUILD dir and INSTALL dir before building product."
+msgstr ""
+
+msgid "Optional: clean INSTALL dir before building product."
+msgstr ""
+
+msgid "Optional: add extra options to the 'make' command."
+msgstr ""
+
+msgid "Optional: DO NOT COMPILE just show if products are installed or not."
+msgstr ""
+
+msgid "Optional: Stops the command at first product compilation fail."
+msgstr ""
+
+msgid "Optional: execute the unit tests after compilation"
+msgstr ""
+
+msgid "Optional: remove the build directory after successful compilation"
+msgstr ""
+
+#, python-format
+msgid ""
+"The product %(child_name)s that is in %(product_name)s children is not "
+"present in application %(appli_name)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"The product %(father_name)s that is in %(product_name)s dependencies is not "
+"present in application %(appli_name)s"
+msgstr ""
+
+#, python-format
+msgid "Compilation of %s"
+msgstr ""
+
+msgid "Sources of product not found (try 'sat -h prepare') \n"
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"ERROR : SOURCES of %s not found! It is required for the configuration\n"
+msgstr ""
+
+#, python-format
+msgid "        Get it with the command : sat prepare %s -p %s \n"
+msgstr ""
+
+msgid "Already installed"
+msgstr ""
+
+#, python-format
+msgid " in %s"
+msgstr ""
+
+msgid "\n"
+msgstr ""
+
+#, python-format
+msgid "Not installed in %s\n"
+msgstr ""
+
+msgid "ERROR : the following product(s) is(are) mandatory: "
+msgstr ""
+
+msgid "Cleaning the install directory if there is any\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"INSTALL directory = %s"
+msgstr ""
+
+msgid ""
+"Error: despite the fact that all the steps ended successfully, no install "
+"directory was found !"
+msgstr ""
+
+msgid "Add the config file in installation directory\n"
+msgstr ""
+
+msgid ""
+"The compile command constructs the products of the application\n"
+"\n"
+"example:\n"
+"sat compile SALOME-master --products KERNEL,GUI,MEDCOUPLING --clean_all"
+msgstr ""
+
+msgid ""
+"You used --clean_all without specifying a product are you sure you want to "
+"continue? [Yes/No] "
+msgstr ""
+
+#, python-format
+msgid ""
+"Executing the compile commands in the build directories of the products of "
+"the application %s\n"
+msgstr ""
+
+msgid "SOURCE directory"
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"Compilation: %(status)s (%(valid_result)d/%(nb_products)d)\n"
+msgstr ""
+
+msgid "Optional: print the value of CONFIG_VARIABLE."
+msgstr ""
+
+msgid "Optional: print the debugging mode value of CONFIG_VARIABLE."
+msgstr ""
+
+msgid "Optional: edit the product configuration file."
+msgstr ""
+
+msgid "Optional: get information on a product."
+msgstr ""
+
+msgid "Optional: list all available applications."
+msgstr ""
+
+msgid "Optional: synthetic view of all patches used in the application"
+msgstr ""
+
+msgid ""
+"Optional: copy a config file to the personal config files directory.\n"
+"\tWARNING the included files are not copied.\n"
+"\tIf a name is given the new config file takes the given name."
+msgstr ""
+
+msgid "Internal use: do not print labels, Works only with --value and --list."
+msgstr ""
+
+msgid "Internal use: print only keys, works only with --value."
+msgstr ""
+
+msgid "Internal use."
+msgstr ""
+
+#, python-format
+msgid "Configuration file '%s' not found"
+msgstr ""
+
+#, python-format
+msgid ""
+"Error in configuration file: salomeTools.pyconf\n"
+"  %(error)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"Error in configuration file: local.pyconf\n"
+"  %(error)s"
+msgstr ""
+
+#, python-format
+msgid "WARNING: The project file %s cannot be found. It will be ignored\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"ERROR: Error in configuration file: %(file_path)s\n"
+"  %(error)s\n"
+msgstr ""
+
+#, python-format
+msgid "%s, use 'config --list' to get the list of available applications."
+msgstr ""
+
+#, python-format
+msgid ""
+"Error in configuration file: %(application)s.pyconf\n"
+"  %(error)s"
+msgstr ""
+
+#, python-format
+msgid "Error in configuration file: %(application)s.pyconf\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"WARNING: Error in configuration file: %(prod)s\n"
+"  %(error)s"
+msgstr ""
+
+msgid "Error in get_user_config_file: missing user config file path"
+msgstr ""
+
+msgid "** not found"
+msgstr ""
+
+msgid "** bad extension"
+msgstr ""
+
+#, python-format
+msgid "%s is a product\n"
+msgstr ""
+
+msgid "no install dir"
+msgstr ""
+
+msgid "This product does not compile"
+msgstr ""
+
+msgid ""
+"The config command allows manipulation and operation on config files.\n"
+"\n"
+"example:\n"
+"sat config SALOME-master --info ParaView"
+msgstr ""
+
+#, python-format
+msgid "Opening %s\n"
+msgstr ""
+
+#, python-format
+msgid "%(product_name)s is not a product of %(application_name)s."
+msgstr ""
+
+#, python-format
+msgid "Config file for product %s not found\n"
+msgstr ""
+
+#, python-format
+msgid "A personal application '%s' already exists"
+msgstr ""
+
+#, python-format
+msgid "%s has been created.\n"
+msgstr ""
+
+msgid "Directory not found"
+msgstr ""
+
+#, python-format
+msgid "Show the patchs of application %s\n"
+msgstr ""
+
+msgid ""
+"Optional: products to configure. This option can be passed several time to "
+"configure several products."
+msgstr ""
+
+msgid "Optional: Option to add to the configure or cmake command."
+msgstr ""
+
+#, python-format
+msgid "Configuration of %s"
+msgstr ""
+
+msgid ""
+"The configure command executes in the build directory the configure commands "
+"corresponding\n"
+"to the compilation mode of the application products.\n"
+"The possible compilation modes are \"cmake\", \"autotools\", or a script.\n"
+"\n"
+"Here are the commands to be run :\n"
+"autotools: build_configure and configure\n"
+"cmake: cmake\n"
+"script: do nothing\n"
+"\n"
+"example:\n"
+"sat configure SALOME-master --products KERNEL,GUI,PARAVIS"
+msgstr ""
+
+#, python-format
+msgid "Configuring the sources of the application %s\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"Configuration: %(status)s (%(valid_result)d/%(nb_products)d)\n"
+msgstr ""
+
+msgid ""
+"The doc command gives access to the sat documentation.\n"
+"    \n"
+"example:\n"
+">> sat doc         # --xml as default\n"
+">> sat doc --xml\n"
+">> sat doc --pdf\n"
+msgstr ""
+
+msgid ""
+"Optional: Generates the environment files for the given format: bash "
+"(default), bat (for windows), cfg (salome context file) or all."
+msgstr ""
+
+msgid "Optional: Includes only the specified products."
+msgstr ""
+
+msgid "Optional: Specifies the prefix for the environment files."
+msgstr ""
+
+msgid ""
+"Optional: Specifies the directory path where to put the environment files."
+msgstr ""
+
+#, python-format
+msgid "Target directory not found: %s"
+msgstr ""
+
+#, python-format
+msgid "Creating environment files for %s\n"
+msgstr ""
+
+msgid "Target"
+msgstr ""
+
+#, python-format
+msgid "Unknown shell: %s\n"
+msgstr ""
+
+msgid ""
+"The environ command generates the environment files of your application.\n"
+"\n"
+"example:\n"
+"sat environ SALOME-master"
+msgstr ""
+
+msgid "Search the duplicate files in the SOURCES directory."
+msgstr ""
+
+msgid "Optional: Search the duplicate files in the given directory paths."
+msgstr ""
+
+msgid "Optional: Override the default list of filtered files."
+msgstr ""
+
+msgid "Optional: Override the default list of filtered extensions."
+msgstr ""
+
+msgid "Optional: Override the default list of filtered paths."
+msgstr ""
+
+msgid "ERROR: Wrong init values for the progress bar\n"
+msgstr ""
+
+msgid "WARNING : wrong value for the progress bar.\n"
+msgstr ""
+
+msgid ""
+"The find_duplicates command search recursively for all duplicates files in a "
+"the INSTALL directory (or the optionally given directory) and prints the "
+"found files to the terminal.\n"
+"\n"
+"example:\n"
+"sat find_duplicates --path /tmp"
+msgstr ""
+
+#, python-format
+msgid "%s does not exists or is not a directory path: it will be ignored"
+msgstr ""
+
+msgid "Directories"
+msgstr ""
+
+msgid "Ignored files"
+msgstr ""
+
+msgid "Ignored extensions"
+msgstr ""
+
+msgid "Ignored directories"
+msgstr ""
+
+msgid "Store all file paths ... "
+msgstr ""
+
+msgid "Eliminate the files that are not duplicated"
+msgstr ""
 
 msgid ""
 "\n"
-"Getting the help for a specific command: "
-msgstr ""
 "\n"
-"Obtenir l'aide d'une commande spcifique : "
+"Compute the dict {files : [list of pathes]} ... "
+msgstr ""
 
+msgid "No duplicate files found.\n"
+msgstr ""
+
+#, python-format
+msgid "Warning : element %s has not more than two paths.\n"
+msgstr ""
+
+msgid ""
+"\n"
+"Results:\n"
+"\n"
+msgstr ""
+
+msgid "Optional: the list of products to generate"
+msgstr ""
+
+msgid "Optional: path to YACSGEN's module_generator package"
+msgstr ""
+
+#, python-format
+msgid ""
+"product %(product)s is not defined. Include it in the application or define $"
+"%(env)s."
+msgstr ""
+
+msgid "Using YACSGEN from command line"
+msgstr ""
+
+msgid "Using YACSGEN from application"
+msgstr ""
+
+msgid "Using YACSGEN from environment"
+msgstr ""
+
+msgid "The generate command requires YACSGEN."
+msgstr ""
+
+#, python-format
+msgid "YACSGEN directory not found: '%s'"
+msgstr ""
+
+msgid "The python module module_generator was not found in YACSGEN"
+msgstr ""
+
+msgid ""
+"The generate command generates SALOME modules from 'pure cpp' products.\n"
+"WARNING this command NEEDS YACSGEN to run!\n"
+"\n"
+"example:\n"
+"sat generate SALOME-master --products FLICACPP"
+msgstr ""
+
+#, python-format
+msgid "Generation of SALOME modules for application %s\n"
+msgstr ""
+
+#, python-format
+msgid "Error: %s"
+msgstr ""
+
+msgid "YACSGEN dir"
+msgstr ""
+
+#, python-format
+msgid "Generating %s"
+msgstr ""
+
+msgid "Unknown product\n"
+msgstr ""
+
+msgid "not a generated product\n"
+msgstr ""
+
+#, python-format
+msgid "ERROR: %s"
+msgstr ""
+
+msgid "The following modules were not generated correctly:\n"
+msgstr ""
+
+msgid "Optional: The path to the products base"
+msgstr ""
+
+msgid ""
+"Optional: The path to the working directory (where to install the "
+"applications"
+msgstr ""
+
+msgid ""
+"Optional: The path to the local archive directory (where to install local "
+"source archives"
+msgstr ""
+
+msgid "Optional: The address of the repository of SAT (only informative)"
+msgstr ""
+
+msgid "Optional: The tag of SAT (only informative)"
+msgstr ""
+
+msgid "Optional: The directory where to put all the logs of SAT"
+msgstr ""
+
+#, python-format
+msgid "Unable to update the local.pyconf file: %s\n"
+msgstr ""
+
+msgid "Error: The given path is a file. Please provide a path to a directory"
+msgstr ""
+
+#, python-format
+msgid "Unable to create the directory %s: %s\n"
+msgstr ""
+
+msgid "The init command Changes the local settings of SAT."
+msgstr ""
+
+#, python-format
+msgid ""
+"Local Settings of SAT %s\n"
+"\n"
+msgstr ""
+
+msgid ""
+"Mandatory: The name of the config file that contains the jobs configuration"
+msgstr ""
+
+msgid "Mandatory: The job name from which to execute commands."
+msgstr ""
+
+msgid ""
+"The job command executes the commands of the job defined in the jobs "
+"configuration file\n"
+"\n"
+"example:\n"
+">> sat job --jobs_config my_jobs --name my_job\n"
+msgstr ""
+
+msgid "The option --jobs_config is required\n"
+msgstr ""
+
+msgid "The option --name is required\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"The file configuration %(name_file)s was not found.\n"
+"Use the --list option to get the possible files."
+msgstr ""
+
+msgid "Platform"
+msgstr ""
+
+msgid "File containing the jobs configuration"
+msgstr ""
+
+#, python-format
+msgid "Impossible to find the job \"%(job_name)s\" in %(jobs_config_file)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"Commands: %(status)s (%(valid_result)d/%(nb_products)d)\n"
+msgstr ""
+
+msgid ""
+"Mandatory: The name of the config file that contains the jobs configuration. "
+"Can be a list."
+msgstr ""
+
+msgid "Optional: the list of jobs to launch, by their name. "
+msgstr ""
+
+msgid "Optional: list all available config files."
+msgstr ""
+
+msgid "Optional: try to connect to the machines. Not executing the jobs."
+msgstr ""
+
+msgid ""
+"Optional: generate an xml file that can be read in a browser to display the "
+"jobs status."
+msgstr ""
+
+msgid "Optional: the path to csv file that contain the expected boards."
+msgstr ""
+
+msgid "Optional (internal use): do not print labels, Works only with --list."
+msgstr ""
+
+msgid "Authentication failed"
+msgstr ""
+
+msgid "The server's host key could not be verified"
+msgstr ""
+
+msgid "SSHException error connecting or establishing an SSH session"
+msgstr ""
+
+msgid "Error connecting or establishing an SSH session"
+msgstr ""
+
+#, python-format
+msgid ""
+"Warning : trying to ask if the connection to (name: %s host: %s, port: %s, "
+"user: %s) is OK whereas there were no connection request"
+msgstr ""
+
+msgid ": the server failed to execute the command\n"
+msgstr ""
+
+#, python-format
+msgid "Unable to get remote log files: %s"
+msgstr ""
+
+msgid "Trying to get log files whereas the job is not finished."
+msgstr ""
+
+#, python-format
+msgid "Unable to get status from remote file %s: %s"
+msgstr ""
+
+#, python-format
+msgid "Unable to get %s log file from remote: %s"
+msgstr ""
+
+msgid "This job was not launched because its father has failed."
+msgstr ""
+
+#, python-format
+msgid ""
+"Unable to get remote log files!\n"
+"%s\n"
+msgstr ""
+
+msgid "Warning: A job can only be launched one time"
+msgstr ""
+
+#, python-format
+msgid "Trying to launch the job \"%s\" whereas it has already been launched."
+msgstr ""
+
+#, python-format
+msgid ""
+"WARNING: The job \"%s\" do not have the key \"machine\", this job is "
+"ignored.\n"
+"\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"WARNING: The job \"%(job_name)s\" requires the machine \"%(machine_name)s\" "
+"but this machine is not defined in the configuration file.\n"
+"The job will not be launched\n"
+msgstr ""
+
+#, python-format
+msgid "Connection to %s: "
+msgstr ""
+
+msgid "Remove SAT"
+msgstr ""
+
+msgid "Copy SAT"
+msgstr ""
+
+#, python-format
+msgid "Copy of SAT failed: %s"
+msgstr ""
+
+msgid "Executing the jobs :\n"
+msgstr ""
+
+msgid "This job was not launched because its father is not in the jobs list."
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"WARNING: the file %s can not be read, it will be ignored\n"
+"%s"
+msgstr ""
+
+msgid ""
+"The jobs command launches maintenances that are described in the dedicated "
+"jobs configuration file.\n"
+"\n"
+"example:\n"
+"sat jobs --name my_jobs --publish"
+msgstr ""
+
+#, python-format
+msgid ""
+"The file configuration %s was not found.\n"
+"Use the --list option to get the possible files."
+msgstr ""
+
+msgid "Files containing the jobs configuration"
+msgstr ""
+
+msgid "Initialize the xml boards : "
+msgstr ""
+
+msgid "Forced interruption"
+msgstr ""
+
+msgid "CRITICAL ERROR: The jobs loop has been interrupted\n"
+msgstr ""
+
+msgid "Killing the running jobs and trying to get the corresponding logs\n"
+msgstr ""
+
+#, python-format
+msgid "Failed to kill job %s: %s\n"
+msgstr ""
+
+msgid ""
+"Optional: The name of the launcher (default is APPLICATION.profile."
+"launcher_name)"
+msgstr ""
+
+msgid ""
+"Optional: Create a resources catalog for the specified machines (separated "
+"with ',') \n"
+"\tNOTICE: this command will ssh to retrieve information to each machine in "
+"the list"
+msgstr ""
+
+#, python-format
+msgid "Generating launcher for %s :\n"
+msgstr ""
+
+msgid ""
+"The launcher command generates a SALOME launcher.\n"
+"\n"
+"example:\n"
+"sat launcher SALOME-master"
+msgstr ""
+
+msgid "Reading "
+msgstr ""
+
+msgid "Here are the command traces :\n"
+msgstr ""
+
+msgid "Which one (enter or 0 to quit)? "
+msgstr ""
+
+msgid ""
+"The log command gives access to the logs produced by the salomeTools "
+"commands.\n"
+"\n"
+"example:\n"
+">> sat log\n"
+msgstr ""
+
+msgid "Generating the hat log file (can be long) ... "
+msgstr ""
+
+msgid ""
+"\n"
+"Opening the log file\n"
+msgstr ""
+
+msgid ""
+"Optional: products to install. This option can be passed several time to "
+"install several products."
+msgstr ""
+
+#, python-format
+msgid "Make install of %s"
+msgstr ""
+
+msgid ""
+"The makeinstall command executes the \"make install\" command in the build "
+"directory.\n"
+"In case of  product that is constructed using a script (build_source :  "
+"\"script\"), then the makeinstall command do nothing.\n"
+"\n"
+"example:\n"
+"sat makeinstall SALOME-master --products KERNEL,GUI"
+msgstr ""
+
+#, python-format
+msgid ""
+"Executing the make install command in the build directories of the "
+"application %s\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"Make install: %(status)s (%(valid_result)d/%(nb_products)d)\n"
+msgstr ""
+
+msgid "Optional: Option to add to the make command."
+msgstr ""
+
+#, python-format
+msgid "Make of %s"
+msgstr ""
+
+msgid ""
+"The make command executes the \"make\" command in the build directory.\n"
+"example:\n"
+"sat make SALOME-master --products Python,KERNEL,GUI"
+msgstr ""
+
+#, python-format
+msgid ""
+"Executing the make command in the build directories of the application %s\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"Make: %(status)s (%(valid_result)d/%(nb_products)d)\n"
+msgstr ""
+
+msgid "Optional: Produce a binary package."
+msgstr ""
+
+msgid ""
+"Optional: Only binary package: produce the archive even if there are some "
+"missing products."
+msgstr ""
+
+msgid ""
+"Optional: Produce a compilable archive of the sources of the application."
+msgstr ""
+
+msgid "Optional: Only source package: do not make archive of vcs products."
+msgstr ""
+
+msgid "Optional: Produce an archive that contains a project."
+msgstr ""
+
+msgid "Optional: Produce an archive that contains salomeTools."
+msgstr ""
+
+msgid "Optional: The name or full path of the archive."
+msgstr ""
+
+msgid "Optional: The list of additional files to add to the archive."
+msgstr ""
+
+msgid "Optional: do not add commercial licence."
+msgstr ""
+
+msgid ""
+"Optional: Filter the products by their properties.\n"
+"\tSyntax: --without_properties <property>:<value>"
+msgstr ""
+
+msgid "OK"
+msgstr ""
+
+msgid "KO "
+msgstr ""
+
+msgid "ERROR: there are missing products installations:"
+msgstr ""
+
+msgid "WARNING: there are missing products installations:"
+msgstr ""
+
+msgid "ERROR: there are missing products sources:"
+msgstr ""
+
+msgid "WARNING: there are missing products sources:"
+msgstr ""
+
+msgid ""
+"\n"
+"clean sources\n"
+msgstr ""
+
+msgid "get sources\n"
+msgstr ""
+
+msgid ""
+"\n"
+"The package command creates a tar file archive of a product.\n"
+"There are four kinds of archive, which can be mixed:\n"
+"\n"
+" 1 - The binary archive. \n"
+"     It contains the product installation directories plus a launcher.\n"
+" 2 - The sources archive. \n"
+"     It contains the product archives, a project (the application plus "
+"salomeTools).\n"
+" 3 - The project archive. \n"
+"     It contains a project (give the project file path as argument).\n"
+" 4 - The salomeTools archive. \n"
+"     It contains code utility salomeTools.\n"
+"\n"
+"example:\n"
+" >> sat package SALOME-master --binaries --sources"
+msgstr ""
+
+msgid ""
+"Error: Precise a type for the package\n"
+"Use one of the following options: --binaries, --sources, --project or --"
+"salometools"
+msgstr ""
+
+#, python-format
+msgid "Packaging application %s\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"ERROR: the project %(1)s is not visible by salomeTools.\n"
+"known projects are:\n"
+"%(2)s\n"
+"\n"
+"Please add it in file:\n"
+"%(3)s"
+msgstr ""
+
+msgid ""
+"Error: Cannot name the archive\n"
+" check if at least one of the following options was selected : --binaries, --"
+"sources, --project or --salometools"
+msgstr ""
+
+#, python-format
+msgid "The temporary working directory: %s\n"
+msgstr ""
+
+msgid "Preparation of files to add to the archive"
+msgstr ""
+
+msgid "Error: Empty dictionnary to build the archive!\n"
+msgstr ""
+
+#, python-format
+msgid "WARNING: the file %s is not accessible.\n"
+msgstr ""
+
+msgid "Actually do the package"
+msgstr ""
+
+#, python-format
+msgid "Removing the temporary working directory '%s'... "
+msgstr ""
+
+msgid ""
+"Optional: products to get the sources. This option can be passed several "
+"time to get the sources of several products."
+msgstr ""
+
+#, python-format
+msgid "The %s product is native. Do not apply any patch."
+msgstr ""
+
+#, python-format
+msgid "No patch for the %s product"
+msgstr ""
+
+#, python-format
+msgid "No sources found for the %s product\n"
+msgstr ""
+
+#, fuzzy, python-format
+#| msgid " is not a valid option"
+msgid "Not a valid patch: %s"
+msgstr " n'est pas une option valide"
+
+#, python-format
+msgid "Apply patch %s"
+msgstr ""
+
+#, python-format
+msgid "Failed to apply patch %s"
+msgstr ""
+
+msgid ""
+"The patch command apply the patches on the sources of the application "
+"products if there is any.\n"
+"\n"
+"example:\n"
+"sat patch SALOME-master --products qt,boost"
+msgstr ""
+
+msgid ""
+"Optional: products to prepare. This option can be passed several time to "
+"prepare several products."
+msgstr ""
+
+msgid "Optional: force to prepare the products in development mode."
+msgstr ""
+
+msgid "Optional: force to apply patch to the products in development mode."
+msgstr ""
+
+msgid ""
+"The prepare command gets the sources of the application products and apply "
+"the patches if there is any.\n"
+"\n"
+"example:\n"
+"sat prepare SALOME-master --products KERNEL,GUI"
+msgstr ""
+
+msgid ""
+"Do not get the source of the following products in development mode.\n"
+"Use the --force option to overwrite it.\n"
+msgstr ""
+
+msgid ""
+"Do not patch the following products in development mode.\n"
+"Use the --force_patch option to overwrite it.\n"
+msgstr ""
+
+msgid "Clean the source directories ..."
+msgstr ""
+
+msgid "Get the sources of the products ..."
+msgstr ""
+
+msgid "Patch the product sources (if any) ..."
+msgstr ""
+
+msgid "Where the profile's sources will be generated."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Name of the profile's sources. [Default: ${config.PRODUCT.name}_PROFILE]"
+msgstr ""
+
+msgid "Overwrites existing sources."
+msgstr ""
+
+msgid "Does not update pyconf file."
+msgstr ""
+
+msgid "Version of the application. [Default: 1.0]"
+msgstr ""
+
+msgid "Slogan of the application."
+msgstr ""
+
+msgid ""
+"The profile command creates default profile.\n"
+"usage: sat profile [PRODUCT] [-p|--prefix (string)] [-n|--name (string)] [-"
+"f|--force] [-v|--version (string)] [-s|--slogan (string)]"
+msgstr ""
+
+msgid "KERNEL's install has not the script app-quickstart.py"
+msgstr ""
+
+#, fuzzy
+#| msgid "'lsb_release' is not installed"
+msgid "GUI is not installed"
+msgstr "'lsb_release' n'est pas installé"
+
+#, python-format
+msgid "The path %s already exists, use option --force to remove it."
+msgstr ""
+
+#, python-format
+msgid "Profile sources were generated in directory %s.\n"
+msgstr ""
+
+#, python-format
+msgid "Updating %(new)s (previous version saved as %(old)s)."
+msgstr ""
+
+#, python-format
+msgid "The --%s argument is required\n"
+msgstr ""
+
+msgid ""
+"The run command runs the application launcher with the given arguments.\n"
+"\n"
+"example:\n"
+">> sat run SALOME-master\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"The launcher %s was not found in directory %s!\n"
+"Did you run the command 'sat launcher' ?\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"The launcher at path %s is missing.\n"
+"Did you run the command 'sat launcher' ?\n"
+msgstr ""
+
+msgid "Executed command"
+msgstr ""
+
+msgid "Launching ...\n"
+msgstr ""
+
+msgid ""
+"\n"
+"End of execution. To see the traces, please tap the following command :\n"
+msgstr ""
+
+msgid ""
+"Optional: The number of processors to use in the script if the make command "
+"is used in it.\n"
+"\tWarning: the script has to be correctly written if you want this option to "
+"work.\n"
+"\tThe $MAKE_OPTIONS has to be used."
+msgstr ""
+
+#, python-format
+msgid "Running script of %s"
+msgstr ""
+
+msgid ""
+"The script command executes the script(s) of the the given products in the "
+"build directory.\n"
+"This is done only for the products that are constructed using a script "
+"(build_source : \"script\").\n"
+"Otherwise, nothing is done.\n"
+"\n"
+"example:\n"
+"sat script SALOME-master --products Python,numpy"
+msgstr ""
+
+#, python-format
+msgid "Executing the script in the build directories of the application %s\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"Script: %(status)s (%(valid_result)d/%(nb_products)d)\n"
+msgstr ""
+
+msgid "Mandatory: The shell command to execute."
+msgstr ""
+
+msgid ""
+"The shell command executes the shell commands passed as argument.\n"
+"\n"
+"example:\n"
+">> sat shell --command \"ls -l /tmp\" "
+msgstr ""
+
+msgid "The option --command is required\n"
+msgstr ""
+
+#, python-format
+msgid ""
+"Command to execute:\n"
+"%s\n"
+"Execution ... "
+msgstr ""
+
+msgid ""
+"Optional: products from which to get the sources. This option can be passed "
+"several time to get the sources of several products."
+msgstr ""
+
+#, python-format
+msgid "Archive not found in config.PATHS.ARCHIVEPATH: '%s'"
+msgstr ""
+
+#, python-format
+msgid "Error: you must put a dir_info section in the file %s.pyconf"
+msgstr ""
+
+#, python-format
+msgid "Error: you must put a dir in the dir_info section in the file %s.pyconf"
+msgstr ""
+
+#, python-format
+msgid "Error: the dir %s defined in the file %s.pyconf does not exists"
+msgstr ""
+
+msgid "Set the application environment\n"
+msgstr ""
+
+msgid ""
+"INFORMATION : Not doing anything because the product is of type \"native\".\n"
+msgstr ""
+
+msgid ""
+"INFORMATION : Not doing anything because the product is of type \"fixed\".\n"
+msgstr ""
+
+#, python-format
+msgid "Unknown get source method \"%(get)s\" for product %(product)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"INFO : Not doing anything because the source directory already exists:\n"
+"    %s\n"
+msgstr ""
+
+#, python-format
+msgid "The required file %s does not exists. "
+msgstr ""
+
+msgid ""
+"\n"
+"Testing existence of file: \n"
+msgstr ""
+
+msgid ""
+"The source command gets the sources of the application products from cvs, "
+"git or an archive.\n"
+"\n"
+"example:\n"
+"sat source SALOME-master --products KERNEL,GUI"
+msgstr ""
+
+#, python-format
+msgid "Getting sources of the application %s\n"
+msgstr ""
+
+msgid "Getting sources of the application:"
+msgstr ""
+
+msgid "Following sources haven't been get:\n"
+msgstr ""
+
+msgid ""
+"REQUIRED: the name of the module to create.\n"
+"\tThe name must be a single word in upper case with only alphanumeric "
+"characters.\n"
+"\tWhen generating a c++ component the module's name must be suffixed with "
+"'CPP'."
+msgstr ""
+
+msgid "REQUIRED: the template to use."
+msgstr ""
+
+msgid "REQUIRED: where to create the module."
+msgstr ""
+
+msgid ""
+"Optional: dictionary to generate the configuration for salomeTools.\n"
+"\tFormat is: --param param1=value1,param2=value2... without spaces\n"
+"\tNote that when using this option you must supply all the values otherwise "
+"an error will be raised."
+msgstr ""
+
+msgid "Optional: Get information on the template."
+msgstr ""
+
+msgid "ERROR in template parameter definition"
+msgstr ""
+
+#, python-format
+msgid "value for '%s'"
+msgstr ""
+
+#, python-format
+msgid "Bad format in settings file! %s not defined."
+msgstr ""
+
+#, python-format
+msgid "Missing parameters: %s"
+msgstr ""
+
+#, python-format
+msgid "Template not found: %s"
+msgstr ""
+
+#, python-format
+msgid "Extract template %s\n"
+msgstr ""
+
+#, python-format
+msgid "Copy template %s\n"
+msgstr ""
+
+msgid "Settings file not found"
+msgstr ""
+
+msgid "Rename files\n"
+msgstr ""
+
+#, python-format
+msgid "Destination file already exists: %s"
+msgstr ""
+
+msgid "Rename directories\n"
+msgstr ""
+
+#, python-format
+msgid "Destination directory already exists: %s"
+msgstr ""
+
+msgid "Make substitution in files\n"
+msgstr ""
+
+msgid "Delimiter ="
+msgstr ""
+
+msgid "Ignore Filters ="
+msgstr ""
+
+msgid "Definition for sat not found in settings file."
+msgstr ""
+
+msgid "Create configuration file: "
+msgstr ""
+
+msgid "Run post command: "
+msgstr ""
+
+msgid "Template"
+msgstr ""
+
+msgid "No information for this template."
+msgstr ""
+
+msgid ""
+"The template command creates the sources for a SALOME module from a "
+"template.\n"
+"\n"
+"example\n"
+"sat template --name my_product_name --template PythonComponent --target /tmp"
+msgstr ""
+
+#, python-format
+msgid "Error: the --%s argument is required\n"
+msgstr ""
+
+msgid "Error: this command does not use a product."
+msgstr ""
+
+msgid ""
+"Error: component name must contains only alphanumeric characters and no "
+"spaces\n"
+msgstr ""
+
+#, python-format
+msgid "Error: the target already exists: %s"
+msgstr ""
+
+msgid "Create sources from template\n"
+msgstr ""
+
+msgid "Error: bad parameter definition"
+msgstr ""
+
+#, python-format
+msgid "The sources were created in %s"
+msgstr ""
+
+msgid ""
+"\n"
+"Do not forget to put them in your version control system."
+msgstr ""
+
+msgid ""
+"Optional: Indicate the name of the test base to use.\n"
+"\tThis name has to be registered in your application and in a project.\n"
+"\tA path to a test base can also be used."
+msgstr ""
+
+msgid ""
+"Optional: Use this option to specify the path to a SALOME launcher to use to "
+"launch the test scripts of the test base."
+msgstr ""
+
+msgid ""
+"Optional: Indicate which grid(s) to test (subdirectory of the test base)."
+msgstr ""
+
+msgid "Optional: indicate which session(s) to test (subdirectory of the grid)."
+msgstr ""
+
+msgid ""
+"Optional: set the display where to launch SALOME.\n"
+"\tIf value is NO then option --show-desktop=0 will be used to launch SALOME."
+msgstr ""
+
+msgid ""
+"The test command runs a test base on a SALOME installation.\n"
+"\n"
+"example:\n"
+"sat test SALOME-master --grid GEOM --session light"
+msgstr ""
+
+msgid "An application is required to use a relative path with option --appli"
+msgstr ""
+
+#, python-format
+msgid "Launcher not found: %s"
+msgstr ""
+
+#, python-format
+msgid "%s cannot be created."
+msgstr ""
+
+#, python-format
+msgid "copy tests results to %s ... "
+msgstr ""
+
+#, python-format
+msgid ""
+"\n"
+"check the display on %s\n"
+msgstr ""
+
+#, python-format
+msgid "Executing the command : %s "
+msgstr ""
+
+#, python-format
+msgid "Running tests on application %s\n"
+msgstr ""
+
+msgid "A test base is required. Use the --base option"
+msgstr ""
+
+msgid "WARNING: SALOME environment already sourced"
+msgstr ""
+
+msgid "Running SALOME application."
+msgstr ""
+
+msgid ""
+"Impossible to find any launcher.\n"
+"Please specify an application or a launcher"
+msgstr ""
+
+#, python-format
+msgid "error removing TT_TMP_RESULT %s\n"
+msgstr ""
+
+msgid "Display"
+msgstr ""
+
+msgid "Timeout"
+msgstr ""
+
+msgid "Working dir"
+msgstr ""
+
+msgid "Tests finished"
+msgstr ""
+
+msgid ""
+"\n"
+"Generate the specific test log\n"
+msgstr ""
+
+#, python-format
+msgid "Removing the temporary directory: rm -rf %s\n"
+msgstr ""
+
+#, fuzzy
+#| msgid "'lsb_release' is not installed"
 msgid "lsb_release not installed\n"
-msgstr "lsb_release n'est pas install\n"
+msgstr "'lsb_release' n'est pas installé"
 
+#, fuzzy
+#| msgid "You can define $LSB_PATH to give the path to lsb_release"
 msgid "You can define $LSB_PATH to give the path to lsb_release\n"
-msgstr "Vous pouvez dfinir $LSB_PATH pour donner le chemin vers lsb_release\n"
+msgstr "Vous pouvez définir $LSB_PATH pour donner le chemin vers lsb_release"
 
-#, python-format
+#, fuzzy, python-format
+#| msgid "Unknown distribution: '%s'"
 msgid "Unknown distribution: '%s'\n"
-msgstr "Distribution inconnue : '%s'\n"
+msgstr "Distribution inconnue : '%s'"
 
-msgid "Please add your distribution to data/distrib.pyconf\n"
-msgstr "SVP ajoutez votre distribution au fichier data/distrib.pyconf\n"
+#, fuzzy
+#| msgid "Add your distribution to src/internal_config/distrib.pyconf"
+msgid "Please add your distribution to src/internal_config/distrib.pyconf\n"
+msgstr ""
+"Ajoutez votre distribution au fichier src/internal_config/distrib.pyconf"
 
 #, python-format
-msgid "Unknown architecture: '%s'\n"
-msgstr "Architecture inconnue: '%s'\n"
+msgid "Compile %(product)s using script %(script)s\n"
+msgstr ""
+
+#, python-format
+msgid "Run build script %s\n"
+msgstr ""
+
+#, python-format
+msgid "The script %s must have .sh, .bat or .py extension."
+msgstr ""
+
+#, python-format
+msgid "Missing definition in environment: %s"
+msgstr ""
+
+#, python-format
+msgid "No install_dir for product %s\n"
+msgstr ""
+
+#, python-format
+msgid "Skip mesa product %s\n"
+msgstr ""
+
+#, python-format
+msgid "Setting environment for %s\n"
+msgstr ""
+
+#, python-format
+msgid "Environment script not found: %s"
+msgstr ""
+
+#, python-format
+msgid "Create environment file %s\n"
+msgstr ""
+
+#, python-format
+msgid "Create configuration file %s\n"
+msgstr ""
+
+msgid ""
+"An APPLICATION is required. Use 'config --list' to get the list of available "
+"applications.\n"
+msgstr ""
+
+msgid "A profile section is required in your application.\n"
+msgstr ""
+
+#, python-format
+msgid "Please define a base path in the file %s"
+msgstr ""
+
+#, python-format
+msgid "Please define a log_dir in the file %s"
+msgstr ""
+
+#, python-format
+msgid ""
+"Error in configuration file: %(file)s\n"
+"  %(error)s"
+msgstr ""
+
+#, python-format
+msgid "WARNING: the log file %s cannot be read:"
+msgstr ""
 
 msgid " is not a valid option"
 msgstr " n'est pas une option valide"
 
+msgid ""
+"Optional: Filter the products by their properties.\n"
+"\tSyntax: --properties <property>:<value>"
+msgstr ""
+
 msgid "Available options are:"
 msgstr "Les options disponibles sont:"
+
+msgid ""
+"The \"--properties\" option must have the following syntax:\n"
+"--properties <property>:<value>"
+msgstr ""
+
+#, python-format
+msgid ""
+"The product %(prod)s has version %(ver)s but is declared as native in its "
+"definition"
+msgstr ""
+
+#, python-format
+msgid ""
+"No definition found for the product %(1)s.\n"
+"Please create a %(2)s.pyconf file somewhere in:\n"
+"%(3)s"
+msgstr ""
+
+#, python-format
+msgid ""
+"No definition corresponding to the version %(1)s was found in the file:\n"
+"  %(2)s.\n"
+"Please add a section in it."
+msgstr ""
+
+#, python-format
+msgid "Archive %(1)s for %(2)s not found in config.PATHS.ARCHIVEPATH"
+msgstr ""
+
+#, python-format
+msgid ""
+"No compilation script found for the product %s.\n"
+"Please provide a 'compil_script' key in its definition."
+msgstr ""
+
+#, python-format
+msgid "Compilation script not found: %s"
+msgstr ""
+
+#, python-format
+msgid "Patch %(patch_name)s for %(prod_name)s not found:\n"
+msgstr ""
+
+#, python-format
+msgid "Environment script %(env_name)s for %(prod_name)s not found.\n"
+msgstr ""
+
+#, python-format
+msgid "The %s product has no definition in the configuration."
+msgstr ""
+
+#, python-format
+msgid "Product %(product)s not defined in application %(application)s"
+msgstr ""
+
+# for test_i18n.py
+# keep Ooops inexisting in salomeTools.po as not translated
+# msgid "Ooops"
+# msgstr "NOT TRANSLATED"
+msgid "shows global help or help on a specific command."
+msgstr "affiche l'aide générale ou pour une commande spécifique."
+
+msgid "overwrites a configuration parameters."
+msgstr "écrase un parametre de configuration."
+
+msgid "run salomeTools in debug mode."
+msgstr "lance salomeTools en mode debug."
+
+msgid "change output verbose level (default is 3)."
+msgstr "change le niveau de verbosité (defaut: 3)."
+
+msgid "batch mode (no question)."
+msgstr "mode batch (pas de question/réponse au clavier)."
+
+msgid "all traces in the terminal (for example compilation logs)."
+msgstr "toutes les traces dans le terminal (par exemple les logs de compilation)."
+
+msgid "put the command results and paths to log files."
+msgstr "redirige les résultats de commande vers les fichiers de log"
+
+#, python-format
+msgid "Not a valid command for launchSat: '%s'"
+msgstr ""
+
+msgid " is not a valid command"
+msgstr " n'est pas une commande valide"
+
+#, fuzzy
+#| msgid "the 'logs_paths_in_file' option will not be taken into account:"
+msgid ""
+"WARNING: the logs_paths_in_file option will not be taken into account.\n"
+"Here is the error:"
+msgstr "l'option 'logs_paths_in_file' ne sera pas prise en compte:"
+
+#, python-format
+msgid "Hook script not found: %s"
+msgstr ""
+
+msgid "Run hook script"
+msgstr ""
+
+#, python-format
+msgid "Unable to run hook script: %s"
+msgstr ""
+
+#, python-format
+msgid "Command '%s' does not exist"
+msgstr ""
+
+msgid "Description:"
+msgstr ""
+
+msgid "Version: "
+msgstr ""
+
+msgid "Usage:"
+msgstr "Utilisation:"
+
+msgid "Available commands are:"
+msgstr "Les commandes disponibles sont:"
+
+msgid "Get help for a specific command:"
+msgstr "Obtenir l'aide d'une commande spécifique:"
+
+#, python-format
+msgid "Unable to edit file %s\n"
+msgstr ""
+
+#, python-format
+msgid "get test base from dir: %s\n"
+msgstr ""
+
+#, python-format
+msgid "testbase %(name)s (%(dir)s) does not exist ...\n"
+msgstr ""
+
+#, python-format
+msgid "get test base '%(testbase)s' with '%(tag)s' tag from git\n"
+msgstr ""
+
+#, python-format
+msgid "Error: unable to get test base '%(name)s' from git '%(repo)s'."
+msgstr ""
+
+msgid "git is not installed. exiting...\n"
+msgstr ""
+
+#, python-format
+msgid "get test base '%s' from svn\n"
+msgstr ""
+
+#, python-format
+msgid "Error: unable to get test base '%(name)s' from svn '%(repo)s'."
+msgstr ""
+
+msgid "svn is not installed. exiting...\n"
+msgstr ""
+
+msgid "Test base"
+msgstr ""
+
+#, python-format
+msgid "########## ERROR: test base '%s' not found\n"
+msgstr ""
+
+#, python-format
+msgid "unknown source type '%(type)s' for test base '%(base)s' ...\n"
+msgstr ""
+
+msgid "Load test settings\n"
+msgstr ""
+
+msgid "=== STARTING TESTS"
+msgstr ""
+
+msgid "=== END TESTS"
+msgstr ""
+
+#, python-format
+msgid "Tests Results: %(succeed)d / %(total)d\n"
+msgstr ""
+
+#, python-format
+msgid "%d tests TIMEOUT\n"
+msgstr ""
+
+#, python-format
+msgid "%d tests not executed\n"
+msgstr ""
+
+#, python-format
+msgid "%d tests known failures\n"
+msgstr ""
+
+#, python-format
+msgid "Status: %s\n"
+msgstr ""
