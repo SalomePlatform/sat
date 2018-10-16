@@ -461,7 +461,12 @@ class Sat(object):
                                              src.printcolors.printcWarning(msg),
                                              str(e)))
                         self.options.logs_paths_in_file = None
-                
+
+
+                # do nothing more if help is True
+                if self.options.help:
+                  return 0
+
                 options_launched = ""
                 res = None
                 try:
