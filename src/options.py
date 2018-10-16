@@ -260,7 +260,7 @@ class Options(object):
             option['result'] = None
 
         self.results = {"optlist": optlist, "optResult": optResult, "args": args, "argList": argList}
-        DBG.write("results", self.results, True)
+        DBG.write("results", self.results)
         return optResult, args
         
     def filterLevel(self, aLevel):
