@@ -22,6 +22,7 @@ Implements the classes and method relative to the logging
 
 import sys
 import os
+import stat
 import datetime
 import re
 import tempfile
@@ -70,8 +71,22 @@ class Logger(object):
         # the external commands calls (cmake, make, git clone, etc...)
         txtFileName = prefix + hour_command_host + ".txt"
         txtFilePath = os.path.join(log_dir, "OUT", txtFileName)
-        
-        src.ensure_path_exists(os.path.dirname(logFilePath))
+
+        aDirLog = os.path.dirname(logFilePath)
+        if not os.path.exists(aDirLog):
+          print("create log dir %s" % aDirLog)
+          src.ensure_path_exists(aDirLog)
+          # sometimes other users make 'sat log' and create hat.xml file...
+          os.chmod(aDirLog,
+                   stat.S_IRUSR |
+                   stat.S_IRGRP |
+                   stat.S_IROTH |
+                   stat.S_IWUSR |
+                   stat.S_IWGRP |
+                   stat.S_IWOTH |
+                   stat.S_IXUSR |
+                   stat.S_IXGRP |
+                   stat.S_IXOTH)
         src.ensure_path_exists(os.path.dirname(txtFilePath))
         
         # The path of the log files (one for sat traces, and the other for 
@@ -450,8 +465,7 @@ def update_hat_xml(logDir, application=None, notShownCommands = []):
     """
     # Create an instance of XmlLogFile class to create hat.xml file
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
-    xmlHat = src.xmlManager.XmlLogFile(xmlHatFilePath,
-                                    "LOGlist", {"application" : application})
+    xmlHat = src.xmlManager.XmlLogFile(xmlHatFilePath, "LOGlist", {"application" : application})
     # parse the log directory to find all the command logs, 
     # then add it to the xml file
     lLogFile = list_log_file(logDir, log_macro_command_file_expression)
@@ -471,6 +485,15 @@ def update_hat_xml(logDir, application=None, notShownCommands = []):
     
     # Write the file on the hard drive
     xmlHat.write_tree('hat.xsl')
+    # Sometimes other users will make 'sat log' and update this file
+    os.chmod(xmlHatFilePath,
+             stat.S_IRUSR |
+             stat.S_IRGRP |
+             stat.S_IROTH |
+             stat.S_IWUSR |
+             stat.S_IWGRP |
+             stat.S_IWOTH )
+
 
 
 # TODO for future

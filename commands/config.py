@@ -43,7 +43,9 @@ parser.add_option('i', 'info', 'string', 'info',
 parser.add_option('l', 'list', 'boolean', 'list',
     _("Optional: list all available applications."))
 parser.add_option('', 'show_patchs', 'boolean', 'show_patchs',
-    _("Optional: synthetic view of all patches used in the application"))
+    _("Optional: synthetic list of all patches used in the application"))
+parser.add_option('', 'show_properties', 'boolean', 'show_properties',
+    _("Optional: synthetic list of all properties used in the application"))
 parser.add_option('c', 'copy', 'boolean', 'copy',
     _("""Optional: copy a config file to the personal config files directory.
 \tWARNING the included files are not copied.
@@ -721,27 +723,53 @@ def show_product_info(config, name, logger):
                                        False)
     zz.set_python_libdirs()
     zz.set_a_product(name, logger)
-        
+    logger.write("\n", 2)
+
+
 def show_patchs(config, logger):
-    '''Prints all the used patchs in the application.
-    
-    :param config Config: the global configuration.
-    :param logger Logger: The logger instance to use for the display
-    '''
-    len_max = max([len(p) for p in config.APPLICATION.products]) + 2
-    for product in config.APPLICATION.products:
-        product_info = src.product.get_product_config(config, product)
-        if src.product.product_has_patches(product_info):
-            logger.write("%s: " % product, 1)
-            logger.write(src.printcolors.printcInfo(
-                                            " " * (len_max - len(product) -2) +
-                                            "%s\n" % product_info.patches[0]),
-                         1)
-            if len(product_info.patches) > 1:
-                for patch in product_info.patches[1:]:
-                    logger.write(src.printcolors.printcInfo(len_max*" " +
-                                                            "%s\n" % patch), 1)
-            logger.write("\n", 1)
+  '''Prints all the used patchs in the application.
+
+  :param config Config: the global configuration.
+  :param logger Logger: The logger instance to use for the display
+  '''
+  oneOrMore = False
+  for product in sorted(config.APPLICATION.products):
+    product_info = src.product.get_product_config(config, product)
+    if src.product.product_has_patches(product_info):
+      oneOrMore = True
+      logger.write("%s:\n" % product, 1)
+      for i in product_info.patches:
+        logger.write(src.printcolors.printcInfo("    %s\n" % i), 1)
+  if oneOrMore:
+    logger.write("\n", 1)
+  else:
+    logger.write("No patchs found\n", 1)
+
+
+def show_properties(config, logger):
+  '''Prints all the used properties in the application.
+
+  :param config Config: the global configuration.
+  :param logger Logger: The logger instance to use for the display
+  '''
+  oneOrMore = False
+  for product in sorted(config.APPLICATION.products):
+    product_info = src.product.get_product_config(config, product)
+    done = False
+    try:
+      for i in product_info.properties:
+        if not done:
+          logger.write("%s:\n" % product, 1)
+          done = True
+        oneOrMore = True
+        logger.write(src.printcolors.printcInfo("    %s\n" % i), 1)
+    except:
+      # logger.write(src.printcolors.printcInfo("    %s\n" % "no properties"), 1)
+      pass
+  if oneOrMore:
+    logger.write("\n", 1)
+  else:
+    logger.write("No properties found\n", 1)
 
 def print_value(config, path, show_label, logger, level=0, show_full_path=False):
     '''Prints a value from the configuration. Prints recursively the values 
@@ -858,7 +886,7 @@ def run(args, runner, logger):
     if options.schema:
         get_config_children(runner.cfg, args)
         return
-    
+
     # case : print a value of the config
     if options.value:
         if options.value == ".":
@@ -882,7 +910,7 @@ def run(args, runner, logger):
 
     
     # case : edit user pyconf file or application file
-    elif options.edit:
+    if options.edit:
         editor = runner.cfg.USER.editor
         if ('APPLICATION' not in runner.cfg and
                        'open_application' not in runner.cfg): # edit user pyconf
@@ -901,20 +929,19 @@ def run(args, runner, logger):
                     break
     
     # case : give information about the product in parameter
-    elif options.info:
+    if options.info:
         src.check_config_has_application(runner.cfg)
         if options.info in runner.cfg.APPLICATION.products:
             show_product_info(runner.cfg, options.info, logger)
-            return
-        raise src.SatException(_("%(product_name)s is not a product "
-                                 "of %(application_name)s.") % 
-                               {'product_name' : options.info,
-                                'application_name' : 
-                                runner.cfg.VARS.application})
+            # return
+        else:
+          msg = _("%s is not a product of %s.") % \
+                (options.info, runner.cfg.VARS.application)
+          raise Exception(msg)
     
     # case : copy an existing <application>.pyconf 
     # to ~/.salomeTools/Applications/LOCAL_<application>.pyconf
-    elif options.copy:
+    if options.copy:
         # product is required
         src.check_config_has_application( runner.cfg )
 
@@ -958,7 +985,7 @@ def run(args, runner, logger):
             logger.write(_("%s has been created.\n") % dest_file)
     
     # case : display all the available pyconf applications
-    elif options.list:
+    if options.list:
         lproduct = list()
         # search in all directories that can have pyconf applications
         for path in runner.cfg.PATHS.APPLICATIONPATH:
@@ -985,18 +1012,27 @@ def run(args, runner, logger):
                             logger.write("%s\n" % appliname)
                             
             logger.write("\n")
-    # case : give a synthetic view of all patches used in the application
-    elif options.show_patchs:
-        src.check_config_has_application(runner.cfg)
-        # Print some informations
-        logger.write(_('Show the patchs of application %s\n') % 
-                    src.printcolors.printcLabel(runner.cfg.VARS.application), 3)
-        logger.write("\n", 2, False)
-        show_patchs(runner.cfg, logger)
-    
+
     # case: print all the products name of the application (internal use for completion)
-    elif options.completion:
+    if options.completion:
         for product_name in runner.cfg.APPLICATION.products.keys():
             logger.write("%s\n" % product_name)
         
-    
+    # case : give a synthetic view of all patches used in the application
+    if options.show_patchs:
+        src.check_config_has_application(runner.cfg)
+        # Print some informations
+        logger.write(_('Patchs of application %s\n') %
+                    src.printcolors.printcLabel(runner.cfg.VARS.application), 3)
+        logger.write("\n", 2, False)
+        show_patchs(runner.cfg, logger)
+
+    # case : give a synthetic view of all patches used in the application
+    if options.show_properties:
+        src.check_config_has_application(runner.cfg)
+        # Print some informations
+        logger.write(_('Properties of application %s\n') %
+                    src.printcolors.printcLabel(runner.cfg.VARS.application), 3)
+        logger.write("\n", 2, False)
+        show_properties(runner.cfg, logger)
+

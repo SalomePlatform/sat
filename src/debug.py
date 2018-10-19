@@ -234,7 +234,7 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path, nb):
     
     indstr = indent * ' ' # '':no indent, ' ':indent
     strType = str(type(config))
-    if debug: print "saveDbg Type", path, strType
+    if debug: print("saveDbg Type %s %s" % (path, strType))
     
     if "Sequence" in strType:
       for i in range(len(config)):
@@ -259,7 +259,7 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path, nb):
     for key in sorted(data): #order): # data as sort alphabetical, order as initial order
       value = data[key]
       strType = str(type(value))
-      if debug: print 'strType', path, key, strType
+      if debug: print('strType %s %s %s' % (path, key, strType))
       if "Config" in strType:
         _saveConfigRecursiveDbg(value, aStream, indentp, path+"."+key, nbp)
         continue

@@ -178,12 +178,16 @@ class FileEnviron(object):
 
     def append_value(self, key, value, sep=os.pathsep):
         """\
-        append value to key using sep
-        
+        append value to key using sep,
+        if value contains ":" or ";" then raise error
+
         :param key str: the environment variable to append
         :param value str: the value to append to key
         :param sep str: the separator string
         """
+        for c in [";", ":"]: # windows or linux path separators
+          if c in value:
+            raise Exception("FileEnviron append key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
         self.set(key, self.get(key) + sep + value)
         if (key, sep) not in self.toclean:
             self.toclean.append((key, sep))
@@ -197,18 +201,23 @@ class FileEnviron(object):
         :param sep str: the separator string
         """
         if isinstance(value, list):
-            self.append_value(key, sep.join(value), sep)
+            for v in value:
+                self.append_value(key, v, sep)
         else:
             self.append_value(key, value, sep)
 
     def prepend_value(self, key, value, sep=os.pathsep):
         """\
-        prepend value to key using sep
+        prepend value to key using sep,
+        if value contains ":" or ";" then raise error
         
         :param key str: the environment variable to prepend
         :param value str: the value to prepend to key
         :param sep str: the separator string
         """
+        for c in [";", ":"]: # windows or linux path separators
+          if c in value:
+            raise Exception("FileEnviron prepend key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
         self.set(key, value + sep + self.get(key))
         if (key, sep) not in self.toclean:
             self.toclean.append((key, sep))
@@ -222,7 +231,8 @@ class FileEnviron(object):
         :param sep str: the separator string
         """
         if isinstance(value, list):
-            self.prepend_value(key, sep.join(value), sep)
+            for v in reversed(value): # prepend list, first item at last to stay first
+                self.prepend_value(key, v, sep)
         else:
             self.prepend_value(key, value, sep)
 
@@ -536,12 +546,16 @@ class LauncherFileEnviron:
         self.output.write('# "WARNING %s"\n' % warning)
 
     def append_value(self, key, value, sep=":"):
-        """append value to key using sep
+        """append value to key using sep,
+        if value contains ":" or ";" then raise error
         
         :param key str: the environment variable to append
         :param value str: the value to append to key
         :param sep str: the separator string
         """
+        for c in [";", ":"]: # windows or linux path separators
+          if c in value:
+            raise Exception("LauncherFileEnviron append key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
         if self.is_defined(key) :
             self.add(key, value)
         else :
@@ -555,17 +569,22 @@ class LauncherFileEnviron:
         :param sep str: the separator string
         """
         if isinstance(value, list):
-            self.append_value(key, sep.join(value), sep)
+            for v in value:
+                self.append_value(key, v, sep)
         else:
             self.append_value(key, value, sep)
 
     def prepend_value(self, key, value, sep=":"):
-        """prepend value to key using sep
+        """prepend value to key using sep,
+        if value contains ":" or ";" then raise error
         
         :param key str: the environment variable to prepend
         :param value str: the value to prepend to key
         :param sep str: the separator string
         """
+        for c in [";", ":"]: # windows or linux path separators
+          if c in value:
+            raise Exception("LauncherFileEnviron prepend key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
         if self.is_defined(key) :
             self.add(key, value)
         else :
@@ -579,7 +598,8 @@ class LauncherFileEnviron:
         :param sep str: the separator string
         """
         if isinstance(value, list):
-            self.prepend_value(key, sep.join(value), sep)
+            for v in value:
+                self.prepend_value(key, v, sep)
         else:
             self.prepend_value(key, value, sep)
 
@@ -764,8 +784,8 @@ def __initialize():
   try:
     from salomeContextUtils import setOmniOrbUserPath
     setOmniOrbUserPath()
-  except Exception, e:
-    print e
+  except Exception as e:
+    print(e)
     sys.exit(1)
 # End of preliminary work
 

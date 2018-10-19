@@ -206,9 +206,9 @@ def run(args, runner, logger):
     # Parse the options
     (options, args) = parser.parse_args(args)
 
-    # get the log directory. 
+    # get the log directory.
     logDir = src.get_log_path(runner.cfg)
-    
+
     # Print a header
     nb_files_log_dir = len(glob.glob(os.path.join(logDir, "*")))
     info = [("log directory", logDir), 
@@ -263,24 +263,29 @@ def run(args, runner, logger):
     # copy the stylesheets in the log directory
     # OP We use copy instead of copy2 to update the creation date
     #    So we can clean the LOGS directories easily
-    shutil.copy(xslCommand, logDir)
-    shutil.copy(xslHat, logDir)
-    src.ensure_path_exists(os.path.join(logDir, "TEST"))
-    shutil.copy(xsltest, os.path.join(logDir, "TEST"))
-    shutil.copy(imgLogo, logDir)
+    try:
+      src.ensure_path_exists(logDir)
+      shutil.copy(xslCommand, logDir)
+      shutil.copy(xslHat, logDir)
+      src.ensure_path_exists(os.path.join(logDir, "TEST"))
+      shutil.copy(xsltest, os.path.join(logDir, "TEST"))
+      shutil.copy(imgLogo, logDir)
+    except:
+      # we are here  if an user make sat log in jenkins LOGS without write rights
+      # Make a warning and do nothing
+      logger.warning("problem for writing in directory '%s', may be not owner." % logDir)
 
     # If the last option is invoked, just, show the last log file
     if options.last_terminal:
         src.check_config_has_application(runner.cfg)
-        log_dirs = os.listdir(os.path.join(runner.cfg.APPLICATION.workdir,
-                                           'LOGS'))
+        log_dirs = os.listdir(os.path.join(runner.cfg.APPLICATION.workdir, 'LOGS'))
         show_last_logs(logger, runner.cfg, log_dirs)
         return 0
 
     # If the last option is invoked, just, show the last log file
     if options.last:
         lastLogFilePath = get_last_log_file(logDir,
-                                            notShownCommands + ["config"])        
+                                            notShownCommands + ["config"])
         if options.terminal:
             # Show the log corresponding to the selected command call
             print_log_command_in_terminal(lastLogFilePath, logger)
@@ -328,14 +333,22 @@ def run(args, runner, logger):
     # Create or update the hat xml that gives access to all the commands log files
     logger.write(_("Generating the hat log file (can be long) ... "), 3)
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
-    src.logger.update_hat_xml(logDir, 
+    try:
+      src.logger.update_hat_xml(logDir,
                               application = runner.cfg.VARS.application, 
                               notShownCommands = notShownCommands)
-    logger.write(src.printcolors.printc("OK"), 3)
+
+      logger.write(src.printcolors.printc("OK"), 3)
+    except:
+      logger.write(src.printcolors.printc("KO"), 3)
+      logger.write(" problem update hat.xml", 3)
+
     logger.write("\n", 3)
     
     # open the hat xml in the user editor
     if not options.no_browser:
-        logger.write(_("\nOpening the log file\n"), 3)
+        logger.write(_("\nOpening the hat log file %s\n" % xmlHatFilePath), 3)
         src.system.show_in_editor(runner.cfg.USER.browser, xmlHatFilePath, logger)
+    else:
+        logger.write("\nHat log File is %s\n" % xmlHatFilePath, 3)
     return 0

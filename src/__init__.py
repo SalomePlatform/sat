@@ -180,27 +180,26 @@ def get_log_path(config):
     return log_dir_path
 
 def get_salome_version(config):
+    import versionMinorMajorPatch as VMMP
+
     if hasattr(config.APPLICATION, 'version_salome'):
-        Version = config.APPLICATION.version_salome
+        version = VMMP.MinorMajorPatch(config.APPLICATION.version_salome)
     else:
-        KERNEL_info = product.get_product_config(config, "KERNEL")
-        VERSION = os.path.join(
-                            KERNEL_info.install_dir,
+        kernel_info = product.get_product_config(config, "KERNEL")
+        aFile = os.path.join(
+                            kernel_info.install_dir,
                             "bin",
                             "salome",
                             "VERSION")
-        if not os.path.isfile(VERSION):
+        if not os.path.isfile(aFile):
             return None
-            
-        fVERSION = open(VERSION)
-        Version = fVERSION.readline()
-        fVERSION.close()
-        
-    VersionSalome = int(only_numbers(Version))    
-    return VersionSalome
+        with open(aFile) as f:
+          line = f.readline()  # example: '[SALOME KERNEL] : 8.4.0'
+        version = VMMP.MinorMajorPatch(line.split(":")[1])
 
-def only_numbers(str_num):
-    return ''.join([nb for nb in str_num if nb in '0123456789'] or '0')
+    res = version.strCompact()
+    # print("get_salome_version %s -> %s" % (version, res))
+    return res
 
 def read_config_from_a_file(filePath):
         try:

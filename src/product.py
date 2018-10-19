@@ -346,6 +346,8 @@ def get_product_section(config, product_name, version, section=None):
             prod_info.section = section_range
             prod_info.from_file = config.PRODUCTS[product_name].from_file
             return prod_info
+
+
     
     # Else, get the standard informations
     if "default" in config.PRODUCTS[product_name]:
