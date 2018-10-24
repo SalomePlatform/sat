@@ -19,7 +19,8 @@
 
 
 """\
-class and utilities to define a version as MAJOR.MINOR.PATCH
+class and utilities to define a version as MAJOR.MINOR.PATCH,
+and range of versions
 
 | Given a version number MAJOR.MINOR.PATCH separator "_" or "."
 | increment the
@@ -37,7 +38,9 @@ verbose = False # True
 def only_numbers(aStr):
   """
   Remove non numericals characters from string,
-  returns None if no numbers
+
+  :param aStr: string to work
+  :return: None if no number presence
   """
   res = ''.join([nb for nb in aStr if nb in '0123456789'])
   if res == "":
@@ -46,19 +49,39 @@ def only_numbers(aStr):
     return res
 
 #############################################
-def toList_majorMinorPatch(aStr):
+def remove_startswith(aStr, startsToCheck):
+  """
+  remove starting strings, if begining of aStr correspond
+  order of list startsToCheck matter
+  do the stuff only for the first correspondence in startsToCheck
+  """
+  for s in startsToCheck:
+    if aStr.startswith(s):
+      return aStr[len(s):]
+  return aStr
+
+#############################################
+def toList_majorMinorPatch(aStr, verbose=False):
   """
   Returns list of integer as  [major, minor, patch] from a string,
-  raise exception if problem
+
+  | accepts '1.2.3' '1_2_3' 'version_1.2.3' 'version1.2.3' 'v1.2.3',
+  | completion '123' means '123.0.0', '1.2' means '1.2.0'
+  | lower or upper
+  | raise exception if problem
   """
   if verbose: print("toList_majorMinorPatch('%s')" % aStr)
-  res = aStr.replace(" ", "").replace(".", "_").split("_")
+  res = aStr.replace(" ", "")
+  res = res.lower()
+  res = remove_startswith(res, "version_ version v".split())
+  res = res.replace(".", "_").split("_")
   if len(res) > 3:
     msg = "Not a major_minor_patch correct syntax: '%s'" % aStr
     raise Exception(msg)
   if len(res) == 0:
     msg = "An empty string is not a major_minor_patch syntax"
     raise Exception(msg)
+
   # complete MINOR.PATCH if not existing
   if len(res) == 1:
     res.append("0")
@@ -118,6 +141,59 @@ def toCompactStr_majorMinorPatch(version):
 
   return res
 
+#############################################
+def getRange_majorMinorPatch(aStr, verbose=False):
+  """
+  extract from aStr a version range, defined as "*_from_aMinVersionTag_to_aMaxVersionTag.
+  where aMinVersionTag and aMaxVersionTag are compatible with MinorMajorPatch class syntaxes
+  '1.2.3' or '1_2_3' etc.
+  if not found '_from_' then aMinVersionTag is '0.0.0'
+
+  :param aStr: string to work
+  :return: list [min, max], where min, max are MinorMajorPatch instances.
+           else None if not found
+  """
+  tmp1 = aStr.lower().split("_to_")
+
+  if len(tmp1) < 2:
+    return None # no '_to_'
+  if len(tmp1) > 2:
+    msg = "more than one '_to_' is incorrect for version range: '%s'" % aStr
+    raise Exception(msg)
+  aMax = tmp1[1]
+
+  tmp0 = aStr.lower().split("_from_")
+
+  if len(tmp0) > 2:
+    msg = "more than one '_from_' is incorrect for version range: '%s'" % aStr
+    raise Exception(msg)
+
+  tmp2 = tmp1[0].split("_from_")
+
+  if len(tmp2) == 2:
+    aMin = tmp2[1]
+  else:
+    aMin ="0.0.0"
+
+  if verbose:
+    msg = "version min '%s' and version max '%s' in version range: '%s'" % (aMin, aMax, aStr)
+    print(msg)
+
+  try:
+    rMin = MinorMajorPatch(aMin)
+    rMax = MinorMajorPatch(aMax)
+  except:
+    msg = "problem version range in '%s'" % aStr
+    raise Exception(msg)
+    """if verbose:
+      print("WARNING: problem version range in '%s'" % aStr)
+    return None"""
+
+  if rMin > rMax:
+    msg = "version min '%s' > version max '%s' in version range: '%s'" % (rMin, rMax, aStr)
+    raise Exception(msg)
+
+  return [rMin, rMax]
 
 #############################################
 class MinorMajorPatch(object):
@@ -191,106 +267,4 @@ class MinorMajorPatch(object):
     res = (self.toList() != other.toList())
     return res
 
-#############################################
-import unittest
-import pprint as PP
-
-
-class TestCase(unittest.TestCase):
-  "Test the versionMajorMinorPatch.py"""
-
-  def test_010(self):
-    if verbose: print(PP.pformat(dir(self)))
-    self.assertTrue(only_numbers("") is None)
-    self.assertEqual(only_numbers("1.2.3"), "123")
-    self.assertEqual(only_numbers("\n11.12.13\n"), "111213")
-    self.assertEqual(only_numbers(" \n 11.\t\n\t..12.13-rc2\n"), "1112132")
-
-  def test_020(self):
-    res = [11, 222, 3333]
-    self.assertEqual(toList_majorMinorPatch("11.222.3333"), res)
-    self.assertEqual(toList_majorMinorPatch("11_222_3333"), res)
-    self.assertEqual(toList_majorMinorPatch("11.222_3333"), res)
-    self.assertEqual(toList_majorMinorPatch("  11.  222 . 3333  "), res)
-    self.assertEqual(toList_majorMinorPatch("\n  11  .    222 .   3333   \n"), res)
-    self.assertEqual(toList_majorMinorPatch(" \n11.\t222.\r3333\n "), res) # could be tricky
-
-    self.assertEqual(toList_majorMinorPatch("11"), [11, 0, 0])
-    self.assertEqual(toList_majorMinorPatch("11.0"), [11, 0, 0])
-    self.assertEqual(toList_majorMinorPatch("11.2"), [11, 2, 0])
-    self.assertEqual(toList_majorMinorPatch("\n1 .    2  \n"), [1, 2, 0])
-
-    with self.assertRaises(Exception): toList_majorMinorPatch("")
-    with self.assertRaises(Exception): toList_majorMinorPatch("11.")
-    with self.assertRaises(Exception): toList_majorMinorPatch("11.2.")
-    with self.assertRaises(Exception): toList_majorMinorPatch("11.2.3.")
-    with self.assertRaises(Exception): toList_majorMinorPatch(".11")
-    with self.assertRaises(Exception): toList_majorMinorPatch("1_2_3_4")
-    with self.assertRaises(Exception): toList_majorMinorPatch("_1_2_3_")
-    with self.assertRaises(Exception): toList_majorMinorPatch(" \n 11...22.333-rc2\n")
-    with self.assertRaises(Exception): toList_majorMinorPatch(" \n 11...22.333-rc2\n")
-    with self.assertRaises(Exception): toList_majorMinorPatch(" \n 11...22.333-rc2\n")
-
-
-  def test_030(self):
-    self.assertEqual(toCompactStr_majorMinorPatch([1, 2, 3]), "123")
-    self.assertEqual(toCompactStr_majorMinorPatch([11, 2, 3]), "1123")
-    self.assertEqual(toCompactStr_majorMinorPatch([1, 9, 9]), "199")
-
-    with self.assertRaises(Exception): toCompactStr_majorMinorPatch([1, 2, 10])
-    with self.assertRaises(Exception): toCompactStr_majorMinorPatch([1, 10, 3])
-    with self.assertRaises(Exception): toCompactStr_majorMinorPatch([10, 10, 10])
-
-  def test_040(self):
-    MMP = MinorMajorPatch
-    v = [1, 2, 3]
-    self.assertEqual(MMP(v).__str__(), "1.2.3")
-    self.assertEqual(MMP(v).__str__(sep="_"), "1_2_3")
-    self.assertEqual(str(MMP(v)), "1.2.3")
-
-    self.assertEqual(MMP(v).__repr__(), "version_1_2_3")
-    self.assertEqual(MMP(v).__repr__(sep="."), "version_1.2.3")
-
-    self.assertEqual(MMP(v).strSalome(), "1_2_3")
-    self.assertEqual(MMP(v).strClassic(), "1.2.3")
-
-    self.assertEqual(MMP(['  123 \n', 2, 10]).strClassic(), "123.2.10")
-    self.assertEqual(MMP(['  123 \n', 2, 10]).strSalome(), "123_2_10")
-    self.assertEqual(MMP(['  123 \n', 2, 9]).strCompact(), "12329") # no ambigous
-
-    with self.assertRaises(Exception): MMP([-5, 2, 10])
-    with self.assertRaises(Exception): MMP([5, -2, 10])
-    with self.assertRaises(Exception): MMP([5, 2, -10])
-    with self.assertRaises(Exception): MMP(['-123', 2, 10])
-    with self.assertRaises(Exception): MMP([123, 2, 10].strCompact()) # ambigous
-
-  def test_040(self):
-    MMP = MinorMajorPatch
-    v000 = MMP("0.0.0")
-    v010 = MMP("0.1.0")
-    v100 = MMP("1.0.0")
-    v101 = MMP("1.0.1")
-
-    va = v000
-    vb = MMP("0.0.0")
-    self.assertTrue(va == vb)
-    self.assertTrue(va >= vb)
-    self.assertTrue(va <= vb)
-    self.assertFalse(va != vb)
-    self.assertFalse(va > vb)
-    self.assertFalse(va < vb)
-
-    va = v000
-    vb = v010
-    self.assertFalse(va == vb)
-    self.assertFalse(va >= vb)
-    self.assertTrue(va <= vb)
-    self.assertTrue(va != vb)
-    self.assertFalse(va > vb)
-    self.assertTrue(va < vb)
-
-
-if __name__ == '__main__':
-  unittest.main(exit=False)
-  pass
 

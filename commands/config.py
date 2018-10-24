@@ -904,9 +904,13 @@ def run(args, runner, logger):
             res = DBG.indent(DBG.getStrConfigDbg(runner.cfg))
             logger.write("\nConfig of application %s:\n\n%s\n" % (runner.cfg.VARS.application, res))
         else:
-            exec("a = runner.cfg.%s" % options.debug)
+            if options.debug[0] == ".": # accept ".PRODUCT.etc" as "PRODUCT.etc"
+              od = options.debug[1:]
+            else:
+              od = options.debug
+            exec("a = runner.cfg.%s" % od)
             res = DBG.indent(DBG.getStrConfigDbg(a))
-            logger.write("\nConfig.%s of application %s:\n\n%s\n" % (options.debug, runner.cfg.VARS.application, res))
+            logger.write("\nConfig.%s of application %s:\n\n%s\n" % (od, runner.cfg.VARS.application, res))
 
     
     # case : edit user pyconf file or application file

@@ -27,6 +27,7 @@ import pprint as PP
 
 import src
 import src.debug as DBG
+import src.versionMinorMajorPatch as VMMP
 
 AVAILABLE_VCS = ['git', 'svn', 'cvs']
 config_expression = "^config-\d+$"
@@ -303,12 +304,12 @@ Please provide a 'compil_script' key in its definition.""") % product_name
                 
     return prod_info
 
-def get_product_section(config, product_name, version, section=None):
+def get_product_section(config, product_name, version, section=None, verbose=False):
     """Get the product description from the configuration
     
     :param config Config: The global configuration
     :param product_name str: The product name
-    :param version str: The version of the product
+    :param version str: The version of the product as 'V8_4_0', or else.
     :param section str: The searched section (if not None, the section is 
                         explicitly given
     :return: The product description
@@ -316,25 +317,61 @@ def get_product_section(config, product_name, version, section=None):
     """
 
     # if section is not None, try to get the corresponding section
+    aProd = config.PRODUCTS[product_name]
+    versionMMP = VMMP.MinorMajorPatch(version)
+    DBG.write("get_product_section for product %s '%s' as '%s'" % (product_name, version, versionMMP),
+              (section, aProd.keys()), verbose)
+    # DBG.write("yoo1", aProd, True)
     if section:
-        if section not in config.PRODUCTS[product_name]:
+        if section not in aProd:
             return None
         # returns specific information for the given version
-        prod_info = config.PRODUCTS[product_name][section]
+        prod_info = aProd[section]
         prod_info.section = section
-        prod_info.from_file = config.PRODUCTS[product_name].from_file
+        prod_info.from_file = aProd.from_file
         return prod_info
 
     # If it exists, get the information of the product_version
-    if "version_" + version in config.PRODUCTS[product_name]:
+    # ex: 'version_V6_6_0' as salome version classical syntax
+    if "version_" + version in aProd:
+        DBG.write("found section for version_" + version, "", verbose)
         # returns specific information for the given version
-        prod_info = config.PRODUCTS[product_name]["version_" + version]
+        prod_info = aProd["version_" + version]
         prod_info.section = "version_" + version
-        prod_info.from_file = config.PRODUCTS[product_name].from_file
+        prod_info.from_file = aProd.from_file
         return prod_info
-    
+
     # Else, check if there is a description for multiple versions
-    l_section_name = config.PRODUCTS[product_name].keys()
+    l_section_names = aProd.keys()
+    l_section_ranges = []
+    for name in l_section_names:
+      # DBG.write("name", name,True)
+      aRange = VMMP.getRange_majorMinorPatch(name)
+      if aRange is not None:
+        DBG.write("found version range for section '%s'" % name, aRange, verbose)
+        l_section_ranges.append((name, aRange))
+
+    if len(l_section_ranges) > 0:
+      tagged = []
+      for name, (vmin, vmax) in l_section_ranges:
+        if versionMMP >= vmin and versionMMP <= vmax:
+          tagged.append((name, [vmin, vmax]))
+
+    if len(tagged) > 1:
+      DBG.write("multiple version ranges tagged for '%s', fix it" % version,
+                     PP.pformat(tagged), True)
+      return None
+    if len(tagged) == 1: # ok
+      DBG.write("one version range tagged for '%s'" % version,
+                   PP.pformat(tagged), verbose)
+      name, (vmin, vmax) = tagged[0]
+      prod_info = aProd[name]
+      prod_info.section = name
+      prod_info.from_file = aProd.from_file
+      return prod_info
+
+    """
+    l_section_name = aProd.keys()
     l_section_ranges = [section_name for section_name in l_section_name 
                         if VERSION_DELIMITER in section_name]
     for section_range in l_section_ranges:
@@ -342,19 +379,19 @@ def get_product_section(config, product_name, version, section=None):
         if (src.only_numbers(version) >= src.only_numbers(minimum)
                     and src.only_numbers(version) <= src.only_numbers(maximum)):
             # returns specific information for the versions
-            prod_info = config.PRODUCTS[product_name][section_range]
+            prod_info = aProd[section_range]
             prod_info.section = section_range
-            prod_info.from_file = config.PRODUCTS[product_name].from_file
+            prod_info.from_file = aProd.from_file
             return prod_info
+    """
 
-
-    
     # Else, get the standard informations
-    if "default" in config.PRODUCTS[product_name]:
+    if "default" in aProd:
         # returns the generic information (given version not found)
-        prod_info = config.PRODUCTS[product_name].default
+        prod_info = aProd.default
+        DBG.write("default tagged for '%s'" % version, prod_info, verbose)
         prod_info.section = "default"
-        prod_info.from_file = config.PRODUCTS[product_name].from_file
+        prod_info.from_file = aProd.from_file
         return prod_info
     
     # if noting was found, return None
