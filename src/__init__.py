@@ -25,6 +25,7 @@ import os
 import shutil
 import errno
 import stat
+import fnmatch
 
 from . import pyconf
 from . import architecture
@@ -109,6 +110,27 @@ def get_cfg_param(config, param_name, default):
     if param_name in config:
         return config[param_name]
     return default
+
+
+def getProductNames(cfg, wildcards, logger):
+    """get products names using * or ? as wildcards like shell Linux"""
+    res = []
+    if type(wildcards) is list:
+      wilds = wildcards
+    else:
+      wilds = [wildcards]
+    products = cfg.APPLICATION.products.keys()
+    for prod in products:
+      for wild in wildcards:
+        filtered = fnmatch.filter([prod], wild)
+        # print("filtered", prod, wild, filtered)
+        if len(filtered) > 0:
+          res.append(prod)
+          break
+    if len(res) == 0:
+      logger.warning("Empty list of products, from %s" % wilds)
+    return res
+
 
 def print_info(logger, info):
     """\

@@ -157,11 +157,10 @@ def get_product_config(config, product_name, with_install_dir=True):
         if not prod_pyconf_path:
             msg = _("""\
 No definition found for the product %(1)s.
-Please create a %(2)s.pyconf file somewhere in:
-%(3)s""") % {
-  "1": product_name, 
-  "2": product_name,
-  "3": config.PATHS.PRODUCTPATH }
+Please create a %(1)s.pyconf file somewhere in:
+  %(2)s""") % {
+  "1": product_name,
+  "2": PP.pformat(config.PATHS.PRODUCTPATH) }
         else:
             msg = _("""\
 No definition corresponding to the version %(1)s was found in the file:
@@ -318,7 +317,10 @@ def get_product_section(config, product_name, version, section=None, verbose=Fal
 
     # if section is not None, try to get the corresponding section
     aProd = config.PRODUCTS[product_name]
-    versionMMP = VMMP.MinorMajorPatch(version)
+    try:
+      versionMMP = VMMP.MinorMajorPatch(version)
+    except: # example setuptools raise "minor in major_minor_patch is not integer: '0_6c11'"
+      versionMMP = None
     DBG.write("get_product_section for product %s '%s' as '%s'" % (product_name, version, versionMMP),
               (section, aProd.keys()), verbose)
     # DBG.write("yoo1", aProd, True)
@@ -344,6 +346,7 @@ def get_product_section(config, product_name, version, section=None, verbose=Fal
     # Else, check if there is a description for multiple versions
     l_section_names = aProd.keys()
     l_section_ranges = []
+    tagged = []
     for name in l_section_names:
       # DBG.write("name", name,True)
       aRange = VMMP.getRange_majorMinorPatch(name)
@@ -352,7 +355,6 @@ def get_product_section(config, product_name, version, section=None, verbose=Fal
         l_section_ranges.append((name, aRange))
 
     if len(l_section_ranges) > 0:
-      tagged = []
       for name, (vmin, vmax) in l_section_ranges:
         if versionMMP >= vmin and versionMMP <= vmax:
           tagged.append((name, [vmin, vmax]))
@@ -369,21 +371,6 @@ def get_product_section(config, product_name, version, section=None, verbose=Fal
       prod_info.section = name
       prod_info.from_file = aProd.from_file
       return prod_info
-
-    """
-    l_section_name = aProd.keys()
-    l_section_ranges = [section_name for section_name in l_section_name 
-                        if VERSION_DELIMITER in section_name]
-    for section_range in l_section_ranges:
-        minimum, maximum = section_range.split(VERSION_DELIMITER)
-        if (src.only_numbers(version) >= src.only_numbers(minimum)
-                    and src.only_numbers(version) <= src.only_numbers(maximum)):
-            # returns specific information for the versions
-            prod_info = aProd[section_range]
-            prod_info.section = section_range
-            prod_info.from_file = aProd.from_file
-            return prod_info
-    """
 
     # Else, get the standard informations
     if "default" in aProd:
@@ -572,12 +559,14 @@ def get_products_list(options, cfg, logger):
     else:
         # if option --products, check that all products of the command line
         # are present in the application.
-        products = options.products
+        """products = options.products
         for p in products:
             if p not in cfg.APPLICATION.products:
                 raise src.SatException(_("Product %(product)s "
                             "not defined in application %(application)s") %
-                        { 'product': p, 'application': cfg.VARS.application} )
+                        { 'product': p, 'application': cfg.VARS.application} )"""
+
+        products = src.getProductNames(cfg, options.products, logger)
 
     # Construct the list of tuple containing
     # the products name and their definition

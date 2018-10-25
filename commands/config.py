@@ -38,7 +38,7 @@ parser.add_option('g', 'debug', 'string', 'debug',
     _("Optional: print the debugging mode value of CONFIG_VARIABLE."))
 parser.add_option('e', 'edit', 'boolean', 'edit',
     _("Optional: edit the product configuration file."))
-parser.add_option('i', 'info', 'string', 'info',
+parser.add_option('i', 'info', 'list2', 'info',
     _("Optional: get information on a product."))
 parser.add_option('l', 'list', 'boolean', 'list',
     _("Optional: list all available applications."))
@@ -734,12 +734,17 @@ def show_patchs(config, logger):
   '''
   oneOrMore = False
   for product in sorted(config.APPLICATION.products):
-    product_info = src.product.get_product_config(config, product)
-    if src.product.product_has_patches(product_info):
-      oneOrMore = True
-      logger.write("%s:\n" % product, 1)
-      for i in product_info.patches:
-        logger.write(src.printcolors.printcInfo("    %s\n" % i), 1)
+    try:
+      product_info = src.product.get_product_config(config, product)
+      if src.product.product_has_patches(product_info):
+        oneOrMore = True
+        logger.write("%s:\n" % product, 1)
+        for i in product_info.patches:
+          logger.write(src.printcolors.printcInfo("    %s\n" % i), 1)
+    except Exception as e:
+      msg = "problem on product %s\n%s\n" % (product, str(e))
+      logger.error(msg)
+
   if oneOrMore:
     logger.write("\n", 1)
   else:
@@ -754,18 +759,23 @@ def show_properties(config, logger):
   '''
   oneOrMore = False
   for product in sorted(config.APPLICATION.products):
-    product_info = src.product.get_product_config(config, product)
-    done = False
     try:
-      for i in product_info.properties:
-        if not done:
-          logger.write("%s:\n" % product, 1)
-          done = True
-        oneOrMore = True
-        logger.write(src.printcolors.printcInfo("    %s\n" % i), 1)
-    except:
+      product_info = src.product.get_product_config(config, product)
+      done = False
+      try:
+        for i in product_info.properties:
+          if not done:
+            logger.write("%s:\n" % product, 1)
+            done = True
+          oneOrMore = True
+          logger.write(src.printcolors.printcInfo("    %s\n" % i), 1)
+      except Exception as e:
+        pass
+    except Exception as e:
       # logger.write(src.printcolors.printcInfo("    %s\n" % "no properties"), 1)
-      pass
+      msg = "problem on product %s\n%s\n" % (product, e)
+      logger.error(msg)
+
   if oneOrMore:
     logger.write("\n", 1)
   else:
@@ -932,16 +942,27 @@ def run(args, runner, logger):
                     src.system.show_in_editor(editor, pyconf_path, logger)
                     break
     
-    # case : give information about the product in parameter
+    # case : give information about the product(s) in parameter
     if options.info:
-        src.check_config_has_application(runner.cfg)
-        if options.info in runner.cfg.APPLICATION.products:
-            show_product_info(runner.cfg, options.info, logger)
-            # return
+      # DBG.write("products", sorted(runner.cfg.APPLICATION.products.keys()), True)
+      src.check_config_has_application(runner.cfg)
+      taggedProducts = src.getProductNames(runner.cfg, options.info, logger)
+      DBG.write("tagged products", sorted(taggedProducts))
+      for prod in sorted(taggedProducts):
+        if prod in runner.cfg.APPLICATION.products:
+          try:
+            if len(taggedProducts) > 1:
+              logger.write("#################### ", 2)
+            show_product_info(runner.cfg, prod, logger)
+          except Exception as e:
+            msg = "problem on product %s\n%s\n" % (prod, str(e))
+            logger.error(msg)
+          # return
         else:
-          msg = _("%s is not a product of %s.") % \
-                (options.info, runner.cfg.VARS.application)
-          raise Exception(msg)
+          msg = _("%s is not a product of %s.\n") % \
+                (prod, runner.cfg.VARS.application)
+          logger.warning(msg)
+          #raise Exception(msg)
     
     # case : copy an existing <application>.pyconf 
     # to ~/.salomeTools/Applications/LOCAL_<application>.pyconf
