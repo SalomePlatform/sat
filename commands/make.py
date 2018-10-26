@@ -24,8 +24,7 @@ import src
 # Define all possible option for the make command :  sat make <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to configure. This option can be'
-    ' passed several time to configure several products.'))
+    _('Optional: products to configure. This option accepts a comma separated list.'))
 parser.add_option('o', 'option', 'string', 'option',
     _('Optional: Option to add to the make command.'), "")
 

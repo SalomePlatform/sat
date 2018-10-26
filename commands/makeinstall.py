@@ -23,8 +23,7 @@ import src
 # Define all possible option for the makeinstall command : sat makeinstall <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to install. This option can be'
-    ' passed several time to install several products.'))
+    _('Optional: products to install. This option accepts a comma separated list.'))
 
 
 def log_step(logger, header, step):

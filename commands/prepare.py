@@ -27,8 +27,7 @@ import src.debug as DBG
 # Define all possible option for prepare command :  sat prepare <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to prepare. This option can be'
-    ' passed several time to prepare several products.'))
+    _('Optional: products to prepare. This option accepts a comma separated list.'))
 parser.add_option('f', 'force', 'boolean', 'force',
     _("Optional: force to prepare the products in development mode."))
 parser.add_option('', 'force_patch', 'boolean', 'force_patch', 

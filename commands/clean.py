@@ -31,8 +31,7 @@ except NameError:
 # Define all possible option for the clean command :  sat clean <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: Products to clean. This option can be'
-    ' passed several time to clean several products.'))
+    _('Optional: Products to clean. This option accepts a comma separated list.'))
 parser.add_option('s', 'sources', 'boolean', 'sources',
     _("Optional: Clean the product source directories."))
 parser.add_option('b', 'build', 'boolean', 'build', 

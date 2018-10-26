@@ -23,13 +23,11 @@ import src
 # Define all possible option for the script command :  sat script <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to configure. This option can be'
-    ' passed several time to configure several products.'))
+    _('Optional: products to configure. This option accepts a comma separated list.'))
 parser.add_option('', 'nb_proc', 'int', 'nb_proc',
-    _('Optional: The number of processors to use in the script if the make '
-      'command is used in it.\n\tWarning: the script has to be correctly written '
-      'if you want this option to work.\n\tThe $MAKE_OPTIONS has to be '
-      'used.'), 0)
+    _("""Optional: The number of processors to use in the script if the make command is used in it.
+      Warning: the script has to be correctly written if you want this option to work.
+      The $MAKE_OPTIONS has to be used."""), 0)
 
 
 def log_step(logger, header, step):

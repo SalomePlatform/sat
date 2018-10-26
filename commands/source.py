@@ -27,8 +27,7 @@ import src.debug as DBG
 # Define all possible option for patch command :  sat patch <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products from which to get the sources. This option can be'
-    ' passed several time to get the sources of several products.'))
+    _('Optional: products from which to get the sources. This option accepts a comma separated list.'))
 
 def get_source_for_dev(config, product_info, source_dir, logger, pad):
     '''The method called if the product is in development mode

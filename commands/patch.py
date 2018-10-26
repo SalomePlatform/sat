@@ -26,8 +26,7 @@ import prepare
 # Define all possible option for patch command :  sat patch <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to get the sources. This option can be'
-    ' passed several time to get the sources of several products.'))
+    _('Optional: products to get the sources. This option accepts a comma separated list.'))
 
 def apply_patch(config, product_info, max_product_name_len, logger):
     '''The method called to apply patches on a product

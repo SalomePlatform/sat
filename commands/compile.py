@@ -32,8 +32,7 @@ except NameError:
 # Define all possible option for the compile command :  sat compile <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to compile. This option can be'
-    ' passed several time to compile several products.'))
+    _('Optional: products to compile. This option accepts a comma separated list.'))
 parser.add_option('', 'with_fathers', 'boolean', 'fathers',
     _("Optional: build all necessary products to the given product (KERNEL is "
       "build before building GUI)."), False)

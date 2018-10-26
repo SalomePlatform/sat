@@ -39,7 +39,7 @@ parser.add_option('g', 'debug', 'string', 'debug',
 parser.add_option('e', 'edit', 'boolean', 'edit',
     _("Optional: edit the product configuration file."))
 parser.add_option('i', 'info', 'list2', 'info',
-    _("Optional: get information on a product."))
+    _("Optional: get information on product(s). This option accepts a comma separated list."))
 parser.add_option('l', 'list', 'boolean', 'list',
     _("Optional: list all available applications."))
 parser.add_option('', 'show_patchs', 'boolean', 'show_patchs',
