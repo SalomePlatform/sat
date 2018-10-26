@@ -321,7 +321,7 @@ def get_product_section(config, product_name, version, section=None, verbose=Fal
       versionMMP = VMMP.MinorMajorPatch(version)
     except: # example setuptools raise "minor in major_minor_patch is not integer: '0_6c11'"
       versionMMP = None
-    DBG.write("get_product_section for product %s '%s' as '%s'" % (product_name, version, versionMMP),
+    DBG.write("get_product_section for product %s '%s' as version '%s'" % (product_name, version, versionMMP),
               (section, aProd.keys()), verbose)
     # DBG.write("yoo1", aProd, True)
     if section:
@@ -354,7 +354,7 @@ def get_product_section(config, product_name, version, section=None, verbose=Fal
         DBG.write("found version range for section '%s'" % name, aRange, verbose)
         l_section_ranges.append((name, aRange))
 
-    if len(l_section_ranges) > 0:
+    if versionMMP is not None and len(l_section_ranges) > 0:
       for name, (vmin, vmax) in l_section_ranges:
         if versionMMP >= vmin and versionMMP <= vmax:
           tagged.append((name, [vmin, vmax]))
