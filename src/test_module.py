@@ -445,13 +445,21 @@ class Test:
             #                stdout=subprocess.PIPE,
             #                shell=True,
             #                executable='/bin/bash').communicate()[0].split()[-1]
-            subproc_res = subprocess.Popen(cmd,
+            # OP Add Windows case
+            if src.architecture.is_windows():
+                subproc_res = subprocess.Popen(cmd,
+                            stdout=subprocess.PIPE,
+                            shell=True).communicate()
+                pass
+            else:
+                subproc_res = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
                             shell=True,
                             executable='/bin/bash').communicate()
+                pass
             #print "TRACES OP - test_module.py/Test.get_tmp_dir() subproc_res = "
-            for resLine in subproc_res:
-                print "- '#%s#'" %resLine
+            #for resLine in subproc_res:
+            #    print "- '#%s#'" %resLine
             
             root_dir = subproc_res[0].split()[-1]
 

@@ -22,6 +22,9 @@ import time
 import pickle
 import subprocess
 
+# OP
+import src
+
 def show_progress(logger, top, delai, ss=""):
     """shortcut function to display the progression
     
@@ -51,12 +54,24 @@ def launch_command(cmd, logger, cwd, args=[], log=None):
     logger.write("launch: %s\n" % cmd, 5, screenOnly=True)
     for arg in args:
         cmd += " " + arg
-    prs = subprocess.Popen(cmd,
+
+    # OP Add Windows case
+    if src.architecture.is_windows():
+        prs = subprocess.Popen(cmd,
+                           shell=True,
+                           stdout=log,
+                           stderr=subprocess.STDOUT,
+                           cwd=cwd)
+        pass
+    else:
+        prs = subprocess.Popen(cmd,
                            shell=True,
                            stdout=log,
                            stderr=subprocess.STDOUT,
                            cwd=cwd,
                            executable='/bin/bash')
+        pass
+    # END OP
     return prs
 
 # Launch a batch
