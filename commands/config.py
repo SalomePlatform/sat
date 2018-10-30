@@ -40,6 +40,8 @@ parser.add_option('e', 'edit', 'boolean', 'edit',
     _("Optional: edit the product configuration file."))
 parser.add_option('i', 'info', 'list2', 'info',
     _("Optional: get information on product(s). This option accepts a comma separated list."))
+parser.add_option('p', 'products', 'list2', 'products',
+    _("Optional: same as --info, for convenience."))
 parser.add_option('l', 'list', 'boolean', 'list',
     _("Optional: list all available applications."))
 parser.add_option('', 'show_patchs', 'boolean', 'show_patchs',
@@ -943,6 +945,11 @@ def run(args, runner, logger):
                     break
     
     # case : give information about the product(s) in parameter
+    if options.products:
+      if options.info is not None:
+        logger.warning('options.products %s overrides options.info %s' % (options.products, options.info))
+      options.info = options.products
+
     if options.info:
       # DBG.write("products", sorted(runner.cfg.APPLICATION.products.keys()), True)
       src.check_config_has_application(runner.cfg)
