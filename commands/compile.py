@@ -282,7 +282,9 @@ def compile_all_products(sat, config, options, products_infos, logger):
                       batch=True,
                       verbose=0,
                       logger_add_link = logger)
-        
+
+        # DBG.write("Only for test of check_config_exists", src.product.check_config_exists(config, "/volatile/wambeke/SAT5/MATIX_V24_S840/INSTALL/PACKAGESPY", p_info, verbose=True), True)
+
         # Clean the the install directory 
         # if the corresponding option was called
         if options.clean_install and not options.clean_all:
@@ -463,7 +465,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     # product that have been successfully compiled
     if res==0:       
         logger.write(_("Add the config file in installation directory\n"), 5)
-        add_compile_config_file(p_info, config)
+        src.product.add_compile_config_file(p_info, config)
         
         if options.check:
             # Do the unit tests (call the check command)
@@ -591,27 +593,6 @@ def compile_product_script(sat,
               
     return res, len_end_line, error_step 
 
-def add_compile_config_file(p_info, config):
-    '''Execute the proper configuration command(s) 
-       in the product build directory.
-    
-    :param p_info Config: The specific config of the product
-    :param config Config: The global configuration
-    '''
-    # Create the compile config
-    compile_cfg = src.pyconf.Config()
-    for prod_name in p_info.depend:
-        if prod_name not in compile_cfg:
-            compile_cfg.addMapping(prod_name,
-                                   src.pyconf.Mapping(compile_cfg),
-                                   "")
-        prod_dep_info = src.product.get_product_config(config, prod_name, False)
-        compile_cfg[prod_name] = prod_dep_info.version
-    # Write it in the install directory of the product
-    compile_cfg_path = os.path.join(p_info.install_dir, src.CONFIG_FILENAME)
-    f = open(compile_cfg_path, 'w')
-    compile_cfg.__save__(f)
-    f.close()
     
 def description():
     '''method that is called when salomeTools is called with --help option.

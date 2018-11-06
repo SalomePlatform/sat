@@ -52,8 +52,6 @@ NA_STATUS = "NA"
 KNOWNFAILURE_STATUS = "KF"
 TIMEOUT_STATUS = "TIMEOUT"
 
-CONFIG_FILENAME = "sat-config.pyconf"
-
 class SatException(Exception):
     """rename Exception Class"""
     pass

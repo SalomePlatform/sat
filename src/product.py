@@ -30,8 +30,10 @@ import src.debug as DBG
 import src.versionMinorMajorPatch as VMMP
 
 AVAILABLE_VCS = ['git', 'svn', 'cvs']
+
+CONFIG_FILENAME = "sat-config.pyconf" # trace product depends version(s)
+PRODUCT_FILENAME = "sat-product.pyconf" # trace product compile config
 config_expression = "^config-\d+$"
-VERSION_DELIMITER = "_to_"
 
 def get_product_config(config, product_name, with_install_dir=True):
     """Get the specific configuration of a product from the global configuration
@@ -44,7 +46,7 @@ def get_product_config(config, product_name, with_install_dir=True):
     :return: the specific configuration of the product
     :rtype: Config
     """
-    
+
     # Get the version of the product from the application definition
     version = config.APPLICATION.products[product_name]
     # if no version, then take the default one defined in the application
@@ -92,7 +94,7 @@ def get_product_config(config, product_name, with_install_dir=True):
     # in config.PRODUCTS. This is done because the pyconf tool does not handle
     # the . and - characters 
     for c in ".-": vv = vv.replace(c, "_")
-    
+
     prod_info = None
     if product_name in config.PRODUCTS:
         # Search for the product description in the configuration
@@ -173,7 +175,7 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
     prod_info.verbose = verbose
     prod_info.dev = dev
     prod_info.version = version
-    
+
     # Set the archive_info if the product is get in archive mode
     if prod_info.get_source == "archive":
         if not "archive_info" in prod_info:
@@ -453,11 +455,43 @@ def get_base_install_dir(config, prod_info, version):
             
     return install_dir
 
-def check_config_exists(config, prod_dir, prod_info):
+def add_compile_config_file(p_info, config):
+    '''Execute the proper configuration command(s)
+       in the product build directory.
+
+    :param p_info Config: The specific config of the product
+    :param config Config: The global configuration
+    '''
+    # Create the compile config
+    # DBG.write("add_compile_config_file", p_info, True)
+    res = src.pyconf.Config()
+    res.addMapping(p_info.name, src.pyconf.Mapping(res), "")
+    res[p_info.name]= p_info.version
+
+    for prod_name in p_info.depend:
+      if prod_name not in res:
+        res.addMapping(prod_name, src.pyconf.Mapping(res), "")
+      prod_dep_info = src.product.get_product_config(config, prod_name, False)
+      res[prod_name] = prod_dep_info.version
+    # Write it in the install directory of the product
+    # This file is for automatic reading/checking
+    # see check_config_exists method
+    aFile = os.path.join(p_info.install_dir, CONFIG_FILENAME)
+    with open(aFile, 'w') as f:
+      res.__save__(f)
+
+    # this file is for human eye reading
+    aFile = os.path.join(p_info.install_dir, PRODUCT_FILENAME)
+    with open(aFile, 'w') as f:
+      # f.write(DBG.getStrConfigDbg(p_info)) # debug mode
+      p_info.__save__(f, evaluated=True) # evaluated expressions mode
+
+
+def check_config_exists(config, prod_dir, prod_info, verbose=False):
     """\
-    Verify that the installation directory of a product in a base exists
-    Check all the config-<i> directory and verify the sat-config.pyconf file
-    that is in it 
+    Verify that the installation directory of a product in a base exists.
+    Check all the config-<i>/sat-config.py files found for correspondence
+    with current config and prod_info depend-version-tags
     
     :param config Config: The global configuration
     :param prod_dir str: The product installation directory path 
@@ -467,18 +501,27 @@ def check_config_exists(config, prod_dir, prod_info):
     :return: True or false is the installation is found or not 
              and if it is found, the path of the found installation
     :rtype: (boolean, str)
-    """   
-    # check if the directories or files of the directory corresponds to the 
+    """
+    # check if the directories or files of the directory corresponds to the
     # directory installation of the product
-    l_dir_and_files = os.listdir(prod_dir)
+    if os.path.isdir(prod_dir):
+      l_dir_and_files = os.listdir(prod_dir)
+    else:
+      raise Exception("Inexisting directory '%s'" % prod_dir)
+
+    DBG.write("check_config_exists 000",  (prod_dir, l_dir_and_files), verbose)
+    DBG.write("check_config_exists 111",  prod_info, verbose)
+
     for dir_or_file in l_dir_and_files:
         oExpr = re.compile(config_expression)
         if not(oExpr.search(dir_or_file)):
-            # not config-<i>, not interesting
+            # in mode BASE, not config-<i>, not interesting
+            # DBG.write("not interesting", dir_or_file, True)
             continue
         # check if there is the file sat-config.pyconf file in the installation
         # directory    
-        config_file = os.path.join(prod_dir, dir_or_file, src.CONFIG_FILENAME)
+        config_file = os.path.join(prod_dir, dir_or_file, CONFIG_FILENAME)
+        DBG.write("check_config_exists 222", config_file, verbose)
         if not os.path.exists(config_file):
             continue
         
@@ -488,7 +531,7 @@ def check_config_exists(config, prod_dir, prod_info):
             if len(compile_cfg) == 0:
                 return True, os.path.join(prod_dir, dir_or_file)
             continue
-        
+
         # check if there is the config described in the file corresponds the 
         # dependencies of the product
         config_corresponds = True    
@@ -506,15 +549,29 @@ def check_config_exists(config, prod_dir, prod_info):
                 if prod_dep_info.version != compile_cfg[prod_dep]:
                     config_corresponds = False
                     break
-        
-        for prod_name in compile_cfg:
-            if prod_name not in prod_info.depend:
+
+        if config_corresponds:
+          for prod_name in compile_cfg:
+            # assume new compatibility with prod_name in sat-config.pyconf files
+            if prod_name == prod_info.name:
+              if prod_info.version == compile_cfg[prod_name]:
+                DBG.write("check_config_exists OK 333", compile_cfg, verbose)
+                pass
+              else: # no correspondence with newer with prod_name sat-config.pyconf files
+                config_corresponds = False
+                break
+            else:
+              # as old compatibility without prod_name sat-config.pyconf files
+              if prod_name not in prod_info.depend:
+                # here there is an unexpected depend in an old compilation
                 config_corresponds = False
                 break
         
-        if config_corresponds:
+        if config_corresponds: # returns (and stops) at first correspondence found
+            DBG.write("check_config_exists OK 444", dir_or_file, verbose)
             return True, os.path.join(prod_dir, dir_or_file)
-    
+
+    # no correspondence found
     return False, None
             
             
