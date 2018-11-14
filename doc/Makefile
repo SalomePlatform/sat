@@ -138,5 +138,13 @@ doctest:
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
 
+# splitin many files rst
+#apidoc:
+#	@sphinx-apidoc --separate -o src/apidoc_src ../src
+#	@sphinx-apidoc --separate -o src/apidoc_commands ../commands
+
 apidoc:
-	@sphinx-apidoc -o src/commands/apidoc ../src
+	@sphinx-apidoc -o src/apidoc_src ../src
+	@sphinx-apidoc -o src/apidoc_commands ../commands
+	
+

@@ -23,49 +23,12 @@ import src
 # Define all possible option for the script command :  sat script <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to configure. This option can be'
-    ' passed several time to configure several products.'))
+    _('Optional: products to configure. This option accepts a comma separated list.'))
 parser.add_option('', 'nb_proc', 'int', 'nb_proc',
-    _('Optional: The number of processors to use in the script if the make '
-      'command is used in it.\n\tWarning: the script has to be correctly written '
-      'if you want this option to work.\n\tThe $MAKE_OPTIONS has to be '
-      'used.'), 0)
+    _("""Optional: The number of processors to use in the script if the make command is used in it.
+      Warning: the script has to be correctly written if you want this option to work.
+      The $MAKE_OPTIONS has to be used."""), 0)
 
-def get_products_list(options, cfg, logger):
-    '''method that gives the product list with their informations from 
-       configuration regarding the passed options.
-    
-    :param options Options: The Options instance that stores the commands 
-                            arguments
-    :param cfg Config: The global configuration
-    :param logger Logger: The logger instance to use for the display and 
-                          logging
-    :return: The list of (product name, product_informations).
-    :rtype: List
-    '''
-    # Get the products to be prepared, regarding the options
-    if options.products is None:
-        # No options, get all products sources
-        products = cfg.APPLICATION.products
-    else:
-        # if option --products, check that all products of the command line
-        # are present in the application.
-        products = options.products
-        for p in products:
-            if p not in cfg.APPLICATION.products:
-                raise src.SatException(_("Product %(product)s "
-                            "not defined in application %(application)s") %
-                        { 'product': p, 'application': cfg.VARS.application} )
-    
-    # Construct the list of tuple containing 
-    # the products name and their definition
-    products_infos = src.product.get_products_infos(products, cfg)
-    
-    products_infos = [pi for pi in products_infos if not(
-                                     src.product.product_is_native(pi[1]) or 
-                                     src.product.product_is_fixed(pi[1]))]
-    
-    return products_infos
 
 def log_step(logger, header, step):
     logger.write("\r%s%s" % (header, " " * 20), 3)
@@ -192,7 +155,7 @@ def run(args, runner, logger):
     src.check_config_has_application( runner.cfg )
 
     # Get the list of products to treat
-    products_infos = get_products_list(options, runner.cfg, logger)
+    products_infos = src.product.get_products_list(options, runner.cfg, logger)
     
     # Print some informations
     logger.write(_('Executing the script in the build '

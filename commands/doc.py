@@ -59,13 +59,22 @@ def run(args, runner, logger):
     logger.write("docdir %s\n" % docDir, 6)
     logger.write("options %s\n" % options, 6)
 
+    somethingDone = False
     if options.xml:
         src.system.show_in_editor(runner.cfg.USER.browser, htmlFile, logger)
+        somethingDone = True
     if options.pdf:
         src.system.show_in_editor(runner.cfg.USER.pdf_viewer, pdfFile, logger)
+        somethingDone = True
     if options.edit:
         src.system.show_in_editor(runner.cfg.USER.editor, rstFiles, logger)
         src.system.show_in_editor(runner.cfg.USER.editor, rstFilesCommands, logger)
+        somethingDone = True
     if options.compile:
-        logger.write("How to comile documentation:\n%s" % open(readmeFile,"r").read(), 3)
+        logger.write("How to compile documentation:\n%s" % open(readmeFile,"r").read(), 3)
+        somethingDone = True
+
+    if not somethingDone:
+        src.system.show_in_editor(runner.cfg.USER.browser, htmlFile, logger)
+
     return 0

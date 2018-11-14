@@ -1,0 +1,18 @@
+
+
+# http://www.labri.fr/perso/fleury/posts/programming/a-quick-gettext-tutorial.html
+
+# create salomeTools.po from code and pre-existing traduction
+
+cd salomeTools-5/src/i18n
+build_strings.sh
+
+# create fr/LC_MESSAGES/salomeTools.mo from r/LC_MESSAGES/salomeTools.po
+
+cd salomeTools-5/src/i18n
+
+translate.sh
+### or ###
+pip install polib    # if not present
+translate.py
+

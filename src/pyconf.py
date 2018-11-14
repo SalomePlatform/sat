@@ -416,7 +416,7 @@ class Container(object):
             item = item.evaluate(self)
         return item
 
-    def writeToStream(self, stream, indent, container):
+    def writeToStream(self, stream, indent, container, evaluated=False):
         """
         Write this instance to a stream at the specified indentation level.
 
@@ -432,13 +432,16 @@ class Container(object):
         """
         raise NotImplementedError
 
-    def writeValue(self, value, stream, indent):
+    def writeValue(self, value, stream, indent, evaluated=False):
         if isinstance(self, Mapping):
             indstr = ' '
         else:
             indstr = indent * '  '
         if isinstance(value, Reference) or isinstance(value, Expression):
-            stream.write('%s%r%s' % (indstr, value, NEWLINE))
+            if not evaluated:
+                stream.write('%s%r%s' % (indstr, value, NEWLINE))
+            else:
+                stream.write('%s%r%s' % (indstr, self.evaluate(value), NEWLINE))
         else:
             if isinstance(value, str): # and not isWord(value):
                 value = repr(value)
@@ -573,7 +576,7 @@ class Mapping(Container):
         order = object.__getattribute__(self, 'order')
         return order.__iter__()
 
-    def writeToStream(self, stream, indent, container):
+    def writeToStream(self, stream, indent, container, evaluated=False):
         """
         Write this instance to a stream at the specified indentation level.
 
@@ -593,10 +596,10 @@ class Mapping(Container):
             if isinstance(container, Mapping):
                 stream.write(NEWLINE)
             stream.write('%s{%s' % (indstr, NEWLINE))
-            self.__save__(stream, indent + 1)
+            self.__save__(stream, indent + 1, evaluated=evaluated)
             stream.write('%s}%s' % (indstr, NEWLINE))
 
-    def __save__(self, stream, indent=0):
+    def __save__(self, stream, indent=0, evaluated=False):
         """
         Save this configuration to the specified stream.
         @param stream: A stream to which the configuration is written.
@@ -621,9 +624,9 @@ class Mapping(Container):
             stream.write('%s%-*s :' % (indstr, maxlen, skey))
             value = data[key]
             if isinstance(value, Container):
-                value.writeToStream(stream, indent, self)
+                value.writeToStream(stream, indent, self, evaluated=evaluated)
             else:
-                self.writeValue(value, stream, indent)
+                self.writeValue(value, stream, indent, evaluated=evaluated)
 
 class Config(Mapping):
     """
@@ -724,7 +727,7 @@ class Config(Mapping):
         else:
             delattr(namespaces[0], name)
 
-    def __save__(self, stream, indent=0, no_close=False):
+    def __save__(self, stream, indent=0, no_close=False, evaluated=False):
         """
         Save this configuration to the specified stream. The stream is
         closed if this is the top-level configuration in the hierarchy.
@@ -734,7 +737,7 @@ class Config(Mapping):
         @param indent: The indentation level for the output.
         @type indent: int
         """
-        Mapping.__save__(self, stream, indent)
+        Mapping.__save__(self, stream, indent, evaluated=evaluated)
         if indent == 0 and not no_close:
             stream.close()
 
@@ -837,7 +840,7 @@ class Sequence(Container):
     def __len__(self):
         return len(object.__getattribute__(self, 'data'))
 
-    def writeToStream(self, stream, indent, container):
+    def writeToStream(self, stream, indent, container, evaluated=False):
         """
         Write this instance to a stream at the specified indentation level.
 
@@ -857,10 +860,10 @@ class Sequence(Container):
             if isinstance(container, Mapping):
                 stream.write(NEWLINE)
             stream.write('%s[%s' % (indstr, NEWLINE))
-            self.__save__(stream, indent + 1)
+            self.__save__(stream, indent + 1, evaluated=evaluated)
             stream.write('%s]%s' % (indstr, NEWLINE))
 
-    def __save__(self, stream, indent):
+    def __save__(self, stream, indent, evaluated=False):
         """
         Save this instance to the specified stream.
         @param stream: A stream to which the configuration is written.
@@ -879,9 +882,9 @@ class Sequence(Container):
             if comment:
                 stream.write('%s#%s' % (indstr, comment))
             if isinstance(value, Container):
-                value.writeToStream(stream, indent, self)
+                value.writeToStream(stream, indent, self, evaluated=evaluated)
             else:
-                self.writeValue(value, stream, indent)
+                self.writeValue(value, stream, indent, evaluated=evaluated)
 
 class Reference(object):
     """

@@ -25,6 +25,7 @@ import src
 import src.debug as DBG
 import pprint as PP
 
+
 class Environ:
     """\
     Class to manage the environment context
@@ -65,12 +66,16 @@ class Environ:
 
     def append_value(self, key, value, sep=os.pathsep):
         """\
-        append value to key using sep
-        
+        append value to key using sep,
+        if value contains ":" or ";" then raise error
+
         :param key str: the environment variable to append
         :param value str: the value to append to key
         :param sep str: the separator string
         """
+        for c in [";", ":"]: # windows or linux path separators
+          if c in value:
+            raise Exception("Environ append key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
         # check if the key is already in the environment
         if key in self.environ:
             value_list = self.environ[key].split(sep)
@@ -99,12 +104,17 @@ class Environ:
 
     def prepend_value(self, key, value, sep=os.pathsep):
         """\
-        prepend value to key using sep
+        prepend value to key using sep,
+        if value contains ":" or ";" then raise error
         
         :param key str: the environment variable to prepend
         :param value str: the value to prepend to key
         :param sep str: the separator string
         """
+        for c in [";", ":"]: # windows or linux path separators
+          if c in value:
+            raise Exception("Environ prepend key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
+        # check if the key is already in the environment
         if key in self.environ:
             value_list = self.environ[key].split(sep)
             if not value in value_list:
@@ -124,7 +134,7 @@ class Environ:
         :param sep str: the separator string
         """
         if isinstance(value, list):
-            for v in value:
+            for v in reversed(value): # prepend list, first item at last to stay first
                 self.prepend_value(key, v, sep)
         else:
             self.prepend_value(key, value, sep)

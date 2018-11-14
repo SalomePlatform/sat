@@ -13,7 +13,7 @@
                       empty-cells : show;
                     }
         td          { vertical-align : center;}
-        h1          { text-align : center; }
+        h1          { text-align : center; font-style: italic; }
         .legend     { font-weight : bold;
                       text-align : center;
                     } 

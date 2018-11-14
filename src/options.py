@@ -23,6 +23,7 @@ parameters in salomeTools command lines
 
 import getopt
 import sys
+import re
 import pprint as PP
 
 from . import printcolors
@@ -85,9 +86,10 @@ class Options(object):
         """
         # The options field stocks all options of a command 
         # in a list that contains dicts
+        self.PROPERTY_EXPRESSION = "^.+:.+$"
         self.options = []
         # The list of available option type
-        self.availableOptions = "noboolean boolean string int float long list list2 level".split()
+        self.availableOptions = "noboolean boolean string int float long list list2 level properties".split()
         self.noArgOptions = "noboolean boolean".split()
         self.default = None
         self.results = {}
@@ -127,6 +129,14 @@ class Options(object):
         option['result'] = default
         
         self.options.append(option)
+
+        # add option properties unconditionaly if 'products' option added
+        if [shortName, longName] == ["p", "products"]:
+          self.add_option('', 'properties', 'properties', 'properties',
+                          _('Optional: Filter the products by their properties.\n\tSyntax: '
+                          '--properties <property>:<value>'))
+
+
         
     def getDetailOption(self, option):
         """
@@ -241,6 +251,8 @@ class Options(object):
                         if option['result'] is None:
                             option['result'] = list()
                         option['result'] = self.filterList2(opt[1])
+                    elif optionType == "properties":
+                        option['result'] = self.filterProperties(opt[1])
 
             optResult.__setattr__(option['destName'], option['result'])
             # free the option in order to be able to make 
@@ -272,30 +284,45 @@ class Options(object):
       aList = [i for i in aList if i != ""] # split old list leadin "," as ",KERNEL,ETC..."
       return aList
       
+    def filterProperties(self, aStr):
+      """
+      filter properties values
+
+      example:
+      >> sat -v 9 prepare $TRG -p KERNEL --properties is_SALOME_module:yes
+      """
+      msg = _('The "--properties" option must have the following syntax:\n--properties <property>:<value>')
+      oExpr = re.compile(self.PROPERTY_EXPRESSION)
+      if not oExpr.search(aStr):
+        raise Exception(msg)
+      res = aStr.split(":")
+      if len(res) != 2:
+        raise Exception(msg)
+      return res
 
     def __repr__(self): 
-        """
-        repr for only self.options and self.results (if present)
-        """
-        aDict = {'options': self.options, 'results': self.results}
-        aStr = PP.pformat(aDict)
-        res = "%s(\n %s\n)" % (self.__class__.__name__, aStr[1:-1])
-        return res
+      """
+      repr for only self.options and self.results (if present)
+      """
+      aDict = {'options': self.options, 'results': self.results}
+      aStr = PP.pformat(aDict)
+      res = "%s(\n %s\n)" % (self.__class__.__name__, aStr[1:-1])
+      return res
         
     def __str__(self): 
-        """
-        str for only resume expected self.options
-        """
-        #aDict = [(k["longName"], k["shortName", k["helpString"]) for k in self.options}
-        #aList = [(k, self.options[k]) for k in sorted(self.options.keys())]
-        aDict = {}
-        for o in self.options:
-          aDict[o["longName"]] = (o["shortName"], o["helpString"])
-        aStr = PP.pformat(aDict)
-        res = "%s(\n %s)" % (self.__class__.__name__, aStr[1:-1])
-        return res
+      """
+      str for only resume expected self.options
+      """
+      #aDict = [(k["longName"], k["shortName", k["helpString"]) for k in self.options}
+      #aList = [(k, self.options[k]) for k in sorted(self.options.keys())]
+      aDict = {}
+      for o in self.options:
+        aDict[o["longName"]] = (o["shortName"], o["helpString"])
+      aStr = PP.pformat(aDict)
+      res = "%s(\n %s)" % (self.__class__.__name__, aStr[1:-1])
+      return res
         
     def debug_write(self):
-        DBG.write("options and results", self, True)
+      DBG.write("options and results", self, True)
 
 

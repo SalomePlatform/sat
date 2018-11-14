@@ -28,16 +28,11 @@ try:
 except NameError: 
     pass
 
-PROPERTY_EXPRESSION = "^.+:.+$"
 
 # Define all possible option for the compile command :  sat compile <options>
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
-    _('Optional: products to compile. This option can be'
-    ' passed several time to compile several products.'))
-parser.add_option('', 'properties', 'string', 'properties',
-    _('Optional: Filter the products by their properties.\n\tSyntax: '
-      '--properties <property>:<value>'))
+    _('Optional: products to compile. This option accepts a comma separated list.'))
 parser.add_option('', 'with_fathers', 'boolean', 'fathers',
     _("Optional: build all necessary products to the given product (KERNEL is "
       "build before building GUI)."), False)
@@ -63,51 +58,6 @@ parser.add_option('', 'check', 'boolean', 'check', _(
 parser.add_option('', 'clean_build_after', 'boolean', 'clean_build_after', 
                   _('Optional: remove the build directory after successful compilation'), False)
 
-def get_products_list(options, cfg, logger):
-    '''method that gives the product list with their informations from 
-       configuration regarding the passed options.
-    
-    :param options Options: The Options instance that stores the commands 
-                            arguments
-    :param cfg Config: The global configuration
-    :param logger Logger: The logger instance to use for the display and 
-                          logging
-    :return: The list of (product name, product_informations).
-    :rtype: List
-    '''
-    # Get the products to be prepared, regarding the options
-    if options.products is None:
-        # No options, get all products sources
-        products = cfg.APPLICATION.products
-    else:
-        # if option --products, check that all products of the command line
-        # are present in the application.
-        products = options.products
-        for p in products:
-            if p not in cfg.APPLICATION.products:
-                raise src.SatException(_("Product %(product)s "
-                            "not defined in application %(application)s") %
-                        { 'product': p, 'application': cfg.VARS.application} )
-    
-    # Construct the list of tuple containing 
-    # the products name and their definition
-    products_infos = src.product.get_products_infos(products, cfg)
-
-    # if the property option was passed, filter the list
-    if options.properties:
-        [prop, value] = options.properties.split(":")
-        products_infos = [(p_name, p_info) for 
-                          (p_name, p_info) in products_infos 
-                          if "properties" in p_info and 
-                          prop in p_info.properties and 
-                          p_info.properties[prop] == value]
-        
-    
-    # get rid of fixed products
-    products_infos = [pi for pi in products_infos if not(
-                                     src.product.product_is_fixed(pi[1]))]
-    
-    return products_infos
 
 def get_children(config, p_name_p_info):
     l_res = []
@@ -332,7 +282,9 @@ def compile_all_products(sat, config, options, products_infos, logger):
                       batch=True,
                       verbose=0,
                       logger_add_link = logger)
-        
+
+        # DBG.write("Only for test of check_config_exists", src.product.check_config_exists(config, "/volatile/wambeke/SAT5/MATIX_V24_S840/INSTALL/PACKAGESPY", p_info, verbose=True), True)
+
         # Clean the the install directory 
         # if the corresponding option was called
         if options.clean_install and not options.clean_all:
@@ -513,7 +465,7 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     # product that have been successfully compiled
     if res==0:       
         logger.write(_("Add the config file in installation directory\n"), 5)
-        add_compile_config_file(p_info, config)
+        src.product.add_compile_config_file(p_info, config)
         
         if options.check:
             # Do the unit tests (call the check command)
@@ -641,27 +593,6 @@ def compile_product_script(sat,
               
     return res, len_end_line, error_step 
 
-def add_compile_config_file(p_info, config):
-    '''Execute the proper configuration command(s) 
-       in the product build directory.
-    
-    :param p_info Config: The specific config of the product
-    :param config Config: The global configuration
-    '''
-    # Create the compile config
-    compile_cfg = src.pyconf.Config()
-    for prod_name in p_info.depend:
-        if prod_name not in compile_cfg:
-            compile_cfg.addMapping(prod_name,
-                                   src.pyconf.Mapping(compile_cfg),
-                                   "")
-        prod_dep_info = src.product.get_product_config(config, prod_name, False)
-        compile_cfg[prod_name] = prod_dep_info.version
-    # Write it in the install directory of the product
-    compile_cfg_path = os.path.join(p_info.install_dir, src.CONFIG_FILENAME)
-    f = open(compile_cfg_path, 'w')
-    compile_cfg.__save__(f)
-    f.close()
     
 def description():
     '''method that is called when salomeTools is called with --help option.
@@ -693,16 +624,6 @@ def run(args, runner, logger):
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
 
-    # Verify the --properties option
-    if options.properties:
-        oExpr = re.compile(PROPERTY_EXPRESSION)
-        if not oExpr.search(options.properties):
-            msg = _('WARNING: the "--properties" options must have the '
-                    'following syntax:\n--properties <property>:<value>')
-            logger.write(src.printcolors.printcWarning(msg), 1)
-            logger.write("\n", 1)
-            options.properties = None
-
     # Print some informations
     logger.write(_('Executing the compile commands in the build '
                                 'directories of the products of '
@@ -718,7 +639,7 @@ def run(args, runner, logger):
     src.print_info(logger, info)
 
     # Get the list of products to treat
-    products_infos = get_products_list(options, runner.cfg, logger)
+    products_infos = src.product.get_products_list(options, runner.cfg, logger)
 
     if options.fathers:
         # Extend the list with all recursive dependencies of the given products

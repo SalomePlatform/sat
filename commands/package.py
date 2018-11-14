@@ -23,6 +23,7 @@ import datetime
 import tarfile
 import codecs
 import string
+import pprint as PP
 
 import src
 
@@ -103,9 +104,9 @@ parser.add_option('', 'add_files', 'list2', 'add_files',
     _('Optional: The list of additional files to add to the archive.'), [])
 parser.add_option('', 'without_commercial', 'boolean', 'without_commercial',
     _('Optional: do not add commercial licence.'), False)
-parser.add_option('', 'without_property', 'string', 'without_property',
+parser.add_option('', 'without_properties', 'properties', 'without_properties',
     _('Optional: Filter the products by their properties.\n\tSyntax: '
-      '--without_property <property>:<value>'))
+      '--without_properties <property>:<value>'))
 
 
 def add_files(tar, name_archive, d_content, logger, f_exclude=None):
@@ -1304,10 +1305,14 @@ Please add it in file:
             options.project_file_path = foundProject
             src.printcolors.print_value(logger, "Project path", options.project_file_path, 2)
     
-    # Remove the products that are filtered by the --without_property option
-    if options.without_property:
-        [prop, value] = options.without_property.split(":")
+    # Remove the products that are filtered by the --without_properties option
+    if options.without_properties:
+        app = runner.cfg.APPLICATION
+        logger.trace("without_properties all products:\n %s\n" % PP.pformat(sorted(app.products.keys())))
+        prop, value = options.without_properties
         update_config(runner.cfg, prop, value)
+        logger.warning("without_properties selected products:\n %s\n" % PP.pformat(sorted(app.products.keys())))
+
     
     # get the name of the archive or build it
     if options.name:

@@ -25,6 +25,7 @@ import os
 import shutil
 import errno
 import stat
+import fnmatch
 
 from . import pyconf
 from . import architecture
@@ -51,8 +52,6 @@ NA_STATUS = "NA"
 KNOWNFAILURE_STATUS = "KF"
 TIMEOUT_STATUS = "TIMEOUT"
 
-CONFIG_FILENAME = "sat-config.pyconf"
-
 class SatException(Exception):
     """rename Exception Class"""
     pass
@@ -71,8 +70,7 @@ def check_config_has_application( config, details = None ):
     :param config class 'common.pyconf.Config': The config.
     """
     if 'APPLICATION' not in config:
-        message = _("An APPLICATION is required. Use 'config --list' to get"
-                    " the list of available applications.\n")
+        message = _("An APPLICATION is required. Use 'config --list' to get the list of available applications.\n")
         if details :
             details.append(message)
         raise SatException( message )
@@ -110,6 +108,27 @@ def get_cfg_param(config, param_name, default):
     if param_name in config:
         return config[param_name]
     return default
+
+
+def getProductNames(cfg, wildcards, logger):
+    """get products names using * or ? as wildcards like shell Linux"""
+    res = []
+    if type(wildcards) is list:
+      wilds = wildcards
+    else:
+      wilds = [wildcards]
+    products = cfg.APPLICATION.products.keys()
+    for prod in products:
+      for wild in wildcards:
+        filtered = fnmatch.filter([prod], wild)
+        # print("filtered", prod, wild, filtered)
+        if len(filtered) > 0:
+          res.append(prod)
+          break
+    if len(res) == 0:
+      logger.warning("Empty list of products, from %s" % wilds)
+    return res
+
 
 def print_info(logger, info):
     """\
@@ -181,27 +200,26 @@ def get_log_path(config):
     return log_dir_path
 
 def get_salome_version(config):
+    import versionMinorMajorPatch as VMMP
+
     if hasattr(config.APPLICATION, 'version_salome'):
-        Version = config.APPLICATION.version_salome
+        version = VMMP.MinorMajorPatch(config.APPLICATION.version_salome)
     else:
-        KERNEL_info = product.get_product_config(config, "KERNEL")
-        VERSION = os.path.join(
-                            KERNEL_info.install_dir,
+        kernel_info = product.get_product_config(config, "KERNEL")
+        aFile = os.path.join(
+                            kernel_info.install_dir,
                             "bin",
                             "salome",
                             "VERSION")
-        if not os.path.isfile(VERSION):
+        if not os.path.isfile(aFile):
             return None
-            
-        fVERSION = open(VERSION)
-        Version = fVERSION.readline()
-        fVERSION.close()
-        
-    VersionSalome = int(only_numbers(Version))    
-    return VersionSalome
+        with open(aFile) as f:
+          line = f.readline()  # example: '[SALOME KERNEL] : 8.4.0'
+        version = VMMP.MinorMajorPatch(line.split(":")[1])
 
-def only_numbers(str_num):
-    return ''.join([nb for nb in str_num if nb in '0123456789'] or '0')
+    res = version.strCompact()
+    # print("get_salome_version %s -> %s" % (version, res))
+    return res
 
 def read_config_from_a_file(filePath):
         try:

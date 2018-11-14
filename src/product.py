@@ -23,13 +23,17 @@ relative to the product notion of salomeTools
 
 import os
 import re
+import pprint as PP
 
 import src
 import src.debug as DBG
+import src.versionMinorMajorPatch as VMMP
 
 AVAILABLE_VCS = ['git', 'svn', 'cvs']
+
+CONFIG_FILENAME = "sat-config.pyconf" # trace product depends version(s)
+PRODUCT_FILENAME = "sat-product.pyconf" # trace product compile config
 config_expression = "^config-\d+$"
-VERSION_DELIMITER = "_to_"
 
 def get_product_config(config, product_name, with_install_dir=True):
     """Get the specific configuration of a product from the global configuration
@@ -42,7 +46,7 @@ def get_product_config(config, product_name, with_install_dir=True):
     :return: the specific configuration of the product
     :rtype: Config
     """
-    
+
     # Get the version of the product from the application definition
     version = config.APPLICATION.products[product_name]
     # if no version, then take the default one defined in the application
@@ -90,7 +94,7 @@ def get_product_config(config, product_name, with_install_dir=True):
     # in config.PRODUCTS. This is done because the pyconf tool does not handle
     # the . and - characters 
     for c in ".-": vv = vv.replace(c, "_")
-    
+
     prod_info = None
     if product_name in config.PRODUCTS:
         # Search for the product description in the configuration
@@ -155,11 +159,10 @@ def get_product_config(config, product_name, with_install_dir=True):
         if not prod_pyconf_path:
             msg = _("""\
 No definition found for the product %(1)s.
-Please create a %(2)s.pyconf file somewhere in:
-%(3)s""") % {
-  "1": product_name, 
-  "2": product_name,
-  "3": config.PATHS.PRODUCTPATH }
+Please create a %(1)s.pyconf file somewhere in:
+  %(2)s""") % {
+  "1": product_name,
+  "2": PP.pformat(config.PATHS.PRODUCTPATH) }
         else:
             msg = _("""\
 No definition corresponding to the version %(1)s was found in the file:
@@ -172,7 +175,7 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
     prod_info.verbose = verbose
     prod_info.dev = dev
     prod_info.version = version
-    
+
     # Set the archive_info if the product is get in archive mode
     if prod_info.get_source == "archive":
         if not "archive_info" in prod_info:
@@ -227,19 +230,21 @@ Please provide a 'compil_script' key in its definition.""") % product_name
             # Only a name is given. Search in the default directory
             script_path = src.find_file_in_lpath(script_name, config.PATHS.PRODUCTPATH, "compil_scripts")
             if not script_path:
-                msg = _("Compilation script not found: %s") % script_name
+                msg = _("Compilation script %s not found in") % script_name
                 DBG.tofix(msg, config.PATHS.PRODUCTPATH, True) # say where searched
-                raise src.SatException(msg)
+                # avoid stop if sat prepare, script could be included in sources, only warning
+                # raise src.SatException(msg)
+                script_path = "*** Not Found: %s" % script_name
             prod_info.compil_script = script_path
 
        
         # Check that the script is executable
-        if not os.access(prod_info.compil_script, os.X_OK):
+        if os.path.exists(prod_info.compil_script) and not os.access(prod_info.compil_script, os.X_OK):
             #raise src.SatException(
             #        _("Compilation script cannot be executed: %s") % 
             #        prod_info.compil_script)
             # just as warning, problem later...
-            DBG.tofix("Compilation script is not execute mode file", prod_info.compil_script, True)
+            DBG.tofix("Compilation script  file is not in 'execute mode'", prod_info.compil_script, True)
     
     # Get the full paths of all the patches
     if product_has_patches(prod_info):
@@ -300,12 +305,12 @@ Please provide a 'compil_script' key in its definition.""") % product_name
                 
     return prod_info
 
-def get_product_section(config, product_name, version, section=None):
+def get_product_section(config, product_name, version, section=None, verbose=False):
     """Get the product description from the configuration
     
     :param config Config: The global configuration
     :param product_name str: The product name
-    :param version str: The version of the product
+    :param version str: The version of the product as 'V8_4_0', or else.
     :param section str: The searched section (if not None, the section is 
                         explicitly given
     :return: The product description
@@ -313,43 +318,69 @@ def get_product_section(config, product_name, version, section=None):
     """
 
     # if section is not None, try to get the corresponding section
+    aProd = config.PRODUCTS[product_name]
+    try:
+      versionMMP = VMMP.MinorMajorPatch(version)
+    except: # example setuptools raise "minor in major_minor_patch is not integer: '0_6c11'"
+      versionMMP = None
+    DBG.write("get_product_section for product %s '%s' as version '%s'" % (product_name, version, versionMMP),
+              (section, aProd.keys()), verbose)
+    # DBG.write("yoo1", aProd, True)
     if section:
-        if section not in config.PRODUCTS[product_name]:
+        if section not in aProd:
             return None
         # returns specific information for the given version
-        prod_info = config.PRODUCTS[product_name][section]
+        prod_info = aProd[section]
         prod_info.section = section
-        prod_info.from_file = config.PRODUCTS[product_name].from_file
+        prod_info.from_file = aProd.from_file
         return prod_info
 
     # If it exists, get the information of the product_version
-    if "version_" + version in config.PRODUCTS[product_name]:
+    # ex: 'version_V6_6_0' as salome version classical syntax
+    if "version_" + version in aProd:
+        DBG.write("found section for version_" + version, "", verbose)
         # returns specific information for the given version
-        prod_info = config.PRODUCTS[product_name]["version_" + version]
+        prod_info = aProd["version_" + version]
         prod_info.section = "version_" + version
-        prod_info.from_file = config.PRODUCTS[product_name].from_file
+        prod_info.from_file = aProd.from_file
         return prod_info
-    
+
     # Else, check if there is a description for multiple versions
-    l_section_name = config.PRODUCTS[product_name].keys()
-    l_section_ranges = [section_name for section_name in l_section_name 
-                        if VERSION_DELIMITER in section_name]
-    for section_range in l_section_ranges:
-        minimum, maximum = section_range.split(VERSION_DELIMITER)
-        if (src.only_numbers(version) >= src.only_numbers(minimum)
-                    and src.only_numbers(version) <= src.only_numbers(maximum)):
-            # returns specific information for the versions
-            prod_info = config.PRODUCTS[product_name][section_range]
-            prod_info.section = section_range
-            prod_info.from_file = config.PRODUCTS[product_name].from_file
-            return prod_info
-    
+    l_section_names = aProd.keys()
+    l_section_ranges = []
+    tagged = []
+    for name in l_section_names:
+      # DBG.write("name", name,True)
+      aRange = VMMP.getRange_majorMinorPatch(name)
+      if aRange is not None:
+        DBG.write("found version range for section '%s'" % name, aRange, verbose)
+        l_section_ranges.append((name, aRange))
+
+    if versionMMP is not None and len(l_section_ranges) > 0:
+      for name, (vmin, vmax) in l_section_ranges:
+        if versionMMP >= vmin and versionMMP <= vmax:
+          tagged.append((name, [vmin, vmax]))
+
+    if len(tagged) > 1:
+      DBG.write("multiple version ranges tagged for '%s', fix it" % version,
+                     PP.pformat(tagged), True)
+      return None
+    if len(tagged) == 1: # ok
+      DBG.write("one version range tagged for '%s'" % version,
+                   PP.pformat(tagged), verbose)
+      name, (vmin, vmax) = tagged[0]
+      prod_info = aProd[name]
+      prod_info.section = name
+      prod_info.from_file = aProd.from_file
+      return prod_info
+
     # Else, get the standard informations
-    if "default" in config.PRODUCTS[product_name]:
+    if "default" in aProd:
         # returns the generic information (given version not found)
-        prod_info = config.PRODUCTS[product_name].default
+        prod_info = aProd.default
+        DBG.write("default tagged for '%s'" % version, prod_info, verbose)
         prod_info.section = "default"
-        prod_info.from_file = config.PRODUCTS[product_name].from_file
+        prod_info.from_file = aProd.from_file
         return prod_info
     
     # if noting was found, return None
@@ -424,11 +455,43 @@ def get_base_install_dir(config, prod_info, version):
             
     return install_dir
 
-def check_config_exists(config, prod_dir, prod_info):
+def add_compile_config_file(p_info, config):
+    '''Execute the proper configuration command(s)
+       in the product build directory.
+
+    :param p_info Config: The specific config of the product
+    :param config Config: The global configuration
+    '''
+    # Create the compile config
+    # DBG.write("add_compile_config_file", p_info, True)
+    res = src.pyconf.Config()
+    res.addMapping(p_info.name, src.pyconf.Mapping(res), "")
+    res[p_info.name]= p_info.version
+
+    for prod_name in p_info.depend:
+      if prod_name not in res:
+        res.addMapping(prod_name, src.pyconf.Mapping(res), "")
+      prod_dep_info = src.product.get_product_config(config, prod_name, False)
+      res[prod_name] = prod_dep_info.version
+    # Write it in the install directory of the product
+    # This file is for automatic reading/checking
+    # see check_config_exists method
+    aFile = os.path.join(p_info.install_dir, CONFIG_FILENAME)
+    with open(aFile, 'w') as f:
+      res.__save__(f)
+
+    # this file is for human eye reading
+    aFile = os.path.join(p_info.install_dir, PRODUCT_FILENAME)
+    with open(aFile, 'w') as f:
+      # f.write(DBG.getStrConfigDbg(p_info)) # debug mode
+      p_info.__save__(f, evaluated=True) # evaluated expressions mode
+
+
+def check_config_exists(config, prod_dir, prod_info, verbose=False):
     """\
-    Verify that the installation directory of a product in a base exists
-    Check all the config-<i> directory and verify the sat-config.pyconf file
-    that is in it 
+    Verify that the installation directory of a product in a base exists.
+    Check all the config-<i>/sat-config.py files found for correspondence
+    with current config and prod_info depend-version-tags
     
     :param config Config: The global configuration
     :param prod_dir str: The product installation directory path 
@@ -438,18 +501,27 @@ def check_config_exists(config, prod_dir, prod_info):
     :return: True or false is the installation is found or not 
              and if it is found, the path of the found installation
     :rtype: (boolean, str)
-    """   
-    # check if the directories or files of the directory corresponds to the 
+    """
+    # check if the directories or files of the directory corresponds to the
     # directory installation of the product
-    l_dir_and_files = os.listdir(prod_dir)
+    if os.path.isdir(prod_dir):
+      l_dir_and_files = os.listdir(prod_dir)
+    else:
+      raise Exception("Inexisting directory '%s'" % prod_dir)
+
+    DBG.write("check_config_exists 000",  (prod_dir, l_dir_and_files), verbose)
+    DBG.write("check_config_exists 111",  prod_info, verbose)
+
     for dir_or_file in l_dir_and_files:
         oExpr = re.compile(config_expression)
         if not(oExpr.search(dir_or_file)):
-            # not config-<i>, not interesting
+            # in mode BASE, not config-<i>, not interesting
+            # DBG.write("not interesting", dir_or_file, True)
             continue
         # check if there is the file sat-config.pyconf file in the installation
         # directory    
-        config_file = os.path.join(prod_dir, dir_or_file, src.CONFIG_FILENAME)
+        config_file = os.path.join(prod_dir, dir_or_file, CONFIG_FILENAME)
+        DBG.write("check_config_exists 222", config_file, verbose)
         if not os.path.exists(config_file):
             continue
         
@@ -459,7 +531,7 @@ def check_config_exists(config, prod_dir, prod_info):
             if len(compile_cfg) == 0:
                 return True, os.path.join(prod_dir, dir_or_file)
             continue
-        
+
         # check if there is the config described in the file corresponds the 
         # dependencies of the product
         config_corresponds = True    
@@ -477,15 +549,29 @@ def check_config_exists(config, prod_dir, prod_info):
                 if prod_dep_info.version != compile_cfg[prod_dep]:
                     config_corresponds = False
                     break
-        
-        for prod_name in compile_cfg:
-            if prod_name not in prod_info.depend:
+
+        if config_corresponds:
+          for prod_name in compile_cfg:
+            # assume new compatibility with prod_name in sat-config.pyconf files
+            if prod_name == prod_info.name:
+              if prod_info.version == compile_cfg[prod_name]:
+                DBG.write("check_config_exists OK 333", compile_cfg, verbose)
+                pass
+              else: # no correspondence with newer with prod_name sat-config.pyconf files
+                config_corresponds = False
+                break
+            else:
+              # as old compatibility without prod_name sat-config.pyconf files
+              if prod_name not in prod_info.depend:
+                # here there is an unexpected depend in an old compilation
                 config_corresponds = False
                 break
         
-        if config_corresponds:
+        if config_corresponds: # returns (and stops) at first correspondence found
+            DBG.write("check_config_exists OK 444", dir_or_file, verbose)
             return True, os.path.join(prod_dir, dir_or_file)
-    
+
+    # no correspondence found
     return False, None
             
             
@@ -507,10 +593,90 @@ def get_products_infos(lproducts, config):
         if prod_info is not None:
             products_infos.append((prod, prod_info))
         else:
-            msg = _("The %s product has no definition "
-                    "in the configuration.") % prod
+            msg = _("The %s product has no definition in the configuration.") % prod
             raise src.SatException(msg)
     return products_infos
+
+
+def get_products_list(options, cfg, logger):
+    """
+    method that gives the product list with their informations from
+    configuration regarding the passed options.
+
+    :param options Options: The Options instance that stores the commands arguments
+    :param cfg Config: The global configuration
+    :param logger Logger: The logger instance to use for the display and logging
+    :return: The list of (product name, product_informations).
+    :rtype: List
+    """
+    # Get the products to be prepared, regarding the options
+    if options.products is None:
+        # No options, get all products sources
+        products = cfg.APPLICATION.products
+    else:
+        # if option --products, check that all products of the command line
+        # are present in the application.
+        """products = options.products
+        for p in products:
+            if p not in cfg.APPLICATION.products:
+                raise src.SatException(_("Product %(product)s "
+                            "not defined in application %(application)s") %
+                        { 'product': p, 'application': cfg.VARS.application} )"""
+
+        products = src.getProductNames(cfg, options.products, logger)
+
+    # Construct the list of tuple containing
+    # the products name and their definition
+    resAll = src.product.get_products_infos(products, cfg)
+
+    # if the property option was passed, filter the list
+    if options.properties: # existing properties
+      ok = []
+      ko = []
+      res =[]
+      prop, value = options.properties # for example 'is_SALOME_module', 'yes'
+      for p_name, p_info in resAll:
+        try:
+          if p_info.properties[prop] == value:
+            res.append((p_name, p_info))
+            ok.append(p_name)
+          else:
+            ko.append(p_name)
+        except:
+          ok.append(p_name)
+
+      if len(ok) != len(resAll):
+        logger.trace("on properties %s\n products accepted:\n %s\n products rejected:\n %s\n" %
+                       (options.properties, PP.pformat(sorted(ok)), PP.pformat(sorted(ko))))
+      else:
+        logger.warning("properties %s\n seems useless with no products rejected" %
+                       (options.properties))
+    else:
+      res = resAll # not existing properties as all accepted
+
+
+    ok = []
+    ko = []
+    products_infos = []
+    for p_name, p_info in res:
+      try:
+        if src.product.product_is_native(p_info) or src.product.product_is_fixed(p_info):
+          ko.append(p_name)
+        else:
+          products_infos.append((p_name, p_info))
+          ok.append(p_name)
+      except:
+        msg = "problem on 'is_native' or 'is_fixed' for product %s" % p_name
+        raise Exception(msg)
+
+    if len(ko) > 0:
+      logger.warning("on is_native or is_fixed\n products accepted:\n %s\n products rejected:\n %s\n" %
+                    (PP.pformat(sorted(ok)), PP.pformat(sorted(ko))))
+
+    logger.debug("products selected:\n %s\n" % PP.pformat(sorted(ok)))
+
+    return res
+
 
 def get_product_dependencies(config, product_info):
     """\
