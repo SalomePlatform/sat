@@ -144,10 +144,13 @@ def toCompactStr_majorMinorPatch(version):
 #############################################
 def getRange_majorMinorPatch(aStr, verbose=False):
   """
-  extract from aStr a version range, defined as "*_from_aMinVersionTag_to_aMaxVersionTag.
+  extract from aStr a version range, defined as
+  '*_from_aMinVersionTag_to_aMaxVersionTag' or
+  '*version_aMinVersionTag_to_aMaxVersionTag'.
+
   where aMinVersionTag and aMaxVersionTag are compatible with MinorMajorPatch class syntaxes
   '1.2.3' or '1_2_3' etc.
-  if not found '_from_' then aMinVersionTag is '0.0.0'
+  if not found '_from_' or 'version_' first then aMinVersionTag is '0.0.0'
 
   :param aStr: string to work
   :return: list [min, max], where min, max are MinorMajorPatch instances.
@@ -162,7 +165,16 @@ def getRange_majorMinorPatch(aStr, verbose=False):
     raise Exception(msg)
   aMax = tmp1[1]
 
-  tmp0 = aStr.lower().split("_from_")
+  # accept older syntax as 'version_1_0_0_to_2_0_0', (as '_from_1_0_0_to_2_0_0')
+  if "version_" in tmp1[0] and "_from_" not in tmp1[0]:
+    aStr_with_from = aStr.lower().replace("version_", "_from_", 1)
+  else:
+    aStr_with_from = aStr.lower()
+
+  # print("aStr_with_from '%s' -> '%s'" % (aStr, aStr_with_from))
+
+  tmp0 = aStr_with_from.split("_from_")
+  tmp1 = aStr_with_from.split("_to_")
 
   if len(tmp0) > 2:
     msg = "more than one '_from_' is incorrect for version range: '%s'" % aStr

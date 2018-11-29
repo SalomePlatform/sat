@@ -173,7 +173,9 @@ toto_from_1_to_2
    _from_1.0.0_to_2.0.0
 _from_1_0.  0_to_  2.0_0   
 _from_V1.0.0_to_2.0.0
-_from_version_1.0.0_to_2.0.0""".split("\n")
+_from_version_1.0.0_to_2.0.0
+version_1.0.0_to_2.0.0
+VERSION_1.0.0_to_2.0.0""".split("\n")
 
     for a in tests:
       # print("test '%s'" % a)
@@ -221,6 +223,8 @@ toto_from_2""".split("\n")
     with self.assertRaises(Exception): VMMP.getRange_majorMinorPatch("_from__to_")
     with self.assertRaises(Exception): VMMP.getRange_majorMinorPatch("toto_from__to_")
     with self.assertRaises(Exception): VMMP.getRange_majorMinorPatch("toto_from_123_to_")
+    with self.assertRaises(Exception): VMMP.getRange_majorMinorPatch("version_123_to_")
+    with self.assertRaises(Exception): VMMP.getRange_majorMinorPatch("version_to_")
 
     # min > max does matter
     with self.assertRaises(Exception): VMMP.getRange_majorMinorPatch("_from_3_to_2")
