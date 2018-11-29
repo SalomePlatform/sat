@@ -69,23 +69,36 @@ def git_extract(from_what, tag, where, logger, environment=None):
   if not where.exists():
     where.make()
   if tag == "master" or tag == "HEAD":
-    command = "git clone %(remote)s %(where)s" % \
-              {'remote': from_what, 'tag': tag, 'where': str(where)}
+    cmd = r"""
+set -x
+git clone %(remote)s %(where)s
+"""
+    cmd = cmd % {'remote': from_what, 'tag': tag, 'where': str(where)}
   else:
     # NOTICE: this command only works with recent version of git
     #         because --work-tree does not work with an absolute path
     where_git = os.path.join(str(where), ".git")
-    command = "rmdir %(where)s && git clone %(remote)s %(where)s && " + \
-              "git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s"
-    command = command % {'remote': from_what,
-                         'tag': tag,
-                         'where': str(where),
-                         'where_git': where_git}
 
-  logger.write(command + "\n", 5)
+    cmd = r"""
+set -x
+rmdir %(where)s && \
+git clone %(remote)s %(where)s && \
+git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s
+"""
+    cmd = cmd % {'remote': from_what,
+                 'tag': tag,
+                 'where': str(where),
+                 'where_git': where_git}
 
-  logger.logTxtFile.write("\n" + command + "\n")
+
+  logger.logTxtFile.write("\n" + cmd + "\n")
   logger.logTxtFile.flush()
+
+  DBG.write("cmd", cmd)
+  rc = UTS.Popen(cmd, cwd=str(where.dir()), env=environment.environ.environ, logger=logger)
+  return rc.isOk()
+
+  """
   res = subprocess.call(command,
                         cwd=str(where.dir()),
                         env=environment.environ.environ,
@@ -93,6 +106,8 @@ def git_extract(from_what, tag, where, logger, environment=None):
                         stdout=logger.logTxtFile,
                         stderr=subprocess.STDOUT)
   return (res == 0)
+  """
+
 
 
 def git_extract_sub_dir(from_what, tag, where, sub_dir, logger, environment=None):
@@ -126,6 +141,7 @@ def git_extract_sub_dir(from_what, tag, where, sub_dir, logger, environment=None
   DBG.write("git_extract_sub_dir", aDict)
 
   cmd = r"""
+set -x
 export tmpDir=%(tmpWhere)s && \
 rm -rf $tmpDir && \
 git clone %(remote)s $tmpDir && \
