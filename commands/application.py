@@ -72,7 +72,7 @@ def add_module_to_appli(out, module, has_gui, module_path, logger, flagline):
 
 ##
 # Creates the config file to create an application with the list of modules.
-def create_config_file(config, modules, env_file, logger):
+def create_config_file(config, modules, env_files, logger):
 
     samples = ""
     if 'SAMPLES' in config.APPLICATION.products:
@@ -82,10 +82,12 @@ def create_config_file(config, modules, env_file, logger):
     f = open(config_file, "w")
 
     f.write('<application>\n')
-    if env_file.endswith("cfg"):
-        f.write('<context path="%s"/>\n' % env_file)
-    else:   
-        f.write('<prerequisites path="%s"/>\n' % env_file)
+    for env_file in env_files:
+        if env_file.endswith("cfg"):
+            f.write('<context path="%s"/>\n' % env_file)
+        else:   
+            f.write('<prerequisites path="%s"/>\n' % env_file)
+
     f.write('<resources path="CatalogResources.xml"/>\n')
     f.write('<modules>\n')
 
@@ -274,14 +276,16 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
     write_step(logger, _("Creating environment files"))
     status = src.KO_STATUS
 
+    # build the application (the name depends upon salome version
+    env_file = os.path.join(config.APPLICATION.workdir, "env_launch")
     VersionSalome = src.get_salome_version(config)
     if VersionSalome>=820:
         # for salome 8+ we use a salome context file for the virtual app
-        app_shell="cfg"
-        env_ext="cfg"
+        app_shell=["cfg", "bash"]
+        env_files=[env_file+".cfg", env_file+".sh"]
     else:
-        app_shell="bash"
-        env_ext="sh"
+        app_shell=["bash"]
+        env_files=[env_file+".sh"]
 
     try:
         import environ
@@ -290,17 +294,15 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
         # with the current system.
         environ.write_all_source_files(config,
                                        logger,
-                                       shells=[app_shell],
+                                       shells=app_shell,
                                        silent=True)
         status = src.OK_STATUS
     finally:
         logger.write(src.printcolors.printc(status) + "\n", 2, False)
 
-    # build the application (the name depends upon salome version
-    env_file = os.path.join(config.APPLICATION.workdir, "env_launch." + env_ext)
 
     write_step(logger, _("Building application"), level=2)
-    cf = create_config_file(config, l_SALOME_modules, env_file, logger)
+    cf = create_config_file(config, l_SALOME_modules, env_files, logger)
 
     # create the application directory
     os.makedirs(appli_dir)
