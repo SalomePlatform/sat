@@ -219,7 +219,7 @@ def get_salome_version(config):
 
     res = version.strCompact()
     # print("get_salome_version %s -> %s" % (version, res))
-    return res
+    return int(res) # TODO may be future avoid test(s) on integer, use MajorMinorPatch
 
 def read_config_from_a_file(filePath):
         try:
