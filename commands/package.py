@@ -1040,9 +1040,15 @@ def find_application_pyconf(config, application_tmp_dir):
     # Prevent from compilation in base
     application_pyconf_cfg.APPLICATION.no_base = "yes"
     
+    #remove products that are not in config (which were filtered by --without_properties)
+    for product_name in application_pyconf_cfg.APPLICATION.products.keys():
+        if product_name not in config.APPLICATION.products.keys():
+            application_pyconf_cfg.APPLICATION.products.__delitem__(product_name)
+
     # write the pyconf file to the temporary application location
     application_tmp_pyconf_path = os.path.join(application_tmp_dir,
                                                application_name + ".pyconf")
+
     ff = open(application_tmp_pyconf_path, 'w')
     ff.write("#!/usr/bin/env python\n#-*- coding:utf-8 -*-\n\n")
     application_pyconf_cfg.__save__(ff, 1)
