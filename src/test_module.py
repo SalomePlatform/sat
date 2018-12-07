@@ -25,7 +25,6 @@ except:
             code = compile(f.read(), somefile, 'exec')
             exec(code, global_vars, local_vars)
 
-
 import os
 import sys
 import datetime
@@ -33,6 +32,10 @@ import shutil
 import string
 import imp
 import subprocess
+import glob
+import pprint as PP
+
+verbose = False # cvw TODO
 
 from . import fork
 import src
@@ -316,6 +319,9 @@ class Test:
                 results[test] = ["?", -1, "", []]
             else:
                 gdic, ldic = {}, {}
+                if verbose:
+                  print("test script: '%s':\n'%s'\n" % (resfile, open(resfile, 'r').read()))
+
                 execfile(resfile, gdic, ldic)
 
                 status = src.TIMEOUT_STATUS
@@ -337,6 +343,10 @@ class Test:
                     callback = ldic['callback']
                 elif status == src.KO_STATUS:
                     callback = "CRASH"
+                    if verbose:
+                      print("--- CRASH ldic\n%s" % PP.pformat(ldic)) # cvw TODO
+                      print("--- CRASH gdic\n%s" %  PP.pformat(gdic))
+                      pass
 
                 exec_time = -1
                 if ldic.has_key('time'):
@@ -400,9 +410,11 @@ class Test:
         d['ignore'] = ignoreList
 
         # create script with template
-        script = open(script_path, 'w')
-        script.write(template.safe_substitute(d))
-        script.close()
+        contents = template.safe_substitute(d)
+        if verbose: print("generate_script '%s':\n%s" % (script_path, contents)) # cvw TODO
+        with open(script_path, 'w') as f:
+          f.write(contents)
+
 
     # Find the getTmpDir function that gives access to *pidict file directory.
     # (the *pidict file exists when SALOME is launched) 
@@ -572,6 +584,8 @@ class Test:
         out_path = os.path.join(self.currentDir,
                                 self.currentgrid,
                                 self.currentsession)
+        if verbose: print("run_tests '%s'\nlistTest: %s\nignoreList: %s" %
+                   (self.currentDir, PP.pformat(listTest), PP.pformat(ignoreList))) # cvw TODO
         sessionname = "%s/%s" % (self.currentgrid, self.currentsession)
         time_out = self.get_test_timeout(sessionname,
                                          DEFAULT_TIMEOUT)
@@ -585,10 +599,9 @@ class Test:
         tmpDir = self.get_tmp_dir()
 
         binSalome, binPython, killSalome = self.generate_launching_commands()
-        if self.settings.has_key("run_with_grids") \
-           and self.settings["run_with_grids"].has_key(sessionname):
-            binSalome = (binSalome +
-                         " -m %s" % self.settings["run_with_grids"][sessionname])
+        if self.settings.has_key("run_with_grids") and \
+           self.settings["run_with_grids"].has_key(sessionname):
+            binSalome = (binSalome + " -m %s" % self.settings["run_with_grids"][sessionname])
 
         logWay = os.path.join(self.tmp_working_dir, "WORK", "log_cxx")
 
@@ -596,39 +609,37 @@ class Test:
         elapsed = -1
         if self.currentsession.startswith("NOGUI_"):
             # runSalome -t (bash)
-            status, elapsed = fork.batch(binSalome, self.logger,
-                                        os.path.join(self.tmp_working_dir,
-                                                     "WORK"),
-                                        [ "-t",
-                                         "--shutdown-server=1",
-                                         script_path ],
-                                        delai=time_out,
-                                        log=logWay)
+            status, elapsed = fork.batch(
+                                binSalome,
+                                self.logger,
+                                os.path.join(self.tmp_working_dir, "WORK"),
+                                [ "-t", "--shutdown-server=1", script_path ],
+                                delai=time_out,
+                                log=logWay)
 
         elif self.currentsession.startswith("PY_"):
             # python script.py
-            status, elapsed = fork.batch(binPython, self.logger,
-                                          os.path.join(self.tmp_working_dir,
-                                                       "WORK"),
-                                          [script_path],
-                                          delai=time_out, log=logWay)
+            status, elapsed = fork.batch(
+                                binPython,
+                                self.logger,
+                                os.path.join(self.tmp_working_dir, "WORK"),
+                                [script_path],
+                                delai=time_out,
+                                log=logWay)
 
         else:
             opt = "-z 0"
             if self.show_desktop: opt = "--show-desktop=0"
-            status, elapsed = fork.batch_salome(binSalome,
-                                                 self.logger,
-                                                 os.path.join(
-                                                        self.tmp_working_dir,
-                                                        "WORK"),
-                                                 [ opt,
-                                                  "--shutdown-server=1",
-                                                  script_path ],
-                                                 getTmpDir=tmpDir,
-                                                 fin=killSalome,
-                                                 delai=time_out,
-                                                 log=logWay,
-                                                 delaiapp=time_out_salome)
+            status, elapsed = fork.batch_salome(
+                                binSalome,
+                                self.logger,
+                                os.path.join( self.tmp_working_dir, "WORK"),
+                                [ opt, "--shutdown-server=1", script_path ],
+                                getTmpDir=tmpDir,
+                                fin=killSalome,
+                                delai=time_out,
+                                log=logWay,
+                                delaiapp=time_out_salome)
 
         self.logger.write("status = %s, elapsed = %s\n" % (status, elapsed),
                           5)
@@ -747,14 +758,29 @@ class Test:
                                                                 l)), sessions)
 
         sessions = sorted(sessions, key=str.lower)
+        existingSessions = self.getSubDirectories(grid_path)
         for session_ in sessions:
             if not os.path.exists(os.path.join(grid_path, session_)):
                 self.logger.write(self.write_test_margin(2), 3)
-                self.logger.write(src.printcolors.printcWarning("Session %s not"
-                                        " found" % session_) + "\n", 3, False)
+                msg = """\
+Session '%s' not found
+Existing sessions are:
+%s
+""" % (session_, PP.pformat(sorted(existingSessions)))
+                self.logger.write(src.printcolors.printcWarning(msg), 3, False)
             else:
                 self.currentsession = session_
                 self.run_session_tests()
+
+    def getSubDirectories(self, aDir):
+        """
+        get names of first level of sub directories in aDir
+        excluding '.git' etc as beginning with '.'
+        """
+        res = os.listdir(aDir)
+        res = [d for d in res if os.path.isdir(os.path.join(aDir, d)) and d[0] != '.']
+        # print("getSubDirectories %s are:\n%s" % (aDir, PP.pformat(res)))
+        return res
 
     ##
     # Runs test testbase.
@@ -783,13 +809,13 @@ class Test:
         if os.path.exists(settings_file):
             gdic, ldic = {}, {}
             execfile(settings_file, gdic, ldic)
-            self.logger.write(_("Load test settings\n"), 3)
+            self.logger.write("Load test settings '%s'\n" % settings_file, 5)
             self.settings = ldic['settings_dic']
             self.ignore_tests = ldic['known_failures_list']
             if isinstance(self.ignore_tests, list):
                 self.ignore_tests = {}
-                self.logger.write(src.printcolors.printcWarning("known_failur"
-                  "es_list must be a dictionary (not a list)") + "\n", 1, False)
+                self.logger.write(src.printcolors.printcWarning(
+                  "known_failures_list must be a dictionary (not a list)") + "\n", 1, False)
         else:
             self.ignore_tests = {}
             self.settings.clear()
@@ -815,11 +841,16 @@ class Test:
                              grids)
 
         grids = sorted(grids, key=str.lower)
+        existingGrids = self.getSubDirectories(self.currentDir)
         for grid in grids:
             if not os.path.exists(os.path.join(self.currentDir, grid)):
                 self.logger.write(self.write_test_margin(1), 3)
-                self.logger.write(src.printcolors.printcWarning(
-                            "grid %s does not exist\n" % grid), 3, False)
+                msg = """\
+Grid '%s' does not exist
+Existing grids are:
+%s
+""" % (grid, PP.pformat(sorted(existingGrids)))
+                self.logger.write(src.printcolors.printcWarning(msg), 3, False)
             else:
                 self.currentgrid = grid
                 self.run_grid_tests()

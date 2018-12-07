@@ -37,6 +37,8 @@ import src.debug as DBG
 log_macro_command_file_expression = "^[0-9]{8}_+[0-9]{6}_+.*\.xml$"
 log_all_command_file_expression = "^.*[0-9]{8}_+[0-9]{6}_+.*\.xml$"
 
+verbose = True # cvw TODO
+
 class Logger(object):
     """\
     Class to handle log mechanism.
@@ -144,7 +146,7 @@ class Logger(object):
                                                         self.config.VARS.user})
         # The time when command was launched
         Y, m, dd, H, M, S = date_to_datetime(self.config.VARS.datehour)
-        date_hour = "%2s/%2s/%4s %2sh%2sm%2ss" % (dd, m, Y, H, M, S)
+        date_hour = "%4s/%2s/%2s %2sh%2sm%2ss" % (Y, m, dd, H, M, S)
         self.xmlFile.append_node_attrib("Site", attrib={"beginTime" : 
                                                         date_hour})
         # The application if any
@@ -397,17 +399,22 @@ def show_command_log(logFilePath, cmd, application, notShownCommands):
         sys.stdout.write(printcolors.printcWarning("%s\n%s\n" % (msg, e)))
         return False, None, None
 
-    if 'application' in logFileXml.xmlroot.keys():
-        appliLog = logFileXml.xmlroot.get('application')
-        launched_cmd = logFileXml.xmlroot.find('Site').attrib['launchedCommand']
-        # if it corresponds, then the log has to be shown
-        if appliLog == application:
-            return True, appliLog, launched_cmd
-        elif application != 'None':
-            return False, appliLog, launched_cmd
-        
-        return True, appliLog, launched_cmd
-    
+    try:
+        if 'application' in logFileXml.xmlroot.keys():
+          appliLog = logFileXml.xmlroot.get('application')
+          launched_cmd = logFileXml.xmlroot.find('Site').attrib['launchedCommand']
+          # if it corresponds, then the log has to be shown
+          if appliLog == application:
+              return True, appliLog, launched_cmd
+          elif application != 'None':
+              return False, appliLog, launched_cmd
+
+          return True, appliLog, launched_cmd
+    except Exception as e:
+        msg = _("WARNING: the log file %s cannot be parsed:" % logFilePath)
+        sys.stdout.write(printcolors.printcWarning("%s\n%s\n" % (msg, e)))
+        return False, None, None
+
     if application == 'None':
             return True, None, None
         

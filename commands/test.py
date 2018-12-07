@@ -23,6 +23,8 @@ import subprocess
 import datetime
 import gzip
 
+verbose = False
+
 try:
     from hashlib import sha1
 except ImportError:
@@ -44,7 +46,7 @@ parser.add_option('l', 'launcher', 'string', 'launcher',
 parser.add_option('g', 'grid', 'list', 'grids',
     _('Optional: Indicate which grid(s) to test (subdirectory of the test '
       'base).'))
-parser.add_option('s', 'session', 'list', 'sessions',
+parser.add_option('s', 'session', 'list2', 'sessions',
     _('Optional: indicate which session(s) to test (subdirectory of the '
       'grid).'))
 parser.add_option('', 'display', 'string', 'display',
@@ -243,11 +245,13 @@ def create_test_report(config,
     
     first_time = False
     if not os.path.exists(xml_history_path):
+        if verbose: print("first_time as NOT existing '%s'" % xml_history_path) # cvw TODO
         first_time = True
         root = etree.Element("salome")
         prod_node = etree.Element("product", name=application_name, build=xmlname)
         root.append(prod_node)
     else:
+        if verbose: print("NOT first_time as existing '%s'" % xml_history_path) # cvw TODO
         root = etree.parse(xml_history_path).getroot()
         prod_node = root.find("product")
     
@@ -307,6 +311,7 @@ def create_test_report(config,
                 tt[test.testbase].append(test)
         
         for testbase in tt.keys():
+            if verbose: print("---- create_test_report %s %s" % (testbase, first_time))
             if first_time:
                 gn = add_simple_node(tests, "testbase")
             else:
@@ -631,7 +636,7 @@ def run(args, runner, logger):
     content = "\n".join(lines)
 
     # create hash from context information
-    dirname = sha1(content.encode()).hexdigest()
+    dirname = datetime.datetime.now().strftime("%y%m%d_%H%M%S_") + sha1(content.encode()).hexdigest()[0:6]
     base_dir = os.path.join(tmp_dir, dirname)
     os.makedirs(base_dir)
     os.environ['TT_TMP_RESULT'] = base_dir
@@ -714,7 +719,8 @@ def run(args, runner, logger):
                     "board",
                     retcode,
                     "Click on the link to get the detailed test results")
-    
+    logger.write("\nTests board is file %s\n" % xml_board_path, 1)
+
     # Add the historic files into the log files list of the command
     logger.l_logFiles.append(historic_xml_path)
     
