@@ -70,11 +70,9 @@ of its launcher, called bin¤{launcher}
 e) How to set the Distene license
 =================================
 
-If your application is based on SALOME and embed the SMESH module and MeshGems 
+If your application is based on SALOME and use the SMESH module and MeshGems 
 prerequisite, you may want to set the Distene license. 
-To do so, edit the following file:
-
-> $ROOT/INSTALL/¤{profile}/bin/salome/¤{launcher}
+To do so, edit the salome  launcher file (its located in the $ROOT directory).
 
 Then, find the lines that begin with:
 
