@@ -496,7 +496,7 @@ class Mapping(Container):
         #if name == "__class__":
         #    return ''
         data = object.__getattribute__(self, "data")
-        useData = data.has_key(name)
+        useData = name in data
         if useData:
             rv = getattr(data, name)
         else:

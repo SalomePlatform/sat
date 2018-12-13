@@ -322,40 +322,45 @@ class Test:
                 if verbose:
                   print("test script: '%s':\n'%s'\n" % (resfile, open(resfile, 'r').read()))
 
-                execfile(resfile, gdic, ldic)
+                try:
+                  execfile(resfile, gdic, ldic)
 
-                status = src.TIMEOUT_STATUS
-                if not has_timed_out:
-                    status = src.KO_STATUS
+                  status = src.TIMEOUT_STATUS
+                  if not has_timed_out:
+                      status = src.KO_STATUS
 
-                if ldic.has_key('status'):
-                    status = ldic['status']
+                  if 'status' in ldic:
+                      status = ldic['status']
 
-                expected = []
-                if status == src.KO_STATUS or status == src.OK_STATUS:
-                    status, expected = self.search_known_errors(status,
-                                                            self.currentgrid,
-                                                            self.currentsession,
-                                                            test)
+                  expected = []
+                  if status == src.KO_STATUS or status == src.OK_STATUS:
+                      status, expected = self.search_known_errors(status,
+                                                              self.currentgrid,
+                                                              self.currentsession,
+                                                              test)
 
-                callback = ""
-                if ldic.has_key('callback'):
-                    callback = ldic['callback']
-                elif status == src.KO_STATUS:
-                    callback = "CRASH"
-                    if verbose:
-                      print("--- CRASH ldic\n%s" % PP.pformat(ldic)) # cvw TODO
-                      print("--- CRASH gdic\n%s" %  PP.pformat(gdic))
-                      pass
-
-                exec_time = -1
-                if ldic.has_key('time'):
-                    try:
-                        exec_time = float(ldic['time'])
-                    except:
+                  callback = ""
+                  if ldic.has_key('callback'):
+                      callback = ldic['callback']
+                  elif status == src.KO_STATUS:
+                      callback = "CRASH"
+                      if verbose:
+                        print("--- CRASH ldic\n%s" % PP.pformat(ldic)) # cvw TODO
+                        print("--- CRASH gdic\n%s" %  PP.pformat(gdic))
                         pass
 
-                results[test] = [status, exec_time, callback, expected]
+                  exec_time = -1
+                  if 'time' in ldic:
+                      try:
+                          exec_time = float(ldic['time'])
+                      except:
+                          pass
+
+                  results[test] = [status, exec_time, callback, expected]
+
+                except:
+                  results[test] = ["?", -1, "", []]
+                  # results[test] = [src.O_STATUS, -1, open(resfile, 'r').read(), []]
             
             # check if <test>.py file exists
             testfile = os.path.join(self.currentDir,
@@ -389,22 +394,17 @@ class Test:
     # calling all the scripts of a single directory.
     def generate_script(self, listTest, script_path, ignoreList):
         # open template file
-        template_file = open(os.path.join(self.config.VARS.srcDir,
-                                          "test",
-                                          "scriptTemplate.py"), 'r')
-        template = string.Template(template_file.read())
+        tFile = os.path.join(self.config.VARS.srcDir, "test", "scriptTemplate.py")
+        with open(tFile, 'r') as f:
+          template = string.Template(f.read())
         
         # create substitution dictionary
         d = dict()
         d['resourcesWay'] = os.path.join(self.currentDir, 'RESSOURCES')
         d['tmpDir'] = os.path.join(self.tmp_working_dir, 'WORK')
         d['toolsWay'] = os.path.join(self.config.VARS.srcDir, "test")
-        d['sessionDir'] = os.path.join(self.currentDir,
-                                    self.currentgrid,
-                                    self.currentsession)
-        d['resultFile'] = os.path.join(self.tmp_working_dir,
-                                       'WORK',
-                                       'exec_result')
+        d['sessionDir'] = os.path.join(self.currentDir, self.currentgrid, self.currentsession)
+        d['resultFile'] = os.path.join(self.tmp_working_dir, 'WORK', 'exec_result')
         d['listTest'] = listTest
         d['sessionName'] = self.currentsession
         d['ignore'] = ignoreList
@@ -416,8 +416,8 @@ class Test:
           f.write(contents)
 
 
-    # Find the getTmpDir function that gives access to *pidict file directory.
-    # (the *pidict file exists when SALOME is launched) 
+    # Find the getTmpDir function that gives access to *_pidict file directory.
+    # (the *_pidict file exists when SALOME is launched)
     def get_tmp_dir(self):
         # Rare case where there is no KERNEL in grid list 
         # (for example MED_STANDALONE)
@@ -430,10 +430,9 @@ class Test:
         if 'KERNEL_ROOT_DIR' in os.environ:
             root_dir =  os.environ['KERNEL_ROOT_DIR']
         
-        if ('APPLICATION' in self.config 
-                and 'KERNEL' in self.config.APPLICATION.products):
-            root_dir = src.product.get_product_config(self.config,
-                                                      "KERNEL").install_dir
+        if ('APPLICATION' in self.config and
+            'KERNEL' in self.config.APPLICATION.products):
+            root_dir = src.product.get_product_config(self.config, "KERNEL").install_dir
 
         # Case where there the appli option is called (with path to launcher)
         if len(self.launcher) > 0:
@@ -443,21 +442,19 @@ class Test:
             launcherDir = os.path.dirname(self.launcher)
             if launcherName == 'runAppli':
                 # Old application
-                cmd = ("for i in " + launcherDir + "/env.d/*.sh; do source ${i};"
-                       " done ; echo $KERNEL_ROOT_DIR")
+                cmd = """
+for i in %s/env.d/*.sh; 
+  do source ${i};
+done
+echo $KERNEL_ROOT_DIR
+""" % launcherDir
             else:
                 # New application
-                cmd = ("echo -e 'import os\nprint os.environ[\"KERNEL_" + 
-                       "ROOT_DIR\"]' > tmpscript.py; %s shell" + 
-                       " tmpscript.py") % self.launcher
+                cmd = """
+echo -e 'import os\nprint(os.environ[\"KERNEL_ROOT_DIR\"])' > tmpscript.py
+%s shell tmpscript.py
+""" % self.launcher
 
-            # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
-            #               de remontee de log des tests
-            #root_dir = subprocess.Popen(cmd,
-            #                stdout=subprocess.PIPE,
-            #                shell=True,
-            #                executable='/bin/bash').communicate()[0].split()[-1]
-            # OP Add Windows case
             if src.architecture.is_windows():
                 subproc_res = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
@@ -469,33 +466,24 @@ class Test:
                             shell=True,
                             executable='/bin/bash').communicate()
                 pass
-            #print "TRACES OP - test_module.py/Test.get_tmp_dir() subproc_res = "
-            #for resLine in subproc_res:
-            #    print "- '#%s#'" %resLine
             
             root_dir = subproc_res[0].split()[-1]
-
-        # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
-        #               de remontee de log des tests
-        #print "TRACES OP - test_module.py/Test.get_tmp_dir() root_dir = '#%s#'" %root_dir
         
         # import grid salome_utils from KERNEL that gives 
         # the right getTmpDir function
-        (file_, pathname, description) = imp.find_module("salome_utils",
-                                                         [os.path.join(root_dir,
-                                                                    'bin',
-                                                                    'salome')])
+        aPath = [os.path.join(root_dir, 'bin', 'salome')]
+        sal_uts = "salome_utils"
         try:
-            grid = imp.load_module("salome_utils",
-                                     file_,
-                                     pathname,
-                                     description)
+            (file_, pathname, description) = imp.find_module(sal_uts, aPath )
+        except Exception:
+            msg = "inexisting %s.py in %s" % (sal_uts, aPath)
+            raise Exception(msg)
+
+        try:
+            grid = imp.load_module(sal_uts, file_, pathname, description)
             return grid.getLogDir
         except:
-            grid = imp.load_module("salome_utils",
-                                     file_,
-                                     pathname,
-                                     description)
+            grid = imp.load_module(sal_uts, file_, pathname, description)
             return grid.getTmpDir
         finally:
             if file_:
@@ -600,7 +588,7 @@ class Test:
 
         binSalome, binPython, killSalome = self.generate_launching_commands()
         if self.settings.has_key("run_with_grids") and \
-           self.settings["run_with_grids"].has_key(sessionname):
+           sessionname in self.settings["run_with_grids"]:
             binSalome = (binSalome + " -m %s" % self.settings["run_with_grids"][sessionname])
 
         logWay = os.path.join(self.tmp_working_dir, "WORK", "log_cxx")
@@ -641,8 +629,7 @@ class Test:
                                 log=logWay,
                                 delaiapp=time_out_salome)
 
-        self.logger.write("status = %s, elapsed = %s\n" % (status, elapsed),
-                          5)
+        self.logger.write("status = %s, elapsed = %s\n" % (status, elapsed), 5)
 
         # create the test result to add in the config object
         test_info = src.pyconf.Mapping(self.config)
@@ -726,7 +713,13 @@ class Test:
         tests = os.listdir(os.path.join(self.currentDir,
                                         self.currentgrid,
                                         self.currentsession))
-        tests = filter(lambda l: l.endswith(".py"), tests)
+        # avoid result files of previous tests, if presents
+        # tests = filter(lambda l: l.endswith(".py"), tests)
+        tests = [t for t in tests if t.endswith(".py") \
+                   and not ( t.endswith(".out.py") or \
+                             t.endswith(".result.py") or \
+                             t.endswith("wrapperScript.py") \
+                           ) ]
         tests = sorted(tests, key=str.lower)
 
         # build list of known failures
@@ -856,7 +849,7 @@ Existing grids are:
                 self.run_grid_tests()
 
     def run_script(self, script_name):
-        if ('APPLICATION' in self.config and 
+        if ('APPLICATION' in self.config and
                 script_name in self.config.APPLICATION):
             script = self.config.APPLICATION[script_name]
             if len(script) == 0:

@@ -37,7 +37,7 @@ def get_user():
     '''
     # In windows case, the USERNAME environment variable has to be set
     if is_windows():
-        if not os.environ.has_key('USERNAME'):
+        if not 'USERNAME' in os.environ:
             raise Exception('USERNAME environment variable not set')
         return os.environ['USERNAME']
     else: # linux
@@ -93,6 +93,38 @@ def get_distribution(codes):
 
     return distrib
 
+# Added by Lioka RAZAFINDRAZAKA
+# <run_shell> and <get_infosys> functions are used to get info from shell command
+def run_shell(sh_cmd, pipe=True):
+    import subprocess
+    if pipe: popen = subprocess.Popen(sh_cmd, shell=True, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    else:    popen = subprocess.Popen(sh_cmd, shell=True, close_fds=True)
+    out_put = popen.communicate()
+    return out_put[0], out_put[1], popen.returncode
+
+def get_infosys():
+    import re, socket
+    osys = ""
+    version = ""
+    architecture = ""
+    osys_value = "Unknown"
+    os_dict = {"mandrivalinux":"MD", "centos":"CO", "RedHatEnterpriseServer":"CO", "RedHatEnterpriseWorkstation":"CO", "fedora":"FD", "ubuntu":"UB", "debian":"DB", "mageia":"MG",}
+    lsb_cmd = "lsb_release -ds"
+    output, errdata, return_code = run_shell(lsb_cmd)
+    regexp = r"(^[0-9]+([.]?[0-9]+)+)"
+    for an_item in output.replace('"','').split():
+        if re.match(regexp, an_item) is not None and not version:
+            version = ".".join(an_item.split(".")[:2])
+        else:
+            for sub_item in os_dict.keys():
+                if sub_item == an_item.lower():
+                    osys = an_item
+                    osys_value = os_dict[sub_item]
+        if version and osys: break
+    import platform
+    architecture = platform.architecture()[0][:2]
+    infosys = "_".join([osys,version,architecture,"bits",socket.gethostname(),osys_value+version])
+    return version, infosys
 
 def get_distrib_version(distrib, codes):
     '''Gets the version of the distribution

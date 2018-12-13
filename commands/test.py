@@ -52,7 +52,8 @@ parser.add_option('s', 'session', 'list2', 'sessions',
 parser.add_option('', 'display', 'string', 'display',
     _("Optional: set the display where to launch SALOME.\n"
 "\tIf value is NO then option --show-desktop=0 will be used to launch SALOME."))
-
+parser.add_option('', 'keep', 'boolean', 'keeptempdir',
+                  _('Optional: keep temporary directory.'))
 def description():
     '''method that is called when salomeTools is called with --help option.
     
@@ -62,7 +63,7 @@ def description():
     return _("The test command runs a test base on a SALOME installation.\n\n"
              "example:\nsat test SALOME-master --grid GEOM --session light")     
 
-def parse_option(args, config):
+def parse_option_old(args, config):
     """ Parse the options and do some verifications about it
     
     :param args List: The list of arguments of the command
@@ -76,8 +77,8 @@ def parse_option(args, config):
         options.launcher = ""
     elif not os.path.isabs(options.launcher):
         if not src.config_has_application(config):
-            raise src.SatException(_("An application is required to use a "
-                                     "relative path with option --appli"))
+            msg = _("An application is required to use a relative path with option --appli")
+            raise src.SatException(msg)
         options.launcher = os.path.join(config.APPLICATION.workdir,
                                         options.launcher)
 
@@ -86,6 +87,39 @@ def parse_option(args, config):
                                    options.launcher)
 
     return (options, args)
+
+
+def parse_option(args, config):
+    """ Parse the options and do some verifications about it
+
+    :param args List: The list of arguments of the command
+    :param config Config: The global configuration
+    :return: the options of the current command launch and the full arguments
+    :rtype: Tuple (options, args)
+    """
+    (options, args) = parser.parse_args(args)
+
+    if not options.launcher:
+        options.launcher = ""
+        return (options, args)
+
+    if not os.path.isabs(options.launcher):
+        if not src.config_has_application(config):
+            msg = _("An application is required to use a relative path with option --appli")
+            raise src.SatException(msg)
+        else:
+            options.launcher = os.path.join(config.APPLICATION.workdir, options.launcher)
+            if not os.path.exists(options.launcher):
+                raise src.SatException(_("Launcher not found: %s") %  options.launcher)
+
+    # absolute path
+    launcher = os.path.realpath(os.path.expandvars(options.launcher))
+    if os.path.exists(launcher):
+        options.launcher = launcher
+        return (options, args)
+
+    raise src.SatException(_("Launcher not found: %s") %  options.launcher)
+
 
 def ask_a_path():
     """ 
@@ -166,8 +200,8 @@ def move_test_results(in_dir, what, out_dir, logger):
             os.makedirs(outtestbase)
             #logger.write("  copy testbase %s\n" % testbase, 5)
 
-            for grid_ in [m for m in os.listdir(intestbase) if os.path.isdir(
-                                                os.path.join(intestbase, m))]:
+            for grid_ in [m for m in os.listdir(intestbase) \
+                            if os.path.isdir(os.path.join(intestbase, m))]:
                 # ignore source configuration directories
                 if grid_[:4] == '.git' or grid_ == 'CVS':
                     continue
@@ -245,23 +279,20 @@ def create_test_report(config,
     
     first_time = False
     if not os.path.exists(xml_history_path):
-        if verbose: print("first_time as NOT existing '%s'" % xml_history_path) # cvw TODO
+        print("Log file creation %s" % xml_history_path)
         first_time = True
         root = etree.Element("salome")
         prod_node = etree.Element("product", name=application_name, build=xmlname)
         root.append(prod_node)
     else:
-        if verbose: print("NOT first_time as existing '%s'" % xml_history_path) # cvw TODO
+        print("Log file modification %s" % xml_history_path)
         root = etree.parse(xml_history_path).getroot()
         prod_node = root.find("product")
-    
+
+
     prod_node.attrib["history_file"] = os.path.basename(xml_history_path)
     prod_node.attrib["global_res"] = retcode
 
-    # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
-    #               de remontee de log des tests
-    #print "TRACES OP - test.py/create_test_report() : xml_history_path = '#%s#'" %xml_history_path
-    
     if withappli:
         if not first_time:
             for node in (prod_node.findall("version_to_download") + 
@@ -305,7 +336,7 @@ def create_test_report(config,
         
         tt = {}
         for test in config.TESTS:
-            if not tt.has_key(test.testbase):
+            if not test.testbase in tt:
                 tt[test.testbase] = [test]
             else:
                 tt[test.testbase].append(test)
@@ -358,7 +389,7 @@ def create_test_report(config,
                 
                 mn.attrib["executed_last_time"] = "yes"
                 
-                if not sessions.has_key("%s/%s" % (test.grid, test.session)):
+                if not "%s/%s" % (test.grid, test.session) in sessions:
                     if first_time:
                         tyn = add_simple_node(mn, "session")
                         tyn.attrib['name'] = test.session
@@ -517,12 +548,8 @@ def create_test_report(config,
     if not xmlname.endswith(".xml"):
         xmlname += ".xml"
 
-    src.xmlManager.write_report(os.path.join(dest_path, xmlname),
-                                root,
-                                "test.xsl")
-    src.xmlManager.write_report(xml_history_path,
-                                root,
-                                "test_history.xsl")
+    src.xmlManager.write_report(os.path.join(dest_path, xmlname), root, "test.xsl")
+    src.xmlManager.write_report(xml_history_path, root, "test_history.xsl")
     return src.OK_STATUS
 
 def generate_history_xml_path(config, test_base):
@@ -636,15 +663,15 @@ def run(args, runner, logger):
     content = "\n".join(lines)
 
     # create hash from context information
-    dirname = datetime.datetime.now().strftime("%y%m%d_%H%M%S_") + sha1(content.encode()).hexdigest()[0:6]
+    # CVW TODO or not dirname = datetime.datetime.now().strftime("%y%m%d_%H%M%S_") + sha1(content.encode()).hexdigest()[0:8]
+    dirname = sha1(content.encode()).hexdigest()[0:8] # only 8 firsts probably good
     base_dir = os.path.join(tmp_dir, dirname)
     os.makedirs(base_dir)
     os.environ['TT_TMP_RESULT'] = base_dir
 
     # create env_info file
-    f = open(os.path.join(base_dir, 'env_info.py'), "w")
-    f.write(content)
-    f.close()
+    with open(os.path.join(base_dir, 'env_info.py'), "w") as f:
+        f.write(content)
 
     # create working dir and bases dir
     working_dir = os.path.join(base_dir, 'WORK')
@@ -698,7 +725,7 @@ def run(args, runner, logger):
     log_dir = src.get_log_path(runner.cfg)
     out_dir = os.path.join(log_dir, "TEST")
     src.ensure_path_exists(out_dir)
-    name_xml_board = logger.logFileName.split(".")[0] + "board" + ".xml"
+    name_xml_board = logger.logFileName.split(".")[0] + "_board.xml"
     historic_xml_path = generate_history_xml_path(runner.cfg, test_base)
     
     create_test_report(runner.cfg,
@@ -708,26 +735,22 @@ def run(args, runner, logger):
                        xmlname = name_xml_board)
     xml_board_path = os.path.join(out_dir, name_xml_board)
 
-    # OP 14/11/2017 Ajout de traces pour essayer de decouvrir le pb
-    #               de remontee de log des tests
-    #print "TRACES OP - test.py/run() : historic_xml_path = '#%s#'" %historic_xml_path
-    #print "TRACES OP - test.py/run() : log_dir           = '#%s#'" %log_dir
-    #print "TRACES OP - test.py/run() : name_xml_board    = '#%s#'" %name_xml_board
-
     logger.l_logFiles.append(xml_board_path)
     logger.add_link(os.path.join("TEST", name_xml_board),
                     "board",
                     retcode,
                     "Click on the link to get the detailed test results")
-    logger.write("\nTests board is file %s\n" % xml_board_path, 1)
+    logger.write("\nTests board file %s\n" % xml_board_path, 1)
 
     # Add the historic files into the log files list of the command
     logger.l_logFiles.append(historic_xml_path)
-    
-    logger.write(_("Removing the temporary directory: "
-                   "rm -rf %s\n" % test_runner.tmp_working_dir), 5)
-    if os.path.exists(test_runner.tmp_working_dir):
+
+    if not options.keeptempdir:
+      logger.write("Removing the temporary directory: rm -rf %s\n" % test_runner.tmp_working_dir, 5)
+      if os.path.exists(test_runner.tmp_working_dir):
         shutil.rmtree(test_runner.tmp_working_dir)
+    else:
+      logger.write("NOT Removing the temporary directory: rm -rf %s\n" % test_runner.tmp_working_dir, 5)
 
     return retcode
 

@@ -271,7 +271,7 @@ def check_yacsgen(config, directory, logger):
         yacsgen_info = src.product.get_product_config(config, 'YACSGEN')
         yacsgen_dir = yacsgen_info.install_dir
         yacs_src = _("Using YACSGEN from application")
-    elif os.environ.has_key("YACSGEN_ROOT_DIR"):
+    elif "YACSGEN_ROOT_DIR" in os.environ:
         yacsgen_dir = os.getenv("YACSGEN_ROOT_DIR")
         yacs_src = _("Using YACSGEN from environment")
 

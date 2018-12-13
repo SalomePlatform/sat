@@ -17,6 +17,8 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
+import shutil
+
 try: # For python2
     import sys
     reload(sys)  
@@ -26,6 +28,8 @@ except:
 
 import src
 from . import ElementTree as etree
+
+verbose = False
 
 class XmlLogFile(object):
     '''Class to manage writing in salomeTools xml log file
@@ -57,8 +61,7 @@ class XmlLogFile(object):
             f = open(log_file_path, 'w')
             f.write("<?xml version='1.0' encoding='utf-8'?>\n")
             if stylesheet:
-                f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % 
-                        stylesheet)    
+                f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" %  stylesheet)
             f.write(etree.tostring(self.xmlroot, encoding='utf-8'))
             f.close()
         except IOError:
@@ -200,15 +203,29 @@ def write_report(filename, xmlroot, stylesheet):
     :param xmlroot etree.Element: the Etree element to write to the file
     :param stylesheet str: The stylesheet to add to the begin of the file
     """
-    if not os.path.exists(os.path.dirname(filename)):
-        os.makedirs(os.path.dirname(filename))
-
-    f = open(filename, "w")
-    f.write("<?xml version='1.0' encoding='utf-8'?>\n")
+    dirname = os.path.dirname(filename)
+    if not os.path.exists(dirname):
+      os.makedirs(dirname)
     if len(stylesheet) > 0:
-        f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % stylesheet)
-    f.write(etree.tostring(xmlroot, encoding='utf-8'))
-    f.close()
+       styleName = stylesheet
+    else:
+       styleName = None
+
+    with open(filename, "w") as f:
+      f.write("<?xml version='1.0' encoding='utf-8'?>\n")
+      if styleName is not None:
+        f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % styleName)
+      f.write(etree.tostring(xmlroot, encoding='utf-8'))
+
+    # create fileStyle in dirname if not existing
+    if styleName is not None:
+      styleFile = os.path.join(dirname, styleName)
+      if not os.path.exists(styleFile):
+        # copy if from "salomeTools/src/xsl"
+        srcdir = os.path.dirname(src.__file__)
+        srcFile = os.path.join(srcdir, "xsl", styleName)
+        if verbose: print("write_report %s style %s" % (srcFile, styleFile))
+        shutil.copy(srcFile, dirname)
 
 def escapeSequence(aStr):
     """

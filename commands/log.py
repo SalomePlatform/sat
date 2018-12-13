@@ -34,20 +34,18 @@ import src
 
 # Define all possible option for log command :  sat log <options>
 parser = src.options.Options()
-parser.add_option('t', 'terminal', 'boolean', 'terminal', "Optional: "
-                  "Terminal log.")
-parser.add_option('l', 'last', 'boolean', 'last', "Show the log of the last "
-                  "Optional: launched command.")
-parser.add_option('', 'last_terminal', 'boolean', 'last_terminal', "Show the "
-                  "log of the last compilations"
-                  "Optional: launched command.")
-parser.add_option('f', 'full', 'boolean', 'full', "Optional: Show the logs of "
-                  "ALL the launched commands.")
-parser.add_option('c', 'clean', 'int', 'clean', "Optional: Erase the n most "
-                  "ancient log files.")
-parser.add_option('n', 'no_browser', 'boolean', 'no_browser', "Optional: Do not"
-                  " launch the browser at the end of the command. Only update "
-                  "the hat file.")
+parser.add_option('t', 'terminal', 'boolean', 'terminal',
+                  "Optional: Show the log (in terminal) of a command, with user choice.")
+parser.add_option('l', 'last', 'boolean', 'last',
+                  "Optional: Show the log (in browser) of the last launched command.")
+parser.add_option('', 'last_terminal', 'boolean', 'last_terminal',
+                  "Optional: Show the log (in terminal) of the last launched command.")
+parser.add_option('f', 'full', 'boolean', 'full',
+                  "Optional: Show the logs of ALL the launched commands.")
+parser.add_option('c', 'clean', 'int', 'clean',
+                  "Erase the n most ancient log files.")
+parser.add_option('n', 'no_browser', 'boolean', 'no_browser',
+                  "Optional: Do not launch the browser at the end of the command. Only update the hat file.")
 
 def get_last_log_file(logDir, notShownCommands):
     '''Used in case of last option. Get the last log command file path.

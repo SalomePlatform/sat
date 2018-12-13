@@ -37,23 +37,35 @@ __stderr__ = sys.stderr
 
 with open(r'${resultFile}', 'w') as exec_result:
   exec_result.write('Open\n')
-
+  print("ignore: %s" % ignore)
   for test in listTest:
+    fileTest = os.path.join(outWay, test)
+    # print("test file: %s" % fileTest) # cvw TODO
     with open(os.path.join(outWay, test[:-3] + ".result.py"), "w") as pylog:
       with open(os.path.join(outWay, test[:-3] + ".out.py"), "w") as testout:
         my_tools.init()
-        sys.stdout = testout
-        sys.stderr = testout
+        print("here set sys.stdout")
+        sys.stdout = testout # cvw TODO
+        sys.stderr = testout # cvw TODO
 
-        pylog.write('#-*- coding:utf-8 -*-\n')
+        # pylog.write('#!/usr/bin/env python\n')
         exec_result.write("Run %s " % test)
         exec_result.flush()
 
         try:
             timeStart = THEBIGTIME.time()
-            execfile(os.path.join(outWay, test), globals(), locals())
+            # cd ..print("begin... %s" % fileTest)
+            # execfile(fileTest, globals(), locals()) obsolete python3
+            with open(fileTest) as f:
+              # compile associates the filename with the code object making debugging a little easier
+              code = compile(f.read(), fileTest, 'exec')
+              exec(code, globals(), locals())
+            timeTest = THEBIGTIME.time() - timeStart
+            # print("...done %s" % fileTest)
             timeTest = THEBIGTIME.time() - timeStart
         except SatNotApplicableError as ex:
+            # print("here SatNotApplicableError")
+            # pylog.write("here SatNotApplicableError")
             status = "NA"
             reason = str(ex)
             exec_result.write("NA\n")
@@ -62,9 +74,11 @@ with open(r'${resultFile}', 'w') as exec_result:
             pylog.write('time = "' + timeTest.__str__() + '"\n')
             pylog.write('callback = "%s"\n' % reason)
         except Exception as ex:
+            # print("here Exception")
+            # pylog.write("here Exception pylog\n")
             status = "KO"
             reason = ""
-            if ignore.has_key(test):
+            if test in ignore:
                 status = "KF"
                 reason = "Known Failure = %s\n\n" % ignore[test]
             exec_result.write("%s\n" % status)
@@ -80,17 +94,23 @@ with open(r'${resultFile}', 'w') as exec_result:
                                       file=pylog)
             pylog.write('"""\n')
         else:
+            # print("here else")
+            # pylog.write("here else pylog")
             exec_result.write("OK\n")
             pylog.write('status = "OK"\n')
             pylog.write('time = "' + timeTest.__str__() + '"\n')
 
         pass
+        # print("here testout.flush")
+        testout.flush()
         # testout.close()
 
-      sys.stdout = __stdout__
-      sys.stderr = __stderr__
+      # print("here restore sys.stdout")
+      sys.stdout = __stdout__ # cvw TODO
+      sys.stderr = __stderr__ # cvw TODO
       my_tools.writeInFiles(pylog)
       pass
+      pylog.flush()
       # pylog.close()
 
   exec_result.write('Close\n')

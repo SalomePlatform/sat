@@ -81,7 +81,7 @@ class TParam:
         return len(val) > 0 and self.check_method(val)
 
 def get_dico_param(dico, key, default):
-    if dico.has_key(key):
+    if key in dico:
         return dico[key]
     return default
 
@@ -178,7 +178,7 @@ class TemplateSettings:
         # ask user for values
         for p in self.parameters:
             tp = TParam(p, self.compo_name, dico)
-            if dico.has_key(tp.name):
+            if tp.name in dico:
                 continue
             
             val = ""

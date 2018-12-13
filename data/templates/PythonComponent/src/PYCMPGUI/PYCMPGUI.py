@@ -87,7 +87,7 @@ def setDesktop( studyID ):
 
     global moduleDesktop, currentDesktop, objectsManager
 
-    if not moduleDesktop.has_key( studyID ):
+    if not studyID in moduleDesktop:
         moduleDesktop[studyID] = :sat:{PYCMP}Desktop( sgPyQt, sg )
         objectsManager = Controller( moduleDesktop[studyID] )
         moduleDesktop[studyID].setController( objectsManager )

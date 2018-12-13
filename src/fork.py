@@ -33,8 +33,7 @@ def show_progress(logger, top, delai, ss=""):
     :param delai int: the number max
     :param ss str: the string to display
     """
-    logger.write("\r%s\r%s %s / %s " % ((" " * 30), ss, top, (delai - top)), 4,
-                 False)
+    logger.write("\r%s\r%s timeout %s / %s stay %s s    " % ((" " * 30), ss, top, delai, (delai - top)), 4, False)
     logger.flush()
 
 def write_back(logger, message, level):
@@ -51,18 +50,19 @@ def write_back(logger, message, level):
 def launch_command(cmd, logger, cwd, args=[], log=None):
     if log:
         log = file(log, "a")
-    logger.write("launch: %s\n" % cmd, 5, screenOnly=True)
     for arg in args:
         cmd += " " + arg
 
-    # OP Add Windows case
+    logger.write("launch_command:\n%s\n" % cmd, 5, screenOnly=True)
+
+    # Add Windows case
     if src.architecture.is_windows():
         prs = subprocess.Popen(cmd,
                            shell=True,
                            stdout=log,
                            stderr=subprocess.STDOUT,
                            cwd=cwd)
-        pass
+
     else:
         prs = subprocess.Popen(cmd,
                            shell=True,
@@ -70,8 +70,7 @@ def launch_command(cmd, logger, cwd, args=[], log=None):
                            stderr=subprocess.STDOUT,
                            cwd=cwd,
                            executable='/bin/bash')
-        pass
-    # END OP
+
     return prs
 
 # Launch a batch
@@ -98,11 +97,12 @@ def batch(cmd, logger, cwd, args=[], log=None, delai=20, sommeil=1):
         write_back(logger, "batch: exit (%s)\n" % str(proc.returncode), 5)
     return (proc.returncode == 0), top
 
+
 # Launch a salome process
 # -----------------------
 def batch_salome(cmd, logger, cwd, args, getTmpDir,
-    pendant="SALOME_Session_Server", fin="killSalome.py",
-    log=None, delai=20, sommeil=1, delaiapp=0):
+                 pendant="SALOME_Session_Server", fin="killSalome.py",
+                 log=None, delai=20, sommeil=1, delaiapp=0):
 
     beginTime = time.time()
     launch_command(cmd, logger, cwd, args, log)
@@ -110,48 +110,59 @@ def batch_salome(cmd, logger, cwd, args, getTmpDir,
     if delaiapp == 0:
         delaiapp = delai
 
-    # first launch salome (looking for .pidict file)
+    # first launch salome (looking for _pidict file)
     top = 0
     found = False
+    foundSalome = "batch salome not seen"
     tmp_dir = getTmpDir()
+    # print("batch_salome %s %s / %s sommeil %s:\n%s" % (tmp_dir, delai, delaiapp, sommeil, cmd))
     while (not found and top < delaiapp):
         if os.path.exists(tmp_dir):
             listFile = os.listdir(tmp_dir)
+            listFile = [f for f in listFile if f.endswith("_pidict")]
+            # print("listFile %s" % listFile)
         else:
             listFile = []
 
         for file_name in listFile:
-            if file_name.endswith("pidict"):
-                # sometime we get a old file that will be removed by runSalome.
-                # So we test that we can read it.
-                currentTime = None
-                try:
-                    statinfo = os.stat(os.path.join(tmp_dir, file_name))
-                    currentTime = statinfo.st_mtime
-                except: pass
+            # sometime we get a old file that will be removed by runSalome.
+            # So we test that we can read it.
+            currentTime = None
+            try:
+                statinfo = os.stat(os.path.join(tmp_dir, file_name))
+                currentTime = statinfo.st_mtime
+            except:
+                pass
 
-                if currentTime and currentTime > beginTime:
-                    try:
-                        file_ = open(os.path.join(tmp_dir, file_name), "r")
+            if currentTime and currentTime > beginTime:
+                found = True
+                pidictFile = file_name
+
+                """
+                # CVW avoid unsupported pickle protocol: 3 because pidict from python3 KERNEL/bin/salome/addToKillList.py
+                try:
+                    with open(os.path.join(tmp_dir, file_name), "r") as file_:
                         process_ids = pickle.load(file_)
-                        file_.close()
-                        for process_id in process_ids:
-                            for __, cmd in process_id.items():
-                                if cmd == [pendant]:
-                                    found = True
-                                    pidictFile = file_name
-                    except:
-                        file_.close()
+                    # print("pidict %s" % process_ids)
+                    for process_id in process_ids:
+                        for __, cmd in process_id.items():
+                            if cmd == [pendant]:
+                                foundSalome = "batch salome started"
+                                pidictFile = file_name
+                except Exception as e:
+                    foundSalome = "python version %s problem reading file: %s" % (sys.version, e)
+                    pass
+                """
 
         time.sleep(sommeil)
         top += 1
-        show_progress(logger, top, delaiapp, "launching salome or appli:")
+        show_progress(logger, top, delaiapp, "launching salome or appli found=%s:" % found)
 
     # continue or not
     if found:
-        write_back(logger, "batch_salome: started\n", 5)
+        logger.write("\nbatch_salome: supposed started\n", 5)
     else:
-        logger.write("batch_salome: FAILED to launch salome or appli\n", 3)
+        logger.write("\nbatch_salome: seems FAILED to launch salome or appli\n" % foundSalome, 3)
         return False, -1
 
     # salome launched run the script

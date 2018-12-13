@@ -17,11 +17,12 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
+import sys
 import platform
 import datetime
 import shutil
 import gettext
-import sys
+import pprint as PP
 
 import src
 import src.debug as DBG
@@ -223,8 +224,9 @@ class ConfigManager:
         
         # =====================================================================
         # create VARS section
-        var = self._create_vars(application=application, command=command, 
-                                datadir=datadir)
+        var = self._create_vars(application=application, command=command, datadir=datadir)
+        print("create_vars:\n%s" % PP.pformat(var))
+
         # add VARS to config
         cfg.VARS = src.pyconf.Mapping(cfg)
         for variable in var:
@@ -891,6 +893,9 @@ def description():
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with config parameter.
     '''
+    import src.architecture as ARCH
+    print("get_infosys %s " % PP.pformat(ARCH.get_infosys()))
+
     # Parse the options
     (options, args) = parser.parse_args(args)
 

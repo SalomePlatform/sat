@@ -729,7 +729,7 @@ class ScreenEnviron(FileEnviron):
              src.printcolors.printcInfo(name), sign, value))
 
     def is_defined(self, name):
-        return self.defined.has_key(name)
+        return name in self.defined
 
     def get(self, name):
         return "${%s}" % name
