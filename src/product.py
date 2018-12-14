@@ -484,7 +484,14 @@ def add_compile_config_file(p_info, config):
     aFile = os.path.join(p_info.install_dir, PRODUCT_FILENAME)
     with open(aFile, 'w') as f:
       # f.write(DBG.getStrConfigDbg(p_info)) # debug mode
-      p_info.__save__(f, evaluated=True) # evaluated expressions mode
+      try:
+          p_info.__save__(f, evaluated=True) # evaluated expressions mode
+      except:
+          # the second file is not mandatory. In the context of non VCS archives, p_info cannot be evaluated
+          # because information on git server is not available.  In this case, we skip the writing without raising an error.
+          #DBG.write("cannot evaluate product info - do not write ", PRODUCT_FILENAME, True)
+          pass
+          
 
 
 def check_config_exists(config, prod_dir, prod_info, verbose=False):
