@@ -51,8 +51,8 @@ parser.add_option('', 'show_properties', 'boolean', 'show_properties',
     _("Optional: synthetic list of all properties used in the application"))
 parser.add_option('c', 'copy', 'boolean', 'copy',
     _("""Optional: copy a config file to the personal config files directory.
-\tWARNING the included files are not copied.
-\tIf a name is given the new config file takes the given name."""))
+WARNING: the included files are not copied.
+If a name is given the new config file takes the given name."""))
 parser.add_option('n', 'no_label', 'boolean', 'no_label',
     _("Internal use: do not print labels, Works only with --value and --list."))
 parser.add_option('', 'completion', 'boolean', 'completion',
@@ -118,45 +118,37 @@ class ConfigManager:
         if datadir is not None:
             var['datadir'] = datadir
 
-        var['personalDir'] = os.path.join(os.path.expanduser('~'),
-                                           '.salomeTools')
+        var['personalDir'] = os.path.join(os.path.expanduser('~'), '.salomeTools')
         src.ensure_path_exists(var['personalDir'])
 
-        var['personal_applications_dir'] = os.path.join(var['personalDir'],
-                                                        "Applications")
+        var['personal_applications_dir'] = os.path.join(var['personalDir'], "Applications")
         src.ensure_path_exists(var['personal_applications_dir'])
         
-        var['personal_products_dir'] = os.path.join(var['personalDir'],
-                                                    "products")
+        var['personal_products_dir'] = os.path.join(var['personalDir'], "products")
         src.ensure_path_exists(var['personal_products_dir'])
         
-        var['personal_archives_dir'] = os.path.join(var['personalDir'],
-                                                    "Archives")
+        var['personal_archives_dir'] = os.path.join(var['personalDir'], "Archives")
         src.ensure_path_exists(var['personal_archives_dir'])
 
-        var['personal_jobs_dir'] = os.path.join(var['personalDir'],
-                                                "Jobs")
+        var['personal_jobs_dir'] = os.path.join(var['personalDir'], "Jobs")
         src.ensure_path_exists(var['personal_jobs_dir'])
 
-        var['personal_machines_dir'] = os.path.join(var['personalDir'],
-                                                    "Machines")
+        var['personal_machines_dir'] = os.path.join(var['personalDir'], "Machines")
         src.ensure_path_exists(var['personal_machines_dir'])
 
         # read linux distributions dictionary
-        distrib_cfg = src.pyconf.Config(os.path.join(var['srcDir'],
-                                                      'internal_config',
-                                                      'distrib.pyconf'))
+        distrib_cfg = src.pyconf.Config(os.path.join(var['srcDir'], 'internal_config', 'distrib.pyconf'))
         
         # set platform parameters
-        dist_name = src.architecture.get_distribution(
-                                            codes=distrib_cfg.DISTRIBUTIONS)
-        dist_version = src.architecture.get_distrib_version(dist_name, 
-                                                    codes=distrib_cfg.VERSIONS)
+        dist_name = src.architecture.get_distribution(codes=distrib_cfg.DISTRIBUTIONS)
+        dist_version = src.architecture.get_distrib_version(dist_name,  codes=distrib_cfg.VERSIONS)
+        dist_version_full = src.architecture.get_infosys()
         dist = dist_name + dist_version
         
         var['dist_name'] = dist_name
         var['dist_version'] = dist_version
         var['dist'] = dist
+        var['dist_ref'] = dist_name + dist_version_full
         var['python'] = src.architecture.get_python_version()
 
         var['nb_proc'] = src.architecture.get_nb_proc()
@@ -225,7 +217,7 @@ class ConfigManager:
         # =====================================================================
         # create VARS section
         var = self._create_vars(application=application, command=command, datadir=datadir)
-        print("create_vars:\n%s" % PP.pformat(var))
+        DBG.write("create_vars", var, DBG.isDeveloper())
 
         # add VARS to config
         cfg.VARS = src.pyconf.Mapping(cfg)
@@ -893,9 +885,6 @@ def description():
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with config parameter.
     '''
-    import src.architecture as ARCH
-    print("get_infosys %s " % PP.pformat(ARCH.get_infosys()))
-
     # Parse the options
     (options, args) = parser.parse_args(args)
 

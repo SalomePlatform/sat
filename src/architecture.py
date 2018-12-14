@@ -58,16 +58,14 @@ def _lsb_release(args):
             path = lsb_path + ":" + path
         
         from subprocess import Popen, PIPE
-        res = Popen(['lsb_release', args], env={'PATH': path},
-                     stdout=PIPE).communicate()[0][:-1]
+        res = Popen(['lsb_release', args], env={'PATH': path}, stdout=PIPE).communicate()[0][:-1]
         # in case of python3, convert byte to str
         if isinstance(res, bytes):
             res = res.decode()
         return res
     except OSError:
         sys.stderr.write(_(u"lsb_release not installed\n"))
-        sys.stderr.write(_(u"You can define $LSB_PATH to give"
-                           " the path to lsb_release\n"))
+        sys.stderr.write(_(u"You can define $LSB_PATH to give the path to lsb_release\n"))
         sys.exit(-1)
 
 def get_distribution(codes):
@@ -87,30 +85,35 @@ def get_distribution(codes):
         distrib = codes[distrib]
     else:
         sys.stderr.write(_(u"Unknown distribution: '%s'\n") % distrib)
-        sys.stderr.write(_(u"Please add your distribution to"
-                           " src/internal_config/distrib.pyconf\n"))
+        sys.stderr.write(_(u"Please add your distribution to src/internal_config/distrib.pyconf\n"))
         sys.exit(-1)
 
     return distrib
 
-# Added by Lioka RAZAFINDRAZAKA
-# <run_shell> and <get_infosys> functions are used to get info from shell command
-def run_shell(sh_cmd, pipe=True):
-    import subprocess
-    if pipe: popen = subprocess.Popen(sh_cmd, shell=True, stdin=None, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    else:    popen = subprocess.Popen(sh_cmd, shell=True, close_fds=True)
-    out_put = popen.communicate()
-    return out_put[0], out_put[1], popen.returncode
-
 def get_infosys():
-    import re, socket
+    """
+    from a CentOS example,
+    returns '7.6'  from  command 'lsb_release -ds'
+    extracted from 'CentOS Linux release 7.6.1810 (Core)'
+    and also for RedHat fedora etc.
+    """
+    import re
     osys = ""
     version = ""
     architecture = ""
     osys_value = "Unknown"
-    os_dict = {"mandrivalinux":"MD", "centos":"CO", "RedHatEnterpriseServer":"CO", "RedHatEnterpriseWorkstation":"CO", "fedora":"FD", "ubuntu":"UB", "debian":"DB", "mageia":"MG",}
-    lsb_cmd = "lsb_release -ds"
-    output, errdata, return_code = run_shell(lsb_cmd)
+    os_dict = {"mandrivalinux":"MD",
+               "centos":"CO",
+               "RedHatEnterpriseServer":"CO",
+               "RedHatEnterpriseWorkstation":"CO",
+               "fedora":"FD",
+               "ubuntu":"UB",
+               "debian":"DB",
+               "mageia":"MG",}
+    # lsb_cmd = "lsb_release -ds"
+    args = "-ds"
+    output = _lsb_release(args)
+    # print("lsb_release output %s" % output)
     regexp = r"(^[0-9]+([.]?[0-9]+)+)"
     for an_item in output.replace('"','').split():
         if re.match(regexp, an_item) is not None and not version:
@@ -121,10 +124,7 @@ def get_infosys():
                     osys = an_item
                     osys_value = os_dict[sub_item]
         if version and osys: break
-    import platform
-    architecture = platform.architecture()[0][:2]
-    infosys = "_".join([osys,version,architecture,"bits",socket.gethostname(),osys_value+version])
-    return version, infosys
+    return version
 
 def get_distrib_version(distrib, codes):
     '''Gets the version of the distribution
