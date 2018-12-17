@@ -37,23 +37,21 @@ from src.xmlManager import add_simple_node
 # Define all possible option for the test command :  sat test <options>
 parser = src.options.Options()
 parser.add_option('b', 'base', 'string', 'base',
-    _("Optional: Indicate the name of the test base to use.\n\tThis name has to"
-      " be registered in your application and in a project.\n\tA path to a "
-      "test base can also be used."))
+    _("""Optional: The name of the test base to use."
+          This name has to be registered in your application and in a project.
+          A path to a test base can also be used."""))
 parser.add_option('l', 'launcher', 'string', 'launcher',
-    _("Optional: Use this option to specify the path to a SALOME launcher to "
-      "use to launch the test scripts of the test base."))
+    _("""Optional: Specify the path to a SALOME launcher
+          used to launch the test scripts of the test base."""))
 parser.add_option('g', 'grid', 'list', 'grids',
-    _('Optional: Indicate which grid(s) to test (subdirectory of the test '
-      'base).'))
+    _('Optional: Which grid(s) to test (subdirectory of the test base).'))
 parser.add_option('s', 'session', 'list2', 'sessions',
-    _('Optional: indicate which session(s) to test (subdirectory of the '
-      'grid).'))
+    _('Optional: Which session(s) to test (subdirectory of the grid).'))
 parser.add_option('', 'display', 'string', 'display',
-    _("Optional: set the display where to launch SALOME.\n"
-"\tIf value is NO then option --show-desktop=0 will be used to launch SALOME."))
+    _("""Optional: Set the display where to launch SALOME.
+          If value is NO then option --show-desktop=0 will be used to launch SALOME."""))
 parser.add_option('', 'keep', 'boolean', 'keeptempdir',
-                  _('Optional: keep temporary directory.'))
+                  _('Optional: keep temporary big tests directories.'))
 def description():
     '''method that is called when salomeTools is called with --help option.
     
@@ -262,6 +260,14 @@ def check_remote_machine(machine_name, logger):
     else:
         logger.write(src.printcolors.printcSuccess(src.OK_STATUS) + "\n\n", 4)
 
+def findOrCreateNode(parentNode, nameNodeToFind):
+    found = parentNode.find(nameNodeToFind)
+    if found is None:
+      created = add_simple_node(parentNode, nameNodeToFind)
+      return created
+    else:
+      return found
+
 ##
 # Creates the XML report for a product.
 def create_test_report(config,
@@ -299,40 +305,27 @@ def create_test_report(config,
                          prod_node.findall("out_dir")):
                 prod_node.remove(node)
                 
-        add_simple_node(prod_node, "version_to_download",
-                        config.APPLICATION.name)
-        
+        add_simple_node(prod_node, "version_to_download", config.APPLICATION.name)
         add_simple_node(prod_node, "out_dir", config.APPLICATION.workdir)
 
     # add environment
     if not first_time:
         for node in prod_node.findall("exec"):
-                prod_node.remove(node)
+            prod_node.remove(node)
         
     exec_node = add_simple_node(prod_node, "exec")
     exec_node.append(etree.Element("env", name="Host", value=config.VARS.node))
-    exec_node.append(etree.Element("env", name="Architecture",
-                                   value=config.VARS.dist))
-    exec_node.append(etree.Element("env", name="Number of processors",
-                                   value=str(config.VARS.nb_proc)))    
-    exec_node.append(etree.Element("env", name="Begin date",
-                                   value=src.parse_date(date_hour)))
-    exec_node.append(etree.Element("env", name="Command",
-                                   value=config.VARS.command))
-    exec_node.append(etree.Element("env", name="sat version",
-                                   value=config.INTERNAL.sat_version))
+    exec_node.append(etree.Element("env", name="Architecture", value=config.VARS.dist))
+    exec_node.append(etree.Element("env", name="Number of processors", value=str(config.VARS.nb_proc)))
+    exec_node.append(etree.Element("env", name="Begin date", value=src.parse_date(date_hour)))
+    exec_node.append(etree.Element("env", name="Command", value=config.VARS.command))
+    exec_node.append(etree.Element("env", name="sat version", value=config.INTERNAL.sat_version))
 
     if 'TESTS' in config:
-        if first_time:
-            tests = add_simple_node(prod_node, "tests")
-            known_errors = add_simple_node(prod_node, "known_errors")
-            new_errors = add_simple_node(prod_node, "new_errors")
-            amend = add_simple_node(prod_node, "amend")
-        else:
-            tests = prod_node.find("tests")
-            known_errors = prod_node.find("known_errors")
-            new_errors = prod_node.find("new_errors")
-            amend = prod_node.find("amend")
+        tests = findOrCreateNode(prod_node, "tests")
+        known_errors = findOrCreateNode(prod_node, "known_errors")
+        new_errors = findOrCreateNode(prod_node, "new_errors")
+        amend = findOrCreateNode(prod_node, "amend")
         
         tt = {}
         for test in config.TESTS:
@@ -343,27 +336,25 @@ def create_test_report(config,
         
         for testbase in tt.keys():
             if verbose: print("---- create_test_report %s %s" % (testbase, first_time))
-            if first_time:
-                gn = add_simple_node(tests, "testbase")
-            else:
-                gn = tests.find("testbase")
-                # initialize all grids and session to "not executed"
-                for mn in gn.findall("grid"):
-                    mn.attrib["executed_last_time"] = "no"
-                    for tyn in mn.findall("session"):
-                        tyn.attrib["executed_last_time"] = "no"
-                        for test_node in tyn.findall('test'):
-                            for node in test_node.getchildren():
-                                if node.tag != "history":
-                                    test_node.remove(node)
-                            
-                            attribs_to_pop = []    
-                            for attribute in test_node.attrib:
-                                if (attribute != "script" and 
-                                                        attribute != "res"):
-                                    attribs_to_pop.append(attribute)
-                            for attribute in attribs_to_pop:
-                                test_node.attrib.pop(attribute)
+            gn = findOrCreateNode(tests, "testbase")
+            
+            # initialize all grids and session to "not executed"
+            for mn in gn.findall("grid"):
+                mn.attrib["executed_last_time"] = "no"
+                for tyn in mn.findall("session"):
+                    tyn.attrib["executed_last_time"] = "no"
+                    for test_node in tyn.findall('test'):
+                        for node in test_node.getchildren():
+                            if node.tag != "history":
+                                test_node.remove(node)
+
+                        attribs_to_pop = []
+                        for attribute in test_node.attrib:
+                            if (attribute != "script" and
+                                                    attribute != "res"):
+                                attribs_to_pop.append(attribute)
+                        for attribute in attribs_to_pop:
+                            test_node.attrib.pop(attribute)
             
             gn.attrib['name'] = testbase
             nb, nb_pass, nb_failed, nb_timeout, nb_not_run = 0, 0, 0, 0, 0
