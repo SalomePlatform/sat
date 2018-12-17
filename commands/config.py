@@ -217,7 +217,7 @@ class ConfigManager:
         # =====================================================================
         # create VARS section
         var = self._create_vars(application=application, command=command, datadir=datadir)
-        DBG.write("create_vars", var, DBG.isDeveloper())
+        # DBG.write("create_vars", var, DBG.isDeveloper())
 
         # add VARS to config
         cfg.VARS = src.pyconf.Mapping(cfg)

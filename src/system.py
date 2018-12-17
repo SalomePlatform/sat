@@ -21,8 +21,9 @@ In this file : all functions that do a system call,
 like open a browser or an editor, or call a git command
 '''
 
-import subprocess
 import os
+import subprocess
+import time
 import tarfile
 
 import debug as DBG
@@ -81,7 +82,7 @@ git clone %(remote)s %(where)s
 
     cmd = r"""
 set -x
-rmdir %(where)s && \
+rmdir %(where)s
 git clone %(remote)s %(where)s && \
 git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s
 """
@@ -95,7 +96,12 @@ git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s
   logger.logTxtFile.flush()
 
   DBG.write("cmd", cmd)
-  rc = UTS.Popen(cmd, cwd=str(where.dir()), env=environment.environ.environ, logger=logger)
+
+  for nbtry in range(0,3): # retries case of network problem
+    rc = UTS.Popen(cmd, cwd=str(where.dir()), env=environment.environ.environ, logger=logger)
+    if rc.isOk(): break
+    time.sleep(30) # wait a little
+
   return rc.isOk()
 
   """
@@ -143,7 +149,7 @@ def git_extract_sub_dir(from_what, tag, where, sub_dir, logger, environment=None
   cmd = r"""
 set -x
 export tmpDir=%(tmpWhere)s && \
-rm -rf $tmpDir && \
+rm -rf $tmpDir
 git clone %(remote)s $tmpDir && \
 cd $tmpDir && \
 git checkout %(tag)s && \
@@ -152,9 +158,13 @@ git log -1 > %(where)s/README_git_log.txt && \
 rm -rf $tmpDir
 """ % aDict
   DBG.write("cmd", cmd)
-  rc = UTS.Popen(cmd, cwd=parentWhere, env=environment.environ.environ, logger=logger)
-  return rc.isOk()
 
+  for nbtry in range(0,3): # retries case of network problem
+    rc = UTS.Popen(cmd, cwd=parentWhere, env=environment.environ.environ, logger=logger)
+    if rc.isOk(): break
+    time.sleep(30) # wait a little
+
+  return rc.isOk()
 
 def archive_extract(from_what, where, logger):
     '''Extracts sources from an archive.

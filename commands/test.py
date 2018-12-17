@@ -268,6 +268,30 @@ def findOrCreateNode(parentNode, nameNodeToFind):
     else:
       return found
 
+def purgeEmptyNodes(root):
+    """
+    recursive remove node.text and node.tail if empty node
+    as nothing else than whitespace(s) and RCLF(s)
+
+    | this is comes from
+    | 1) pretty print file xml -> creates indentation(s) in text and tail
+    | 2) and reload parse file xml
+    """
+    # print("root", root.tag, root.text)
+    text = root.text
+    tail = root.tail
+    if text is not None:
+      if text.replace(" ", "").replace("\n", "") == "":
+        # print("purgeEmptyNodes text %s" % root.tag)
+        root.text = None
+    if tail is not None:
+      if tail.replace(" ", "").replace("\n", "") == "":
+        # print("purgeEmptyNodes tail %s" % root.tag)
+        root.tail = None
+    for node in root:
+      purgeEmptyNodes(node)
+    return
+
 ##
 # Creates the XML report for a product.
 def create_test_report(config,
@@ -293,6 +317,7 @@ def create_test_report(config,
     else:
         print("Log file modification %s" % xml_history_path)
         root = etree.parse(xml_history_path).getroot()
+        purgeEmptyNodes(root)
         prod_node = root.find("product")
 
 
@@ -337,7 +362,7 @@ def create_test_report(config,
         for testbase in tt.keys():
             if verbose: print("---- create_test_report %s %s" % (testbase, first_time))
             gn = findOrCreateNode(tests, "testbase")
-            
+
             # initialize all grids and session to "not executed"
             for mn in gn.findall("grid"):
                 mn.attrib["executed_last_time"] = "no"
