@@ -482,23 +482,21 @@ def add_compile_config_file(p_info, config):
 
     # this file is not mandatory, is for human eye reading
     aFile = os.path.join(p_info.install_dir, PRODUCT_FILENAME)
-    with open(aFile, 'w') as f:
-      # f.write(DBG.getStrConfigDbg(p_info)) # debug mode
-      try:
-        with open(aFile, 'w') as f:
-          p_info.__save__(f, evaluated=True) # evaluated expressions mode
-      except:
-        DBG.write("cannot evaluate product info - problem in file %s" % aFile, p_info, True)
-        # write DBG mode, as no problem if evaluation not possible
-        msg = """\
+    try:
+      with open(aFile, 'w') as f:
+        p_info.__save__(f, evaluated=True) # evaluated expressions mode
+    except:
+      DBG.write("cannot evaluate product info - problem in file %s" % aFile, p_info, True)
+      # write DBG mode, as no problem if evaluation not possible
+      msg = """\
 # Some informations cannot be evaluated.
 # for example:
 # In the context of non VCS archives, information on git server is not available.
   
 """
-        with open(aFile, 'w') as f:
-          f.write(msg)
-          f.write(DBG.getStrConfigDbg(p_info))
+      with open(aFile, 'w') as f:
+        f.write(msg)
+        f.write(DBG.getStrConfigDbg(p_info))
 
 def check_config_exists(config, prod_dir, prod_info, verbose=False):
     """\
