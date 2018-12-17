@@ -32,6 +32,15 @@ try:
 except NameError: 
     pass
 
+# Python 2/3 compatibility for execfile function
+try:
+    execfile
+except:
+    def execfile(somefile, global_vars, local_vars):
+        with open(somefile) as f:
+            code = compile(f.read(), somefile, 'exec')
+            exec(code, global_vars, local_vars)
+
 parser = src.options.Options()
 parser.add_option('n', 'name', 'string', 'name',
     _("""REQUIRED: the name of the module to create.
@@ -183,7 +192,7 @@ class TemplateSettings:
             
             val = ""
             while not tp.check_value(val):
-                val = raw_input(tp.prompt)
+                val = input(tp.prompt)
                 if len(val) == 0 and len(tp.default) > 0:
                     val = tp.default
             dico[tp.name] = val
@@ -193,7 +202,7 @@ class TemplateSettings:
         for p in filter(lambda l: not dico.has_key(l), pyconfparam):
             rep = ""
             while len(rep) == 0:
-                rep = raw_input("%s? " % p)
+                rep = input("%s? " % p)
             dico[p] = rep
 
         self.dico = dico

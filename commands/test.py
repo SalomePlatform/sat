@@ -23,6 +23,13 @@ import subprocess
 import datetime
 import gzip
 
+# Compatibility python 2/3 for input function
+# input stays input for python 3 and input = raw_input for python 2
+try:
+    input = raw_input
+except NameError:
+    pass
+
 verbose = False
 
 try:
@@ -122,9 +129,9 @@ def parse_option(args, config):
 def ask_a_path():
     """ 
     """
-    path = raw_input("enter a path where to save the result: ")
+    path = input("enter a path where to save the result: ")
     if path == "":
-        result = raw_input("the result will be not save. Are you sure to "
+        result = input("the result will be not save. Are you sure to "
                            "continue ? [y/n] ")
         if result == "y":
             return path
@@ -132,7 +139,7 @@ def ask_a_path():
             return ask_a_path()
 
     elif os.path.exists(path):
-        result = raw_input("Warning, the content of %s will be deleted. Are you"
+        result = input("Warning, the content of %s will be deleted. Are you"
                            " sure to continue ? [y/n] " % path)
         if result == "y":
             return path
