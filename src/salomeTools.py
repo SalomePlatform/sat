@@ -481,8 +481,7 @@ class Sat(object):
                 except Exception as e:
                     # Get error
                     logger_command.write("\n***** ", 1)
-                    logger_command.write(src.printcolors.printcError(
-                                                       "salomeTools ERROR:"), 1)
+                    logger_command.write(src.printcolors.printcError( "salomeTools ERROR: sat %s" % __nameCmd__), 1)
                     logger_command.write("\n" + str(e) + "\n\n", 1)
                     # get stack
                     __, __, exc_traceback = sys.exc_info()
@@ -493,8 +492,7 @@ class Sat(object):
                     verbosity = 5
                     if self.options.debug_mode:
                         verbosity = 1
-                    logger_command.write("TRACEBACK: %s" % stack.replace('"',"'"),
-                                         verbosity)
+                    logger_command.write("TRACEBACK: %s" % stack.replace('"',"'"), verbosity)
                 finally:
                     # set res if it is not set in the command
                     if res is None:

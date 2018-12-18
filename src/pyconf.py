@@ -481,7 +481,7 @@ class Mapping(Container):
     def __getitem__(self, key):
         data = object.__getattribute__(self, 'data')
         if key not in data:
-            raise AttributeError(key)
+            raise AttributeError("Unknown pyconf key: '%s'" % key)
         rv = data[key]
         return self.evaluate(rv)
 
@@ -817,7 +817,7 @@ class Sequence(Container):
         try:
             rv = data[index]
         except (IndexError, KeyError, TypeError):
-            raise ConfigResolutionError('%r is not a valid index for %r' % (index, object.__getattribute__(self, 'path')))
+            raise ConfigResolutionError('Invalid pyconf index %r for %r' % (index, object.__getattribute__(self, 'path')))
         if not isinstance(rv, list):
             rv = self.evaluate(rv)
         else:

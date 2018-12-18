@@ -134,7 +134,7 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
 
     for name in names:
         # display information
-        len_points = max_len - len(name)
+        len_points = max_len - len(name) + 3
         local_path, archive_path = d_content[name]
         in_archive = os.path.join(name_archive, archive_path)
         logger.write(name + " " + len_points * "." + " "+ in_archive + " ", 3)
@@ -197,8 +197,7 @@ def produce_relative_launcher(config,
         bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin","salome") 
 
     # check if the application contains an application module
-    l_product_info = src.product.get_products_infos(config.APPLICATION.products.keys(),
-                                                    config)
+    l_product_info = src.product.get_products_infos(config.APPLICATION.products.keys(), config)
     salome_application_name="Not defined" 
     for prod_name, prod_info in l_product_info:
         # look for a salome application
@@ -1278,8 +1277,7 @@ def run(args, runner, logger):
                                                     runner.cfg.VARS.application), 1)
         
         # Get the default directory where to put the packages
-        package_default_path = os.path.join(runner.cfg.APPLICATION.workdir,
-                                            "PACKAGE")
+        package_default_path = os.path.join(runner.cfg.APPLICATION.workdir, "PACKAGE")
         src.ensure_path_exists(package_default_path)
         
     # if the package contains a project:
@@ -1294,9 +1292,7 @@ def run(args, runner, logger):
                 break
 
         if foundProject is None:
-            local_path = os.path.join(runner.cfg.VARS.salometoolsway,
-                                     "data",
-                                     "local.pyconf")
+            local_path = os.path.join(runner.cfg.VARS.salometoolsway, "data", "local.pyconf")
             msg = _("""ERROR: the project %(1)s is not visible by salomeTools.
 known projects are:
 %(2)s
@@ -1454,9 +1450,9 @@ Please add it in file:
             d_files_to_add[file_name] = (file_path, file_name)
 
     logger.write("\n", 2)
-
     logger.write(src.printcolors.printcLabel(_("Actually do the package")), 2)
     logger.write("\n", 2)
+    logger.write("\nfiles and directories to add:\n%s\n\n" % PP.pformat(d_files_to_add), 5)
 
     res = 0
     try:
@@ -1478,10 +1474,17 @@ Please add it in file:
         logger.write(_("\n"), 1)
         return 1
     
+    # case if no application, only package sat as 'sat package -t'
+    try:
+        app = runner.cfg.APPLICATION
+    except:
+        app = None
+
     # unconditionaly remove the tmp_local_working_dir
-    tmp_local_working_dir = os.path.join(runner.cfg.APPLICATION.workdir, "tmp_package")
-    if os.path.isdir(tmp_local_working_dir):
-      shutil.rmtree(tmp_local_working_dir)
+    if app is not None:
+        tmp_local_working_dir = os.path.join(app.workdir, "tmp_package")
+        if os.path.isdir(tmp_local_working_dir):
+            shutil.rmtree(tmp_local_working_dir)
 
     # have to decide some time
     DBG.tofix("make shutil.rmtree('%s') effective" % tmp_working_dir, "", DBG.isDeveloper())
