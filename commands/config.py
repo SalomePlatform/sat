@@ -350,6 +350,7 @@ class ConfigManager:
         cfg.PATHS.PRODUCTPATH.append(cfg.VARS.personal_products_dir, "")
         cfg.PATHS["ARCHIVEPATH"] = src.pyconf.Sequence(cfg.PATHS)
         cfg.PATHS.ARCHIVEPATH.append(cfg.VARS.personal_archives_dir, "")
+        cfg.PATHS["ARCHIVEFTP"] = src.pyconf.Sequence(cfg.PATHS)
         cfg.PATHS["JOBPATH"] = src.pyconf.Sequence(cfg.PATHS)
         cfg.PATHS.JOBPATH.append(cfg.VARS.personal_jobs_dir, "")
         cfg.PATHS["MACHINEPATH"] = src.pyconf.Sequence(cfg.PATHS)
@@ -364,6 +365,7 @@ class ConfigManager:
             for PATH in ["APPLICATIONPATH",
                          "PRODUCTPATH",
                          "ARCHIVEPATH", #comment this for default archive  	#8646
+                         "ARCHIVEFTP",
                          "JOBPATH",
                          "MACHINEPATH"]:
                 if PATH not in cfg.PROJECTS.projects[project]:

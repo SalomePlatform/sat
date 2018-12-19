@@ -182,33 +182,23 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
             prod_info.addMapping("archive_info",
                                  src.pyconf.Mapping(prod_info),
                                  "")
-        if "archive_name" not in prod_info.archive_info: 
-            arch_name = product_name + "-" + version + ".tar.gz"
-            arch_path = src.find_file_in_lpath(arch_name,
-                                               config.PATHS.ARCHIVEPATH)
-            if not arch_path:
-                msg = _("Archive %(1)s for %(2)s not found in config.PATHS.ARCHIVEPATH") % \
-                       {"1" : arch_name, "2" : prod_info.name}
-                DBG.tofix(msg, config.PATHS.ARCHIVEPATH)
-                prod_info.archive_info.archive_name = arch_name #without path
-                # raise src.SatException(msg) #may be a warning, continue #8646
-            else:
-                prod_info.archive_info.archive_name = arch_path
+        if "archive_name" in prod_info.archive_info: 
+            arch_name = prod_info.archive_info.archive_name
         else:
-            if (os.path.basename(prod_info.archive_info.archive_name) == 
-                                        prod_info.archive_info.archive_name):
-                arch_name = prod_info.archive_info.archive_name
-                arch_path = src.find_file_in_lpath(
-                                            arch_name,
-                                            config.PATHS.ARCHIVEPATH)
-                if not arch_path:
-                    msg = _("Archive %(1)s for %(2)s not found in config.PATHS.ARCHIVEPATH") % \
-                           {"1" : arch_name, "2" : prod_info.name}
-                    DBG.tofix(msg, config.PATHS.ARCHIVEPATH) #avoid 2 messages in compile
-                    prod_info.archive_info.archive_name = arch_name #without path
-                    # raise src.SatException(msg) #may be a warning, continue #8646
-                else:
-                    prod_info.archive_info.archive_name = arch_path
+            # standard name
+            arch_name = product_name + "-" + version + ".tar.gz"
+
+        arch_path = src.find_file_in_lpath(arch_name,
+                                           config.PATHS.ARCHIVEPATH)
+        if not arch_path:
+            # arch_path is not found. It may generate an error in sat source,
+            #                         unless the archive is found in ftp serveur
+            msg = _("Archive %(1)s for %(2)s not found in config.PATHS.ARCHIVEPATH") % \
+                   {"1" : arch_name, "2" : prod_info.name}
+            DBG.tofix(msg, config.PATHS.ARCHIVEPATH)
+            prod_info.archive_info.archive_name = arch_name #without path
+        else:
+            prod_info.archive_info.archive_name = arch_path
 
         
     # If the product compiles with a script, check the script existence

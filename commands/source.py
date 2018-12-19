@@ -130,9 +130,10 @@ def get_source_from_git(product_info,
 
     return retcode
 
-def get_source_from_archive(product_info, source_dir, logger):
+def get_source_from_archive(config, product_info, source_dir, logger):
     '''The method called if the product is to be get in archive mode
     
+    :param config Config: The global configuration
     :param product_info Config: The configuration specific to 
                                the product to be prepared
     :param source_dir Path: The Path instance corresponding to the 
@@ -143,8 +144,17 @@ def get_source_from_archive(product_info, source_dir, logger):
     '''
     # check archive exists
     if not os.path.exists(product_info.archive_info.archive_name):
-        raise src.SatException(_("Archive not found in config.PATHS.ARCHIVEPATH: '%s'") % 
-                               product_info.archive_info.archive_name)
+        # The archive is not found on local file system (ARCHIVEPATH)
+        # We try ftp!
+        logger.write("\n   The archive is not found on local file system, we try ftp\n", 3)
+        ret=src.find_file_in_ftppath(product_info.archive_info.archive_name, 
+                                     config.PATHS.ARCHIVEFTP, config.LOCAL.archive_dir, logger)
+        if ret:
+            # archive was found on ftp and stored in ret
+            product_info.archive_info.archive_name=ret
+        else:
+            raise src.SatException(_("Archive not found in ARCHIVEPATH, nor on ARCHIVEFTP: '%s'") % 
+                                   product_info.archive_info.archive_name)
 
     logger.write('arc:%s ... ' % 
                  src.printcolors.printcInfo(product_info.archive_info.archive_name),
@@ -346,7 +356,7 @@ def get_product_sources(config,
                                     is_dev,env_appli)
 
     if product_info.get_source == "archive":
-        return get_source_from_archive(product_info, source_dir, logger)
+        return get_source_from_archive(config, product_info, source_dir, logger)
 
     if product_info.get_source == "dir":
         return get_source_from_dir(product_info, source_dir, logger)
