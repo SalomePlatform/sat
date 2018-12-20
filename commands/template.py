@@ -107,7 +107,7 @@ class TemplateSettings:
         # check required parameters in template.info
         missing = []
         for pp in ["file_subst", "parameters"]:
-            if not ldic.has_key(pp): missing.append("'%s'" % pp)
+            if not (pp in ldic): missing.append("'%s'" % pp)
         if len(missing) > 0:
             raise src.SatException(_(
                 "Bad format in settings file! %s not defined.") % ", ".join(
@@ -199,7 +199,7 @@ class TemplateSettings:
 
         # ask for missing value for pyconf
         pyconfparam = self.get_pyconf_parameters()
-        for p in filter(lambda l: not dico.has_key(l), pyconfparam):
+        for p in filter(lambda l: not (l in dico), pyconfparam):
             rep = ""
             while len(rep) == 0:
                 rep = input("%s? " % p)

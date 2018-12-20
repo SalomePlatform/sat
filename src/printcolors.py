@@ -18,6 +18,7 @@
 '''In this file is stored the mechanism that manage color prints in the terminal
 '''
 
+
 # define constant to use in scripts
 COLOR_ERROR = 'ERROR'
 COLOR_WARNING = 'WARNING'
@@ -153,11 +154,25 @@ def print_value(logger, label, value, level=1, suffix=""):
     :param level int: the level of verboseness.
     :param suffix str: the suffix to add at the end.
     '''
-    if logger is None:
-        print("  %s = %s %s" % (label, printcInfo(str(value)), suffix))
+    if type(value) is list:
+        skip = "\n     "
+        strValue = ""
+        i = 0
+        for v in value:
+          strValue += "%15s, " % str(v)
+          i += 1
+          if i >= 5:
+            strValue += skip
+            i = 0
+        if len(value) > 5:
+            strValue = skip + strValue
     else:
-        logger.write("  %s = %s %s\n" % (label, printcInfo(str(value)),
-                                          suffix), level)
+        strValue = str(value)
+    strValue = printcInfo(strValue)
+    if logger is None:
+        print("  %s = %s %s" % (label, strValue, suffix))
+    else:
+        logger.write("  %s = %s %s\n" % (label, strValue, suffix), level)
 
 def print_color_range(start, end):
     '''print possible range values for colors

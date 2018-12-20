@@ -178,7 +178,7 @@ class Logger(object):
         """
         xmlLinks = self.xmlFile.xmlroot.find("Links")
         flc = src.xmlManager.escapeSequence(full_launched_command)
-        att = {"command" : command_name, "passed" : command_res, "launchedCommand" : flc}
+        att = {"command" : command_name, "passed" : str(command_res), "launchedCommand" : flc}
         src.xmlManager.add_simple_node(xmlLinks, "link", text = log_file_name, attrib = att)
 
     def write(self, message, level=None, screenOnly=False):

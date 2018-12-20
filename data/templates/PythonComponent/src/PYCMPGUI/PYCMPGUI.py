@@ -181,7 +181,7 @@ def createPopupMenu( popup, context ):
 def OnGUIEvent( commandID ):
     """This method is called when a GUI action is activated"""
 
-    if dict_command.has_key( commandID ):
+    if commandID in dict_command:
        dict_command[commandID]()
        pass
     pass

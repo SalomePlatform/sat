@@ -35,6 +35,8 @@ except:
   pass
 
 import src
+
+
 import src.ElementTree as etree
 
 STYLESHEET_GLOBAL = "jobs_global_report.xsl"

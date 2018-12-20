@@ -26,6 +26,7 @@ import shutil
 import errno
 import stat
 import fnmatch
+import pprint as PP
 
 from . import pyconf
 from . import architecture
@@ -109,6 +110,24 @@ def get_cfg_param(config, param_name, default):
         return config[param_name]
     return default
 
+def strSplitN(aList, nb, skip="\n     "):
+    """
+    example
+    aStr = 'this-is-a-string'
+    splitN(aStr, 2, '-')
+    split it by every 2nd '-' rather than every '-'
+    """
+    strValue = ""
+    i = 0
+    for v in aList:
+      strValue += "%15s, " % str(v)
+      i += 1
+      if i >= nb:
+        strValue += skip
+        i = 0
+    if len(aList) > nb:
+        strValue = skip + strValue
+    return strValue
 
 def getProductNames(cfg, wildcards, logger):
     """get products names using * or ? as wildcards like shell Linux"""
@@ -117,16 +136,25 @@ def getProductNames(cfg, wildcards, logger):
       wilds = wildcards
     else:
       wilds = [wildcards]
+    notFound = {}
     products = cfg.APPLICATION.products.keys()
-    for prod in products:
-      for wild in wildcards:
+    for wild in wildcards:
+      ok = False
+      for prod in products:
         filtered = fnmatch.filter([prod], wild)
         # print("filtered", prod, wild, filtered)
         if len(filtered) > 0:
           res.append(prod)
+          ok = True
           break
+      if not ok:
+        notFound[wild] = None
     if len(res) == 0:
       logger.warning("Empty list of products, from %s" % wilds)
+    if len(notFound.keys()) > 0:
+      strProd = strSplitN( sorted(products), 5)
+      logger.warning("products not found: %s\n  availables products are:\n%s" % \
+                     (sorted(notFound.keys()), strProd) )
     return res
 
 

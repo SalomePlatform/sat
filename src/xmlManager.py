@@ -27,7 +27,7 @@ except:
     pass
 
 import src
-from . import ElementTree as etree
+import src.ElementTree as etree
 
 verbose = False
 
@@ -56,14 +56,15 @@ class XmlLogFile(object):
         '''
         log_file_path = self.logFile
         if file_path:
-            log_file_path = file_path
+          log_file_path = file_path
         try:
-            f = open(log_file_path, 'w')
+          with open(log_file_path, 'w') as f:
             f.write("<?xml version='1.0' encoding='utf-8'?>\n")
             if stylesheet:
                 f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" %  stylesheet)
-            f.write(etree.tostring(self.xmlroot, encoding='utf-8'))
-            f.close()
+                pass
+            res= etree.tostring(self.xmlroot, encoding='utf-8')
+            f.write(res)
         except IOError:
             pass  
         
@@ -215,7 +216,9 @@ def write_report(filename, xmlroot, stylesheet):
       f.write("<?xml version='1.0' encoding='utf-8'?>\n")
       if styleName is not None:
         f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" % styleName)
-      f.write(etree.tostring(xmlroot, encoding='utf-8'))
+      res = etree.tostring(xmlroot, encoding='utf-8')
+      # print("********** etree.tostring %s" % res)
+      f.write(res)
 
     # create fileStyle in dirname if not existing
     if styleName is not None:

@@ -239,6 +239,7 @@ class Sat(object):
         self.remaindersArgs = remaindersArgs  # the command and their options
         self.datadir = datadir # default value will be <salomeTools root>/data
         self._setCommands(cmdsdir)
+        DBG.write("Sat.options", self.options, self.options.debug_mode)
 
     def getConfig(self):
         return self.cfg
@@ -481,11 +482,16 @@ class Sat(object):
                 except Exception as e:
                     # Get error
                     logger_command.write("\n***** ", 1)
-                    logger_command.write(src.printcolors.printcError( "salomeTools ERROR: sat %s" % __nameCmd__), 1)
-                    logger_command.write("\n" + str(e) + "\n\n", 1)
+                    logger_command.write(src.printcolors.printcError(
+                            "salomeTools ERROR: sat %s" % __nameCmd__), 1)
+
+                    logger_command.write("\n" + DBG.format_exception("") + "\n", 1)
+
+                    """
+                    # have python 3 problems...
                     # get stack
                     __, __, exc_traceback = sys.exc_info()
-                    fp = tempfile.TemporaryFile()
+                    fp = tempfile.TemporaryFile(mode='wt')
                     traceback.print_tb(exc_traceback, file=fp)
                     fp.seek(0)
                     stack = fp.read()
@@ -493,6 +499,8 @@ class Sat(object):
                     if self.options.debug_mode:
                         verbosity = 1
                     logger_command.write("TRACEBACK: %s" % stack.replace('"',"'"), verbosity)
+                    """
+
                 finally:
                     # set res if it is not set in the command
                     if res is None:

@@ -54,8 +54,19 @@ Show pretty print debug representation from instances of SAT classes
 import os
 import sys
 import traceback
-import StringIO as SIO
 import pprint as PP
+
+# Compatibility python 2/3 for unicode
+try:
+    _test = unicode
+except:
+    unicode = str
+
+# Compatibility python 2/3 for StringIO
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 _debug = [False] #support push/pop for temporary activate debug outputs
 
@@ -168,7 +179,7 @@ def format_color_exception(msg, limit=None, trace=None):
 # utilitaires divers pour debug
 ###############################################
 
-class OutStream(SIO.StringIO):
+class OutStream(StringIO):
     """
     utility class for pyconf.Config output iostream
     """
@@ -178,9 +189,9 @@ class OutStream(SIO.StringIO):
       keep value before lost as self.value
       """
       self.value = self.getvalue()
-      SIO.StringIO.close(self)
+      StringIO.close(self)
     
-class InStream(SIO.StringIO):
+class InStream(StringIO):
     """utility class for pyconf.Config input iostream"""
     pass
 

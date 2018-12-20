@@ -49,11 +49,11 @@ def write_back(logger, message, level):
 # --------------
 def launch_command(cmd, logger, cwd, args=[], log=None):
     if log:
-        log = file(log, "a")
+        log = open(log, "a")  # python2 file(log, "a")
     for arg in args:
         cmd += " " + arg
 
-    logger.write("launch_command:\n%s\n" % cmd, 5, screenOnly=True)
+    logger.write("launch_command:\n  %s\n" % cmd, 5, screenOnly=True)
 
     # Add Windows case
     if src.architecture.is_windows():

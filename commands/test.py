@@ -329,7 +329,7 @@ def create_test_report(config,
 
 
     prod_node.attrib["history_file"] = os.path.basename(xml_history_path)
-    prod_node.attrib["global_res"] = retcode
+    prod_node.attrib["global_res"] = str(retcode)
 
     if withappli:
         if not first_time:
@@ -393,7 +393,7 @@ def create_test_report(config,
             grids = {}
             sessions = {}
             for test in tt[testbase]:
-                if not grids.has_key(test.grid):
+                if not (test.grid in grids):
                     if first_time:
                         mn = add_simple_node(gn, "grid")
                         mn.attrib['name'] = test.grid

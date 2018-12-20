@@ -25,7 +25,13 @@ import gettext
 import pprint as PP
 
 import src
+import src.logger as LOG
 import src.debug as DBG
+import src.callerName as CALN
+
+logger = LOG.getDefaultLogger()
+
+verbose = False # True for debug
 
 # internationalization
 satdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -60,6 +66,17 @@ parser.add_option('', 'completion', 'boolean', 'completion',
 parser.add_option('s', 'schema', 'boolean', 'schema',
     _("Internal use."))
 
+def osJoin(*args):
+  """
+  shortcut wrapper to os.path.join
+  plus optionaly print for debug
+  """
+  res = os.path.realpath(os.path.join(*args))
+  if verbose:
+    if True: # ".pyconf" in res:
+      logger.info("osJoin %-80s in %s" % (res, CALN.caller_name()))
+  return res
+
 class ConfigOpener:
     '''Class that helps to find an application pyconf 
        in all the possible directories (pathList)
@@ -70,21 +87,26 @@ class ConfigOpener:
         :param pathList list: The list of paths where to search a pyconf.
         '''
         self.pathList = pathList
+        if verbose:
+          for path in pathList:
+            if not os.path.isdir(path):
+              logger.warning("ConfigOpener inexisting directory: %s" % path)
 
     def __call__(self, name):
         if os.path.isabs(name):
             return src.pyconf.ConfigInputStream(open(name, 'rb'))
         else:
-            return src.pyconf.ConfigInputStream( 
-                        open(os.path.join( self.get_path(name), name ), 'rb') )
+            return src.pyconf.ConfigInputStream(open(osJoin(self.get_path(name), name), 'rb'))
         raise IOError(_("Configuration file '%s' not found") % name)
 
     def get_path( self, name ):
         '''The method that returns the entire path of the pyconf searched
+        returns first found in self.pathList directories
+
         :param name str: The name of the searched pyconf.
         '''
         for path in self.pathList:
-            if os.path.exists(os.path.join(path, name)):
+            if os.path.exists(osJoin(path, name)):
                 return path
         raise IOError(_("Configuration file '%s' not found") % name)
 
@@ -107,37 +129,36 @@ class ConfigManager:
         '''
         var = {}      
         var['user'] = src.architecture.get_user()
-        var['salometoolsway'] = os.path.dirname(
-                                    os.path.dirname(os.path.abspath(__file__)))
-        var['srcDir'] = os.path.join(var['salometoolsway'], 'src')
-        var['internal_dir'] = os.path.join(var['srcDir'], 'internal_config')
+        var['salometoolsway'] = os.path.dirname( os.path.dirname(os.path.abspath(__file__)))
+        var['srcDir'] =  osJoin(var['salometoolsway'], 'src')
+        var['internal_dir'] =  osJoin(var['srcDir'], 'internal_config')
         var['sep']= os.path.sep
         
         # datadir has a default location
-        var['datadir'] = os.path.join(var['salometoolsway'], 'data')
+        var['datadir'] =  osJoin(var['salometoolsway'], 'data')
         if datadir is not None:
             var['datadir'] = datadir
 
-        var['personalDir'] = os.path.join(os.path.expanduser('~'), '.salomeTools')
+        var['personalDir'] =  osJoin(os.path.expanduser('~'), '.salomeTools')
         src.ensure_path_exists(var['personalDir'])
 
-        var['personal_applications_dir'] = os.path.join(var['personalDir'], "Applications")
+        var['personal_applications_dir'] =  osJoin(var['personalDir'], "Applications")
         src.ensure_path_exists(var['personal_applications_dir'])
         
-        var['personal_products_dir'] = os.path.join(var['personalDir'], "products")
+        var['personal_products_dir'] =  osJoin(var['personalDir'], "products")
         src.ensure_path_exists(var['personal_products_dir'])
         
-        var['personal_archives_dir'] = os.path.join(var['personalDir'], "Archives")
+        var['personal_archives_dir'] =  osJoin(var['personalDir'], "Archives")
         src.ensure_path_exists(var['personal_archives_dir'])
 
-        var['personal_jobs_dir'] = os.path.join(var['personalDir'], "Jobs")
+        var['personal_jobs_dir'] =  osJoin(var['personalDir'], "Jobs")
         src.ensure_path_exists(var['personal_jobs_dir'])
 
-        var['personal_machines_dir'] = os.path.join(var['personalDir'], "Machines")
+        var['personal_machines_dir'] =  osJoin(var['personalDir'], "Machines")
         src.ensure_path_exists(var['personal_machines_dir'])
 
         # read linux distributions dictionary
-        distrib_cfg = src.pyconf.Config(os.path.join(var['srcDir'], 'internal_config', 'distrib.pyconf'))
+        distrib_cfg = src.pyconf.Config( osJoin(var['srcDir'], 'internal_config', 'distrib.pyconf'))
         
         # set platform parameters
         dist_name = src.architecture.get_distribution(codes=distrib_cfg.DISTRIBUTIONS)
@@ -232,9 +253,9 @@ class ConfigManager:
         # Load INTERNAL config
         # read src/internal_config/salomeTools.pyconf
         src.pyconf.streamOpener = ConfigOpener([
-                            os.path.join(cfg.VARS.srcDir, 'internal_config')])
+                             osJoin(cfg.VARS.srcDir, 'internal_config')])
         try:
-            internal_cfg = src.pyconf.Config(open(os.path.join(cfg.VARS.srcDir, 
+            internal_cfg = src.pyconf.Config(open( osJoin(cfg.VARS.srcDir,
                                     'internal_config', 'salomeTools.pyconf')))
         except src.pyconf.ConfigError as e:
             raise src.SatException(_("Error in configuration file:"
@@ -252,7 +273,7 @@ class ConfigManager:
         # search only in the data directory
         src.pyconf.streamOpener = ConfigOpener([cfg.VARS.datadir])
         try:
-            local_cfg = src.pyconf.Config(open(os.path.join(cfg.VARS.datadir, 
+            local_cfg = src.pyconf.Config(open( osJoin(cfg.VARS.datadir,
                                                            'local.pyconf')),
                                          PWD = ('LOCAL', cfg.VARS.datadir) )
         except src.pyconf.ConfigError as e:
@@ -266,25 +287,14 @@ class ConfigManager:
 
         # When the key is "default", put the default value
         if cfg.LOCAL.base == "default":
-            cfg.LOCAL.base = os.path.abspath(
-                                        os.path.join(cfg.VARS.salometoolsway,
-                                                     "..",
-                                                     "BASE"))
+            cfg.LOCAL.base = os.path.abspath(osJoin(cfg.VARS.salometoolsway, "..", "BASE"))
         if cfg.LOCAL.workdir == "default":
-            cfg.LOCAL.workdir = os.path.abspath(
-                                        os.path.join(cfg.VARS.salometoolsway,
-                                                     ".."))
+            cfg.LOCAL.workdir = os.path.abspath(osJoin(cfg.VARS.salometoolsway, ".."))
         if cfg.LOCAL.log_dir == "default":
-            cfg.LOCAL.log_dir = os.path.abspath(
-                                        os.path.join(cfg.VARS.salometoolsway,
-                                                     "..",
-                                                     "LOGS"))
+            cfg.LOCAL.log_dir = os.path.abspath(osJoin(cfg.VARS.salometoolsway, "..", "LOGS"))
 
         if cfg.LOCAL.archive_dir == "default":
-            cfg.LOCAL.archive_dir = os.path.abspath(
-                                        os.path.join(cfg.VARS.salometoolsway,
-                                                     "..",
-                                                     "ARCHIVES"))
+            cfg.LOCAL.archive_dir = os.path.abspath( osJoin(cfg.VARS.salometoolsway, "..", "ARCHIVES"))
 
         # apply overwrite from command line if needed
         for rule in self.get_command_line_overrides(options, ["LOCAL"]):
@@ -369,7 +379,7 @@ class ConfigManager:
             exec('cfg.' + rule) # this cannot be factorized because of the exec
 
         # AT END append APPLI_TEST directory in APPLICATIONPATH, for unittest
-        appli_test_dir = os.path.join(satdir, "test", "APPLI_TEST")
+        appli_test_dir =  osJoin(satdir, "test", "APPLI_TEST")
         if appli_test_dir not in cfg.PATHS.APPLICATIONPATH:
           cfg.PATHS.APPLICATIONPATH.append(appli_test_dir, "unittest APPLI_TEST path")
 
@@ -488,8 +498,7 @@ class ConfigManager:
         '''
         # get the expected name and path of the file
         self.config_file_name = 'SAT.pyconf'
-        self.user_config_file_path = os.path.join(config.VARS.personalDir,
-                                                   self.config_file_name)
+        self.user_config_file_path =  osJoin(config.VARS.personalDir, self.config_file_name)
         
         # if pyconf does not exist, create it from scratch
         if not os.path.isfile(self.user_config_file_path): 
@@ -518,7 +527,7 @@ class ConfigManager:
             "This is the default output_verbose_level you want."
             " 0=>no output, 5=>debug.\n")
         user_cfg.USER.addMapping('publish_dir', 
-                                 os.path.join(os.path.expanduser('~'),
+                                  osJoin(os.path.expanduser('~'),
                                  'websupport', 
                                  'satreport'), 
                                  "")
@@ -543,10 +552,9 @@ class ConfigManager:
 #                                 "The products installation base (could be "
 #                                 "ignored if this key exists in the local.pyconf"
 #                                 " file of salomTools).\n")
-               
-        # 
+
         src.ensure_path_exists(config.VARS.personalDir)
-        src.ensure_path_exists(os.path.join(config.VARS.personalDir, 
+        src.ensure_path_exists( osJoin(config.VARS.personalDir,
                                             'Applications'))
 
         f = open(cfg_name, 'w')
@@ -601,27 +609,23 @@ def show_product_info(config, name, logger):
     pinfo = src.product.get_product_config(config, name)
     
     if "depend" in pinfo:
-        src.printcolors.print_value(logger, 
-                                    "depends on", 
-                                    ', '.join(pinfo.depend), 2)
+        src.printcolors.print_value(logger, "depends on", sorted(pinfo.depend), 2)
 
     if "opt_depend" in pinfo:
-        src.printcolors.print_value(logger, 
-                                    "optional", 
-                                    ', '.join(pinfo.opt_depend), 2)
+        src.printcolors.print_value(logger, "optional", sorted(pinfo.opt_depend), 2)
 
     # information on pyconf
     logger.write("\n", 2)
     logger.write(src.printcolors.printcLabel("configuration:") + "\n", 2)
     if "from_file" in pinfo:
-        src.printcolors.print_value(logger, 
-                                    "pyconf file path", 
-                                    pinfo.from_file, 
+        src.printcolors.print_value(logger,
+                                    "pyconf file path",
+                                    pinfo.from_file,
                                     2)
     if "section" in pinfo:
-        src.printcolors.print_value(logger, 
-                                    "section", 
-                                    pinfo.section, 
+        src.printcolors.print_value(logger,
+                                    "section",
+                                    pinfo.section,
                                     2)
 
     # information on prepare
@@ -649,9 +653,9 @@ def show_product_info(config, name, logger):
         src.printcolors.print_value(logger, "tag", pinfo.git_info.tag, 2)
 
     elif method == 'archive':
-        src.printcolors.print_value(logger, 
-                                    "get from", 
-                                    check_path(pinfo.archive_info.archive_name), 
+        src.printcolors.print_value(logger,
+                                    "get from",
+                                    check_path(pinfo.archive_info.archive_name),
                                     2)
 
     if 'patches' in pinfo:
@@ -659,7 +663,7 @@ def show_product_info(config, name, logger):
             src.printcolors.print_value(logger, "patch", check_path(patch), 2)
 
     if src.product.product_is_fixed(pinfo):
-        src.printcolors.print_value(logger, "install_dir", 
+        src.printcolors.print_value(logger, "install_dir",
                                     check_path(pinfo.install_dir), 2)
 
     if src.product.product_is_native(pinfo) or src.product.product_is_fixed(pinfo):
@@ -669,9 +673,9 @@ def show_product_info(config, name, logger):
     if src.product.product_compiles(pinfo):
         logger.write("\n", 2)
         logger.write(src.printcolors.printcLabel("compile:") + "\n", 2)
-        src.printcolors.print_value(logger, 
-                                    "compilation method", 
-                                    pinfo.build_source, 
+        src.printcolors.print_value(logger,
+                                    "compilation method",
+                                    pinfo.build_source,
                                     2)
         
         if pinfo.build_source == "script" and "compil_script" in pinfo:
@@ -714,7 +718,7 @@ def show_product_info(config, name, logger):
                                     check_path(pinfo.environ.env_script), 
                                     2)
 
-    zz = src.environment.SalomeEnviron(config, 
+    zz = src.environment.SalomeEnviron(config,
                                        src.fileEnviron.ScreenEnviron(logger), 
                                        False)
     zz.set_python_libdirs()
@@ -914,9 +918,18 @@ def run(args, runner, logger):
               od = options.debug[1:]
             else:
               od = options.debug
-            exec("a = runner.cfg.%s" % od)
-            res = DBG.indent(DBG.getStrConfigDbg(a))
-            logger.write("\nConfig.%s of application %s:\n\n%s\n" % (od, runner.cfg.VARS.application, res))
+            try:
+              aCode = "a = runner.cfg.%s" % od
+              # https://stackoverflow.com/questions/15086040/behavior-of-exec-function-in-python-2-and-python-3
+              aDict = {"runner": runner}
+              exec(aCode, globals(), aDict)
+              # DBG.write("globals()", globals(), True)
+              # DBG.write("aDict", aDict, True)
+              res = DBG.indent(DBG.getStrConfigDbg(aDict["a"]))
+              logger.write("\nConfig.%s of application %s:\n\n%s\n" % (od, runner.cfg.VARS.application, res))
+            except Exception as e:
+              msg = "\nConfig.%s of application %s: Unknown pyconf key\n" % (od, runner.cfg.VARS.application)
+              logger.write(src.printcolors.printcError(msg), 1)
 
     
     # case : edit user pyconf file or application file
@@ -924,14 +937,14 @@ def run(args, runner, logger):
         editor = runner.cfg.USER.editor
         if ('APPLICATION' not in runner.cfg and
                        'open_application' not in runner.cfg): # edit user pyconf
-            usercfg = os.path.join(runner.cfg.VARS.personalDir, 
+            usercfg =  osJoin(runner.cfg.VARS.personalDir,
                                    'SAT.pyconf')
             logger.write(_("Opening %s\n" % usercfg), 3)
             src.system.show_in_editor(editor, usercfg, logger)
         else:
             # search for file <application>.pyconf and open it
             for path in runner.cfg.PATHS.APPLICATIONPATH:
-                pyconf_path = os.path.join(path, 
+                pyconf_path =  osJoin(path,
                                     runner.cfg.VARS.application + ".pyconf")
                 if os.path.exists(pyconf_path):
                     logger.write(_("Opening %s\n" % pyconf_path), 3)
@@ -979,7 +992,7 @@ def run(args, runner, logger):
             if path == runner.cfg.VARS.personalDir:
                 continue
             # loop on all directories that can have pyconf applications
-            zz = os.path.join(path, source)
+            zz =  osJoin(path, source)
             if os.path.exists(zz):
                 source_full_path = zz
                 break
@@ -1000,7 +1013,7 @@ def run(args, runner, logger):
                 dest = runner.cfg.VARS.application
                 
             # the full path
-            dest_file = os.path.join(runner.cfg.VARS.personalDir, 
+            dest_file =  osJoin(runner.cfg.VARS.personalDir,
                                      'Applications', dest + '.pyconf')
             if os.path.exists(dest_file):
                 raise src.SatException(_("A personal application"

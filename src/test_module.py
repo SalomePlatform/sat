@@ -35,7 +35,7 @@ import subprocess
 import glob
 import pprint as PP
 
-verbose = False # cvw TODO
+verbose = False
 
 from . import fork
 import src
@@ -340,7 +340,7 @@ class Test:
                                                               test)
 
                   callback = ""
-                  if ldic.has_key('callback'):
+                  if 'callback' in ldic:
                       callback = ldic['callback']
                   elif status == src.KO_STATUS:
                       callback = "CRASH"
@@ -471,6 +471,7 @@ echo -e 'import os\nprint(os.environ[\"KERNEL_ROOT_DIR\"])' > tmpscript.py
         
         # import grid salome_utils from KERNEL that gives 
         # the right getTmpDir function
+        root_dir = root_dir.decode('utf-8')
         aPath = [os.path.join(root_dir, 'bin', 'salome')]
         sal_uts = "salome_utils"
         try:
@@ -587,7 +588,7 @@ echo -e 'import os\nprint(os.environ[\"KERNEL_ROOT_DIR\"])' > tmpscript.py
         tmpDir = self.get_tmp_dir()
 
         binSalome, binPython, killSalome = self.generate_launching_commands()
-        if self.settings.has_key("run_with_grids") and \
+        if "run_with_grids" in self.settings and \
            sessionname in self.settings["run_with_grids"]:
             binSalome = (binSalome + " -m %s" % self.settings["run_with_grids"][sessionname])
 

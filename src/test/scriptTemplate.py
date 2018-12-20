@@ -37,16 +37,16 @@ __stderr__ = sys.stderr
 
 with open(r'${resultFile}', 'w') as exec_result:
   exec_result.write('Open\n')
-  print("ignore: %s" % ignore)
+  print("wrapper ignore tests: %s" % ignore)
   for test in listTest:
     fileTest = os.path.join(outWay, test)
     # print("test file: %s" % fileTest) # cvw TODO
     with open(os.path.join(outWay, test[:-3] + ".result.py"), "w") as pylog:
       with open(os.path.join(outWay, test[:-3] + ".out.py"), "w") as testout:
         my_tools.init()
-        print("here set sys.stdout")
-        sys.stdout = testout # cvw TODO
-        sys.stderr = testout # cvw TODO
+        # print("here set sys.stdout")
+        sys.stdout = testout
+        sys.stderr = testout
 
         # pylog.write('#!/usr/bin/env python\n')
         exec_result.write("Run %s " % test)
@@ -106,8 +106,8 @@ with open(r'${resultFile}', 'w') as exec_result:
         # testout.close()
 
       # print("here restore sys.stdout")
-      sys.stdout = __stdout__ # cvw TODO
-      sys.stderr = __stderr__ # cvw TODO
+      sys.stdout = __stdout__
+      sys.stderr = __stderr__
       my_tools.writeInFiles(pylog)
       pass
       pylog.flush()

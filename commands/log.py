@@ -331,13 +331,13 @@ def run(args, runner, logger):
     # Create or update the hat xml that gives access to all the commands log files
     logger.write(_("Generating the hat log file (can be long) ... "), 3)
     xmlHatFilePath = os.path.join(logDir, 'hat.xml')
-    if True: #try: # cvw TODO
+    try:
       src.logger.update_hat_xml(logDir,
                               application = runner.cfg.VARS.application, 
                               notShownCommands = notShownCommands)
 
       logger.write(src.printcolors.printc("OK"), 3)
-    else: #except: # cvw TODO
+    except:
       logger.write(src.printcolors.printc("KO"), 3)
       logger.write(" problem update hat.xml", 3)
 
