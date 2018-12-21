@@ -27,6 +27,7 @@ import errno
 import stat
 import fnmatch
 import pprint as PP
+from ftplib import FTP
 
 from . import pyconf
 from . import architecture
@@ -401,6 +402,48 @@ def find_file_in_lpath(file_name, lpath, additional_dir = ""):
         for file_n in l_files:
             if file_n == file_name:
                 return os.path.join(dir_complete, file_name)
+    return False
+
+def find_file_in_ftppath(file_name, ftppath, installation_dir, logger):
+    """\
+    Find in all ftp servers in ftppath the file called file_name
+    If it is found then return the destination path of the file
+    (the place where the file was downloaded"
+    else return False.
+    
+    :param file_name str: The file name to search
+    :param ftppath, List: The list of ftp servers where to search
+    :param installation_dir str: The name of the installation directory
+    :return: the full path of the file or False if not found
+    :param logger Logger: The logging instance to use for the prints.
+    :rtype: str
+    """
+    destination=os.path.join(installation_dir, file_name)
+    for ftp_archive in ftppath:
+       try:
+           # ftp_archive has the form ftp.xxx.yyy/dir1/dir2/...
+           ftp_archive_split=ftp_archive.split("/")
+           ftp_server=ftp_archive_split[0]
+           ftp = FTP(ftp_server)
+           logger.write("   Connect to ftp server %s\n" % ftp_server, 3)
+           ftp.login()
+           for directory in ftp_archive_split[1:]:
+               logger.write("   Change directory to %s\n" % directory, 3)
+               ftp.cwd(directory)
+       except:
+           logger.error("while connecting to ftp server %s\n" % ftp_server)
+
+       try:
+           if ftp.size(file_name) > 0:
+               # if file exists and is non empty
+               with open(destination,'wb') as dest_file:
+                   ftp.retrbinary("RETR "+file_name, dest_file.write)
+               logger.write("   Archive %s was retrieved and stored in %s\n" % (file_name, destination), 3)
+               return destination
+       except:
+           logger.error("File not found in ftp_archive %s\n" % ftp_server)
+           pass
+
     return False
 
 def handleRemoveReadonly(func, path, exc):

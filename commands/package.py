@@ -487,6 +487,12 @@ def binary_package(config, logger, options, tmp_working_dir):
     l_not_installed = []
     l_sources_not_present = []
     generate_mesa_launcher = False  # a flag to know if we generate a mesa launcher
+    if ("APPLICATION" in config  and
+        "properties"  in config.APPLICATION  and
+        "mesa_launcher_in_package"    in config.APPLICATION.properties  and
+        config.APPLICATION.properties.mesa_launcher_in_package == "yes") :
+            generate_mesa_launcher=True
+
     for prod_name, prod_info in l_product_info:
         # skip product with property not_in_package set to yes
         if src.get_property_in_product_cfg(prod_info, "not_in_package") == "yes":
@@ -500,10 +506,6 @@ def binary_package(config, logger, options, tmp_working_dir):
                 l_source_dir.append((prod_name, prod_info.source_dir))
             else:
                 l_sources_not_present.append(prod_name)
-
-        # if at least one of the application products has the "is_mesa" property
-        if src.get_property_in_product_cfg(prod_info, "is_mesa") == "yes":
-            generate_mesa_launcher = True  # we will generate a mesa launcher
 
         # ignore the native and fixed products for install directories
         if (src.product.product_is_native(prod_info) 
