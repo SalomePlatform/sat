@@ -92,7 +92,12 @@ parser.add_option('s', 'sources', 'boolean', 'sources',
     _('Optional: Produce a compilable archive of the sources of the '
       'application.'), False)
 parser.add_option('', 'with_vcs', 'boolean', 'with_vcs',
-    _('Optional: Only source package: do not make archive of vcs products.'),
+    _('Optional: Do not make archive for products in VCS mode (git, cvs, svn). ' 
+      'Sat prepare will use VCS mode instead to retrieve them'),
+    False)
+parser.add_option('', 'ftp', 'boolean', 'ftp',
+    _('Optional: Do not embed archives for products in archive mode.' 
+    'Sat prepare will use ftp instead to retrieve them'),
     False)
 parser.add_option('p', 'project', 'string', 'project',
     _('Optional: Produce an archive that contains a project.'), "")
@@ -674,10 +679,15 @@ def source_package(sat, config, logger, options, tmp_working_dir):
     :rtype: dict
     '''
     
+    d_archives={}
     # Get all the products that are prepared using an archive
-    logger.write("Find archive products ... ")
-    d_archives, l_pinfo_vcs = get_archives(config, logger)
-    logger.write("Done\n")
+    # unless ftp mode is specified (in this case the user of the
+    # archive will get the sources through the ftp mode of sat prepare
+    if not options.ftp:
+        logger.write("Find archive products ... ")
+        d_archives, l_pinfo_vcs = get_archives(config, logger)
+        logger.write("Done\n")
+
     d_archives_vcs = {}
     if not options.with_vcs and len(l_pinfo_vcs) > 0:
         # Make archives with the products that are not prepared using an archive
@@ -693,8 +703,9 @@ def source_package(sat, config, logger, options, tmp_working_dir):
     # Create a project
     logger.write("Create the project ... ")
     d_project = create_project_for_src_package(config,
-                                                tmp_working_dir,
-                                                options.with_vcs)
+                                               tmp_working_dir,
+                                               options.with_vcs,
+                                               options.ftp)
     logger.write("Done\n")
     
     # Add salomeTools
@@ -869,7 +880,7 @@ def make_archive(prod_name, prod_info, where):
     tar_prod.close()
     return path_targz_prod       
 
-def create_project_for_src_package(config, tmp_working_dir, with_vcs):
+def create_project_for_src_package(config, tmp_working_dir, with_vcs, with_ftp):
     '''Create a specific project for a source package.
 
     :param config Config: The global configuration.
@@ -878,6 +889,7 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs):
                                 source package
     :param with_vcs boolean: True if the package is with vcs products (not 
                              transformed into archive products)
+    :param with_ftp boolean: True if the package use ftp servers to get archives
     :return: The dictionary 
              {"project" : (produced project, project path in the archive)}
     :rtype: Dict
@@ -910,6 +922,14 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs):
     project_pyconf_file = os.path.join(project_tmp_dir, project_pyconf_name)
     ff = open(project_pyconf_file, "w")
     ff.write(PROJECT_TEMPLATE)
+    if with_ftp:
+        ftp_path='ARCHIVEFTP : "'+config.PATHS.ARCHIVEFTP[0]
+        for ftpserver in config.PATHS.ARCHIVEFTP[1:]:
+            ftp_path=ftp_path+":"+ftpserver
+        ftp_path+='"'
+        ff.write("# ftp servers where to search for prerequisite archives\n")
+        ff.write(ftp_path)
+
     ff.close()
     
     # Loop over the products to get there pyconf and all the scripts 
@@ -1055,11 +1075,12 @@ def find_application_pyconf(config, application_tmp_dir):
     application_pyconf_cfg.__save__(ff, 1)
     ff.close()
 
-def project_package(config, name_project, project_file_path, tmp_working_dir, logger):
+def project_package(config, name_project, project_file_path, ftp_mode, tmp_working_dir, logger):
     '''Prepare a dictionary that stores all the needed directories and files to
        add in a project package.
     
     :param project_file_path str: The path to the local project.
+    :param ftp_mode boolean: Do not embed archives, the archive will rely on ftp mode to retrieve them.
     :param tmp_working_dir str: The temporary local directory containing some 
                                 specific directories or files needed in the 
                                 project package
@@ -1079,11 +1100,13 @@ WARNING: inexisting config.PROJECTS.projects.%s, try to read now from:\n%s\n""" 
       project_pyconf_cfg = src.pyconf.Config(project_file_path)
       project_pyconf_cfg.PWD = os.path.dirname(project_file_path)
     
-    paths = {"ARCHIVEPATH" : "archives",
-             "APPLICATIONPATH" : "applications",
+    paths = {"APPLICATIONPATH" : "applications",
              "PRODUCTPATH" : "products",
              "JOBPATH" : "jobs",
              "MACHINEPATH" : "machines"}
+    if not ftp_mode:
+        paths["ARCHIVEPATH"] = "archives"
+
     # Loop over the project paths and add it
     for path in paths:
         if path not in project_pyconf_cfg:
@@ -1430,7 +1453,7 @@ Please add it in file:
         
     if options.project:
         DBG.write("config for package %s" % project_name, runner.cfg)
-        d_files_to_add.update(project_package(runner.cfg, project_name, options.project_file_path, tmp_working_dir, logger))
+        d_files_to_add.update(project_package(runner.cfg, project_name, options.project_file_path, options.ftp, tmp_working_dir, logger))
 
     if not(d_files_to_add):
         msg = _("Error: Empty dictionnary to build the archive!\n")

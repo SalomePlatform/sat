@@ -3,7 +3,7 @@
 
 INTERNAL :
 {   
-    sat_version : "5.0.0dev"
+    sat_version : "5.2.0dev"
     config :
     {    
         copy_prefix : "LOCAL_"

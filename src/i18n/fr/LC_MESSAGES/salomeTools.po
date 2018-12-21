@@ -1053,7 +1053,14 @@ msgid ""
 "Optional: Produce a compilable archive of the sources of the application."
 msgstr ""
 
-msgid "Optional: Only source package: do not make archive of vcs products."
+msgid ""
+"Optional: Do not make archive for products in VCS mode (git, cvs, svn). "
+"Sat prepare will use VCS mode instead to retrieve them"
+msgstr ""
+
+msgid ""
+"Optional: Do not embed archives for products in archive mode." 
+"Sat prepare will use ftp instead to retrieve them"
 msgstr ""
 
 msgid "Optional: Produce an archive that contains a project."

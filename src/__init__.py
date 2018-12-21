@@ -418,8 +418,21 @@ def find_file_in_ftppath(file_name, ftppath, installation_dir, logger):
     :param logger Logger: The logging instance to use for the prints.
     :rtype: str
     """
+
+    # make sure installation_dir exists
+    if not os.path.exists(installation_dir):
+        os.makedirs(installation_dir)
+
     destination=os.path.join(installation_dir, file_name)
-    for ftp_archive in ftppath:
+
+    # paths in ftppath may contain several paths separated by ":"
+    # we plit them, and push all paths in bigftppath
+    bigftppath=[]
+    for ipath in ftppath:
+        splpath=ipath.split(":")
+        bigftppath+=splpath
+        
+    for ftp_archive in bigftppath:
        try:
            # ftp_archive has the form ftp.xxx.yyy/dir1/dir2/...
            ftp_archive_split=ftp_archive.split("/")
