@@ -44,7 +44,7 @@ import src.debug as DBG # Easy print stderr (for DEBUG only)
 
 logger = LOG.getDefaultLogger()
 
-DBG.write("Python version", sys.version, DBG.isDeveloper())
+DBG.write("Python version", sys.version)
 
 #################################
 # MAIN
