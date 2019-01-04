@@ -1340,6 +1340,8 @@ Please add it in file:
         update_config(runner.cfg, prop, value)
         logger.warning("without_properties selected products:\n %s\n" % PP.pformat(sorted(app.products.keys())))
 
+    # Remove from config the products that have the not_in_package property
+    update_config(runner.cfg, "not_in_package", "yes")
     
     # get the name of the archive or build it
     if options.name:
