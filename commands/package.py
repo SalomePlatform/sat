@@ -1236,14 +1236,15 @@ def update_config(config, prop, value):
     :param prop str: The property to filter
     :param value str: The value of the property to filter
     '''
-    src.check_config_has_application(config)
-    l_product_to_remove = []
-    for product_name in config.APPLICATION.products.keys():
-        prod_cfg = src.product.get_product_config(config, product_name)
-        if src.get_property_in_product_cfg(prod_cfg, prop) == value:
-            l_product_to_remove.append(product_name)
-    for product_name in l_product_to_remove:
-        config.APPLICATION.products.__delitem__(product_name)
+    # if there is no APPLICATION (ex sat package -t) : nothing to do
+    if "APPLICATION" in config:
+        l_product_to_remove = []
+        for product_name in config.APPLICATION.products.keys():
+            prod_cfg = src.product.get_product_config(config, product_name)
+            if src.get_property_in_product_cfg(prod_cfg, prop) == value:
+                l_product_to_remove.append(product_name)
+        for product_name in l_product_to_remove:
+            config.APPLICATION.products.__delitem__(product_name)
 
 def description():
     '''method that is called when salomeTools is called with --help option.
