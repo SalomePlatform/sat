@@ -49,9 +49,6 @@ def get_product_config(config, product_name, with_install_dir=True):
 
     # Get the version of the product from the application definition
     version = config.APPLICATION.products[product_name]
-    # if no version, then take the default one defined in the application
-    if isinstance(version, bool): 
-        version = config.APPLICATION.tag      
     
     # Define debug and dev modes
     # Get the tag if a dictionary is given in APPLICATION.products for the
@@ -61,6 +58,18 @@ def get_product_config(config, product_name, with_install_dir=True):
     verbose = 'no'
     base = 'maybe'
     section = None
+
+    # if no version, then take the default one defined in the application
+    if isinstance(version, bool): 
+        # in this case tag is mandatory, not debug, verbose, dev
+        version = config.APPLICATION.tag      
+        if 'debug' in config.APPLICATION:
+            debug = config.APPLICATION.debug
+        if 'verbose' in config.APPLICATION:
+            verbose = config.APPLICATION.verbose
+        if 'dev' in config.APPLICATION:
+            dev = config.APPLICATION.dev
+        
     if isinstance(version, src.pyconf.Mapping):
         dic_version = version
         # Get the version/tag
@@ -72,14 +81,20 @@ def get_product_config(config, product_name, with_install_dir=True):
         # Get the debug if any
         if 'debug' in dic_version:
             debug = dic_version.debug
+        elif 'debug' in config.APPLICATION:
+            debug = config.APPLICATION.debug
         
         # Get the verbose if any
         if 'verbose' in dic_version:
             verbose = dic_version.verbose
+        elif 'verbose' in config.APPLICATION:
+            verbose = config.APPLICATION.verbose
         
         # Get the dev if any
         if 'dev' in dic_version:
             dev = dic_version.dev
+        elif 'dev' in config.APPLICATION:
+            dev = config.APPLICATION.dev
         
         # Get the base if any
         if 'base' in dic_version:
