@@ -156,6 +156,10 @@ def run(args, runner, logger):
 
     # Get the list of products to treat
     products_infos = src.product.get_products_list(options, runner.cfg, logger)
+    products_infos = [pi for pi in products_infos if not(
+                                     src.product.product_is_native(pi[1]) or 
+                                     src.product.product_is_fixed(pi[1]))]
+    
     
     # Print some informations
     logger.write(_('Executing the script in the build '

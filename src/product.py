@@ -670,27 +670,6 @@ def get_products_list(options, cfg, logger):
     else:
       res = resAll # not existing properties as all accepted
 
-
-    ok = []
-    ko = []
-    products_infos = []
-    for p_name, p_info in res:
-      try:
-        if src.product.product_is_native(p_info) or src.product.product_is_fixed(p_info):
-          ko.append(p_name)
-        else:
-          products_infos.append((p_name, p_info))
-          ok.append(p_name)
-      except:
-        msg = "problem on 'is_native' or 'is_fixed' for product %s" % p_name
-        raise Exception(msg)
-
-    if len(ko) > 0:
-      logger.warning("on is_native or is_fixed\n products accepted:\n %s\n products rejected:\n %s\n" %
-                    (PP.pformat(sorted(ok)), PP.pformat(sorted(ko))))
-
-    logger.debug("products selected:\n %s\n" % PP.pformat(sorted(ok)))
-
     return res
 
 
