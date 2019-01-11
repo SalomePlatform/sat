@@ -72,7 +72,7 @@ _debug = [False] #support push/pop for temporary activate debug outputs
 
 _user = os.environ['USER']
 # wambeke is christian at home
-_developers = ["christian", "wambeke", "crouzet"] # crouzet, kloss ...
+_developers = ["christian", "wambeke"] # crouzet, kloss ...
 
 
 def isDeveloper():
