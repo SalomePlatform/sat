@@ -74,7 +74,7 @@ def osJoin(*args):
   res = os.path.realpath(os.path.join(*args))
   if verbose:
     if True: # ".pyconf" in res:
-      logger.info("osJoin %-80s in %s" % (res, CALN.caller_name()))
+      logger.info("osJoin %-80s in %s" % (res, CALN.caller_name(1)))
   return res
 
 class ConfigOpener:

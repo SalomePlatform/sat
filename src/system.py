@@ -97,31 +97,22 @@ git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s
 
   DBG.write("cmd", cmd)
 
-  # git commands may fail sometimes for various raisons (big module, network troubles, tuleap maintenance)
+  # git commands may fail sometimes for various raisons 
+  # (big module, network troubles, tuleap maintenance)
   # therefore we give several tries
-  i_try=0
-  max_number_of_tries=3
-  sleep_delay=30  # seconds
+  i_try = 0
+  max_number_of_tries = 3
+  sleep_delay = 30  # seconds
   while (True):
-    i_try+=1
+    i_try += 1
     rc = UTS.Popen(cmd, cwd=str(where.dir()), env=environment.environ.environ, logger=logger)
     if rc.isOk() or (i_try>=max_number_of_tries):
-        break
-    logger.write('\ngit command failed! Wait %d seconds and give an other try (%d/%d)\n' % (sleep_delay,i_try+1,max_number_of_tries), 3)
+      break
+    logger.write('\ngit command failed! Wait %d seconds and give an other try (%d/%d)\n' % \
+                 (sleep_delay, i_try + 1, max_number_of_tries), 3)
     time.sleep(sleep_delay) # wait a little
 
   return rc.isOk()
-
-  """
-  res = subprocess.call(command,
-                        cwd=str(where.dir()),
-                        env=environment.environ.environ,
-                        shell=True,
-                        stdout=logger.logTxtFile,
-                        stderr=subprocess.STDOUT)
-  return (res == 0)
-  """
-
 
 
 def git_extract_sub_dir(from_what, tag, where, sub_dir, logger, environment=None):

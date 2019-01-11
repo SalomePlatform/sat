@@ -13,7 +13,7 @@ _versionPython = sys.version_info[0]
 if _versionPython < 3:
   # python2 previous historic mode
   import src.ElementTreePython2 as etree
-  DBG.write("ElementTree Python2", etree.__file__)
+  DBG.write("ElementTree Python2", etree.__file__, DBG.isDeveloper())
   tostring = etree.tostring
 
 else:
