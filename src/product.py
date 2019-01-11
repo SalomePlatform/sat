@@ -541,13 +541,6 @@ def check_config_exists(config, prod_dir, prod_info, verbose=False):
         if not os.path.exists(config_file):
             continue
         
-        # If there is no dependency, it is the right path
-        if len(prod_info.depend)==0:
-            compile_cfg = src.pyconf.Config(config_file)
-            if len(compile_cfg) == 0:
-                return True, os.path.join(prod_dir, dir_or_file)
-            continue
-
         # check if there is the config described in the file corresponds the 
         # dependencies of the product
         config_corresponds = True    
