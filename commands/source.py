@@ -393,9 +393,12 @@ def get_product_sources(config,
         logger.write('%s  ' % src.printcolors.printc(src.OK_STATUS),
                      3,
                      False)
-        msg = _('INFORMATION : Not doing anything because the product'
-                ' is of type "fixed".\n')
-        logger.write(msg, 3)
+        msg = "FIXED : %s\n" % product_info.install_dir
+
+        if not os.path.isdir(product_info.install_dir):
+            logger.warning("The fixed path do not exixts!! Please check it : %s\n" % product_info.install_dir)
+        else:
+            logger.write(msg, 3)
         return True  
 
     # if the get_source is not in [git, archive, cvs, svn, fixed, native]

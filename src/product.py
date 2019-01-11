@@ -136,7 +136,11 @@ def get_product_config(config, product_name, with_install_dir=True):
         
         # In case of a fixed product, 
         # define the install_dir (equal to the version)
-        if prod_info is not None and os.path.isdir(version):
+        if prod_info is not None and \
+           (os.path.isdir(version) or version.startswith("/")):
+           # we consider a (fixed) path  existing paths; 
+           # or paths starting with '/' (the objective is to print a correct 
+           # message to the user in case of non existing path.)
             prod_info.install_dir = version
             prod_info.get_source = "fixed"
         
