@@ -38,8 +38,8 @@ parser.add_option('t', 'terminal', 'boolean', 'terminal',
                   "Optional: Show the log (in terminal) of a command, with user choice.")
 parser.add_option('l', 'last', 'boolean', 'last',
                   "Optional: Show the log (in browser) of the last launched command.")
-parser.add_option('', 'last_terminal', 'boolean', 'last_terminal',
-                  "Optional: Show the log (in terminal) of the last launched command.")
+parser.add_option('', 'last_compile', 'boolean', 'last_compile',
+                  "Optional: Show the log (in terminal) of the last compilation for all products.")
 parser.add_option('f', 'full', 'boolean', 'full',
                   "Optional: Show the logs of ALL the launched commands.")
 parser.add_option('c', 'clean', 'int', 'clean',
@@ -274,7 +274,7 @@ def run(args, runner, logger):
       logger.warning("problem for writing in directory '%s', may be not owner." % logDir)
 
     # If the last option is invoked, just, show the last log file
-    if options.last_terminal:
+    if options.last_compile:
         src.check_config_has_application(runner.cfg)
         log_dirs = os.listdir(os.path.join(runner.cfg.APPLICATION.workdir, 'LOGS'))
         show_last_logs(logger, runner.cfg, log_dirs)
