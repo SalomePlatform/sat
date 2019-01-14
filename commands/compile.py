@@ -640,6 +640,8 @@ def run(args, runner, logger):
 
     # Get the list of products to treat
     products_infos = src.product.get_products_list(options, runner.cfg, logger)
+    products_infos = [pi for pi in products_infos if not(
+                                   src.product.product_is_fixed(pi[1]))]
 
     if options.fathers:
         # Extend the list with all recursive dependencies of the given products
