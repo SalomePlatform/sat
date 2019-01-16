@@ -590,6 +590,12 @@ class SalomeEnviron:
             self.set_salome_minimal_product_env(pi, logger)
             self.set_salome_generic_product_env(pi)
         
+        # use variable LICENCE_FILE to communicate the licence file name to the environment script
+        licence_file_name = src.product.product_has_licence(pi, self.cfg.PATHS.LICENCEPATH)
+        if licence_file_name:
+            logger.write("licence file found for product %s : %s\n" % (pi.name, licence_file_name), 5) 
+            self.set("LICENCE_FILE", licence_file_name)
+
         if src.product.product_is_cpp(pi):
             # set a specific environment for cpp modules
             self.set_salome_minimal_product_env(pi, logger)

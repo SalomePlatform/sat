@@ -261,6 +261,13 @@ class FileEnviron(object):
         """
         return '${%s}' % key
 
+    def get_value(self, key):
+        """Get the real value of the environment variable "key"
+        It can help env scripts
+        :param key str: the environment variable
+        """
+        return self.environ[key]
+
     def command_value(self, key, command):
         """\
         Get the value given by the system command "command" 
@@ -628,6 +635,13 @@ class LauncherFileEnviron:
                           (key, self.change_to_launcher(value)))
         self.environ[key] = value
     
+    def get_value(self, key):
+        """Get the real value of the environment variable "key"
+        It can help env scripts
+        :param key str: the environment variable
+        """
+        return self.environ[key]
+
     def add(self, key, value):
         """prepend value to key using sep
         

@@ -930,6 +930,34 @@ def product_has_logo(product_info):
     else:
         return False
 
+def product_has_licence(product_info, path):
+    """Find out if a product has a licence
+    
+    :param product_info Config: The configuration specific to the product
+    :param path Str: The path where to search for the licence
+    :return: The name of the licence file (the complete path if it is found in the path, else the name, else False
+    :rtype: Str
+    """
+    if ("properties" in product_info and
+            "licence" in product_info.properties):
+        licence_name = product_info.properties.licence
+        if len(path) > 0:
+            # search for licence_name in path
+            # a- consolidate the path into one signe string licence_path
+            licence_path=path[0]
+            for lpath in path[1:]:
+                licence_path=licence_path+":"+lpath
+            licence_path_list=licence_path.split(":")
+            licence_fullname = src.find_file_in_lpath(licence_name, licence_path_list)
+            if licence_fullname:
+                return licence_fullname
+
+        # if the search of licence in path failed, we return its name (not the full path) 
+        return licence_name
+
+    else:
+        return False  # product has no licence
+
 def product_has_salome_gui(product_info):
     """Know if a product has a SALOME gui
     

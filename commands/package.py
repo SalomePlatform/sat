@@ -202,13 +202,19 @@ def produce_relative_launcher(config,
         bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin","salome") 
 
     # check if the application contains an application module
+    # check also if the application has a distene product, 
+    # in this case get its licence file name
     l_product_info = src.product.get_products_infos(config.APPLICATION.products.keys(), config)
     salome_application_name="Not defined" 
+    distene_licence_file_name=False
     for prod_name, prod_info in l_product_info:
-        # look for a salome application
+        # look for a "salome application" and a distene product
+        if src.get_property_in_product_cfg(prod_info, "is_distene") == "yes":
+            distene_licence_file_name = src.product.product_has_licence(prod_info, 
+                                            config.PATHS.LICENCEPATH) 
         if src.get_property_in_product_cfg(prod_info, "is_salome_application") == "yes":
             salome_application_name=prod_info.name
-            continue
+
     # if the application contains an application module, we set ABSOLUTE_APPLI_PATH to it
     # if not we set it to KERNEL_INSTALL_DIR, which is sufficient, except for salome test
     if salome_application_name == "Not defined":
@@ -253,7 +259,9 @@ def produce_relative_launcher(config,
     
     # A hack to put a call to a file for distene licence.
     # It does nothing to an application that has no distene product
-    hack_for_distene_licence(filepath)
+    if distene_licence_file_name:
+        logger.write("Application has a distene licence file! We use it in package launcher", 5)
+        hack_for_distene_licence(filepath, distene_licence_file_name)
        
     # change the rights in order to make the file executable for everybody
     os.chmod(filepath,
@@ -267,7 +275,7 @@ def produce_relative_launcher(config,
 
     return filepath
 
-def hack_for_distene_licence(filepath):
+def hack_for_distene_licence(filepath, licence_file):
     '''Replace the distene licence env variable by a call to a file.
     
     :param filepath Str: The path to the launcher to modify.
@@ -295,10 +303,10 @@ def hack_for_distene_licence(filepath):
     del text[num_line +1]
     text_to_insert ="""    import imp
     try:
-        distene = imp.load_source('distene_licence', '/data/tmpsalome/salome/prerequis/install/LICENSE/dlim8.var.py')
+        distene = imp.load_source('distene_licence', '%s')
         distene.set_distene_variables(context)
     except:
-        pass\n"""
+        pass\n"""  % licence_file
     text.insert(num_line + 1, text_to_insert)
     for line in text:
         fout.write(line)
@@ -922,13 +930,22 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs, with_ftp):
     project_pyconf_file = os.path.join(project_tmp_dir, project_pyconf_name)
     ff = open(project_pyconf_file, "w")
     ff.write(PROJECT_TEMPLATE)
-    if with_ftp:
+    if with_ftp and len(config.PATHS.ARCHIVEFTP) > 0:
         ftp_path='ARCHIVEFTP : "'+config.PATHS.ARCHIVEFTP[0]
         for ftpserver in config.PATHS.ARCHIVEFTP[1:]:
             ftp_path=ftp_path+":"+ftpserver
         ftp_path+='"'
         ff.write("# ftp servers where to search for prerequisite archives\n")
         ff.write(ftp_path)
+    # add licence paths if any
+    if len(config.PATHS.LICENCEPATH) > 0:  
+        licence_path='LICENCEPATH : "'+config.PATHS.LICENCEPATH[0]
+        for path in config.PATHS.LICENCEPATH[1:]:
+            licence_path=licence_path+":"+path
+        licence_path+='"'
+        ff.write("\n# Where to search for licences\n")
+        ff.write(licence_path)
+        
 
     ff.close()
     

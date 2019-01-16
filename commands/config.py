@@ -359,6 +359,7 @@ class ConfigManager:
         cfg.PATHS.JOBPATH.append(cfg.VARS.personal_jobs_dir, "")
         cfg.PATHS["MACHINEPATH"] = src.pyconf.Sequence(cfg.PATHS)
         cfg.PATHS.MACHINEPATH.append(cfg.VARS.personal_machines_dir, "")
+        cfg.PATHS["LICENCEPATH"] = src.pyconf.Sequence(cfg.PATHS)
 
         # initialise the path with local directory
         cfg.PATHS["ARCHIVEPATH"].append(cfg.LOCAL.archive_dir, "")
@@ -371,7 +372,8 @@ class ConfigManager:
                          "ARCHIVEPATH", #comment this for default archive  	#8646
                          "ARCHIVEFTP",
                          "JOBPATH",
-                         "MACHINEPATH"]:
+                         "MACHINEPATH",
+                         "LICENCEPATH"]:
                 if PATH not in cfg.PROJECTS.projects[project]:
                     continue
                 cfg.PATHS[PATH].append(cfg.PROJECTS.projects[project][PATH], "")
