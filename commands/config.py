@@ -722,6 +722,7 @@ def show_product_info(config, name, logger):
                                     check_path(pinfo.environ.env_script), 
                                     2)
 
+    # display run-time environment
     zz = src.environment.SalomeEnviron(config,
                                        src.fileEnviron.ScreenEnviron(logger), 
                                        False)

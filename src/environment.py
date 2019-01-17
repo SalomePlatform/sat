@@ -167,6 +167,15 @@ class Environ:
         else:
             return ""
 
+    def get_value(self, key):
+        """\
+        Get the value of the environment variable "key"
+        This method is added for API compatibility with FileEnviron class
+        
+        :param key str: the environment variable
+        """
+        return self.get(key)
+
     def command_value(self, key, command):
         """\
         Get the value given by the system command "command" 
@@ -254,6 +263,18 @@ class SalomeEnviron:
         :param key str: the environment variable
         """
         return self.environ.get(key)
+
+    def get_value(self, key):
+        """\
+        Get the real value of the environment variable "key"
+        This method is added for API compatibility with FileEnviron class
+        
+        :param key str: the environment variable
+        """
+        if key in self.environ:
+            return self.environ[key]
+        else:
+            return ""
 
     def set(self, key, value):
         """\
@@ -673,7 +694,7 @@ class SalomeEnviron:
                                             product_info.install_dir,
                                             product_info.version)
                 else:
-                    # at least this one is mandatoryi,
+                    # at least this one is mandatory,
                     # if set_env_build and set_env_build are not defined
                     pyproduct.set_env(self,
                                       product_info.install_dir,

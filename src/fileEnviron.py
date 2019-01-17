@@ -636,7 +636,7 @@ class LauncherFileEnviron:
         self.environ[key] = value
     
     def get_value(self, key):
-        """Get the real value of the environment variable "key"
+        """Get the real value of the environment variable "key", not ${key}
         It can help env scripts
         :param key str: the environment variable
         """
