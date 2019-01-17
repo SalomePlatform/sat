@@ -52,9 +52,6 @@ DBG.write("Python version", sys.version, DBG.isDeveloper())
 if __name__ == "__main__":
     from src.salomeTools import Sat # it is time to do import
 
-    _debug = False # Have to be False in production (for programmers DEBUG only)
-    DBG.push_debug(_debug) # as __main__ with sys.exit so no need pop_debug
-
     args = sys.argv[1:] # skip useless "sat'
     sat = Sat(logger) # instantiate the salomeTools class
 

@@ -141,18 +141,13 @@ def format_exception(msg, limit=None, trace=None):
   with traceback only if (_debug) or (DBG._user in DBG._developers)
   """
   etype, value, tb = sys.exc_info()
-  if _debug[-1] or isDeveloper():
-    res = msg
-    if tb:
-      res += "\nTraceback (most recent call last):\n"
-      res += "".join(traceback.format_tb(tb, limit))  # [:-1])
-    res += "\n"
-    res += "\n".join(traceback.format_exception_only(etype, value))
-    return res
-  else:
-    res = msg
-    res += "".join(traceback.format_exception_only(etype, value))
-    return res
+  res = msg
+  if tb:
+    res += "\nTraceback (most recent call last):\n"
+    res += "".join(traceback.format_tb(tb, limit))  # [:-1])
+  res += "\n"
+  res += "\n".join(traceback.format_exception_only(etype, value))
+  return res
 
 def format_color_exception(msg, limit=None, trace=None):
   """

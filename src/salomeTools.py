@@ -234,6 +234,8 @@ class Sat(object):
     def setInternals(self, opt=None, datadir=None):
         """set the commands by calling the dedicated function etc..."""
         options, remaindersArgs = parser.parse_args(opt)
+        if options.debug_mode:
+            DBG.push_debug(True)
         self.arguments = opt
         self.options = options # the generic options passed to salomeTools
         self.remaindersArgs = remaindersArgs  # the command and their options
@@ -487,19 +489,6 @@ class Sat(object):
 
                     logger_command.write("\n" + DBG.format_exception("") + "\n", 1)
 
-                    """
-                    # have python 3 problems...
-                    # get stack
-                    __, __, exc_traceback = sys.exc_info()
-                    fp = tempfile.TemporaryFile(mode='wt')
-                    traceback.print_tb(exc_traceback, file=fp)
-                    fp.seek(0)
-                    stack = fp.read()
-                    verbosity = 5
-                    if self.options.debug_mode:
-                        verbosity = 1
-                    logger_command.write("TRACEBACK: %s" % stack.replace('"',"'"), verbosity)
-                    """
 
                 finally:
                     # set res if it is not set in the command
