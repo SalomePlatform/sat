@@ -475,7 +475,7 @@ def create_test_report(config,
                     if 'callback' in script:
                         try:
                             cnode = add_simple_node(tn, "callback")
-                            if src.architecture.is_windows():
+                            if True:  # bug xml mal forme colorisation  src.architecture.is_windows():
                                 import string
                                 cnode.text = filter(
                                                 lambda x: x in string.printable,
