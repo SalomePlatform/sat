@@ -398,6 +398,14 @@ class SalomeEnviron:
             self.cfg.APPLICATION.environ.PRODUCT_ROOT_DIR = src.pyconf.Reference(self.cfg, src.pyconf.DOLLAR, "workdir")
             DBG.write("set_application_env: add APPLICATION.environ.PRODUCT_ROOT_DIR", self.cfg.APPLICATION.environ)
           
+        # these sensitive variables are reset to avoid bad environment interactions
+        self.add_line(1)
+        self.add_comment("reset these sensitive variables to avoid bad environment interactions")
+        self.add_comment("comment these to lines if you wish a different behaviour")
+        self.set("LD_LIBRARY_PATH", "")
+        self.set("PYTHONPATH", "")
+        self.add_line(1)
+
         # Set the variables defined in the "environ" section
         if 'environ' in self.cfg.APPLICATION:
             # we write PRODUCT environment it in order to conform to 
