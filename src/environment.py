@@ -218,6 +218,7 @@ class SalomeEnviron:
         self.for_package = for_package
         self.enable_simple_env_script = enable_simple_env_script
         self.silent = False
+        self.has_python = False
 
     def __repr__(self):
         """easy almost exhaustive quick resume for debug print"""
@@ -356,6 +357,7 @@ class SalomeEnviron:
           
         self.python_lib0 = self.get('PYTHON_LIBDIR0')
         self.python_lib1 = self.get('PYTHON_LIBDIR1')
+        self.has_python = True
 
     def get_names(self, lProducts):
         """\
@@ -473,16 +475,21 @@ class SalomeEnviron:
                 lib_path = os.path.join(envcompo_root_dir, 'lib', 'salome')
                 l_binpath_libpath.append( (bin_path, lib_path) )
 
+
         if src.get_property_in_product_cfg(pi, "fhs"):
             lib_path = os.path.join(env_root_dir, 'lib')
-            pylib1_path = os.path.join(env_root_dir, self.python_lib0)
-            pylib2_path = os.path.join(env_root_dir, self.python_lib1)
             bin_path = os.path.join(env_root_dir, 'bin')
+            if self.has_python:
+            # if the application doesn't include python, we don't need these two lines
+                pylib1_path = os.path.join(env_root_dir, self.python_lib0)
+                pylib2_path = os.path.join(env_root_dir, self.python_lib1)
         else:
             lib_path = os.path.join(env_root_dir, 'lib', 'salome')
-            pylib1_path = os.path.join(env_root_dir, self.python_lib0, 'salome')
-            pylib2_path = os.path.join(env_root_dir, self.python_lib1, 'salome')
             bin_path = os.path.join(env_root_dir, 'bin', 'salome')
+            if self.has_python:
+            # if the application doesn't include python, we don't need these two lines
+                pylib1_path = os.path.join(env_root_dir, self.python_lib0, 'salome')
+                pylib2_path = os.path.join(env_root_dir, self.python_lib1, 'salome')
 
         # Construct the paths to prepend to PATH and LD_LIBRARY_PATH and 
         # PYTHONPATH
@@ -496,7 +503,11 @@ class SalomeEnviron:
                 else :
                     self.prepend('LD_LIBRARY_PATH', lib_path)
 
-            l = [ bin_path, lib_path, pylib1_path, pylib2_path ]
+            l = [ bin_path, lib_path ]
+            if self.has_python:
+                l.append(pylib1_path)
+                l.append(pylib2_path)
+
             self.prepend('PYTHONPATH', l)
 
     def set_cpp_env(self, product_info):
@@ -523,10 +534,10 @@ class SalomeEnviron:
                 else :
                     self.prepend('LD_LIBRARY_PATH', lib_path)
 
-            l = [ bin_path, lib_path,
-                  os.path.join(env_root_dir, self.python_lib0),
-                  os.path.join(env_root_dir, self.python_lib1)
-                ]
+            l = [ bin_path, lib_path ]
+            if self.has_python:
+                l.append(os.path.join(env_root_dir, self.python_lib0))
+                l.append(os.path.join(env_root_dir, self.python_lib1))
             self.prepend('PYTHONPATH', l)
 
     def load_cfg_environment(self, cfg_env):
@@ -789,10 +800,14 @@ class SalomeEnviron:
         # set product environ
         self.set_application_env(logger)
 
-        self.set_python_libdirs()
+        if "Python" in env_info:
+            self.set_a_product("Python", logger)
+            self.set_python_libdirs()
 
         # set products
         for product in env_info:
+            if product == "Python":
+                continue
             self.set_a_product(product, logger)
 
 class FileEnvWriter:
