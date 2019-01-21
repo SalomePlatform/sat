@@ -26,9 +26,9 @@ Usage
 
     sat log <application> --last
 
-* To access the last compilation log in terminal mode, use --last_terminal option: ::
+* To access the last compilation log in terminal mode, use --last_compile option: ::
 
-    sat log <application> --last_terminal
+    sat log <application> --last_compile
 
 * The --clean (int) option erases the n older log files and print the number of remaining log files: ::
 
