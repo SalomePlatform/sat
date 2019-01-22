@@ -46,6 +46,8 @@ Availables options
 
   * **--install** : Clean the product install directories.
 
+  * **--generated : Clean source, build and install directories for generated products.
+
   * **--all** : Clean the product source, build and install directories.
 
   * **--sources_without_dev** : 

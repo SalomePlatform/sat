@@ -181,6 +181,9 @@ msgstr ""
 msgid "Optional: Clean the product install directories."
 msgstr ""
 
+msgid "Optional: Clean source, build and install directories for generated products."
+msgstr ""
+
 msgid "Optional: Clean the product source, build and install directories."
 msgstr ""
 

@@ -369,6 +369,15 @@ def run(args, runner, logger):
             logger.write(_("not a generated product\n"), 3, False)
             continue
 
+        logger.write(_("\nCleaning generated directories\n"), 3, False)
+        # clean source, build and install directories of the generated product
+        # no verbosity to avoid warning at the first generation, for which dirs don't exist
+        runner.clean(runner.cfg.VARS.application + 
+                  " --products " + pi.name + 
+                  " --generated",
+                  batch=True,
+                  verbose=0,
+                  logger_add_link = logger)
         nbgen += 1
         try:
             result = generate_component_list(runner.cfg,

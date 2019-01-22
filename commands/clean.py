@@ -17,6 +17,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import re
+import os
 
 import src
 
@@ -38,6 +39,8 @@ parser.add_option('b', 'build', 'boolean', 'build',
     _("Optional: Clean the product build directories."))
 parser.add_option('i', 'install', 'boolean', 'install', 
     _("Optional: Clean the product install directories."))
+parser.add_option('g', 'generated', 'boolean', 'generated', 
+    _("Optional: Clean source, build and install directories for generated products."))
 parser.add_option('a', 'all', 'boolean', 'all', 
     _("Optional: Clean the product source, build and install directories."))
 parser.add_option('', 'sources_without_dev', 'boolean', 'sources_without_dev', 
@@ -93,6 +96,34 @@ def get_install_directories(products_infos):
         if product_has_dir(product_info):
             l_dir_install.append(src.Path(product_info.install_dir))
     return l_dir_install
+
+def get_generated_directories(config, products_infos):
+    """\
+    Returns the list of directories (source, build, install) corresponding to the 
+    list of products information given as input.
+    Nothing is returned for non generated products (those with...)
+    
+    :param products_infos list: The list of (name, config) corresponding to one product.
+    :return: the list of install paths.
+    :rtype: list
+    """
+    l_dir_install = []
+    for __, product_info in products_infos:
+        if not src.product.product_is_generated(product_info):
+            continue
+        workdir = config.APPLICATION.workdir
+        compo = product_info.component_name
+        generate_dir = os.path.join(workdir, "GENERATED")
+        source_dir = os.path.join(generate_dir, compo + "_SRC")
+        build_dir = os.path.join(os.path.join(workdir, "BUILD"), compo)
+        install_dir = os.path.join(os.path.join(workdir, "INSTALL"), compo)
+        l_dir_install.append(src.Path(source_dir))
+        l_dir_install.append(src.Path(build_dir))
+        l_dir_install.append(src.Path(install_dir))
+        
+    return l_dir_install
+
+
 
 def product_has_dir(product_info, without_dev=False):
     """\
@@ -162,7 +193,8 @@ def run(args, runner, logger):
         l_dir_to_suppress += (get_source_directories(products_infos, 
                                             options.sources_without_dev) +
                              get_build_directories(products_infos) + 
-                             get_install_directories(products_infos))
+                             get_install_directories(products_infos) + 
+                             get_generated_directories(runner.cfg, products_infos) )
     else:
         if options.install:
             l_dir_to_suppress += get_install_directories(products_infos)
@@ -173,6 +205,8 @@ def run(args, runner, logger):
         if options.sources or options.sources_without_dev:
             l_dir_to_suppress += get_source_directories(products_infos, 
                                                 options.sources_without_dev)
+        if options.generated:
+            l_dir_to_suppress += get_generated_directories(runner.cfg, products_infos)
     
     if len(l_dir_to_suppress) == 0:
         logger.write(src.printcolors.printcWarning(_("Nothing to suppress\n")))
