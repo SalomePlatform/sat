@@ -104,6 +104,41 @@ def get_product_config(config, product_name, with_install_dir=True):
         if 'section' in dic_version:
             section = dic_version.section
     
+    # this case occur when version is overwritten, cf sat # 8897
+    if isinstance(version, dict): 
+        dic_version = version
+        # Get the version/tag
+        if not 'tag' in dic_version:
+            version = config.APPLICATION.tag
+        else:
+            version = dic_version["tag"]
+        
+        # Get the debug if any
+        if 'debug' in dic_version:
+            debug = dic_version["debug"]
+        elif 'debug' in config.APPLICATION:
+            debug = config.APPLICATION.debug
+        
+        # Get the verbose if any
+        if 'verbose' in dic_version:
+            verbose = dic_version["verbose"]
+        elif 'verbose' in config.APPLICATION:
+            verbose = config.APPLICATION.verbose
+        
+        # Get the dev if any
+        if 'dev' in dic_version:
+            dev = dic_version["dev"]
+        elif 'dev' in config.APPLICATION:
+            dev = config.APPLICATION.dev
+        
+        # Get the base if any
+        if 'base' in dic_version:
+            base = dic_version["base"]
+
+        # Get the section if any
+        if 'section' in dic_version:
+            section = dic_version['section']
+
     vv = version
     # substitute some character with _ in order to get the correct definition
     # in config.PRODUCTS. This is done because the pyconf tool does not handle
