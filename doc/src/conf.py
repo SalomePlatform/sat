@@ -16,7 +16,7 @@ import os
 
 # Append source folder to path in order to enable autodoc
 currentPath = os.path.dirname(__file__)
-print("sphinx on file %s" % __file__=
+print("sphinx on file %s" % __file__)
 dirAutodoc = os.path.realpath(os.path.join(currentPath, '..', '..'))
 print("autodoc on dir %s" % dirAutodoc)
 sys.path.append(dirAutodoc)

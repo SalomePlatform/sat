@@ -55,12 +55,13 @@ def get_product_config(config, product_name, with_install_dir=True):
     # current product 
     debug = 'no'
     dev = 'no'
+    hpc = 'no'
     verbose = 'no'
     base = 'maybe'
     section = None
 
     # if no version, then take the default one defined in the application
-    if isinstance(version, bool): 
+    if isinstance(version, bool) or isinstance(version, str): 
         # in this case tag is mandatory, not debug, verbose, dev
         version = config.APPLICATION.tag      
         if 'debug' in config.APPLICATION:
@@ -69,7 +70,9 @@ def get_product_config(config, product_name, with_install_dir=True):
             verbose = config.APPLICATION.verbose
         if 'dev' in config.APPLICATION:
             dev = config.APPLICATION.dev
-        
+        if 'hpc' in config.APPLICATION:
+            hpc = config.APPLICATION.hpc
+
     if isinstance(version, src.pyconf.Mapping):
         dic_version = version
         # Get the version/tag
@@ -96,6 +99,12 @@ def get_product_config(config, product_name, with_install_dir=True):
         elif 'dev' in config.APPLICATION:
             dev = config.APPLICATION.dev
         
+        # Get the hpc if any
+        if 'hpc' in dic_version:
+            hpc = dic_version.hpc
+        elif 'hpc' in config.APPLICATION:
+            hpc = config.APPLICATION.hpc
+
         # Get the base if any
         if 'base' in dic_version:
             base = dic_version.base
@@ -131,6 +140,12 @@ def get_product_config(config, product_name, with_install_dir=True):
         elif 'dev' in config.APPLICATION:
             dev = config.APPLICATION.dev
         
+        # Get the hpc if any
+        if 'hpc' in dic_version:
+            hpc = dic_version.hpc
+        elif 'hpc' in config.APPLICATION:
+            hpc = config.APPLICATION.hpc
+
         # Get the base if any
         if 'base' in dic_version:
             base = dic_version["base"]
@@ -228,6 +243,7 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
     prod_info.debug = debug
     prod_info.verbose = verbose
     prod_info.dev = dev
+    prod_info.hpc = hpc
     prod_info.version = version
 
     # Set the archive_info if the product is get in archive mode
@@ -820,6 +836,18 @@ def product_is_dev(product_info):
     res = (dev.lower() == 'yes')
     DBG.write('product_is_dev %s' % product_info.name, res)
     # if product_info.name == "XDATA": return True #test #10569
+    return res
+
+def product_is_hpc(product_info):
+    """Know if a product is in hpc mode
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is in hpc mode, else False
+    :rtype: boolean
+    """
+    hpc = product_info.hpc
+    res = (hpc.lower() == 'yes')
     return res
 
 def product_is_debug(product_info):

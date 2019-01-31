@@ -162,7 +162,7 @@ def batch_salome(cmd, logger, cwd, args, getTmpDir,
     if found:
         logger.write("\nbatch_salome: supposed started\n", 5)
     else:
-        logger.write("\nbatch_salome: seems FAILED to launch salome or appli\n" % foundSalome, 3)
+        logger.write("\nbatch_salome: seems FAILED to launch salome or appli : %s\n" % foundSalome, 3)
         return False, -1
 
     # salome launched run the script
