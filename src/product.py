@@ -63,7 +63,6 @@ def get_product_config(config, product_name, with_install_dir=True):
     # if no version, then take the default one defined in the application
     if isinstance(version, bool) or isinstance(version, str): 
         # in this case tag is mandatory, not debug, verbose, dev
-        version = config.APPLICATION.tag      
         if 'debug' in config.APPLICATION:
             debug = config.APPLICATION.debug
         if 'verbose' in config.APPLICATION:
@@ -72,6 +71,10 @@ def get_product_config(config, product_name, with_install_dir=True):
             dev = config.APPLICATION.dev
         if 'hpc' in config.APPLICATION:
             hpc = config.APPLICATION.hpc
+
+    # special case for which only the product name is mentionned 
+    if isinstance(version, bool):
+        version = config.APPLICATION.tag
 
     if isinstance(version, src.pyconf.Mapping):
         dic_version = version
