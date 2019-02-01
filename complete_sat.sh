@@ -182,7 +182,7 @@ _salomeTools_complete()
             return 0
             ;;
         prepare)
-            opts="--products --properties --force --force_patch"
+            opts="--products --properties --force --force_patch --complete"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;

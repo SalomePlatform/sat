@@ -79,6 +79,12 @@ Usage
 
     sat prepare <application> --force_patch
 
+* Prepare only products that are not present in SOURCES.
+  This completion mode is used to complete the preparation when it was interrupted, 
+  or when the product list was increased: ::
+
+    sat prepare <application> --complete
+
 
 Some useful configuration pathes
 =================================

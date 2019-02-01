@@ -32,9 +32,12 @@ parser.add_option('f', 'force', 'boolean', 'force',
     _("Optional: force to prepare the products in development mode."))
 parser.add_option('', 'force_patch', 'boolean', 'force_patch', 
     _("Optional: force to apply patch to the products in development mode."))
+parser.add_option('c', 'complete', 'boolean', 'complete',
+    _("Optional: completion mode, only prepare products not present in SOURCES dir."),
+    False)
 
 
-def find_products_already_getted(l_products):
+def find_products_already_prepared(l_products):
     '''function that returns the list of products that have an existing source 
        directory.
     
@@ -94,7 +97,21 @@ def run(args, runner, logger):
     else: # no product interpeted as all products
         listProd = [name for name, tmp in products_infos]
 
-    DBG.write("prepare products", sorted(listProd))
+    if options.complete:
+        # remove products that are already prepared 'completion mode)
+        pi_already_prepared=find_products_already_prepared(products_infos)
+        l_already_prepared = [i for i, tmp in pi_already_prepared]
+        newList, removedList = removeInList(listProd, l_already_prepared)
+        listProd = newList
+        if len(newList) == 0 and len(removedList) > 0 :
+            msg = "\nAll the products are already installed, do nothing!\n"
+            logger.write(src.printcolors.printcWarning(msg), 1)
+            return 0
+        if len(removedList) > 0 :
+            msg = "\nList of already prepared products that are skipped : %s\n" % ",".join(removedList)
+            logger.write(msg, 3)
+        
+
     args_product_opt = '--products ' + ",".join(listProd)
     do_source = (len(listProd) > 0)
 
@@ -102,7 +119,7 @@ def run(args, runner, logger):
     ldev_products = [p for p in products_infos if src.product.product_is_dev(p[1])]
     newList = listProd # default
     if not options.force and len(ldev_products) > 0:
-        l_products_not_getted = find_products_already_getted(ldev_products)
+        l_products_not_getted = find_products_already_prepared(ldev_products)
         listNot = [i for i, tmp in l_products_not_getted]
         newList, removedList = removeInList(listProd, listNot)
         if len(removedList) > 0:
