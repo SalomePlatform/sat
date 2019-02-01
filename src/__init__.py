@@ -147,7 +147,7 @@ def getProductNames(cfg, wildcards, logger):
         if len(filtered) > 0:
           res.append(prod)
           ok = True
-          break
+          continue
       if not ok:
         notFound[wild] = None
     if len(res) == 0:
