@@ -41,6 +41,8 @@ parser.add_option('i', 'install', 'boolean', 'install',
     _("Optional: Clean the product install directories."))
 parser.add_option('g', 'generated', 'boolean', 'generated', 
     _("Optional: Clean source, build and install directories for generated products."))
+parser.add_option('', 'package', 'boolean', 'package', 
+    _("Optional: Clean packages produced by sat package command."))
 parser.add_option('a', 'all', 'boolean', 'all', 
     _("Optional: Clean the product source, build and install directories."))
 parser.add_option('', 'sources_without_dev', 'boolean', 'sources_without_dev', 
@@ -96,6 +98,16 @@ def get_install_directories(products_infos):
         if product_has_dir(product_info):
             l_dir_install.append(src.Path(product_info.install_dir))
     return l_dir_install
+
+def get_package_directory(config):
+    """\
+    Returns the package directory name corresponding to the sat package command
+    
+    :param config Config: The global configuration
+    :return: a list containing the PACKAGE full path.
+    :rtype: list
+    """
+    return [src.Path(os.path.join(config.APPLICATION.workdir, "PACKAGE"))]
 
 def get_generated_directories(config, products_infos):
     """\
@@ -194,7 +206,8 @@ def run(args, runner, logger):
                                             options.sources_without_dev) +
                              get_build_directories(products_infos) + 
                              get_install_directories(products_infos) + 
-                             get_generated_directories(runner.cfg, products_infos) )
+                             get_generated_directories(runner.cfg, products_infos) + 
+                             get_package_directory(runner.cfg) )
     else:
         if options.install:
             l_dir_to_suppress += get_install_directories(products_infos)
@@ -207,6 +220,9 @@ def run(args, runner, logger):
                                                 options.sources_without_dev)
         if options.generated:
             l_dir_to_suppress += get_generated_directories(runner.cfg, products_infos)
+
+        if options.package:
+            l_dir_to_suppress += get_package_directory(runner.cfg)
     
     if len(l_dir_to_suppress) == 0:
         logger.write(src.printcolors.printcWarning(_("Nothing to suppress\n")))

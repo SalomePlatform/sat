@@ -48,6 +48,8 @@ Availables options
 
   * **--generated : Clean source, build and install directories for generated products.
 
+  * **--package : Clean the application package directory.
+
   * **--all** : Clean the product source, build and install directories.
 
   * **--sources_without_dev** : 
