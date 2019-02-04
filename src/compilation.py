@@ -323,6 +323,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
             cmd = command
         
         self.log_command(cmd)
+        self.log_command("For more detailed logs, see test logs in %s" % self.build_dir)
 
         res = subprocess.call(cmd,
                               shell=True,
@@ -331,6 +332,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
 
+        self.put_txt_log_in_appli_log_dir("makecheck")
         if res == 0:
             return res
         else:
