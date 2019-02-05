@@ -97,6 +97,13 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
         logger.write("\n", 3, False)
         return 0
 
+    if not os.path.isfile(p_info.compil_script):
+        msg_err="\n\nError : The compilation script file do not exists!"+\
+                "\n        It was not found by sat!"+\
+                "\n        Please check your salomeTool configuration\n"
+        logger.error(msg_err)
+        return 1
+
     # Instantiate the class that manages all the construction commands
     # like cmake, make, make install, make test, environment management, etc...
     builder = src.compilation.Builder(config, logger, p_info)

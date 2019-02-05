@@ -295,18 +295,12 @@ Please provide a 'compil_script' key in its definition.""") % product_name
             if not script_path:
                 msg = _("Compilation script %s not found in") % script_name
                 DBG.tofix(msg, config.PATHS.PRODUCTPATH, True) # say where searched
-                # avoid stop if sat prepare, script could be included in sources, only warning
-                # raise src.SatException(msg)
-                script_path = "*** Not Found: %s" % script_name
+                script_path = "%s_(Not_Found_by_Sat!!)" % script_name
             prod_info.compil_script = script_path
 
        
         # Check that the script is executable
         if os.path.exists(prod_info.compil_script) and not os.access(prod_info.compil_script, os.X_OK):
-            #raise src.SatException(
-            #        _("Compilation script cannot be executed: %s") % 
-            #        prod_info.compil_script)
-            # just as warning, problem later...
             DBG.tofix("Compilation script  file is not in 'execute mode'", prod_info.compil_script, True)
     
     # Get the full paths of all the patches

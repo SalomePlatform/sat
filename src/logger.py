@@ -549,7 +549,7 @@ def isCurrentLoggerUnittest():
       res = True
     else:
       res = False
-    DBG.write("isCurrentLoggerUnittest %s" % logger.name, res)
+    #DBG.write("isCurrentLoggerUnittest %s" % logger.name, res)
     return res
 
 def sendMessageToCurrentLogger(message, level):

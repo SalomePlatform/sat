@@ -118,8 +118,9 @@ def tofix(title, var="", force=None):
     write sys.stderr a message if _debug[-1]==True or optionaly force=True
     use this only if no logger accessible for classic logger.warning(message)
     """
-    fmt = "\n#### TOFIX: %s:\n%s\n"
-    write(title, var, force, fmt)
+    if _debug[-1] or isDeveloper():
+        fmt = "\n#### TOFIX: %s:\n%s\n"
+        write(title, var, force, fmt)
 
 def push_debug(aBool):
     """set debug outputs activated, or not"""
