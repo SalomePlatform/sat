@@ -54,6 +54,21 @@ def show_in_editor(editor, filePath, logger):
         logger.write(printcolors.printcError(_("Unable to edit file %s\n") 
                                              % filePath), 1)
 
+def git_describe(repo_path):
+    '''Use git describe --tags command to return tag description of the git repository"
+    :param repo_path str: The git repository to describe
+    '''
+    git_cmd="cd %s;git describe --tags" % repo_path
+    p = subprocess.Popen(git_cmd, shell=True,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE)
+    p.wait()
+    if p.returncode != 0:
+        return False
+    else:
+        return p.stdout.readlines()[0].strip()
+
 
 def git_extract(from_what, tag, where, logger, environment=None):
   '''Extracts sources from a git repository.

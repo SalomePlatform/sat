@@ -134,7 +134,7 @@ class Logger(object):
                                                      self.config.VARS.command})
         # version of salomeTools
         self.xmlFile.append_node_attrib("Site", attrib={"satversion" : 
-                                            self.config.INTERNAL.sat_version})
+                                            src.get_salometool_version(self.config)})
         # machine name on which the command has been launched
         self.xmlFile.append_node_attrib("Site", attrib={"hostname" : 
                                                     self.config.VARS.hostname})

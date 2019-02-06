@@ -1209,7 +1209,7 @@ The procedure to do it is:
         d = dict()
         d['user'] = config.VARS.user
         d['date'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        d['version'] = config.INTERNAL.sat_version
+        d['version'] = src.get_salometool_version(config)
         d['dist'] = config.VARS.dist
         f.write(readme_header_tpl.substitute(d)) # write the general header (common)
 
@@ -1396,7 +1396,7 @@ Please add it in file:
             archive_name += ("PROJECT-" + project_name)
  
         if options.sat:
-            archive_name += ("salomeTools_" + runner.cfg.INTERNAL.sat_version)
+            archive_name += ("salomeTools_" + src.get_salometool_version(runner.cfg))
         if len(archive_name)==0: # no option worked 
             msg = _("Error: Cannot name the archive\n"
                     " check if at least one of the following options was "

@@ -696,7 +696,7 @@ def get_version():
     cfgManager = CONFIG.ConfigManager()
     cfg = cfgManager.get_config()
     # print the key corresponding to salomeTools version
-    msg = (src.printcolors.printcHeader( _("Version: ") ) + cfg.INTERNAL.sat_version)
+    msg = (src.printcolors.printcHeader( _("Version: ") ) + src.get_salometool_version(cfg))
     return msg
 
 
