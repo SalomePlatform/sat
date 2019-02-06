@@ -283,7 +283,6 @@ def compile_all_products(sat, config, options, products_infos, logger):
                       verbose=0,
                       logger_add_link = logger)
 
-        # DBG.write("Only for test of check_config_exists", src.product.check_config_exists(config, "/volatile/wambeke/SAT5/MATIX_V24_S840/INSTALL/PACKAGESPY", p_info, verbose=True), True)
 
         # Clean the the install directory 
         # if the corresponding option was called

@@ -636,7 +636,7 @@ def run(args, runner, logger):
     show_desktop = (options.display and options.display.upper() == "NO")
     if options.display and options.display != "NO":
         remote_name = options.display.split(':')[0]
-        if remote_name != "":
+        if remote_name != "" and (not src.architecture.is_windows()):
             check_remote_machine(remote_name, logger)
         # if explicitly set use user choice
         os.environ['DISPLAY'] = options.display
