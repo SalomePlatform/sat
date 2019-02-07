@@ -499,21 +499,6 @@ echo -e 'import os\nprint(os.environ[\"KERNEL_ROOT_DIR\"])' > tmpscript.py
         return default_value
 
     def generate_launching_commands(self):
-        # Case where "sat test" is launched in an existing SALOME environment
-        if 'KERNEL_ROOT_DIR' in os.environ:
-            binSalome = "runSalome"
-            binPython = "python"
-            killSalome = "killSalome.py"
-        
-        # Rare case where there is no KERNEL in grid list 
-        # (for example MED_STANDALONE)
-        if ('APPLICATION' in self.config and 
-                'KERNEL' not in self.config.APPLICATION.products):
-            binSalome = "runSalome"
-            binPython = "python" 
-            killSalome = "killSalome.py"   
-            src.environment.load_environment(self.config, False, self.logger)         
-            return binSalome, binPython, killSalome
         
         # Case where there the appli option is called (with path to launcher)
         if len(self.launcher) > 0:
@@ -521,7 +506,7 @@ echo -e 'import os\nprint(os.environ[\"KERNEL_ROOT_DIR\"])' > tmpscript.py
             # and the new one
             launcherName = os.path.basename(self.launcher)
             launcherDir = os.path.dirname(self.launcher)
-            if launcherName == 'runAppli':
+            if os.path.basename(launcherDir) == 'APPLI':
                 # Old application
                 binSalome = self.launcher
                 binPython = ("for i in " +
