@@ -383,23 +383,18 @@ class SalomeEnviron:
                 lProdName.append(ProdName)
         return lProdName
 
-    def set_application_env(self, logger, no_PRODUCT_ROOT_DIR=False):
+    def set_application_env(self, logger):
         """\
         Sets the environment defined in the APPLICATION file.
         
         :param logger Logger: The logger instance to display messages
         """
         
-        # add variable PRODUCT_ROOT_DIR as $workdir in APPLICATION.environ section if not present
-        # but if sat launcher or sat package do not duplicate line context.setVariable(r"PRODUCT_ROOT_DIR", ...
-        # no_PRODUCT_ROOT_DIR used only for write_cfgForPy_file
-        if not no_PRODUCT_ROOT_DIR: # do not duplicate context.setVariable(r"PRODUCT_ROOT_DIR"
-          try:
-            tmp = self.cfg.APPLICATION.environ.PRODUCT_ROOT_DIR
-          except:
-            self.cfg.APPLICATION.environ.PRODUCT_ROOT_DIR = src.pyconf.Reference(self.cfg, src.pyconf.DOLLAR, "workdir")
-            DBG.write("set_application_env: add APPLICATION.environ.PRODUCT_ROOT_DIR", self.cfg.APPLICATION.environ)
-          
+        if self.for_package:
+           self.set("PRODUCT_ROOT_DIR", "out_dir_Path")
+        else:
+           self.cfg.APPLICATION.environ.PRODUCT_ROOT_DIR = src.pyconf.Reference(self.cfg, src.pyconf.DOLLAR, "workdir")
+
         # these sensitive variables are reset to avoid bad environment interactions
         self.add_line(1)
         self.add_comment("reset these sensitive variables to avoid bad environment interactions")
@@ -913,7 +908,7 @@ class FileEnvWriter:
 
         else:
             # set env from PRODUCT
-            env.set_application_env(self.logger, no_PRODUCT_ROOT_DIR=True)
+            env.set_application_env(self.logger)
 
             # The list of products to launch
             lProductsName = env.get_names(self.config.APPLICATION.products.keys())
@@ -921,7 +916,6 @@ class FileEnvWriter:
 
             # set the products
             env.set_products(self.logger, src_root=self.src_root)
-            DBG.write("set_application_env without PRODUCT_ROOT_DIR", self.config.APPLICATION.environ)
 
         # Add the additional environment if it is not empty
         if len(additional_env) != 0:

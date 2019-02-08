@@ -25,9 +25,6 @@ bat_header="""\
 
 rem The following variables are used only in case of a sat package
 set out_dir_Path=%~dp0
-set PRODUCT_OUT_DIR=%out_dir_Path%
-set prereq_install_Path=%out_dir_Path%\PREREQUISITES\INSTALL
-set prereq_build_Path=%out_dir_Path%\PREREQUISITES\BUILD
 """
 
 
@@ -70,10 +67,8 @@ out_var=`cleandup $xenv $2`
 export $1=$out_var
 }
 
-# The 3 following variables are used only in case of a sat package
+# This line is used only in case of a sat package
 export out_dir_Path=$(cd $(dirname ${BASH_SOURCE[0]});pwd)
-export PRODUCT_OUT_DIR=${out_dir_Path}
-export PRODUCT_ROOT_DIR=${PRODUCT_OUT_DIR}
 
 ###########################################################################
 """
@@ -851,7 +846,6 @@ def main(args):
     # Logger level error
     context.getLogger().setLevel(40)
 
-    context.setVariable(r"PRODUCT_ROOT_DIR", out_dir_Path, overwrite=True)
     # here your local standalone environment
 
     if len(args) >1 and args[0]=='doc':
@@ -978,7 +972,6 @@ def main(args):
     # Logger level error
     context.getLogger().setLevel(40)
 
-    context.setVariable(r"PRODUCT_ROOT_DIR", out_dir_Path, overwrite=True)
     # here your local standalone environment
 
     if len(args) >1 and args[0]=='doc':
