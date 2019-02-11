@@ -30,6 +30,10 @@ parser.add_option('w', 'workdir', 'string', 'workdir',
 parser.add_option('a', 'archive_dir', 'string', 'archive_dir', 
                   _('Optional: The path to the local archive directory '
                     '(where to install local source archives'))
+parser.add_option('', 'add_project ', 'string', 'add_project', 
+                  _('Optional: The path of the project to add'))
+parser.add_option('', 'reset_projects', 'boolean', 'reset_projects', 
+                  _('Optional: Reset the list of projects'))
 parser.add_option('v', 'VCS', 'string', 'VCS', 
                   _('Optional: The address of the repository of SAT '
                     '(only informative)'))
@@ -66,6 +70,68 @@ def set_local_value(config, key, value, logger):
     
     return 0
     
+def add_local_project(config, project_file, logger):
+    """ Add a project in local configuration (file data/local.pyconf).
+
+    :param config Config: The global configuration.    
+    :param new_project Str: The project pyconf file to add in local config.
+    :param logger Logger: The logger instance.
+    :return: 0 if all is OK, else 1
+    :rtype: int
+    """
+    if not os.path.isfile(project_file):
+        logger.write("Unable to add a project in local configuration, project file %s does not exist\n" % project_file, 1)
+        return 1
+
+    # check that the project file exists
+    local_file_path = os.path.join(config.VARS.datadir, "local.pyconf")
+
+    # Update the local.pyconf file
+    try:
+        local_cfg = src.pyconf.Config(local_file_path)
+        local_cfg.PROJECTS.project_file_paths.append(project_file, "")
+        ff = open(local_file_path, 'w')
+        local_cfg.__save__(ff, 1)
+        ff.close()
+        config.PROJECTS.project_file_paths.append(project_file, "")
+
+    except Exception as e:
+        err = str(e)
+        msg = _("Unable to update the local.pyconf file: %s\n" % err)
+        logger.write(msg, 1)
+        return 1
+
+    return 0
+
+
+def reset_local_projects(config, logger):
+    """ Reinitialise the list of projects in local configuration (file data/local.pyconf).
+
+    :param config Config: The global configuration.    
+    :param logger Logger: The logger instance.
+    :return: 0 if all is OK, else 1
+    :rtype: int
+    """
+
+    local_file_path = os.path.join(config.VARS.datadir, "local.pyconf")
+    # Update the local.pyconf file
+    try:
+        local_cfg = src.pyconf.Config(local_file_path)
+        local_cfg.PROJECTS.project_file_paths=src.pyconf.Sequence(local_cfg.PROJECTS)
+        ff = open(local_file_path, 'w')
+        local_cfg.__save__(ff, 1)
+        ff.close()
+        config.PROJECTS.project_file_paths=src.pyconf.Sequence(config.PROJECTS)
+
+    except Exception as e:
+        err = str(e)
+        msg = _("Unable to update the local.pyconf file: %s\n" % err)
+        logger.write(msg, 1)
+        return 1
+
+    return 0
+
+
 def display_local_values(config, logger):
     """ Display the base path
 
@@ -78,7 +144,8 @@ def display_local_values(config, logger):
             ("log_dir", config.LOCAL.log_dir),
             ("archive_dir", config.LOCAL.archive_dir),
             ("VCS", config.LOCAL.VCS),
-            ("tag", config.LOCAL.tag)]
+            ("tag", config.LOCAL.tag),
+            ("projects", config.PROJECTS.project_file_paths)]
     src.print_info(logger, info)
 
     return 0
@@ -135,6 +202,7 @@ def run(args, runner, logger):
 
     res = 0
     
+
     # Set the options corresponding to a directory
     for opt in [("base" , options.base),
                 ("workdir", options.workdir),
@@ -148,11 +216,21 @@ def run(args, runner, logger):
                 res_set = set_local_value(runner.cfg, key, value, logger)
                 res += res_set
 
+    # set the options corresponding to projects file names
+    if options.add_project:
+        res_add=add_local_project(runner.cfg, options.add_project, logger)
+        res += res_add
+
+    if options.reset_projects:
+        res_rem=reset_local_projects(runner.cfg, logger)
+        res += res_rem
+
     # Set the options corresponding to an informative value            
     for opt in [("VCS", options.VCS), ("tag", options.tag)]:
         key, value = opt
-        res_set = set_local_value(runner.cfg, key, value, logger)
-        res += res_set
+        if value:
+            res_set = set_local_value(runner.cfg, key, value, logger)
+            res += res_set
     
     display_local_values(runner.cfg, logger)
     

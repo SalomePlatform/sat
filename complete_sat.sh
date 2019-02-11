@@ -59,7 +59,7 @@ _show_applications()
             opts2=$(echo --set $opts2)
             ;;
         init)
-            opts2=$(echo --base --workdir --VCS --tag --log_dir $opts2)
+            opts2=$(echo --base --workdir --VCS --tag --log_dir --add_project --reset_projects $opts2)
             ;;
     esac
 
@@ -282,7 +282,7 @@ _salomeTools_complete()
             return 0
             ;;
         init)
-            opts="--base --workdir --VCS --tag --log_dir"
+            opts="--base --workdir --VCS --tag --log_dir --add_project --reset_projects"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
