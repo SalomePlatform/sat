@@ -55,6 +55,7 @@ List of Commands
    clean <commands/clean>
    package <commands/package>
    generate <commands/generate>
+   init <commands/init>
 
 Developer documentation
 =======================

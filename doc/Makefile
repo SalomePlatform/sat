@@ -105,8 +105,9 @@ latex:
 latexpdf:
 	$(SPHINXBUILD) -q -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 	@echo "Running LaTeX files through pdflatex..."
-	make -C $(BUILDDIR)/latex all-pdf $(SILENT)
-	@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
+	make -C $(BUILDDIR)/latex all-pdf
+	@echo
+	@echo "pdflatex available in $(BUILDDIR)/latex/salomeTools.pdf"
 
 
 clean-pdf:

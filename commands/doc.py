@@ -59,22 +59,27 @@ def run(args, runner, logger):
     logger.write("docdir %s\n" % docDir, 6)
     logger.write("options %s\n" % options, 6)
 
-    somethingDone = False
-    if options.xml:
-        src.system.show_in_editor(runner.cfg.USER.browser, htmlFile, logger)
-        somethingDone = True
     if options.pdf:
+        if not os.path.isfile(pdfFile):
+            msg = "\npdf documentation not found. Please build it inside doc directory\n"\
+                  "(follow README instructions in doc directory)\n"
+            logger.error(msg)
+            return 1
         src.system.show_in_editor(runner.cfg.USER.pdf_viewer, pdfFile, logger)
-        somethingDone = True
-    if options.edit:
+
+    elif options.edit:
         src.system.show_in_editor(runner.cfg.USER.editor, rstFiles, logger)
         src.system.show_in_editor(runner.cfg.USER.editor, rstFilesCommands, logger)
-        somethingDone = True
-    if options.compile:
-        logger.write("How to compile documentation:\n%s" % open(readmeFile,"r").read(), 3)
-        somethingDone = True
 
-    if not somethingDone:
+    elif options.compile:
+        logger.write("How to compile documentation:\n%s" % open(readmeFile,"r").read(), 3)
+
+    else:
+        if not os.path.isfile(htmlFile):
+            msg = "\nhtml documentation not found. Please build it inside doc directory\n"\
+                  "(follow README instructions in doc directory)\n"
+            logger.error(msg)
+            return 1
         src.system.show_in_editor(runner.cfg.USER.browser, htmlFile, logger)
 
     return 0
