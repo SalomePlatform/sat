@@ -65,14 +65,6 @@ Developer documentation
    Add a command <write_command>
 
 
-Code documentation
-==================
- 
-.. toctree::
-   :maxdepth: 1
-
-   SAT modules <commands/apidoc/modules.rst>
-
 
 Release Notes
 =============

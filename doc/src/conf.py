@@ -14,14 +14,6 @@
 import sys
 import os
 
-# Append source folder to path in order to enable autodoc
-currentPath = os.path.dirname(__file__)
-print("sphinx on file %s" % __file__)
-dirAutodoc = os.path.realpath(os.path.join(currentPath, '..', '..'))
-print("autodoc on dir %s" % dirAutodoc)
-sys.path.append(dirAutodoc)
-sys.path.append(dirAutodoc + "/commands")
-
 
 # https://stackoverflow.com/questions/23462494/how-to-add-a-custom-css-file-to-sphinx
 # this needs realpath(custom), cause problem on relocated git clone, 
@@ -43,7 +35,7 @@ sys.path.append(dirAutodoc + "/commands")
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.todo', 'sphinx.ext.mathjax', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.intersphinx', 'sphinx.ext.todo', 'sphinx.ext.mathjax', 'sphinx.ext.viewcode']
 
 # do not use rst_prolog please use doc/rst_prolog.rst and '.. include:: ../rst_prolog.rst'
 # https://github.com/sphinx-doc/sphinx/issues/2445

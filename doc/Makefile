@@ -37,10 +37,10 @@ help:
 clean:
 	-rm -rf $(BUILDDIR)/*
 
-html: apidoc
+html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
-	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+	@echo "Build finished. The HTML pages are available in $(BUILDDIR)/html/index.html"
 
 clean-html:
 	make clean
@@ -108,6 +108,7 @@ latexpdf:
 	make -C $(BUILDDIR)/latex all-pdf $(SILENT)
 	@echo "pdflatex finished; the PDF files are in $(BUILDDIR)/latex."
 
+
 clean-pdf:
 	make clean
 	make latexpdf
@@ -138,13 +139,4 @@ doctest:
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
 
-# splitin many files rst
-#apidoc:
-#	@sphinx-apidoc --separate -o src/apidoc_src ../src
-#	@sphinx-apidoc --separate -o src/apidoc_commands ../commands
-
-apidoc:
-	@sphinx-apidoc -o src/apidoc_src ../src
-	@sphinx-apidoc -o src/apidoc_commands ../commands
-	
 
