@@ -234,15 +234,8 @@ def get_salometool_version(config):
    :param config Config: The global Config instance.
    :return: the description of this version of sat in terms of tag and commit
    """
-   # we use : 
-   # config.VARS.salometoolsway : the full path of salomeTool
-   # config.INTERNAL.sat_version : the static salomeTool version, 
-   # in case we are not in a git repo  
-   sat_version=system.git_describe(config.VARS.salometoolsway) 
-   if sat_version == False:
-       return config.INTERNAL.sat_version
-   else:
-       return sat_version
+   return config.LOCAL.tag
+
 
 def get_salome_version(config):
     import versionMinorMajorPatch as VMMP

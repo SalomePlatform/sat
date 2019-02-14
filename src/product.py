@@ -171,13 +171,6 @@ def get_product_config(config, product_name, with_install_dir=True):
         # get salomeTool version
         prod_info.sat_version = src.get_salometool_version(config)
 
-        # get the product project git tag, if any
-        product_project_git_tag = src.system.git_describe(os.path.dirname(prod_info.from_file))
-        if product_project_git_tag:
-            prod_info.sat_project_tag = product_project_git_tag
-        else:
-            prod_info.sat_project_tag = "unknown"
-
         # merge opt_depend in depend
         if prod_info is not None and 'opt_depend' in prod_info:
             for depend in prod_info.opt_depend:

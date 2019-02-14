@@ -296,6 +296,15 @@ class ConfigManager:
         if cfg.LOCAL.archive_dir == "default":
             cfg.LOCAL.archive_dir = os.path.abspath( osJoin(cfg.VARS.salometoolsway, "..", "ARCHIVES"))
 
+        # if the sat tag was not set permanently by user
+        if cfg.LOCAL.tag == None:
+            # get the tag with git, and store it
+            sat_version=src.system.git_describe(cfg.VARS.salometoolsway) 
+            if sat_version == False:
+                sat_version=cfg.INTERNAL.sat_version
+            cfg.LOCAL.tag=sat_version
+                
+
         # apply overwrite from command line if needed
         for rule in self.get_command_line_overrides(options, ["LOCAL"]):
             exec('cfg.' + rule) # this cannot be factorized because of the exec
@@ -334,6 +343,12 @@ class ConfigManager:
             projects_cfg.PROJECTS.projects[project_name]=project_cfg
             projects_cfg.PROJECTS.projects[project_name]["file_path"] = \
                                                         project_pyconf_path
+            # store the project tag if any
+            product_project_git_tag = src.system.git_describe(os.path.dirname(project_pyconf_path))
+            if product_project_git_tag:
+                projects_cfg.PROJECTS.projects[project_name]["git_tag"] = product_project_git_tag
+            else:
+                projects_cfg.PROJECTS.projects[project_name]["git_tag"] = "unknown"
                    
         merger.merge(cfg, projects_cfg)
 
