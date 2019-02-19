@@ -329,6 +329,10 @@ class ConfigManager:
                                     project_pyconf_path)[:-len(".pyconf")]
             try:
                 project_pyconf_dir = os.path.dirname(project_pyconf_path)
+                if not os.path.isabs(project_pyconf_dir):
+                    # for a relative path (archive case) we complete with sat path
+                    project_pyconf_dir = os.path.join(cfg.VARS.salometoolsway,
+                                                      project_pyconf_dir)
                 project_cfg = src.pyconf.Config(open(project_pyconf_path),
                                                 PWD=("", project_pyconf_dir))
             except Exception as e:
@@ -463,6 +467,10 @@ class ConfigManager:
                 product_file_path = src.find_file_in_lpath(product_file_name, cfg.PATHS.PRODUCTPATH)
                 if product_file_path:
                     products_dir = os.path.dirname(product_file_path)
+                    # for a relative path (archive case) we complete with sat path
+                    if not os.path.isabs(products_dir):
+                        products_dir = os.path.join(cfg.VARS.salometoolsway,
+                                                    products_dir)
                     try:
                         prod_cfg = src.pyconf.Config(open(product_file_path),
                                                      PWD=("", products_dir))

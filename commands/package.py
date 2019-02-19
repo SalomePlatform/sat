@@ -1092,7 +1092,49 @@ def find_application_pyconf(config, application_tmp_dir):
     application_pyconf_cfg.__save__(ff, 1)
     ff.close()
 
-def project_package(config, name_project, project_file_path, ftp_mode, tmp_working_dir, logger):
+def sat_package(config, tmp_working_dir, project_name, project_file_path, logger):
+    '''Prepare a dictionary that stores all the needed directories and files to
+       add in a salomeTool package.
+    
+    :param tmp_working_dir str: The temporary local working directory 
+    :param project Boolean : Does the archive contain projects
+    :param project_file_path : The path to the local project
+    :return: the dictionary that stores all the needed directories and files to
+             add in a salomeTool package.
+             {label : (path_on_local_machine, path_in_archive)}
+    :rtype: dict
+    '''
+    d_project = {}
+
+    # we include sat himself
+    d_project["all_sat"]=(config.VARS.salometoolsway, "")
+
+    # and we overwrite local.pyconf with a clean wersion.
+    local_pyconf_tmp_path = os.path.join(tmp_working_dir, "local.pyconf")
+    local_file_path = os.path.join(config.VARS.datadir, "local.pyconf")
+    local_cfg = src.pyconf.Config(local_file_path)
+    local_cfg.PROJECTS.project_file_paths=src.pyconf.Sequence(local_cfg.PROJECTS)
+    local_cfg.LOCAL["base"] = "default"
+    local_cfg.LOCAL["workdir"] = "default"
+    local_cfg.LOCAL["log_dir"] = "default"
+    local_cfg.LOCAL["archive_dir"] = "default"
+    local_cfg.LOCAL["VCS"] = "None"
+    local_cfg.LOCAL["tag"] = src.get_salometool_version(config)
+
+    # if the archive contains a project, we write its relative path in local.pyconf
+    if project_name:
+        project_arch_path = os.path.join("projects", project_name, 
+                                         os.path.basename(project_file_path))
+        local_cfg.PROJECTS.project_file_paths.append(project_arch_path, "")
+
+    ff = open(local_pyconf_tmp_path, 'w')
+    local_cfg.__save__(ff, 1)
+    ff.close()
+    d_project["local.pyconf"]=(local_pyconf_tmp_path, "data/local.pyconf")
+    return d_project
+    
+
+def project_package(config, name_project, project_file_path, ftp_mode, tmp_working_dir, embedded_in_sat, logger):
     '''Prepare a dictionary that stores all the needed directories and files to
        add in a project package.
     
@@ -1101,6 +1143,7 @@ def project_package(config, name_project, project_file_path, ftp_mode, tmp_worki
     :param tmp_working_dir str: The temporary local directory containing some 
                                 specific directories or files needed in the 
                                 project package
+    :param embedded_in_sat boolean : the project package is embedded in a sat package
     :return: the dictionary that stores all the needed directories and files to
              add in a project package.
              {label : (path_on_local_machine, path_in_archive)}
@@ -1125,11 +1168,20 @@ WARNING: inexisting config.PROJECTS.projects.%s, try to read now from:\n%s\n""" 
         paths["ARCHIVEPATH"] = "archives"
 
     # Loop over the project paths and add it
+    project_file_name = os.path.basename(project_file_path)
     for path in paths:
         if path not in project_pyconf_cfg:
             continue
+        if embedded_in_sat:
+            dest_path = os.path.join("projects", name_project, paths[path])
+            project_file_dest = os.path.join("projects", name_project, project_file_name)
+        else:
+            dest_path = paths[path]
+            project_file_dest = project_file_name
+
         # Add the directory to the files to add in the package
-        d_project[path] = (project_pyconf_cfg[path], paths[path])
+        d_project[path] = (project_pyconf_cfg[path], dest_path)
+
         # Modify the value of the path in the package
         project_pyconf_cfg[path] = src.pyconf.Reference(
                                     project_pyconf_cfg,
@@ -1144,15 +1196,19 @@ WARNING: inexisting config.PROJECTS.projects.%s, try to read now from:\n%s\n""" 
     project_pyconf_cfg.project_path = src.pyconf.Reference(project_pyconf_cfg,
                                                            src.pyconf.DOLLAR,
                                                            'PWD')
+    # we don't want to export these two fields
+    project_pyconf_cfg.__delitem__("file_path")
+    project_pyconf_cfg.__delitem__("PWD")
+    if ftp_mode:
+        project_pyconf_cfg.__delitem__("ARCHIVEPATH")
     
     # Write the project pyconf file
-    project_file_name = os.path.basename(project_file_path)
     project_pyconf_tmp_path = os.path.join(tmp_working_dir, project_file_name)
     ff = open(project_pyconf_tmp_path, 'w')
     ff.write("#!/usr/bin/env python\n#-*- coding:utf-8 -*-\n\n")
     project_pyconf_cfg.__save__(ff, 1)
     ff.close()
-    d_project["Project hat file"] = (project_pyconf_tmp_path, project_file_name)
+    d_project["Project hat file"] = (project_pyconf_tmp_path, project_file_dest)
     
     return d_project
 
@@ -1391,12 +1447,15 @@ Please add it in file:
             if options.with_vcs:
                 archive_name += "-VCS"
 
-        if options.project:
-            project_name = options.project
-            archive_name += ("PROJECT-" + project_name)
- 
         if options.sat:
             archive_name += ("salomeTools_" + src.get_salometool_version(runner.cfg))
+
+        if options.project:
+            if options.sat:
+                archive_name += "_" 
+            project_name = options.project
+            archive_name += ("satproject_" + project_name)
+ 
         if len(archive_name)==0: # no option worked 
             msg = _("Error: Cannot name the archive\n"
                     " check if at least one of the following options was "
@@ -1469,11 +1528,12 @@ Please add it in file:
         # --salomeTool option is not considered when --sources is selected, as this option
         # already brings salomeTool!
         if options.sat:
-            d_files_to_add.update({"salomeTools" : (runner.cfg.VARS.salometoolsway, "")})
+            d_files_to_add.update(sat_package(runner.cfg, tmp_working_dir, 
+                                  project_name, options.project_file_path, logger))
         
     if options.project:
         DBG.write("config for package %s" % project_name, runner.cfg)
-        d_files_to_add.update(project_package(runner.cfg, project_name, options.project_file_path, options.ftp, tmp_working_dir, logger))
+        d_files_to_add.update(project_package(runner.cfg, project_name, options.project_file_path, options.ftp, tmp_working_dir, options.sat, logger))
 
     if not(d_files_to_add):
         msg = _("Error: Empty dictionnary to build the archive!\n")
