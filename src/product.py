@@ -707,7 +707,7 @@ def get_products_list(options, cfg, logger):
           else:
             ko.append(p_name)
         except:
-          ok.append(p_name)
+          ko.append(p_name)
 
       if len(ok) != len(resAll):
         logger.trace("on properties %s\n products accepted:\n %s\n products rejected:\n %s\n" %
