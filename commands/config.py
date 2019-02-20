@@ -320,6 +320,10 @@ class ConfigManager:
                                 "The projects definition\n")
         
         for project_pyconf_path in cfg.PROJECTS.project_file_paths:
+            if not os.path.isabs(project_pyconf_path):
+                # for a relative path (archive case) we complete with sat path
+                project_pyconf_path = os.path.join(cfg.VARS.salometoolsway,
+                                                  project_pyconf_path)
             if not os.path.exists(project_pyconf_path):
                 msg = _("WARNING: The project file %s cannot be found. "
                         "It will be ignored\n" % project_pyconf_path)
@@ -329,10 +333,6 @@ class ConfigManager:
                                     project_pyconf_path)[:-len(".pyconf")]
             try:
                 project_pyconf_dir = os.path.dirname(project_pyconf_path)
-                if not os.path.isabs(project_pyconf_dir):
-                    # for a relative path (archive case) we complete with sat path
-                    project_pyconf_dir = os.path.join(cfg.VARS.salometoolsway,
-                                                      project_pyconf_dir)
                 project_cfg = src.pyconf.Config(open(project_pyconf_path),
                                                 PWD=("", project_pyconf_dir))
             except Exception as e:
