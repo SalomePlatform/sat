@@ -162,8 +162,8 @@ class ConfigManager:
         
         # set platform parameters
         dist_name = src.architecture.get_distribution(codes=distrib_cfg.DISTRIBUTIONS)
-        dist_version = src.architecture.get_distrib_version(dist_name,  codes=distrib_cfg.VERSIONS)
-        dist_version_full = src.architecture.get_infosys()
+        dist_version = src.architecture.get_distrib_version(dist_name)
+        dist_version_full = src.architecture.get_version_XY()
         dist = dist_name + dist_version
         
         var['dist_name'] = dist_name

@@ -44,29 +44,6 @@ def get_user():
         import pwd
         return pwd.getpwuid(os.getuid())[0]
 
-def _lsb_release(args):
-    '''Get system information with lsb_release.
-    
-    :param args str: The arguments to give to lsb_release.
-    :return: The distribution.
-    :rtype: str
-    '''
-    try:
-        path = '/usr/local/bin:/usr/bin:/bin'
-        lsb_path = os.getenv("LSB_PATH")
-        if lsb_path is not None:
-            path = lsb_path + ":" + path
-        
-        from subprocess import Popen, PIPE
-        res = Popen(['lsb_release', args], env={'PATH': path}, stdout=PIPE).communicate()[0][:-1]
-        # in case of python3, convert byte to str
-        if isinstance(res, bytes):
-            res = res.decode()
-        return res
-    except OSError:
-        sys.stderr.write(_(u"lsb_release not installed\n"))
-        sys.stderr.write(_(u"You can define $LSB_PATH to give the path to lsb_release\n"))
-        sys.exit(-1)
 
 def get_distribution(codes):
     '''Gets the code for the distribution
@@ -79,58 +56,40 @@ def get_distribution(codes):
     if is_windows():
         return "Win"
 
-    # Call to lsb_release
-    distrib = _lsb_release('-si')
-    if codes is not None and distrib in codes:
-        distrib = codes[distrib]
-    else:
+    # else get linux distribution description from platform, and encode it with code
+    lin_distrib = platform.dist()[0].lower()
+    distrib="not found"
+    for dist in codes:
+        if dist in lin_distrib:
+            distrib = codes[dist]
+            break
+    if distrib=="not found":
         sys.stderr.write(_(u"Unknown distribution: '%s'\n") % distrib)
         sys.stderr.write(_(u"Please add your distribution to src/internal_config/distrib.pyconf\n"))
         sys.exit(-1)
 
     return distrib
 
-def get_infosys():
+def get_version_XY():
     """
-    from a CentOS example,
-    returns '7.6'  from  command 'lsb_release -ds'
-    extracted from 'CentOS Linux release 7.6.1810 (Core)'
-    and also for RedHat fedora etc.
+    Return major and minor version of the distribution
+    from a CentOS example, returns '7.6'
+    extracted from platform.dist()
     """
-    import re
-    osys = ""
-    version = ""
-    architecture = ""
-    osys_value = "Unknown"
-    os_dict = {"mandrivalinux":"MD",
-               "centos":"CO",
-               "RedHatEnterpriseServer":"CO",
-               "RedHatEnterpriseWorkstation":"CO",
-               "fedora":"FD",
-               "ubuntu":"UB",
-               "debian":"DB",
-               "mageia":"MG",}
-    # lsb_cmd = "lsb_release -ds"
-    args = "-ds"
-    output = _lsb_release(args)
-    # print("lsb_release output %s" % output)
-    regexp = r"(^[0-9]+([.]?[0-9]+)+)"
-    for an_item in output.replace('"','').split():
-        if re.match(regexp, an_item) is not None and not version:
-            version = ".".join(an_item.split(".")[:2])
-        else:
-            for sub_item in os_dict.keys():
-                if sub_item == an_item.lower():
-                    osys = an_item
-                    osys_value = os_dict[sub_item]
-        if version and osys: break
-    return version
+    dist_version=platform.dist()[1].split('.')
+    if len(dist_version)==1:
+        version = dist_version[0]
+    else:
+        version = dist_version[0] + "." + dist_version[1]
+    return version 
 
-def get_distrib_version(distrib, codes):
-    '''Gets the version of the distribution
+
+def get_distrib_version(distrib):
+    '''Return the sat encoded version of the distribution
+       This code is used in config to apend the name of the application directories
+       withdistribution info"
     
     :param distrib str: The distribution on which the version will be found.
-    :param codes L{Mapping}: The map containing distribution correlation table.
     :return: The version of the distribution on which salomeTools is running, 
              regarding the distribution correlation table contained in codes 
              variable.
@@ -140,14 +99,25 @@ def get_distrib_version(distrib, codes):
     if is_windows():
         return platform.release()
 
-    # Call to lsb_release
-    version = _lsb_release('-sr')
-    if distrib in codes:
-        if version in codes[distrib]:
-            version = codes[distrib][version]
+    # get version from platform
+    dist_version=platform.dist()[1].split('.')
 
+    # encode it (conform to src/internal_config/distrib.pyconf VERSIONS dist
     if distrib == "CO":
-        version=version[0]  #for centos, we only care for major version
+        version=dist_version[0] # for centos, we only care for major version
+    elif distrib == "UB":
+        # for ubuntu, we care for major + minor version
+        version=dist_version[0] + "." + dist_version[1] 
+    elif distrib == "DB":
+        if len(dist_version[0]) == 1:
+            version="0"+dist_version[0]
+        else:
+            version=dist_version[0]  # unstable, and version >= 10
+    elif distrib == "MG":
+        version="0"+dist_version[0]
+    else:
+        version=dist_version[0]
+        
     return version
 
 def get_python_version():
