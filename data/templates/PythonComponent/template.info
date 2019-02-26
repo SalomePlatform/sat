@@ -1,0 +1,72 @@
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+
+# description of the template to be displayed with option --info
+info = """
+Author: CEA
+Version: 1.1
+Date: 29/03/2018
+Description: This template can be used to create a python module for SALOME.
+"""
+
+# code to substitute with component name
+file_subst = "PYCMP"
+
+# delimiter used in the template (default is ':sat:')
+#delimiter = ":sat:"
+
+# filter of files to ignore for substitution
+# if not defined all files will be parsed
+ignore_filters = '*.png'
+
+# list of parameters
+# a string = parameter name
+# a tuple = (parameter name, default value, prompt, validation method)
+
+#there is a problem for loading modules if user choose something else than standard "resources directory (lowercase)"
+#so we need force standard choice...
+#    ('PYCMP_minus', "%(name)s", "resources directory (lowercase)", lambda l: l.islower() and l.replace("_","").isalnum()),
+
+parameters = [
+    (file_subst, "%(NAME)s"),
+    ('PYCMPCompoName', "%(Name)s", "Name of the module (hit return!)"),
+    ('PYCMP_minus', "%(name)s", "resources directory (lowercase) (hit return!)", lambda l: l.islower() and l.replace("_","").isalnum()),
+    ("get_method", "archive", "get method for prepare", lambda l: l in ['cvs', 'git', 'archive'])
+    ]
+
+# configuration to use this component with sat
+pyconf = """
+    'default':
+    {
+        name : "%(NAME)s"
+
+        get_source   : '%(get_method)s'
+        build_source : 'cmake'
+        git_info:
+        {
+            repo : 'to be filled'
+            tag : 'to be filled'
+        }
+
+	environ : { }
+        depend : [ 'Python', 'KERNEL', 'GUI' ]
+        opt_depend : []
+
+        type : "salome"
+
+        source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
+        build_dir  : $APPLICATION.workdir + $VARS.sep + 'BUILD'   + $VARS.sep + $name
+
+        properties :
+        {
+            has_salome_gui   : 'yes'
+            is_SALOME_module : 'yes'
+            has_unit_tests   : True
+        }
+
+        archive_info:
+        {
+            archive_name : '%(NAME)s.tgz'
+        }
+    }
+"""
