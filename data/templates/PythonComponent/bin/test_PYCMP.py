@@ -23,4 +23,4 @@ salome.salome_init()
 
 ppf5 = salome.lcc.FindOrLoadComponent("FactoryServerPy", ":sat:{PYCMP}")
 
-print ppf5.touch(":sat:{PYCMP}")
+print(ppf5.touch(":sat:{PYCMP}"))

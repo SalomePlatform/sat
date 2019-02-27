@@ -56,7 +56,7 @@ class Dialog( QDialog ) :
        pass
 
    def addSpecialWidgets( self ) :
-       print 'Virtual method'
+       print('Virtual method')
        pass
 
    def connectSlots( self ) :
@@ -85,11 +85,11 @@ class Dialog( QDialog ) :
        return True
 
    def execApply( self ) :
-       print 'Virtual method'
+       print('Virtual method')
        pass
 
    def reInitializeDialog( self ) :
-       print 'Virtual method'
+       print('Virtual method')
        pass
 
    def help( self ) :

@@ -28,7 +28,7 @@ class Model:
        for view in self._views : view.update( mode )
 
    def save( self ) :
-       print 'Virtual method'
+       print('Virtual method')
        pass
 
 pass

@@ -27,7 +27,7 @@ class View() :
        pass
 
    def update( self, mode ) :
-       print 'Virtual method'
+       print('Virtual method')
        pass
 
 pass

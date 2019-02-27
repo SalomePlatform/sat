@@ -50,7 +50,7 @@ class DialogEdit( QDialog ) :
        pass
 
    def addSpecialWidgets( self ) :
-       print 'Virtual method'
+       print('Virtual method')
        pass
 
    def connectSlots( self ) :
@@ -69,15 +69,15 @@ class DialogEdit( QDialog ) :
        return
 
    def retrieveUserEntries( self ) :
-       print 'Virtual method'
+       print('Virtual method')
        pass
 
    def checkUserEntries( self ) :
-       print 'Virtual method'
+       print('Virtual method')
        return True
 
    def execApply( self ) :
-       print 'Virtual method'
+       print('Virtual method')
        pass
 
    def help( self ) :

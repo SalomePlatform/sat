@@ -55,7 +55,7 @@ class GraphicsScene( View, QGraphicsScene ) :
        pass
 
    def draw( self ) :
-       print 'Virtual method'
+       print('Virtual method')
        pass
 
    def undraw( self ) :

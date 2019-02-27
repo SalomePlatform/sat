@@ -44,7 +44,7 @@ class TreeWidgetItem( View, QTreeWidgetItem ) :
        pass
 
    def editInGlobalTree( self, treeWidgetItem ) :
-       print 'Virtual'
+       print('Virtual')
        pass
 
    def removeFromGlobalTree( self, treeWidgetItem ) :
