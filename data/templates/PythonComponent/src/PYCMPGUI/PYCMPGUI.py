@@ -52,8 +52,7 @@ sgDesktop = sgPyQt.getDesktop()
 widgetDialogBox = None
 
 objectsManager = Controller( None )
-moduleDesktop   = {}
-currentDesktop = None
+moduleDesktop  = None
 
 CURVE_MENU_ID = 1000
 ADVANCED_MENU_ID = 1001
@@ -65,35 +64,23 @@ DEL_ALL_ID = 1004
 # Internal methods
 ########################################################
 
-def getStudyId():
-    """This method returns the active study ID"""
-    return sgPyQt.getStudyId()
-
-def getStudy():
-    """This method returns the active study"""
-
-    studyId = _getStudyId()
-    study = getStudyManager().GetStudyByID( studyId )
-    return study
-
 def getDesktop():
     """This method returns the current :sat:{PYCMP} desktop"""
 
-    global currentDesktop
-    return currentDesktop
+    global moduleDesktop
+    return moduleDesktop
 
-def setDesktop( studyID ):
+def setDesktop( ):
     """This method sets and returns :sat:{PYCMP} desktop"""
 
-    global moduleDesktop, currentDesktop, objectsManager
+    global moduleDesktop, objectsManager
 
-    if not studyID in moduleDesktop:
-        moduleDesktop[studyID] = :sat:{PYCMP}Desktop( sgPyQt, sg )
-        objectsManager = Controller( moduleDesktop[studyID] )
-        moduleDesktop[studyID].setController( objectsManager )
+    if moduleDesktop is None:
+        moduleDesktop = :sat:{PYCMP}Desktop( sgPyQt, sg )
+        objectsManager = Controller( moduleDesktop )
+        moduleDesktop.setController( objectsManager )
         pass
-    currentDesktop = moduleDesktop[studyID]
-    return currentDesktop
+    return moduleDesktop
 
 def incObjToMap( m, id ):
     """This method incrementes the object counter in the map"""
@@ -108,7 +95,7 @@ def getSelection():
     selcount = sg.SelectedCount()
     seltypes = {}
     for i in range( selcount ):
-        incObjToMap( seltypes, getObjectID( getStudy(), sg.getSelected( i ) ) )
+        incObjToMap( seltypes, getObjectID( sg.getSelected( i ) ) )
         pass
     return selcount, seltypes
 
@@ -118,8 +105,7 @@ def getSelection():
 
 def initialize():
     """This method is called when module is initialized. It performs initialization actions"""
-
-    setDesktop( getStudyId() )
+    setDesktop()
     pass
 
 def windows():
@@ -144,13 +130,13 @@ def activate():
     global moduleDesktop, sgPyQt, widgetDialogBox
 
     widgetDialogBox = QDockWidget( sgDesktop )
-    moduleDesktop[getStudyId()].createActions()
-    moduleDesktop[getStudyId()].createMenus()
-    moduleDesktop[getStudyId()].createToolBars()
-    moduleDesktop[getStudyId()].createPopups()
-    moduleDesktop[getStudyId()].getDockGlobalTree().show()
-    moduleDesktop[getStudyId()].getGlobalGraphicsView().show()
-    sgPyQt.activateView( moduleDesktop[getStudyId()].getGlobalGraphicsViewID() )
+    moduleDesktop.createActions()
+    moduleDesktop.createMenus()
+    moduleDesktop.createToolBars()
+    moduleDesktop.createPopups()
+    moduleDesktop.getDockGlobalTree().show()
+    moduleDesktop.getGlobalGraphicsView().show()
+    sgPyQt.activateView( moduleDesktop.getGlobalGraphicsViewID() )
     return True
 
 def viewTryClose( wid ):
@@ -163,15 +149,15 @@ def deactivate():
     global moduleDesktop, widgetDialogBox
 
     widgetDialogBox.close()
-    moduleDesktop[getStudyId()].getDockGlobalTree().hide()
-    moduleDesktop[getStudyId()].updateGlobalGraphicsView( None )
-    moduleDesktop[getStudyId()].getGlobalGraphicsView().hide()
+    moduleDesktop.getDockGlobalTree().hide()
+    moduleDesktop.updateGlobalGraphicsView( None )
+    moduleDesktop.getGlobalGraphicsView().hide()
     pass
 
-def activeStudyChanged( studyID ):
+def activeStudyChanged():
     """This method is called when active study is changed"""
 
-    setDesktop( getStudyId() )
+    setDesktop()
     pass
 
 def createPopupMenu( popup, context ):
@@ -234,12 +220,12 @@ def showCreateCircleDialog() :
     pass
 
 def deleteAll() :
-    models = moduleDesktop[getStudyId()].getController().getModels()
+    models = moduleDesktop.getController().getModels()
     if len( models ) == 0 : return
-    answer = QMessageBox.question( moduleDesktop[getStudyId()], 'Confirmation', 'Do you really want to delete all the existing objects ?' , QMessageBox.Yes | QMessageBox.No )
+    answer = QMessageBox.question( moduleDesktop, 'Confirmation', 'Do you really want to delete all the existing objects ?' , QMessageBox.Yes | QMessageBox.No )
     if answer == QMessageBox.Yes :
        for model in models :
-          moduleDesktop[getStudyId()].getController().removeModel( model )
+          moduleDesktop.getController().removeModel( model )
           pass
        pass
     pass

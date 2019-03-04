@@ -27,7 +27,7 @@
     <!-- Major module parameters -->
     <parameter name="name"            value=":sat:{PYCMPCompoName}"/>
     <parameter name="icon"            value=":sat:{PYCMP}.png"/>
-    <parameter name="version"         value="8.4.0"/>
+    <parameter name="version"         value="9.2.1"/>
     <parameter name="library"         value="SalomePyQtGUI"/>
     <parameter name="documentation"   value=":sat:{PYCMP}_help"/>
   </section>

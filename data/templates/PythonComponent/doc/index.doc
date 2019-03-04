@@ -413,7 +413,7 @@ def initialize():
 
 \code
 def createPreferences():
-    if verbose() : print(":sat:{PYCMP}GUI.createPreferences() : study : %d" % _getStudyId())
+    if verbose() : print(":sat:{PYCMP}GUI.createPreferences() :")
     gid = sgPyQt.addPreference( "General" )
     gid = sgPyQt.addPreference( "Object creation", gid )
     pid = sgPyQt.addPreference( "Default name",  gid, SalomePyQt.PT_String,   ":sat:{PYCMP}", "def_obj_name" )
@@ -435,7 +435,7 @@ def createPreferences():
 
 \code
 def windows():
-    if verbose() : print(":sat:{PYCMP}GUI.windows() : study : %d" % _getStudyId())
+    if verbose() : print(":sat:{PYCMP}GUI.windows() :")
     wm = {}
     wm[SalomePyQt.WT_ObjectBrowser] = Qt.LeftDockWidgetArea
     wm[SalomePyQt.WT_PyConsole]     = Qt.BottomDockWidgetArea
