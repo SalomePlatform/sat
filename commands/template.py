@@ -461,11 +461,11 @@ def run(args, runner, logger):
         logger.write("\n", 1)
         return 1
 
-    if "APPLICATION" in runner.cfg:
-        msg = _("Error: this command does not use a product.")
-        logger.write(src.printcolors.printcError(msg), 1)
-        logger.write("\n", 1)
-        return 1
+    # if "APPLICATION" in runner.cfg:
+    #     msg = _("Error: this command does not use a product.")
+    #     logger.write(src.printcolors.printcError(msg), 1)
+    #     logger.write("\n", 1)
+    #     return 1
 
     if options.info:
         return get_template_info(runner.cfg, options.template, logger)
