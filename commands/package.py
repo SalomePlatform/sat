@@ -1092,13 +1092,12 @@ def find_application_pyconf(config, application_tmp_dir):
     application_pyconf_cfg.__save__(ff, 1)
     ff.close()
 
-def sat_package(config, tmp_working_dir, project_name, project_file_path, logger):
+def sat_package(config, tmp_working_dir, options, logger):
     '''Prepare a dictionary that stores all the needed directories and files to
        add in a salomeTool package.
     
     :param tmp_working_dir str: The temporary local working directory 
-    :param project Boolean : Does the archive contain projects
-    :param project_file_path : The path to the local project
+    :param options OptResult: the options of the launched command
     :return: the dictionary that stores all the needed directories and files to
              add in a salomeTool package.
              {label : (path_on_local_machine, path_in_archive)}
@@ -1122,9 +1121,9 @@ def sat_package(config, tmp_working_dir, project_name, project_file_path, logger
     local_cfg.LOCAL["tag"] = src.get_salometool_version(config)
 
     # if the archive contains a project, we write its relative path in local.pyconf
-    if project_name:
-        project_arch_path = os.path.join("projects", project_name, 
-                                         os.path.basename(project_file_path))
+    if options.project:
+        project_arch_path = os.path.join("projects", options.project, 
+                                         os.path.basename(options.project_file_path))
         local_cfg.PROJECTS.project_file_paths.append(project_arch_path, "")
 
     ff = open(local_pyconf_tmp_path, 'w')
@@ -1529,7 +1528,7 @@ Please add it in file:
         # already brings salomeTool!
         if options.sat:
             d_files_to_add.update(sat_package(runner.cfg, tmp_working_dir, 
-                                  project_name, options.project_file_path, logger))
+                                  options, logger))
         
     if options.project:
         DBG.write("config for package %s" % project_name, runner.cfg)
