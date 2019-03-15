@@ -154,10 +154,10 @@ Use the --force_patch option to overwrite it.
     args_source = args_appli + args_product_opt  
     args_patch = args_appli + args_product_opt_patch
       
-    # Initialize the results to a failing status
-    res_clean = 1
-    res_source = 1
-    res_patch = 1
+    # Initialize the results to a running status
+    res_clean = 0
+    res_source = 0
+    res_patch = 0
     
     # Call the commands using the API
     if do_clean:
