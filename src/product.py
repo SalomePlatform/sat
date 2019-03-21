@@ -177,6 +177,7 @@ def get_product_config(config, product_name, with_install_dir=True):
                 if depend in config.APPLICATION.products:
                     prod_info.depend.append(depend,'')
         
+
         # In case of a product get with a vcs, 
         # put the tag (equal to the version)
         if prod_info is not None and prod_info.get_source in AVAILABLE_VCS:
@@ -546,17 +547,10 @@ def add_compile_config_file(p_info, config):
       with open(aFile, 'w') as f:
         p_info.__save__(f, evaluated=True) # evaluated expressions mode
     except:
-      DBG.write("cannot evaluate product info - problem in file %s" % aFile, p_info, True)
-      # write DBG mode, as no problem if evaluation not possible
-      msg = """\
-# Some informations cannot be evaluated.
-# for example:
-# In the context of non VCS archives, information on git server is not available.
+      # sometime some information cannot be evaluated.
+      # for example, in the context of non VCS archives, information on git server is not available.
+      DBG.write("Warning : sat was not able to evaluate and write down some information in file %s" % aFile)
   
-"""
-      with open(aFile, 'w') as f:
-        f.write(msg)
-        f.write(DBG.getStrConfigDbg(p_info))
 
 def check_config_exists(config, prod_dir, prod_info, verbose=False):
     """\
