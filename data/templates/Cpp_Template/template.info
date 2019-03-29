@@ -64,7 +64,8 @@ pyconf = """
                    'cppunit' ,
                    'KERNEL',
                    'GUI',
-                   'MED'
+                   'MEDCOUPLING',
+                   'FIELDS'
                  ]
         opt_depend : []
         properties :
