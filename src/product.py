@@ -261,6 +261,8 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
                                  "")
         if "archive_name" in prod_info.archive_info: 
             arch_name = prod_info.archive_info.archive_name
+        elif "archive_prefix" in prod_info.archive_info:
+            arch_name = prod_info.archive_info.archive_prefix + "-" + version + ".tar.gz"
         else:
             # standard name
             arch_name = product_name + "-" + version + ".tar.gz"
