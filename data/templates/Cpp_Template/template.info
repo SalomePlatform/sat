@@ -55,7 +55,7 @@ pyconf = """
         build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
         depend : [ 
                    'hdf5',
-                   'med',
+                   'medfile',
                    'qt',
                    'Python',
                    'omniORB',
