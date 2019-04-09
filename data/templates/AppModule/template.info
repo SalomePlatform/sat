@@ -1,0 +1,66 @@
+#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+
+# description of the template to be displayed with option --info
+info = """
+Author: CEA
+Description: This template can be used to create an application module (previously called profile).
+Remark:
+"""
+
+# code to subsitute with component name
+file_subst = "AppModule"
+
+# delimiter used in the template (default is ':sat:')
+#delimiter = ":sat:"
+
+# filter of files to ignore for substitution
+# if not defined all files will be parsed
+ignore_filters = '*.png'
+
+# list of parameters
+# a string = parameter name
+# a tuple = (parameter name, default value, prompt, validation method)
+parameters = [
+    (file_subst, "%(NAME)s"),
+    ("get_method", "dir", "archive", "get method for prepare", lambda l: l in ['cvs', 'git', 'archive', 'dir'])
+    ]
+
+# configuration to use this component with sat
+pyconf = """
+    default :
+    {
+        name : "%(NAME)s"
+        component_name : "%(NAME)s"
+        get_source : '%(get_method)s'
+        build_source : 'cmake'
+        git_info:
+        {
+            repo : 'to be filled'
+            tag : 'to be filled'
+        }
+        archive_info:
+        {
+            archive_name : '%(target)s'
+        }
+        dir_info:
+        {
+            dir : '%(target)s'
+        }
+        source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
+        build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
+        depend : [ 
+                   'Sphinx',
+                   'qt',
+                   'Python',
+                   'KERNEL',
+                   'GUI',
+                 ]
+        opt_depend : []
+        properties :
+        {
+            is_SALOME_module : "yes"
+            is_salome_application : "yes"
+        }
+    }
+"""
