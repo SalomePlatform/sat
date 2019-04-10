@@ -47,6 +47,11 @@ pyconf = """
         {
             dir : '%(target)s'
         }
+        environ :
+        {
+            # tell salome where to look for ressources
+            "SalomeAppConfig" : $install_dir + $VARS.sep + "share" + $VARS.sep + "salome" + $VARS.sep + "resources" + $VARS.sep + "salome"
+        }
         source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
         build_dir : $APPLICATION.workdir + $VARS.sep + 'BUILD' + $VARS.sep + $name
         depend : [ 
