@@ -61,7 +61,8 @@ def get_source_for_dev(config, product_info, source_dir, logger, pad):
     
     return retcode
 
-def get_source_from_git(product_info,
+def get_source_from_git(config,
+                        product_info,
                         source_dir,
                         logger,
                         pad,
@@ -84,14 +85,24 @@ def get_source_from_git(product_info,
     # The str to display
     coflag = 'git'
 
-    # Get the repository address. (from repo_dev key if the product is 
-    # in dev mode.
-    if is_dev and 'repo_dev' in product_info.git_info:
+    use_repo_dev=False
+    if ("APPLICATION" in config  and
+            "properties"  in config.APPLICATION  and
+            "repo_dev"    in config.APPLICATION.properties  and
+            config.APPLICATION.properties.repo_dev == "yes") :
+                use_repo_dev=True
+
+    # Get the repository address.
+    # If the application has the repo_dev property
+    # Or if the product is in dev mode
+    # Then we use repo_dev if the key exists
+    if (is_dev or use_repo_dev) and 'repo_dev' in product_info.git_info:
         coflag = src.printcolors.printcHighlight(coflag.upper())
         repo_git = product_info.git_info.repo_dev    
     else:
         repo_git = product_info.git_info.repo    
         
+
     # Display informations
     logger.write('%s:%s' % (coflag, src.printcolors.printcInfo(repo_git)), 3, 
                  False)
@@ -352,7 +363,7 @@ def get_product_sources(config,
                                    pad)
 
     if product_info.get_source == "git":
-        return get_source_from_git(product_info, source_dir, logger, pad, 
+        return get_source_from_git(config, product_info, source_dir, logger, pad, 
                                     is_dev,env_appli)
 
     if product_info.get_source == "archive":
