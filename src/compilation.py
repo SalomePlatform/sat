@@ -302,11 +302,29 @@ CC=\\"hack_libtool\\"%g" libtool'''
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
         
+        res_check=self.check_install()
+        if res_check > 0 :
+            self.log_command("Error in sat check install - some files are not installed!")
         self.put_txt_log_in_appli_log_dir("makeinstall")
+
+        res+=res_check
         if res == 0:
             return res
         else:
             return 1
+
+    def check_install(self):
+        res=0
+        if "check_install" in self.product_info:
+            self.log_command("Check installation of files")
+            for f in self.product_info.check_install:
+                complete_path=os.path.join(self.product_info.install_dir, f)
+                self.log_command("    -> check %s" % complete_path)
+                if os.path.isfile(complete_path) == False :
+                    res+=1
+                    self.logger.write("Error, sat check install failed for file %s\n" % complete_path, 1)
+                    self.log_command("Error, sat check install failed for file %s" % complete_path)
+        return res
 
     ##
     # Runs 'make_check'.
@@ -460,7 +478,12 @@ CC=\\"hack_libtool\\"%g" libtool'''
                               cwd=str(self.build_dir),
                               env=self.build_environ.environ.environ)
 
+        res_check=self.check_install()
+        if res_check > 0 :
+            self.log_command("Error in sat check install - some files are not installed!")
+
         self.put_txt_log_in_appli_log_dir("script")
+        res += res_check
         if res == 0:
             return res
         else:
