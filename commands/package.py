@@ -301,9 +301,16 @@ def hack_for_distene_licence(filepath, licence_file):
         return
     del text[num_line +1]
     del text[num_line +1]
-    text_to_insert ="""    import imp
-    try:
-        distene = imp.load_source('distene_licence', '%s')
+    text_to_insert ="""    try:
+        distene_licence_file="%s"
+        if sys.version_info[0] >= 3 and sys.version_info[1] >= 5:
+            import importlib.util
+            spec_dist = importlib.util.spec_from_file_location("distene_licence", distene_licence_file)
+            distene=importlib.util.module_from_spec(spec_dist)
+            spec_dist.loader.exec_module(distene)
+        else:
+            import imp
+            distene = imp.load_source('distene_licence', distene_licence_file)
         distene.set_distene_variables(context)
     except:
         pass\n"""  % licence_file
