@@ -1597,8 +1597,9 @@ Please add it in file:
         if os.path.isdir(tmp_local_working_dir):
             shutil.rmtree(tmp_local_working_dir)
 
-    # have to decide some time
-    DBG.tofix("make shutil.rmtree('%s') effective" % tmp_working_dir, "", DBG.isDeveloper())
+    # remove the tmp directory, unless user has registered as developer
+    if os.path.isdir(tmp_working_dir) and (not DBG.isDeveloper()):
+        shutil.rmtree(tmp_working_dir)
     
     # Print again the path of the package
     logger.write("\n", 2)
