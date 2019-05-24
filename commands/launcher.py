@@ -242,7 +242,8 @@ def copy_catalog(config, catalog_path):
     out_dir = config.APPLICATION.workdir
     new_catalog_path = os.path.join(out_dir, "CatalogResources.xml")
     # Do the copy
-    shutil.copy(catalog_path, new_catalog_path)
+    if catalog_path != new_catalog_path:
+        shutil.copy(catalog_path, new_catalog_path)
     additional_environ = {'USER_CATALOG_RESOURCES_FILE' : new_catalog_path}
     return additional_environ
 
