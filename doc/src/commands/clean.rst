@@ -46,9 +46,9 @@ Availables options
 
   * **--install** : Clean the product install directories.
 
-  * **--generated : Clean source, build and install directories for generated products.
+  * **--generated** : Clean source, build and install directories for generated products.
 
-  * **--package : Clean the application package directory.
+  * **--package** : Clean the application package directory.
 
   * **--all** : Clean the product source, build and install directories.
 

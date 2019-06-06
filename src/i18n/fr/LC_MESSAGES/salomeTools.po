@@ -205,7 +205,7 @@ msgid ""
 "the list of products\n"
 "\n"
 "example:\n"
-">> sat clean SALOME-xx --build --install --properties is_salome_module:yes\n"
+">> sat clean SALOME-xx --build --install --properties is_SALOME_module:yes\n"
 msgstr ""
 
 msgid "Nothing to suppress\n"

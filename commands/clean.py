@@ -181,7 +181,7 @@ The clean command suppress the SOURCES, BUILD or INSTALL directories of the appl
 Use the options to define what directories you want to suppress and to set the list of products
 
 example:
->> sat clean SALOME-xx --build --install --properties is_salome_module:yes
+>> sat clean SALOME-xx --build --install --properties is_SALOME_module:yes
 """)
   
 def run(args, runner, logger):
