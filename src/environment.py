@@ -587,6 +587,11 @@ class SalomeEnviron:
 
         # Get the informations corresponding to the product
         pi = src.product.get_product_config(self.cfg, product)
+        
+        # skip compile time products at run time 
+        if not self.forBuild:
+            if src.product.product_is_compile_time(pi):
+                return
 
         # skip mesa products (if any) at run time, 
         # unless use_mesa property was activated

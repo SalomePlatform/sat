@@ -59,170 +59,58 @@ parser.add_option('', 'clean_build_after', 'boolean', 'clean_build_after',
                   _('Optional: remove the build directory after successful compilation'), False)
 
 
-def get_children(config, p_name_p_info):
-    l_res = []
-    p_name, __ = p_name_p_info
-    # Get all products of the application
-    products = config.APPLICATION.products
-    products_infos = src.product.get_products_infos(products, config)
-    for p_name_potential_child, p_info_potential_child in products_infos:
-        if ("depend" in p_info_potential_child and 
-                p_name in p_info_potential_child.depend):
-            l_res.append(p_name_potential_child)
-    return l_res
+# from sat product infos, represent the product dependencies in a simple python graph
+# keys are nodes, the list of dependencies are values
+def get_dependencies_graph(p_infos):
+    graph={}
+    for (p_name,p_info) in p_infos:
+        graph[p_name]=p_info.depend
+    return graph
 
-def get_recursive_children(config, p_name_p_info, without_native_fixed=False):
-    """ Get the recursive list of the product that depend on 
-        the product defined by prod_info
+# this recursive function calculates all the dependencies of node start
+def depth_search_graph(graph, start, visited=[]):
+    visited= visited+ [start]
+    for node in graph[start]:  # for all nodes in start dependencies
+        if node not in visited:
+            visited=depth_search_graph(graph, node, visited)
+    return visited
+
+# find a path from start node to end (a group of nodes)
+def find_path_graph(graph, start, end, path=[]):
+    path = path + [start]
+    if start in end:
+        return path
+    if not graph.has_key(start):
+        return None
+    for node in graph[start]:
+        if node not in path:
+            newpath = find_path_graph(graph, node, end, path)
+            if newpath: return newpath
+    return None
+
+# Topological sorting algo
+# return in sorted_nodes the list of sorted nodes
+def depth_first_topo_graph(graph, start, visited=[], sorted_nodes=[]):
+    visited = visited + [start]
+    for node in graph[start]:
+        if node not in visited:
+            visited,sorted_nodes=depth_first_topo_graph(graph, node, visited,sorted_nodes)
+        else:
+            assert node in sorted_nodes, 'Error : cycle detection for node %s and %s !' % (start,node)
     
-    :param config Config: The global configuration
-    :param prod_info Config: The specific config of the product
-    :param without_native_fixed boolean: If true, do not include the fixed
-                                         or native products in the result
-    :return: The list of product_informations.
-    :rtype: List
-    """
-    p_name, __ = p_name_p_info
-    # Initialization of the resulting list
-    l_children = []
-    
-    # Get the direct children (not recursive)
-    l_direct_children = get_children(config, p_name_p_info)
-    # Minimal case : no child
-    if l_direct_children == []:
-        return []
-    # Add the children and call the function to get the children of the
-    # children
-    for child_name in l_direct_children:
-        l_children_name = [pn_pi[0] for pn_pi in l_children]
-        if child_name not in l_children_name:
-            if child_name not in config.APPLICATION.products:
-                msg = _("The product %(child_name)s that is in %(product_nam"
-                        "e)s children is not present in application "
-                        "%(appli_name)s" % {"child_name" : child_name, 
-                                    "product_name" : p_name.name, 
-                                    "appli_name" : config.VARS.application})
-                raise src.SatException(msg)
-            prod_info_child = src.product.get_product_config(config,
-                                                              child_name)
-            pname_pinfo_child = (prod_info_child.name, prod_info_child)
-            # Do not append the child if it is native or fixed and 
-            # the corresponding parameter is called
-            if without_native_fixed:
-                if not(src.product.product_is_native(prod_info_child) or 
-                       src.product.product_is_fixed(prod_info_child)):
-                    l_children.append(pname_pinfo_child)
-            else:
-                l_children.append(pname_pinfo_child)
-            # Get the children of the children
-            l_grand_children = get_recursive_children(config,
-                                pname_pinfo_child,
-                                without_native_fixed = without_native_fixed)
-            l_children += l_grand_children
-    return l_children
+    sorted_nodes = sorted_nodes + [start]
+    return visited,sorted_nodes
 
-def get_recursive_fathers(config, p_name_p_info, without_native_fixed=False):
-    """ Get the recursive list of the dependencies of the product defined by
-        prod_info
-    
-    :param config Config: The global configuration
-    :param prod_info Config: The specific config of the product
-    :param without_native_fixed boolean: If true, do not include the fixed
-                                         or native products in the result
-    :return: The list of product_informations.
-    :rtype: List
-    """
-    p_name, p_info = p_name_p_info
-    # Initialization of the resulting list
-    l_fathers = []
-    # Minimal case : no dependencies
-    if "depend" not in p_info or p_info.depend == []:
-        return []
-    # Add the dependencies and call the function to get the dependencies of the
-    # dependencies
-    for father_name in p_info.depend:
-        l_fathers_name = [pn_pi[0] for pn_pi in l_fathers]
-        if father_name not in l_fathers_name:
-            if father_name not in config.APPLICATION.products:
-                msg = _("The product %(father_name)s that is in %(product_nam"
-                        "e)s dependencies is not present in application "
-                        "%(appli_name)s" % {"father_name" : father_name, 
-                                    "product_name" : p_name, 
-                                    "appli_name" : config.VARS.application})
-                raise src.SatException(msg)
-            prod_info_father = src.product.get_product_config(config,
-                                                              father_name)
-            pname_pinfo_father = (prod_info_father.name, prod_info_father)
-            # Do not append the father if it is native or fixed and 
-            # the corresponding parameter is called
-            if without_native_fixed:
-                if not(src.product.product_is_native(prod_info_father) or 
-                       src.product.product_is_fixed(prod_info_father)):
-                    l_fathers.append(pname_pinfo_father)
-            else:
-                l_fathers.append(pname_pinfo_father)
-            # Get the dependencies of the dependency
-            l_grand_fathers = get_recursive_fathers(config,
-                                pname_pinfo_father,
-                                without_native_fixed = without_native_fixed)
-            for item in l_grand_fathers:
-                if item not in l_fathers:
-                    l_fathers.append(item)
-    return l_fathers
 
-def sort_products(config, p_infos):
-    """ Sort the p_infos regarding the dependencies between the products
-    
-    :param config Config: The global configuration
-    :param p_infos list: List of (str, Config) => (product_name, product_info)
-    """
-    l_prod_sorted = src.deepcopy_list(p_infos)
-    for prod in p_infos:
-        l_fathers = get_recursive_fathers(config,
-                                          prod,
-                                          without_native_fixed=True)
-        l_fathers = [father for father in l_fathers if father in p_infos]
-        if l_fathers == []:
-            continue
-        for p_sorted in l_prod_sorted:
-            if p_sorted in l_fathers:
-                l_fathers.remove(p_sorted)
-            if l_fathers==[]:
-                l_prod_sorted.remove(prod)
-                l_prod_sorted.insert(l_prod_sorted.index(p_sorted)+1, prod)
-                break
-        
-    return l_prod_sorted
-
-def extend_with_fathers(config, p_infos):
-    p_infos_res = src.deepcopy_list(p_infos)
-    for p_name_p_info in p_infos:
-        fathers = get_recursive_fathers(config,
-                                        p_name_p_info,
-                                        without_native_fixed=True)
-        for p_name_p_info_father in fathers:
-            if p_name_p_info_father not in p_infos_res:
-                p_infos_res.append(p_name_p_info_father)
-    return p_infos_res
-
-def extend_with_children(config, p_infos):
-    p_infos_res = src.deepcopy_list(p_infos)
-    for p_name_p_info in p_infos:
-        children = get_recursive_children(config,
-                                        p_name_p_info,
-                                        without_native_fixed=True)
-        for p_name_p_info_child in children:
-            if p_name_p_info_child not in p_infos_res:
-                p_infos_res.append(p_name_p_info_child)
-    return p_infos_res    
-
-def check_dependencies(config, p_name_p_info):
+# check for p_name that all dependencies are installed
+def check_dependencies(config, p_name_p_info, all_products_dict):
     l_depends_not_installed = []
-    fathers = get_recursive_fathers(config, p_name_p_info, without_native_fixed=True)
-    for p_name_father, p_info_father in fathers:
-        if not(src.product.check_installation(p_info_father)):
-            l_depends_not_installed.append(p_name_father)
-    return l_depends_not_installed
+    for prod in p_name_p_info[1]["depend_all"]:
+        # for each dependency, check the install
+        prod_name, prod_info=all_products_dict[prod]
+        if not(src.product.check_installation(prod_info)):
+            l_depends_not_installed.append(prod_name)
+    return l_depends_not_installed   # non installed deps
 
 def log_step(logger, header, step):
     logger.write("\r%s%s" % (header, " " * 30), 3)
@@ -237,13 +125,14 @@ def log_res_step(logger, res):
         logger.write("%s \n" % src.printcolors.printcError("KO"), 4)
         logger.flush()
 
-def compile_all_products(sat, config, options, products_infos, logger):
+def compile_all_products(sat, config, options, products_infos, all_products_dict, logger):
     '''Execute the proper configuration commands 
        in each product build directory.
 
     :param config Config: The global configuration
     :param products_info list: List of 
                                  (str, Config) => (product_name, product_info)
+    :param all_products_dict: Dict of all products 
     :param logger Logger: The logger instance to use for the display and logging
     :return: the number of failing commands.
     :rtype: int
@@ -268,6 +157,12 @@ def compile_all_products(sat, config, options, products_infos, logger):
 
         # Do nothing if the product is native
         if src.product.product_is_native(p_info):
+            log_step(logger, header, "native")
+            logger.write("\n", 3, False)
+            continue
+
+        # Do nothing if the product is fixed (already compiled by third party)
+        if src.product.product_is_fixed(p_info):
             log_step(logger, header, "native")
             logger.write("\n", 3, False)
             continue
@@ -316,7 +211,8 @@ def compile_all_products(sat, config, options, products_infos, logger):
                                                                 config)
             check_source = True
             # for configuration modules, check if sources are present
-            for product_name, product_info in all_products_infos:
+            for prod in all_products_dict:
+                product_name, product_info = all_products_dict[prod]
                 if ("properties" in product_info and
                     "configure_dependency" in product_info.properties and
                     product_info.properties.configure_dependency == "yes"):
@@ -344,11 +240,11 @@ def compile_all_products(sat, config, options, products_infos, logger):
             continue
         
         # Check if the dependencies are installed
-        l_depends_not_installed = check_dependencies(config, p_name_info)
+        l_depends_not_installed = check_dependencies(config, p_name_info, all_products_dict)
         if len(l_depends_not_installed) > 0:
             log_step(logger, header, "")
             logger.write(src.printcolors.printcError(
-                    _("ERROR : the following product(s) is(are) mandatory: ")))
+                    _("ERROR : the following mandatory product(s) is(are) not installed: ")))
             for prod_name in l_depends_not_installed:
                 logger.write(src.printcolors.printcError(prod_name + " "))
             logger.write("\n")
@@ -637,26 +533,77 @@ def run(args, runner, logger):
             ]
     src.print_info(logger, info)
 
-    # Get the list of products to treat
-    products_infos = src.product.get_products_list(options, runner.cfg, logger)
-    products_infos = [pi for pi in products_infos if not(
-                                   src.product.product_is_fixed(pi[1]))]
+    # Get the list of all application products, and create its dependency graph
+    all_products_infos = src.product.get_products_infos(runner.cfg.APPLICATION.products,
+                                                        runner.cfg)
+    all_products_graph=get_dependencies_graph(all_products_infos)
+    logger.write("Dependency graph of all application products : %s\n" % all_products_graph, 6)
 
+    # Get the list of products we have to compile
+    products_infos = src.product.get_products_list(options, runner.cfg, logger)
+    products_list = [pi[0] for pi in products_infos]
+
+    logger.write("Product we have to compile (as specified by user) : %s\n" % products_list, 5)
     if options.fathers:
         # Extend the list with all recursive dependencies of the given products
-        products_infos = extend_with_fathers(runner.cfg, products_infos)
+        visited=[]
+        for p_name in products_list:
+            visited=depth_search_graph(all_products_graph, p_name, visited)
+        products_list = visited
 
+    logger.write("Product list to compile with fathers : %s\n" % products_list, 5)
     if options.children:
-        # Extend the list with all products that use the given products
-        products_infos = extend_with_children(runner.cfg, products_infos)
+        # Extend the list with all products that depends upon the given products
+        children=[]
+        for n in all_products_graph:
+            # for all products (that are not in products_list):
+            # if we we find a path from the product to the product list,
+            # then we product is a child and we add it to the children list 
+            if (n not in children) and (n not in products_list):
+                if find_path_graph(all_products_graph, n, products_list):
+                    children = children + [n]
+        # complete products_list (the products we have to compile) with the list of children
+        products_list = products_list + children
+        logger.write("Product list to compile with children : %s\n" % products_list, 5)
 
-    # Sort the list regarding the dependencies of the products
-    products_infos = sort_products(runner.cfg, products_infos)
+    # Sort the list of all products (topological sort).
+    # the products listed first do not depend upon products listed after
+    visited_nodes=[]
+    sorted_nodes=[]
+    for n in all_products_graph:
+        if n not in visited_nodes:
+            visited_nodes,sorted_nodes=depth_first_topo_graph(all_products_graph, n, visited_nodes,sorted_nodes)
+    logger.write("Complete depndency graph topological search (sorting): %s\n" % sorted_nodes, 6)
+
+#   use the sorted list of all products to sort the list of products we have to compile
+    sorted_product_list=[]
+    for n in sorted_nodes:
+        if n in products_list:
+            sorted_product_list.append(n)
+    logger.write("Sorted list of products to compile : %s\n" % sorted_product_list, 5)
 
     
+    # from the sorted list of products to compile, build a sorted list of products infos
+    #  a- create a dict to facilitate products_infos sorting
+    all_products_dict={}
+    for (pname,pinfo) in all_products_infos:
+        all_products_dict[pname]=(pname,pinfo)
+    #  b- build a sorted list of products infos in products_infos
+    products_infos=[]
+    for product in sorted_product_list:
+        products_infos.append(all_products_dict[product])
+
+    # for all products to compile, store in "depend_all" field the complete dependencies (recursive) 
+    # (will be used by check_dependencies funvtion)
+    for pi in products_infos:
+        dep_prod=[]
+        dep_prod=depth_search_graph(all_products_graph,pi[0], dep_prod)
+        pi[1]["depend_all"]=dep_prod[1:]
+        
+
     # Call the function that will loop over all the products and execute
     # the right command(s)
-    res = compile_all_products(runner, runner.cfg, options, products_infos, logger)
+    res = compile_all_products(runner, runner.cfg, options, products_infos, all_products_dict, logger)
     
     # Print the final state
     nb_products = len(products_infos)

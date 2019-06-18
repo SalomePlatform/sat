@@ -1051,6 +1051,18 @@ def product_is_generated(product_info):
             "generate" in product_info.properties and
             product_info.properties.generate == "yes")
 
+def product_is_compile_time(product_info):
+    """Know if a product is only used at compile time
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is only used at compile time
+    :rtype: boolean
+    """
+    return ("properties" in product_info and
+            "compile_time" in product_info.properties and
+            product_info.properties.compile_time == "yes")
+
 def get_product_components(product_info):
     """Get the component list to generate with the product
     
