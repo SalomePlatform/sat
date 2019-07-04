@@ -20,6 +20,7 @@ import os
 import subprocess
 import sys
 import shutil
+import glob
 
 import src
 
@@ -313,17 +314,24 @@ CC=\\"hack_libtool\\"%g" libtool'''
         else:
             return 1
 
+    # this function checks wether a list of file patterns (specified by check_install keyword) 
+    # exixts after the make install. The objective is to ensure the installation is complete.
+    # patterns are given relatively to the install dir of the product
     def check_install(self):
         res=0
         if "check_install" in self.product_info:
             self.log_command("Check installation of files")
-            for f in self.product_info.check_install:
-                complete_path=os.path.join(self.product_info.install_dir, f)
-                self.log_command("    -> check %s" % complete_path)
-                if os.path.isfile(complete_path) == False :
+            for pattern in self.product_info.check_install:
+                # pattern is given relatively to the install dir
+                complete_pattern=os.path.join(self.product_info.install_dir, pattern) 
+                self.log_command("    -> check %s" % complete_pattern)
+                # expansion of pattern : takes into account environment variables and unix shell rules
+                list_of_path=glob.glob(os.path.expandvars(complete_pattern))
+                if not list_of_path:
+                    # we expect to find at least one entry, if not we consider the test failed
                     res+=1
-                    self.logger.write("Error, sat check install failed for file %s\n" % complete_path, 1)
-                    self.log_command("Error, sat check install failed for file %s" % complete_path)
+                    self.logger.write("Error, sat check install failed for file pattern %s\n" % complete_pattern, 1)
+                    self.log_command("Error, sat check install failed for file pattern %s" % complete_pattern)
         return res
 
     ##
