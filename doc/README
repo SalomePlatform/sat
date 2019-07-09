@@ -34,9 +34,3 @@ cd doc
 make latexpdf
 evince build/latex/salomeTools.pdf &
 
-
-#########################################################
-# after doc compilation success
-# do not forget to do 'git push' !!!!!!!!!!!!!!
-#########################################################
-

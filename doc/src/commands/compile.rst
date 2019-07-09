@@ -73,3 +73,4 @@ The main options are:
   * **compil_script** : the compilation script if build_source is equal to "script"
   * **cmake_options** : additional options for cmake.
   * **nb_proc** : number of jobs to use with make for this product.
+  * **check_install** : allow to specify a list of path (relative to install directory), that sat will check after installation. This flag allow to check an installation is complete.  

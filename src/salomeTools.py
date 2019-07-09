@@ -707,7 +707,7 @@ def get_help():
     '''
     msg = "\n" + get_version() + "\n\n"
     msg += src.printcolors.printcHeader( _("Usage: ") ) + \
-          "sat [sat_options] <command> [product] [command_options]\n\n"
+          "sat [sat_options] <command> [application] [command_options]\n\n"
 
     msg += parser.get_help() + "\n"
 

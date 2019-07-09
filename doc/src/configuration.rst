@@ -2,9 +2,10 @@
 Configuration
 *************
 
-*salomeTools* uses files to store its configuration parameters.
+*salomeTools* uses files with **.pyconf** extension to store its configuration parameters.
+These pyconf configuration files are provided by the salomeTool projects that are set by sat init command.
 
-There are several configuration files which are loaded by salomeTools in a specific order. 
+When executing a command, sat will load several configuration files in a specific order.
 When all the files are loaded a *config* object is created.
 Then, this object is passed to all command scripts.
 
@@ -37,25 +38,25 @@ VARS section
     # to get the current setting
     sat config --value VARS
 
-PRODUCTS section
-------------------
-| This section is defined in the product file.
-| It contains instructions on how to build a version of SALOME (list of prerequisites-products and versions)
-
-:: 
-
-    # to get the current setting
-    sat config SALOME-xx --value PRODUCTS
-
 APPLICATION section
----------------------
-| This section is optional, it is also defined in the product file.
-| It gives additional parameters to create an application based on SALOME, as versions of products to use.
+------------------
+| This section is defined in the application pyconf file.
+| It contains instructions on how to build a version of SALOME (list of products and versions, compilation options, etc.)
 
 :: 
 
     # to get the current setting
     sat config SALOME-xx --value APPLICATION
+
+PRODUCTS section
+---------------------
+| This section contains all the information required to build the products contained in the application.
+| It is build from the products configuration files.
+
+:: 
+
+    # to get the current setting
+    sat config SALOME-xx --value PRODUCT
 
 
 .. _USER-Section:
@@ -63,14 +64,11 @@ APPLICATION section
 USER section
 --------------
 This section is defined by the user configuration file, 
-``~/.salomeTools/salomeTools.pyconf``.
+``~/.salomeTools/SAT.pyconf``.
 
 The ``USER`` section defines some parameters (not exhaustive):
 
-* **workDir** : 
-
-    | The working directory. 
-    | Each product will be usually installed here (in sub-directories).
+* **pdf_viewer** : the pdf viewer used to read pdf documentation 
 
 * **browser** : The web browser to use (*firefox*). 
 
@@ -83,6 +81,28 @@ The ``USER`` section defines some parameters (not exhaustive):
     # to get the current setting
     sat config SALOME-xx --value USER
 
+    # to edit your personal configuration file
+    sat config -e
 
 
+Other sections
+--------------
 
+* **PROJECTs** : This section contains the configuration of the projects loaded in salomeTool by sat init --add_project command. 
+* **PATHS** : This section contains paths used by saloeTools.
+* **LOCAL** : contains information relative to the local installation of salomeTool.
+* **INTERNAL** : contains internal salomeTool information
+
+All these sections can be printed with sat config command:
+
+::
+
+    # It is possible to use sat completion mode to print available sections.
+    sat config SALOME-xx --value <TAB> <TAB>
+    > APPLICATION.       INTERNAL.          LOCAL.             PATHS. 
+    > PRODUCTS.          PROJECTS.          USER.              VARS.
+
+    # get paths used by sat
+    sat config SALOME-xx --value PATHS
+
+It is possible to use sat completion mode to print available sections.

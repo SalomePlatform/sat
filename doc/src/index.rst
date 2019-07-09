@@ -14,7 +14,6 @@ Salome Tools
    :scale: 100 %
    :align: center
 
-.. warning:: This documentation is under construction.
 
 The **Sa**\ lome\ **T**\ ools (sat) is a suite of commands 
 that can be used to perform operations on SALOME_.
@@ -35,8 +34,8 @@ Quick start
    :maxdepth: 1
 
    Installation of salomeTools <installation_of_sat>
-   Configuration <configuration>
    Usage of salomeTools <usage_of_sat>
+   Configuration <configuration>
 
 List of Commands
 ================
@@ -56,6 +55,7 @@ List of Commands
    package <commands/package>
    generate <commands/generate>
    init <commands/init>
+   environ <commands/environ>
 
 Developer documentation
 =======================
@@ -73,5 +73,8 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
-   Release Notes 5.0.0 <release_notes/release_notes_5.0.0>
+   Release Notes 5.5.0 (in construction) <release_notes/release_notes_5.5.0>
+   Release Notes 5.4.0 <release_notes/release_notes_5.4.0>
+   Release Notes 5.3.0 <release_notes/release_notes_5.3.0>
+   Release Notes 5.2.0 (in construction) <release_notes/release_notes_5.2.0>
 
