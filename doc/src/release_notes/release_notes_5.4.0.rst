@@ -5,6 +5,8 @@ SAT version 9.4.0
 Release Notes, April, 2019
 ==========================
 
+This version of salomeTool was used to produce SALOME 9.3.0
+
 New features and improvments
 ----------------------------
 
@@ -40,7 +42,6 @@ The use of the development git repository is now triggered by declaring this new
     # (from Tuleap)
     properties :
     {
-        mesa_launcher_in_package : "yes"
         repo_dev : "yes"
     }
 

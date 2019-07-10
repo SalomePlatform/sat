@@ -76,5 +76,5 @@ Release Notes
    Release Notes 5.5.0 (in construction) <release_notes/release_notes_5.5.0>
    Release Notes 5.4.0 <release_notes/release_notes_5.4.0>
    Release Notes 5.3.0 <release_notes/release_notes_5.3.0>
-   Release Notes 5.2.0 (in construction) <release_notes/release_notes_5.2.0>
+   Release Notes 5.2.0 <release_notes/release_notes_5.2.0>
 
