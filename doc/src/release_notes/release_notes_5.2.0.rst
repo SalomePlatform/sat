@@ -1,5 +1,5 @@
 *****************
-SAT version 5.5.0
+SAT version 5.2.0
 *****************
 
 Release Notes, December, 2018

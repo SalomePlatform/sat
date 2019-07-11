@@ -77,4 +77,5 @@ Release Notes
    Release Notes 5.4.0 <release_notes/release_notes_5.4.0>
    Release Notes 5.3.0 <release_notes/release_notes_5.3.0>
    Release Notes 5.2.0 <release_notes/release_notes_5.2.0>
+   Release Notes 5.1.0 <release_notes/release_notes_5.1.0>
 
