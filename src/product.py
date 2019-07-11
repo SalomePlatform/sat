@@ -71,6 +71,8 @@ def get_product_config(config, product_name, with_install_dir=True):
             dev = config.APPLICATION.dev
         if 'hpc' in config.APPLICATION:
             hpc = config.APPLICATION.hpc
+        if 'base' in config.APPLICATION:
+            base = config.APPLICATION.base
 
     # special case for which only the product name is mentionned 
     if isinstance(version, bool):
@@ -466,9 +468,13 @@ def get_install_dir(config, base, version, prod_info):
     """
     install_dir = ""
     in_base = False
+    # base : corresponds to what is specified in application pyconf (either from the global key, or from a product dict)
+    # prod_info.install_dir : corresponds to what is specified in product pyconf (usually "base" for prerequisites)
     if (("install_dir" in prod_info and prod_info.install_dir == "base") 
                                                             or base == "yes"):
         in_base = True
+    # what was declared in application has precedence over what was said in product pyconf
+    # no_base="yes" has precedence over base == "yes"
     if (base == "no" or ("no_base" in config.APPLICATION 
                          and config.APPLICATION.no_base == "yes")):
         in_base = False

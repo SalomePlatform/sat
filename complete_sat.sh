@@ -157,7 +157,7 @@ _salomeTools_complete()
     # show argument for each command
     case "${command}" in
         config)
-            opts="--value --list --copy --edit --no_label --info --show_patchs"
+            opts="--value --list --copy --edit --no_label --info --show_patchs --show_install"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0        
             ;;

@@ -53,6 +53,8 @@ parser.add_option('l', 'list', 'boolean', 'list',
     _("Optional: list all available applications."))
 parser.add_option('', 'show_patchs', 'boolean', 'show_patchs',
     _("Optional: synthetic list of all patches used in the application"))
+parser.add_option('', 'show_install', 'boolean', 'show_install',
+    _("Optional: synthetic list of all install directories in the application"))
 parser.add_option('', 'show_properties', 'boolean', 'show_properties',
     _("Optional: synthetic list of all properties used in the application"))
 parser.add_option('c', 'copy', 'boolean', 'copy',
@@ -779,6 +781,27 @@ def show_patchs(config, logger):
     logger.write("No patchs found\n", 1)
 
 
+def show_install_dir(config, logger):
+  '''Prints all the used installed directories in the application.
+
+  :param config Config: the global configuration.
+  :param logger Logger: The logger instance to use for the display
+  '''
+  for product in sorted(config.APPLICATION.products):
+    try:
+      product_info = src.product.get_product_config(config, product)
+      install_path=src.Path(product_info.install_dir)
+      if (src.product.product_is_native(product_info)):
+          install_path="Native"
+      elif (src.product.product_is_fixed(product_info)):
+          install_path+=" (Fixed)"
+      logger.write("%s : %s\n" % (product, install_path) , 1)
+    except Exception as e:
+      msg = "problem on product %s\n%s\n" % (product, str(e))
+      logger.error(msg)
+  logger.write("\n", 1)
+
+
 def show_properties(config, logger):
   '''Prints all the used properties in the application.
 
@@ -1093,6 +1116,15 @@ def run(args, runner, logger):
                     src.printcolors.printcLabel(runner.cfg.VARS.application), 3)
         logger.write("\n", 2, False)
         show_patchs(runner.cfg, logger)
+
+    # case : give a synthetic view of all install directories used in the application
+    if options.show_install:
+        src.check_config_has_application(runner.cfg)
+        # Print some informations
+        logger.write(_('Installation directories of application %s\n') %
+                    src.printcolors.printcLabel(runner.cfg.VARS.application), 3)
+        logger.write("\n", 2, False)
+        show_install_dir(runner.cfg, logger)
 
     # case : give a synthetic view of all patches used in the application
     if options.show_properties:
