@@ -91,6 +91,27 @@ def check_config_has_profile( config, details = None ):
             details.append(message)
         raise SatException( message )
 
+def appli_test_property(config,property_name, property_value):
+    """Generic function to test if an application has a property set to a value
+    :param config class 'common.pyconf.Config': The config.
+    :param property_name : The name of the property to check
+    :param property_value : The value of the property to test
+    :return: True if the application has the property set to property_value
+    :rtype: boolean
+    """
+    # first check if application has property_value
+    if not ("APPLICATION"  in config and
+            "properties"   in config.APPLICATION and
+            property_name  in config.APPLICATION.properties):
+        return False
+
+    # then check to the property is set to property_value
+    eval_expression = 'config.APPLICATION.properties.%s == "%s"' %\
+                      (property_name,property_value)
+    result = eval(eval_expression)
+    return result
+    
+
 def config_has_application( config ):
     return 'APPLICATION' in config
 

@@ -1069,6 +1069,29 @@ def product_is_compile_time(product_info):
             "compile_time" in product_info.properties and
             product_info.properties.compile_time == "yes")
 
+
+def product_test_property(product_info, property_name, property_value):
+    """Generic function to test if a product has a property set to a value
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :param property_name : The name of the property to check
+    :param property_value : The value of the property to test
+    :return: True if the product has the property and the property is set to property_value
+    :rtype: boolean
+    """
+    # first check if product has the property
+    if not ("properties" in product_info and
+            property_name in product_info.properties):
+        return False
+  
+    # then check to the property is set to property_value
+    eval_expression = 'product_info.properties.%s == "%s"' % (property_name,property_value)
+    result = eval(eval_expression)
+    return result
+
+
+
 def get_product_components(product_info):
     """Get the component list to generate with the product
     
