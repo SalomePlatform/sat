@@ -615,8 +615,18 @@ class LauncherFileEnviron:
         :param value str: the value to prepend to key
         :param sep str: the separator string
         """
-        for c in [";", ":"]: # windows or linux path separators
-          if c in value:
+        separators = []
+        if src.architecture.is_windows(): 
+          separators = [':']
+        else:
+          separators = [';']
+        for c in separators: # windows or linux path separators
+          isOK = True
+          if c in value and not src.architecture.is_windows():
+            isOK = False
+          elif c in value and src.architecture.is_windows() and value.count(':') > 1:
+            isOK = False
+          if not isOK:
             raise Exception("LauncherFileEnviron prepend key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
         if self.is_defined(key) :
             self.add(key, value)
