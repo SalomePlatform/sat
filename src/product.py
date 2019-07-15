@@ -1089,3 +1089,15 @@ def get_product_components(product_info):
             compo_list = [ compo_list ]
 
     return compo_list
+def product_is_wheel(product_info):
+    """ tells whether a product is a wheel
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product has a wheel, else False
+    :rtype: Boolean
+    """
+    return ("properties" in product_info and
+            "is_wheel" in product_info.properties and
+            product_info.properties.is_wheel == "yes")
+

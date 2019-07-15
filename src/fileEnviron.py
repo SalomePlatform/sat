@@ -19,6 +19,7 @@
 import os
 import pprint as PP
 import src.debug as DBG
+import src.architecture
 
 bat_header="""\
 @echo off
@@ -180,8 +181,18 @@ class FileEnviron(object):
         :param value str: the value to append to key
         :param sep str: the separator string
         """
-        for c in [";", ":"]: # windows or linux path separators
-          if c in value:
+        separators = []
+        if src.architecture.is_windows(): 
+          separators = [':']
+        else:
+          separators = [';']
+        for c in separators: # windows or linux path separators
+          isOK = True
+          if c in value and not src.architecture.is_windows():
+            isOK = False
+          elif c in value and src.architecture.is_windows() and value.count(':') > 1:
+            isOK = False
+          if not isOK:
             raise Exception("FileEnviron append key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
         self.set(key, self.get(key) + sep + value)
         if (key, sep) not in self.toclean:
@@ -210,8 +221,18 @@ class FileEnviron(object):
         :param value str: the value to prepend to key
         :param sep str: the separator string
         """
-        for c in [";", ":"]: # windows or linux path separators
-          if c in value:
+        separators = []
+        if src.architecture.is_windows(): 
+          separators = [':']
+        else:
+          separators = [';']
+        for c in separators: # windows or linux path separators
+          isOK = True
+          if c in value and not src.architecture.is_windows():
+            isOK = False
+          elif c in value and src.architecture.is_windows() and value.count(':') > 1:
+            isOK = False
+          if not isOK:
             raise Exception("FileEnviron prepend key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
         self.set(key, value + sep + self.get(key))
         if (key, sep) not in self.toclean:
@@ -555,8 +576,18 @@ class LauncherFileEnviron:
         :param value str: the value to append to key
         :param sep str: the separator string
         """
-        for c in [";", ":"]: # windows or linux path separators
-          if c in value:
+        separators = []
+        if src.architecture.is_windows(): 
+          separators = [':']
+        else:
+          separators = [';']
+        for c in separators: # windows or linux path separators
+          isOK = True
+          if c in value and not src.architecture.is_windows():
+            isOK = False
+          elif c in value and src.architecture.is_windows() and value.count(':') > 1:
+            isOK = False
+          if not isOK:
             raise Exception("LauncherFileEnviron append key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
         if self.is_defined(key) :
             self.add(key, value)

@@ -73,8 +73,17 @@ class Environ:
         :param value str: the value to append to key
         :param sep str: the separator string
         """
-        for c in [";", ":"]: # windows or linux path separators
-          if c in value:
+        if src.architecture.is_windows():
+          separators = [';']
+        else:
+          separators = [':']
+        for c in separators: # windows or linux path separators
+          isOK = True
+          if c in value and not src.architecture.is_windows():
+            isOK = False
+          elif c in value and src.architecture.is_windows() and value.count(':') > 1:
+            isOK = False
+          if not isOK:
             raise Exception("Environ append key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
         # check if the key is already in the environment
         if key in self.environ:
@@ -111,8 +120,17 @@ class Environ:
         :param value str: the value to prepend to key
         :param sep str: the separator string
         """
-        for c in [";", ":"]: # windows or linux path separators
-          if c in value:
+        if src.architecture.is_windows():
+          separators = [';']
+        else:
+          separators = [':']
+        for c in separators: # windows or linux path separators
+          isOK = True
+          if c in value and not src.architecture.is_windows():
+            isOK = False
+          elif c in value and src.architecture.is_windows() and value.count(':') > 1:
+            isOK = False
+          if not isOK:
             raise Exception("Environ prepend key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
         # check if the key is already in the environment
         if key in self.environ:
@@ -499,11 +517,11 @@ class SalomeEnviron:
                     self.prepend('LD_LIBRARY_PATH', lib_path)
 
             l = [ bin_path, lib_path ]
-            if self.has_python:
-                l.append(pylib1_path)
-                l.append(pylib2_path)
-
-            self.prepend('PYTHONPATH', l)
+            if not src.product.product_is_wheel(pi):
+                if self.has_python:
+                    l.append(pylib1_path)
+                    l.append(pylib2_path)
+                self.prepend('PYTHONPATH', l)
 
     def set_cpp_env(self, product_info):
         """\

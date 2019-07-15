@@ -135,6 +135,10 @@ class ConfigManager:
         var['srcDir'] =  osJoin(var['salometoolsway'], 'src')
         var['internal_dir'] =  osJoin(var['srcDir'], 'internal_config')
         var['sep']= os.path.sep
+        if src.architecture.is_windows():
+          var['scriptExtension'] = '.bat'
+        else:
+          var['scriptExtension'] = '.sh'
         
         # datadir has a default location
         var['datadir'] =  osJoin(var['salometoolsway'], 'data')

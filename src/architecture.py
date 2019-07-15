@@ -54,7 +54,7 @@ def get_distribution(codes):
     :rtype: str
     '''
     if is_windows():
-        return "Win"
+        return "W" # in order to fulfill the 8196 length constraint!
 
     # else get linux distribution description from platform, and encode it with code
     lin_distrib = platform.dist()[0].lower()

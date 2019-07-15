@@ -342,10 +342,17 @@ def produce_relative_env_files(config,
                                            file_dir,
                                            src_root=None)
     
+    if src.architecture.is_windows():
+      shell = "bat"
+      filename  = "env_launch.bat"
+    else:
+      shell = "bash"
+      filename  = "env_launch.sh"
+
     # Write
-    filepath = writer.write_env_file("env_launch.sh",
+    filepath = writer.write_env_file(filename,
                           False, # for launch
-                          "bash",
+                          shell,
                           for_package = binaries_dir_name)
 
     # Little hack to put out_dir_Path as environment variable
@@ -674,8 +681,12 @@ WARNING: existing binaries directory from previous detar installation:
                                            tmp_working_dir,
                                            binaries_dir_name)
 
-    d_products["environment file"] = (env_file, "env_launch.sh")
-      
+    if src.architecture.is_windows():
+      filename  = "env_launch.bat"
+    else:
+      filename  = "env_launch.sh"
+    d_products["environment file"] = (env_file, filename)      
+
     return d_products
 
 def source_package(sat, config, logger, options, tmp_working_dir):

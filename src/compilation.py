@@ -454,6 +454,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
         assert self.build_environ is not None
         # pass additional variables to environment 
         # (may be used by the build script)
+        self.build_environ.set("APPLICATION_NAME", self.config.APPLICATION.name)
         self.build_environ.set("SOURCE_DIR", str(self.source_dir))
         self.build_environ.set("INSTALL_DIR", str(self.install_dir))
         self.build_environ.set("PRODUCT_INSTALL", str(self.install_dir))
