@@ -28,6 +28,7 @@ import tarfile
 
 import debug as DBG
 import utilsSat as UTS
+import src
 
 from . import printcolors
 
@@ -85,7 +86,10 @@ def git_extract(from_what, tag, where, logger, environment=None):
   if not where.exists():
     where.make()
   if tag == "master" or tag == "HEAD":
-    cmd = r"""
+    if src.architecture.is_windows():
+      cmd = "git clone %(remote)s %(where)s"
+    else:
+      cmd = r"""
 set -x
 git clone %(remote)s %(where)s
 """
@@ -94,8 +98,10 @@ git clone %(remote)s %(where)s
     # NOTICE: this command only works with recent version of git
     #         because --work-tree does not work with an absolute path
     where_git = os.path.join(str(where), ".git")
-
-    cmd = r"""
+    if src.architecture.is_windows():
+      cmd = "rmdir %(where)s && git clone %(remote)s %(where)s && git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s"
+    else:
+      cmd = r"""
 set -x
 rmdir %(where)s
 git clone %(remote)s %(where)s && \
@@ -159,8 +165,8 @@ def git_extract_sub_dir(from_what, tag, where, sub_dir, logger, environment=None
            'tmpWhere': tmpWhere,
            }
   DBG.write("git_extract_sub_dir", aDict)
-
-  cmd = r"""
+  if not src.architecture.is_windows():
+    cmd = r"""
 set -x
 export tmpDir=%(tmpWhere)s && \
 rm -rf $tmpDir
@@ -171,6 +177,19 @@ mv %(sub_dir)s %(where)s && \
 git log -1 > %(where)s/README_git_log.txt && \
 rm -rf $tmpDir
 """ % aDict
+  else:
+    cmd = r"""
+
+set tmpDir=%(tmpWhere)s && \
+rm -rf $tmpDir
+git clone %(remote)s $tmpDir && \
+cd $tmpDir && \
+git checkout %(tag)s && \
+mv %(sub_dir)s %(where)s && \
+git log -1 > %(where)s/README_git_log.txt && \
+rm -rf $tmpDir
+""" % aDict
+
   DBG.write("cmd", cmd)
 
   for nbtry in range(0,3): # retries case of network problem

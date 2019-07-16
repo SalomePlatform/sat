@@ -15,4 +15,5 @@ DISTRIBUTIONS :
   "redhat": "CO"
   "ubuntu": "UB"
   "opensuse":"OS"
+  "Windows" : "W"
 }
