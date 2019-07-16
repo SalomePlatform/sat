@@ -44,7 +44,10 @@ def get_user():
         import pwd
         return pwd.getpwuid(os.getuid())[0]
 
-
+def get_windows_os_label():
+    '''returns the SAT convention used for Windows labeling '''
+    return "W" # in order to fulfill the 8196 length constraint!
+	
 def get_distribution(codes):
     '''Gets the code for the distribution
     
@@ -54,7 +57,7 @@ def get_distribution(codes):
     :rtype: str
     '''
     if is_windows():
-        return "W" # in order to fulfill the 8196 length constraint!
+        return get_windows_os_label()
 
     # else get linux distribution description from platform, and encode it with code
     lin_distrib = platform.dist()[0].lower()

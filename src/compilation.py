@@ -130,9 +130,8 @@ class Builder:
         # In case CMAKE_GENERATOR is defined in environment, 
         # use it in spite of automatically detect it
         if 'cmake_generator' in self.config.APPLICATION:
-            cmake_option += " -DCMAKE_GENERATOR=%s" \
+            cmake_option += " -DCMAKE_GENERATOR=\"%s\"" \
                                        % self.config.APPLICATION.cmake_generator
-        
         command = ("cmake %s -DCMAKE_INSTALL_PREFIX=%s %s" %
                             (cmake_option, self.install_dir, self.source_dir))
 
@@ -263,9 +262,9 @@ CC=\\"hack_libtool\\"%g" libtool'''
         command = 'msbuild'
         command = command + " /maxcpucount:" + str(nb_proc)
         if self.debug_mode:
-            command = command + " /p:Configuration=Debug"
+            command = command + " /p:Configuration=Debug  /p:Platform=x64 "
         else:
-            command = command + " /p:Configuration=Release"
+            command = command + " /p:Configuration=Release /p:Platform=x64 "
         command = command + " ALL_BUILD.vcxproj"
 
         self.log_command(command)
@@ -285,15 +284,14 @@ CC=\\"hack_libtool\\"%g" libtool'''
     ##
     # Runs 'make install'.
     def install(self):
-        if self.config.VARS.dist_name=="Win":
+        if self.config.VARS.dist_name==distrib_cfg.DISTRIBUTIONS["Windows"]:
             command = 'msbuild INSTALL.vcxproj'
             if self.debug_mode:
-                command = command + " /p:Configuration=Debug"
+                command = command + " /p:Configuration=Debug  /p:Platform=x64 "
             else:
-                command = command + " /p:Configuration=Release"
+                command = command + " /p:Configuration=Release  /p:Platform=x64 "
         else :
             command = 'make install'
-
         self.log_command(command)
 
         res = subprocess.call(command,
@@ -338,7 +336,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
     # Runs 'make_check'.
     def check(self, command=""):
         if src.architecture.is_windows():
-            cmd = 'msbuild RUN_TESTS.vcxproj'
+            cmd = 'msbuild RUN_TESTS.vcxproj /p:Configuration=Release  /p:Platform=x64 '
         else :
             if self.product_info.build_source=="autotools" :
                 cmd = 'make check'
