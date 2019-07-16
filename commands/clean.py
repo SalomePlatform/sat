@@ -128,7 +128,8 @@ def get_generated_directories(config, products_infos):
         generate_dir = os.path.join(workdir, "GENERATED")
         source_dir = os.path.join(generate_dir, compo + "_SRC")
         build_dir = os.path.join(os.path.join(workdir, "BUILD"), compo)
-        install_dir = os.path.join(os.path.join(workdir, "INSTALL"), compo)
+        install_dir = os.path.join(workdir, config.INTERNAL.config.install_dir,
+                                   compo)
         l_dir_install.append(src.Path(source_dir))
         l_dir_install.append(src.Path(build_dir))
         l_dir_install.append(src.Path(install_dir))

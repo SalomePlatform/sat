@@ -485,8 +485,8 @@ def get_install_dir(config, base, version, prod_info):
         if "install_dir" not in prod_info or prod_info.install_dir == "base":
             # Set it to the default value (in application directory)
             install_dir = os.path.join(config.APPLICATION.workdir,
-                                                "INSTALL",
-                                                prod_info.name)
+                                       config.INTERNAL.config.install_dir,
+                                       prod_info.name)
         else:
             install_dir = prod_info.install_dir
 

@@ -393,7 +393,8 @@ def produce_install_bin_file(config,
         loop_cmd = "for f in $(grep -RIl"
         for key in d_sub:
             loop_cmd += " -e "+ key
-        loop_cmd += ' INSTALL); do\n     sed -i "\n'
+        loop_cmd += ' ' + config.INTERNAL.config.install_dir +\
+                    '); do\n     sed -i "\n'
         for key in d_sub:
             loop_cmd += "        s?" + key + "?$(pwd)/" + d_sub[key] + "?g\n"
         loop_cmd += '            " $f\ndone'
@@ -401,6 +402,7 @@ def produce_install_bin_file(config,
         d={}
         d["BINARIES_DIR"] = binaries_dir_name
         d["SUBSTITUTION_LOOP"]=loop_cmd
+        d["INSTALL_DIR"]=config.INTERNAL.config.install_dir
         
         # substitute the template and write it in file
         content=src.template.substitute(installbin_template_path, d)
@@ -542,7 +544,8 @@ def binary_package(config, logger, options, tmp_working_dir):
             # cpp module
             for name_cpp in src.product.get_product_components(prod_info):
                 install_dir = os.path.join(config.APPLICATION.workdir,
-                                           "INSTALL", name_cpp) 
+                                           config.INTERNAL.config.install_dir,
+                                           name_cpp) 
                 if os.path.exists(install_dir):
                     l_install_dir.append((name_cpp, install_dir))
                 else:
@@ -1503,7 +1506,8 @@ Please add it in file:
         for key in d_bin_files_to_add:
             if key.endswith("(bin)"):
                 source_dir = d_bin_files_to_add[key][0]
-                path_in_archive = d_bin_files_to_add[key][1].replace("BINARIES-" + runner.cfg.VARS.dist,"INSTALL")
+                path_in_archive = d_bin_files_to_add[key][1].replace("BINARIES-" +\
+                   runner.cfg.VARS.dist,runner.cfg.INTERNAL.config.install_dir)
                 if os.path.basename(source_dir)==os.path.basename(path_in_archive):
                     # if basename is the same we will just substitute the dirname 
                     d_paths_to_substitute[os.path.dirname(source_dir)]=\

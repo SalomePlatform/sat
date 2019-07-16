@@ -7,6 +7,7 @@ INTERNAL :
     config :
     {    
         copy_prefix : "LOCAL_"
+        install_dir : "INSTALL"
     }
     log :
     {

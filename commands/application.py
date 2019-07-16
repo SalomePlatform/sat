@@ -108,8 +108,8 @@ def create_config_file(config, modules, env_files, logger):
             if src.product.product_is_cpp(mm):
                 # cpp module
                 for aa in src.product.get_product_components(mm):
-                    install_dir = os.path.join(config.APPLICATION.workdir,
-                                               "INSTALL")
+                    install_dir=os.path.join(config.APPLICATION.workdir,
+                                             config.INTERNAL.config.install_dir)
                     mp = os.path.join(install_dir, aa)
                     flagline = add_module_to_appli(f,
                                                    aa,

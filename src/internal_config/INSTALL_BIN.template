@@ -2,9 +2,9 @@
 # 
 # This script copies BINARIES content into INSTALL, and substitute paths to enable extra compilation. 
 # If INSTALL already exists : does nothing!
-if [ -d INSTALL ]
+if [ -d ¤{INSTALL_DIR} ]
 then
-    echo Warning: INSTALL already exists! Please rename or delete it before executing this script
+    echo Warning: ¤{INSTALL_DIR} already exists! Please rename or delete it before executing this script
     exit
 fi
 if [ ! -d ¤{BINARIES_DIR} ]
@@ -12,9 +12,9 @@ then
     echo Error: ¤{BINARIES_DIR} directory not found!
     exit
 fi
-mkdir INSTALL
-echo copies ¤{BINARIES_DIR} into INSTALL
-cp -RP ¤{BINARIES_DIR}/*  INSTALL
+mkdir ¤{INSTALL_DIR}
+echo copies ¤{BINARIES_DIR} into ¤{INSTALL_DIR}
+cp -RP ¤{BINARIES_DIR}/*  ¤{INSTALL_DIR}
 echo does the substitutions
 # do the required substitutions
 ¤{SUBSTITUTION_LOOP}
