@@ -18,6 +18,7 @@
 
 import os
 import re
+import subprocess
 import src
 import src.debug as DBG
 
@@ -328,23 +329,36 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     # build_sources : cmake     -> cmake, make, make install
     # build_sources : script    -> script executions
     res = 0
-    if (src.product.product_is_autotools(p_info) or 
-                                          src.product.product_is_cmake(p_info)):
-        res, len_end_line, error_step = compile_product_cmake_autotools(sat,
-                                                                  p_name_info,
-                                                                  config,
-                                                                  options,
-                                                                  logger,
-                                                                  header,
-                                                                  len_end)
-    if src.product.product_has_script(p_info):
-        res, len_end_line, error_step = compile_product_script(sat,
-                                                                  p_name_info,
-                                                                  config,
-                                                                  options,
-                                                                  logger,
-                                                                  header,
-                                                                  len_end)
+
+    
+    # check if pip should be used : the application and product have pip property
+    if (src.appli_test_property(config,"pip", "yes") and 
+       src.product.product_test_property(p_info,"pip", "yes")):
+            res, len_end_line, error_step = compile_product_pip(sat,
+                                                                p_name_info,
+                                                                config,
+                                                                options,
+                                                                logger,
+                                                                header,
+                                                                len_end)
+    else:
+        if (src.product.product_is_autotools(p_info) or 
+                                              src.product.product_is_cmake(p_info)):
+            res, len_end_line, error_step = compile_product_cmake_autotools(sat,
+                                                                      p_name_info,
+                                                                      config,
+                                                                      options,
+                                                                      logger,
+                                                                      header,
+                                                                      len_end)
+        if src.product.product_has_script(p_info):
+            res, len_end_line, error_step = compile_product_script(sat,
+                                                                   p_name_info,
+                                                                   config,
+                                                                   options,
+                                                                   logger,
+                                                                   header,
+                                                                   len_end)
 
     # Check that the install directory exists
     if res==0 and not(os.path.exists(p_info.install_dir)):
@@ -375,6 +389,88 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
             res += res_check
     
     return res, len_end_line, error_step
+
+
+def compile_product_pip(sat,
+                        p_name_info,
+                        config,
+                        options,
+                        logger,
+                        header,
+                        len_end):
+    '''Execute the proper build procedure for pip products
+    :param p_name_info tuple: (str, Config) => (product_name, product_info)
+    :param config Config: The global configuration
+    :param logger Logger: The logger instance to use for the display 
+                          and logging
+    :param header Str: the header to display when logging
+    :param len_end Int: the lenght of the the end of line (used in display)
+    :return: 1 if it fails, else 0.
+    :rtype: int
+    '''
+    p_name, p_info = p_name_info
+    
+    # Execute "sat configure", "sat make" and "sat install"
+    res = 0
+    error_step = ""
+    pip_install_in_python=False
+    if src.appli_test_property(config,"pip_install_dir", "python"):
+        # pip will install product in python directory"
+        pip_install_cmd="pip3 install --disable-pip-version-check --no-index --find-links=%s --build %s %s==%s" %\
+        (config.LOCAL.archive_dir, p_info.build_dir, p_name, p_info.version)
+        pip_install_in_python=True
+        
+    else: 
+        # pip will install product in product install_dir
+        pip_install_dir=os.path.join(p_info.install_dir, "lib", "python${PYTHON_VERSION:0:3}", "site-packages")
+        pip_install_cmd="pip3 install --disable-pip-version-check --no-index --find-links=%s --build %s --target %s %s==%s" %\
+        (config.LOCAL.archive_dir, p_info.build_dir, pip_install_dir, p_name, p_info.version)
+    log_step(logger, header, "PIP")
+    logger.write("\n"+pip_install_cmd+"\n", 4)
+    len_end_line = len_end + 3
+    error_step = ""
+    build_environ = src.environment.SalomeEnviron(config,
+                             src.environment.Environ(dict(os.environ)),
+                             True)
+    environ_info = src.product.get_product_dependencies(config,
+                                                        p_info)
+    build_environ.silent = (config.USER.output_verbose_level < 5)
+    build_environ.set_full_environ(logger, environ_info)
+    
+    if pip_install_in_python and (options.clean_install or options.clean_all):
+        # for products installed by pip inside python install dir
+        # finish the clean by uninstalling the product from python install dir
+        pip_clean_cmd="pip3 uninstall -y  %s==%s" % (p_name, p_info.version)
+        res_pipclean = (subprocess.call(pip_clean_cmd, 
+                                   shell=True, 
+                                   cwd=config.LOCAL.workdir,
+                                   env=build_environ.environ.environ,
+                                   stdout=logger.logTxtFile, 
+                                   stderr=subprocess.STDOUT) == 0)        
+        if not res_pipclean:
+            logger.write("\n",1)
+            logger.warning("pip3 uninstall failed!")
+
+    res_pip = (subprocess.call(pip_install_cmd, 
+                               shell=True, 
+                               cwd=config.LOCAL.workdir,
+                               env=build_environ.environ.environ,
+                               stdout=logger.logTxtFile, 
+                               stderr=subprocess.STDOUT) == 0)        
+    if res_pip:
+        res=0
+        if pip_install_in_python:
+            # when product is installed in python, create install_dir 
+            # (to put inside product info and mark the installation success)
+            os.mkdir(p_info.install_dir)
+    else:
+        #log_res_step(logger, res)
+        res=1
+        error_step = "PIP"
+
+    return res, len_end_line, error_step 
+
+
 
 def compile_product_cmake_autotools(sat,
                                     p_name_info,

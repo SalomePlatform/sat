@@ -19,6 +19,7 @@
 import os
 import shutil
 import re
+import subprocess
 
 import src
 import prepare
@@ -153,6 +154,21 @@ def get_source_from_archive(config, product_info, source_dir, logger):
     :return: True if it succeed, else False
     :rtype: boolean
     '''
+
+    # check if pip should be used : pip mode id activated if the application and product have pip property
+    if (src.appli_test_property(config,"pip", "yes") and 
+       src.product.product_test_property(product_info,"pip", "yes")):
+        # download whl in local archive dir
+        pip_download_cmd="pip download --disable-pip-version-check --destination-directory %s --no-deps %s==%s " %\
+                         (config.LOCAL.archive_dir, product_info.name, product_info.version)
+        logger.write(pip_download_cmd, 3, False) 
+        res_pip = (subprocess.call(pip_download_cmd, 
+                                   shell=True, 
+                                   cwd=config.LOCAL.workdir,
+                                   stdout=logger.logTxtFile, 
+                                   stderr=subprocess.STDOUT) == 0)        
+        return res_pip
+
     # check archive exists
     if not os.path.exists(product_info.archive_info.archive_name):
         # The archive is not found on local file system (ARCHIVEPATH)
