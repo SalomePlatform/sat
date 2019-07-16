@@ -284,7 +284,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
     ##
     # Runs 'make install'.
     def install(self):
-        if self.config.VARS.dist_name==distrib_cfg.DISTRIBUTIONS["Windows"]:
+        if src.architecture.is_windows():
             command = 'msbuild INSTALL.vcxproj'
             if self.debug_mode:
                 command = command + " /p:Configuration=Debug  /p:Platform=x64 "

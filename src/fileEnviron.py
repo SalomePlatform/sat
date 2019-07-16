@@ -181,19 +181,11 @@ class FileEnviron(object):
         :param value str: the value to append to key
         :param sep str: the separator string
         """
-        separators = []
-        if src.architecture.is_windows(): 
-          separators = [':']
-        else:
-          separators = [';']
-        for c in separators: # windows or linux path separators
-          isOK = True
-          if c in value and not src.architecture.is_windows():
-            isOK = False
-          elif c in value and src.architecture.is_windows() and value.count(':') > 1:
-            isOK = False
-          if not isOK:
-            raise Exception("FileEnviron append key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
+        # check that value so no contain the system separator
+        separator=os.pathsep
+        if separator in value:
+            raise Exception("FileEnviron append key '%s' value '%s' contains forbidden character '%s'" % (key, value, separator))
+
         self.set(key, self.get(key) + sep + value)
         if (key, sep) not in self.toclean:
             self.toclean.append((key, sep))
@@ -221,19 +213,11 @@ class FileEnviron(object):
         :param value str: the value to prepend to key
         :param sep str: the separator string
         """
-        separators = []
-        if src.architecture.is_windows(): 
-          separators = [':']
-        else:
-          separators = [';']
-        for c in separators: # windows or linux path separators
-          isOK = True
-          if c in value and not src.architecture.is_windows():
-            isOK = False
-          elif c in value and src.architecture.is_windows() and value.count(':') > 1:
-            isOK = False
-          if not isOK:
-            raise Exception("FileEnviron prepend key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
+        # check that value so no contain the system separator
+        separator=os.pathsep
+        if separator in value:
+            raise Exception("FileEnviron append key '%s' value '%s' contains forbidden character '%s'" % (key, value, separator))
+
         self.set(key, value + sep + self.get(key))
         if (key, sep) not in self.toclean:
             self.toclean.append((key, sep))
@@ -576,19 +560,11 @@ class LauncherFileEnviron:
         :param value str: the value to append to key
         :param sep str: the separator string
         """
-        separators = []
-        if src.architecture.is_windows(): 
-          separators = [':']
-        else:
-          separators = [';']
-        for c in separators: # windows or linux path separators
-          isOK = True
-          if c in value and not src.architecture.is_windows():
-            isOK = False
-          elif c in value and src.architecture.is_windows() and value.count(':') > 1:
-            isOK = False
-          if not isOK:
-            raise Exception("LauncherFileEnviron append key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
+        # check that value so no contain the system separator
+        separator=os.pathsep
+        if separator in value:
+            raise Exception("LauncherFileEnviron append key '%s' value '%s' contains forbidden character '%s'" % (key, value, separator))
+
         if self.is_defined(key) :
             self.add(key, value)
         else :
@@ -615,19 +591,11 @@ class LauncherFileEnviron:
         :param value str: the value to prepend to key
         :param sep str: the separator string
         """
-        separators = []
-        if src.architecture.is_windows(): 
-          separators = [':']
-        else:
-          separators = [';']
-        for c in separators: # windows or linux path separators
-          isOK = True
-          if c in value and not src.architecture.is_windows():
-            isOK = False
-          elif c in value and src.architecture.is_windows() and value.count(':') > 1:
-            isOK = False
-          if not isOK:
-            raise Exception("LauncherFileEnviron prepend key '%s' value '%s' contains forbidden character '%s'" % (key, value, c))
+        # check that value so no contain the system separator
+        separator=os.pathsep
+        if separator in value:
+            raise Exception("LauncherFileEnviron append key '%s' value '%s' contains forbidden character '%s'" % (key, value, separator))
+
         if self.is_defined(key) :
             self.add(key, value)
         else :
