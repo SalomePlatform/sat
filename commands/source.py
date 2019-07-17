@@ -159,8 +159,9 @@ def get_source_from_archive(config, product_info, source_dir, logger):
     if (src.appli_test_property(config,"pip", "yes") and 
        src.product.product_test_property(product_info,"pip", "yes")):
         # download whl in local archive dir
+        pip_wheels_dir=os.path.join(config.LOCAL.archive_dir,"wheels")
         pip_download_cmd="pip download --disable-pip-version-check --destination-directory %s --no-deps %s==%s " %\
-                         (config.LOCAL.archive_dir, product_info.name, product_info.version)
+                         (pip_wheels_dir, product_info.name, product_info.version)
         logger.write(pip_download_cmd, 3, False) 
         res_pip = (subprocess.call(pip_download_cmd, 
                                    shell=True, 

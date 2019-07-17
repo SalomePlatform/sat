@@ -197,7 +197,10 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
         
         # Check if sources was already successfully installed
         check_source = src.product.check_source(p_info)
-        if not options.no_compile: # don't check sources with option --show!
+        is_pip= (src.appli_test_property(config,"pip", "yes") and src.product.product_test_property(p_info,"pip", "yes"))
+        # don't check sources with option --show 
+        # or for products managed by pip (there sources are in wheels stored in LOCAL.ARCHIVE
+        if not (options.no_compile or is_pip): 
             if not check_source:
                 logger.write(_("Sources of product not found (try 'sat -h prepare') \n"))
                 res += 1 # one more error
@@ -414,17 +417,18 @@ def compile_product_pip(sat,
     res = 0
     error_step = ""
     pip_install_in_python=False
+    pip_wheels_dir=os.path.join(config.LOCAL.archive_dir,"wheels")
     if src.appli_test_property(config,"pip_install_dir", "python"):
         # pip will install product in python directory"
         pip_install_cmd="pip3 install --disable-pip-version-check --no-index --find-links=%s --build %s %s==%s" %\
-        (config.LOCAL.archive_dir, p_info.build_dir, p_name, p_info.version)
+        (pip_wheels_dir, p_info.build_dir, p_info.name, p_info.version)
         pip_install_in_python=True
         
     else: 
         # pip will install product in product install_dir
         pip_install_dir=os.path.join(p_info.install_dir, "lib", "python${PYTHON_VERSION:0:3}", "site-packages")
         pip_install_cmd="pip3 install --disable-pip-version-check --no-index --find-links=%s --build %s --target %s %s==%s" %\
-        (config.LOCAL.archive_dir, p_info.build_dir, pip_install_dir, p_name, p_info.version)
+        (pip_wheels_dir, p_info.build_dir, pip_install_dir, p_info.name, p_info.version)
     log_step(logger, header, "PIP")
     logger.write("\n"+pip_install_cmd+"\n", 4)
     len_end_line = len_end + 3
@@ -437,19 +441,20 @@ def compile_product_pip(sat,
     build_environ.silent = (config.USER.output_verbose_level < 5)
     build_environ.set_full_environ(logger, environ_info)
     
-    if pip_install_in_python and (options.clean_install or options.clean_all):
-        # for products installed by pip inside python install dir
-        # finish the clean by uninstalling the product from python install dir
-        pip_clean_cmd="pip3 uninstall -y  %s==%s" % (p_name, p_info.version)
-        res_pipclean = (subprocess.call(pip_clean_cmd, 
-                                   shell=True, 
-                                   cwd=config.LOCAL.workdir,
-                                   env=build_environ.environ.environ,
-                                   stdout=logger.logTxtFile, 
-                                   stderr=subprocess.STDOUT) == 0)        
-        if not res_pipclean:
-            logger.write("\n",1)
-            logger.warning("pip3 uninstall failed!")
+    # useless - pip uninstall himself when wheel is alredy installed
+    #if pip_install_in_python and (options.clean_install or options.clean_all):
+    #    # for products installed by pip inside python install dir
+    #    # finish the clean by uninstalling the product from python install dir
+    #    pip_clean_cmd="pip3 uninstall -y  %s==%s" % (p_name, p_info.version)
+    #    res_pipclean = (subprocess.call(pip_clean_cmd, 
+    #                               shell=True, 
+    #                               cwd=config.LOCAL.workdir,
+    #                               env=build_environ.environ.environ,
+    #                               stdout=logger.logTxtFile, 
+    #                               stderr=subprocess.STDOUT) == 0)        
+    #    if not res_pipclean:
+    #        logger.write("\n",1)
+    #        logger.warning("pip3 uninstall failed!")
 
     res_pip = (subprocess.call(pip_install_cmd, 
                                shell=True, 

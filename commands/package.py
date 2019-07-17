@@ -23,6 +23,7 @@ import datetime
 import tarfile
 import codecs
 import string
+import glob
 import pprint as PP
 
 import src
@@ -789,11 +790,35 @@ def get_archives(config, logger):
         if p_info.get_source == "archive":
             archive_path = p_info.archive_info.archive_name
             archive_name = os.path.basename(archive_path)
+            d_archives[p_name] = (archive_path,
+                                  os.path.join(ARCHIVE_DIR, archive_name))
+            if (src.appli_test_property(config,"pip", "yes") and 
+                src.product.product_test_property(p_info,"pip", "yes")):
+                # if pip mode is activated, and product is managed by pip
+                pip_wheels_dir=os.path.join(config.LOCAL.archive_dir,"wheels")
+                pip_wheel_pattern=os.path.join(pip_wheels_dir, 
+                    "%s-%s*" % (p_info.name, p_info.version))
+                print "CNC  pip_wheel_pattern = ",pip_wheel_pattern
+                pip_wheel_path=glob.glob(pip_wheel_pattern)
+                msg_pip_not_found="Error in get_archive, pip wheel for "\
+                                  "product %s-%s was not found in %s directory"
+                msg_pip_two_or_more="Error in get_archive, several pip wheels for "\
+                                  "product %s-%s were found in %s directory"
+                if len(pip_wheel_path)==0:
+                    raise src.SatException(msg_pip_not_found %\
+                        (p_info.name, p_info.version, pip_wheels_dir))
+                if len(pip_wheel_path)>1:
+                    raise src.SatException(msg_pip_two_or_more %\
+                        (p_info.name, p_info.version, pip_wheels_dir))
+
+                pip_wheel_name=os.path.basename(pip_wheel_path[0])
+                d_archives[p_name+" (pip wheel)"]=(pip_wheel_path[0], 
+                    os.path.join(ARCHIVE_DIR, "wheels", pip_wheel_name))
         else:
-            l_pinfo_vcs.append((p_name, p_info))
+            # this product is not managed by archive, 
+            # an archive of the vcs directory will be created by get_archive_vcs
+            l_pinfo_vcs.append((p_name, p_info)) 
             
-        d_archives[p_name] = (archive_path,
-                              os.path.join(ARCHIVE_DIR, archive_name))
     return d_archives, l_pinfo_vcs
 
 def add_salomeTools(config, tmp_working_dir):
