@@ -109,7 +109,7 @@ def check_dependencies(config, p_name_p_info, all_products_dict):
     for prod in p_name_p_info[1]["depend_all"]:
         # for each dependency, check the install
         prod_name, prod_info=all_products_dict[prod]
-        if not(src.product.check_installation(prod_info)):
+        if not(src.product.check_installation(config, prod_info)):
             l_depends_not_installed.append(prod_name)
     return l_depends_not_installed   # non installed deps
 
@@ -232,7 +232,7 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
                 continue
         
         # Check if it was already successfully installed
-        if src.product.check_installation(p_info):
+        if src.product.check_installation(config, p_info):
             logger.write(_("Already installed"))
             logger.write(_(" in %s" % p_info.install_dir), 4)
             logger.write(_("\n"))
@@ -411,28 +411,15 @@ def compile_product_pip(sat,
     :return: 1 if it fails, else 0.
     :rtype: int
     '''
+    # a) initialisation
     p_name, p_info = p_name_info
-    
-    # Execute "sat configure", "sat make" and "sat install"
     res = 0
     error_step = ""
     pip_install_in_python=False
     pip_wheels_dir=os.path.join(config.LOCAL.archive_dir,"wheels")
-    if src.appli_test_property(config,"pip_install_dir", "python"):
-        # pip will install product in python directory"
-        pip_install_cmd="pip3 install --disable-pip-version-check --no-index --find-links=%s --build %s %s==%s" %\
-        (pip_wheels_dir, p_info.build_dir, p_info.name, p_info.version)
-        pip_install_in_python=True
-        
-    else: 
-        # pip will install product in product install_dir
-        pip_install_dir=os.path.join(p_info.install_dir, "lib", "python${PYTHON_VERSION:0:3}", "site-packages")
-        pip_install_cmd="pip3 install --disable-pip-version-check --no-index --find-links=%s --build %s --target %s %s==%s" %\
-        (pip_wheels_dir, p_info.build_dir, pip_install_dir, p_info.name, p_info.version)
-    log_step(logger, header, "PIP")
-    logger.write("\n"+pip_install_cmd+"\n", 4)
-    len_end_line = len_end + 3
-    error_step = ""
+    pip_install_cmd=config.INTERNAL.command.pip_install # parametrized in src/internal
+
+    # b) get the build environment (useful to get the installed python & pip3)
     build_environ = src.environment.SalomeEnviron(config,
                              src.environment.Environ(dict(os.environ)),
                              True)
@@ -440,21 +427,40 @@ def compile_product_pip(sat,
                                                         p_info)
     build_environ.silent = (config.USER.output_verbose_level < 5)
     build_environ.set_full_environ(logger, environ_info)
-    
-    # useless - pip uninstall himself when wheel is alredy installed
-    #if pip_install_in_python and (options.clean_install or options.clean_all):
-    #    # for products installed by pip inside python install dir
-    #    # finish the clean by uninstalling the product from python install dir
-    #    pip_clean_cmd="pip3 uninstall -y  %s==%s" % (p_name, p_info.version)
-    #    res_pipclean = (subprocess.call(pip_clean_cmd, 
-    #                               shell=True, 
-    #                               cwd=config.LOCAL.workdir,
-    #                               env=build_environ.environ.environ,
-    #                               stdout=logger.logTxtFile, 
-    #                               stderr=subprocess.STDOUT) == 0)        
-    #    if not res_pipclean:
-    #        logger.write("\n",1)
-    #        logger.warning("pip3 uninstall failed!")
+
+    # c- download : check/get pip wheel in pip_wheels_dir
+    pip_download_cmd=config.INTERNAL.command.pip_download +\
+                     " --destination-directory %s --no-deps %s==%s " %\
+                     (pip_wheels_dir, p_info.name, p_info.version)
+    logger.write("\n"+pip_download_cmd+"\n", 4, False) 
+    res_pip_dwl = (subprocess.call(pip_download_cmd, 
+                                   shell=True, 
+                                   cwd=config.LOCAL.workdir,
+                                   env=build_environ.environ.environ,
+                                   stdout=logger.logTxtFile, 
+                                   stderr=subprocess.STDOUT) == 0)
+    # error is not managed at the stage. error will be handled by pip install
+    # here we just print a message
+    if not res_pip_dwl:
+        logger.write("Error in pip download\n", 4, False)
+
+
+    # d- install (in python or in separate product directory)
+    if src.appli_test_property(config,"pip_install_dir", "python"):
+        # pip will install product in python directory"
+        pip_install_cmd+=" --find-links=%s --build %s %s==%s" %\
+        (pip_wheels_dir, p_info.build_dir, p_info.name, p_info.version)
+        pip_install_in_python=True
+        
+    else: 
+        # pip will install product in product install_dir
+        pip_install_dir=os.path.join(p_info.install_dir, "lib", "python${PYTHON_VERSION:0:3}", "site-packages")
+        pip_install_cmd+=" --find-links=%s --build %s --target %s %s==%s" %\
+        (pip_wheels_dir, p_info.build_dir, pip_install_dir, p_info.name, p_info.version)
+    log_step(logger, header, "PIP")
+    logger.write("\n"+pip_install_cmd+"\n", 4)
+    len_end_line = len_end + 3
+    error_step = ""
 
     res_pip = (subprocess.call(pip_install_cmd, 
                                shell=True, 

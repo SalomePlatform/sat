@@ -31,8 +31,8 @@ import src.versionMinorMajorPatch as VMMP
 
 AVAILABLE_VCS = ['git', 'svn', 'cvs']
 
-CONFIG_FILENAME = "sat-config.pyconf" # trace product depends version(s)
-PRODUCT_FILENAME = "sat-product.pyconf" # trace product compile config
+CONFIG_FILENAME = "sat-config-" # trace product depends version(s)
+PRODUCT_FILENAME = "sat-product-" # trace product compile config
 config_expression = "^config-\d+$"
 
 def get_product_config(config, product_name, with_install_dir=True):
@@ -484,9 +484,18 @@ def get_install_dir(config, base, version, prod_info):
     else:
         if "install_dir" not in prod_info or prod_info.install_dir == "base":
             # Set it to the default value (in application directory)
-            install_dir = os.path.join(config.APPLICATION.workdir,
-                                       config.INTERNAL.config.install_dir,
-                                       prod_info.name)
+            if ( src.appli_test_property(config,"single_install_dir", "yes") and 
+                 src.product.product_test_property(prod_info,"single_install_dir", "yes")):
+                # when single_install_dir mode is activated in tha application
+                # we use config.INTERNAL.config.single_install_dir for products 
+                # having single_install_dir property
+                install_dir = os.path.join(config.APPLICATION.workdir,
+                                           config.INTERNAL.config.install_dir,
+                                           config.INTERNAL.config.single_install_dir)
+            else:
+                install_dir = os.path.join(config.APPLICATION.workdir,
+                                           config.INTERNAL.config.install_dir,
+                                           prod_info.name)
         else:
             install_dir = prod_info.install_dir
 
@@ -545,12 +554,14 @@ def add_compile_config_file(p_info, config):
     # Write it in the install directory of the product
     # This file is for automatic reading/checking
     # see check_config_exists method
-    aFile = os.path.join(p_info.install_dir, CONFIG_FILENAME)
+    afilename = CONFIG_FILENAME + p_info.name + ".pyconf"
+    aFile = os.path.join(p_info.install_dir, afilename)
     with open(aFile, 'w') as f:
       res.__save__(f)
 
     # this file is not mandatory, is for human eye reading
-    aFile = os.path.join(p_info.install_dir, PRODUCT_FILENAME)
+    afilename = PRODUCT_FILENAME + p_info.name + ".pyconf"
+    aFile = os.path.join(p_info.install_dir, afilename)
     try:
       with open(aFile, 'w') as f:
         p_info.__save__(f, evaluated=True) # evaluated expressions mode
@@ -593,7 +604,8 @@ def check_config_exists(config, prod_dir, prod_info, verbose=False):
             continue
         # check if there is the file sat-config.pyconf file in the installation
         # directory    
-        config_file = os.path.join(prod_dir, dir_or_file, CONFIG_FILENAME)
+        afilename = PRODUCT_FILENAME + p_info.name + ".pyconf"
+        config_file = os.path.join(prod_dir, dir_or_file, afilename)
         DBG.write("check_config_exists 222", config_file, verbose)
         if not os.path.exists(config_file):
             continue
@@ -749,7 +761,7 @@ def get_product_dependencies(config, product_info):
                 res.append(prod_in_dep)
     return res
 
-def check_installation(product_info):
+def check_installation(config, product_info):
     """\
     Verify if a product is well installed. Checks install directory presence
     and some additional files if it is defined in the config 
@@ -761,9 +773,20 @@ def check_installation(product_info):
     """
     if not product_compiles(product_info):
         return True
+
     install_dir = product_info.install_dir
-    if not os.path.exists(install_dir):
-        return False
+    if ( src.appli_test_property(config,"single_install_dir", "yes") and 
+         src.product.product_test_property(product_info,"single_install_dir", "yes")):
+        # if the product is installed in the single install dir, we check the product file
+        #in state of the install directory.
+        filename = CONFIG_FILENAME + product_info.name + ".pyconf"
+        if not os.path.exists(os.path.join(install_dir, filename)): 
+            return False
+    else:
+        if not os.path.exists(install_dir):
+            return False
+
+    # check extra files if specified in present_files.install section
     if ("present_files" in product_info and 
         "install" in product_info.present_files):
         for file_relative_path in product_info.present_files.install:

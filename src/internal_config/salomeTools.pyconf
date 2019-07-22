@@ -8,10 +8,16 @@ INTERNAL :
     {    
         copy_prefix : "LOCAL_"
         install_dir : "INSTALL"
+        single_install_dir : "PRODUCTS"
     }
     log :
     {
     	not_shown_commands : ["log"]
+    }
+    command :
+    {
+        pip_download : "pip3 download --disable-pip-version-check"
+        pip_install : "pip3 install --disable-pip-version-check --no-index"
     }
 }
 PRODUCTS :

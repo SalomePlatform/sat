@@ -542,7 +542,7 @@ def binary_package(config, logger, options, tmp_working_dir):
                 or src.product.product_is_fixed(prod_info)
                 or not src.product.product_compiles(prod_info)):
             continue
-        if src.product.check_installation(prod_info):
+        if src.product.check_installation(config, prod_info):
             l_install_dir.append((prod_name, prod_info.install_dir))
         else:
             l_not_installed.append(prod_name)
