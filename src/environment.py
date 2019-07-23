@@ -180,19 +180,6 @@ class Environ:
         """
         return self.get(key)
 
-    def command_value(self, key, command):
-        """\
-        Get the value given by the system command "command" 
-        and put it in the environment variable key
-        
-        :param key str: the environment variable
-        :param command str: the command to execute
-        """
-        value = subprocess.Popen(command,
-                                 shell=True,
-                                 stdout=subprocess.PIPE,
-                                 env=self.environ).communicate()[0]
-        self.environ[key] = value
 
 
 class SalomeEnviron:

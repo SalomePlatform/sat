@@ -281,25 +281,12 @@ class FileEnviron(object):
         """
         return self.environ.get_value(key)
 
-    def command_value(self, key, command):
-        """\
-        Get the value given by the system command "command" 
-        and put it in the environment variable key.
-        Has to be overwritten in the derived classes
-        This can be seen as a virtual method
-        
-        :param key str: the environment variable
-        :param command str: the command to execute
-        """
-        raise NotImplementedError("command_value is not implement "
-                                  "for this shell!")
-
     def finish(self):
         """Add a final instruction in the out file (in case of file generation)
         
         :param required bool: Do nothing if required is False
         """
-        raise NotImplementedError("command_value is not implement "
+        raise NotImplementedError("finish is not implement "
                                   "for this shell!")
 
 class BashFileEnviron(FileEnviron):
@@ -324,18 +311,6 @@ class BashFileEnviron(FileEnviron):
         self.output.write('export %s="%s"\n' % (key, value))
         self.environ.set(key, value)
         
-
-    def command_value(self, key, command):
-        """\
-        Get the value given by the system command "command" 
-        and put it in the environment variable key.
-        Has to be overwritten in the derived classes
-        This can be seen as a virtual method
-        
-        :param key str: the environment variable
-        :param command str: the command to execute
-        """
-        self.output.write('export %s=$(%s)\n' % (key, command))
 
         
 class BatFileEnviron(FileEnviron):
@@ -374,19 +349,6 @@ class BatFileEnviron(FileEnviron):
         self.output.write('set %s=%s\n' % (key, value))
         self.environ.set(key, value)
 
-    def command_value(self, key, command):
-        """\
-        Get the value given by the system command "command" 
-        and put it in the environment variable key.
-        Has to be overwritten in the derived classes
-        This can be seen as a virtual method
-        
-        :param key str: the environment variable
-        :param command str: the command to execute
-        """
-        self.output.write('%s > tmp.txt\n' % (command))
-        self.output.write('set /p %s =< tmp.txt\n' % (key))
-
     def finish(self, required=True):
         """\
         Add a final instruction in the out file (in case of file generation)
@@ -423,19 +385,6 @@ class ContextFileEnviron(FileEnviron):
         :param key str: the environment variable
         """
         return '%({0})s'.format(key)
-
-    def command_value(self, key, command):
-        """\
-        Get the value given by the system command "command" 
-        and put it in the environment variable key.
-        Has to be overwritten in the derived classes
-        This can be seen as a virtual method
-        
-        :param key str: the environment variable
-        :param command str: the command to execute
-        """
-        raise NotImplementedError("command_value is not implement "
-                                  "for salome context files!")
 
     def add_echo(self, text):
         """Add a comment
@@ -681,23 +630,6 @@ class LauncherFileEnviron:
                           % (key, self.change_to_launcher(value)))
         self.environ[key]+=sep+value #here yes we know os for current execution
 
-    def command_value(self, key, command):
-        """\
-        Get the value given by the system command "command" 
-        and put it in the environment variable key.
-        
-        :param key str: the environment variable
-        :param command str: the command to execute
-        """
-        self.output.write(self.indent+'#`%s`\n' % command)
-
-        import shlex, subprocess
-        args = shlex.split(command)
-        res=subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, __ = res.communicate()
-        self.output.write(self.begin+
-                          self.setVarEnv+
-                          '(r"%s", r"%s", overwrite=True)\n' % (key, out))
 
     def add_comment(self, comment):
         # Special comment in case of the distène licence
@@ -780,9 +712,6 @@ class ScreenEnviron(FileEnviron):
             value = sep.join(value)
         value = self.get(name) + sep + value
         self.write("append", name, value)
-
-    def command_value(self, key, command):
-        pass
 
     def run_env_script(self, module, script):
         self.write("load", script, "", sign="")
