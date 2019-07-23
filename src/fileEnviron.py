@@ -20,6 +20,7 @@ import os
 import pprint as PP
 import src.debug as DBG
 import src.architecture
+import src.environment
 
 bat_header="""\
 @echo off
@@ -90,13 +91,13 @@ def get_file_environ(output, shell, environ=None):
     :param environ dict: a potential additional environment.
     """
     if shell == "bash":
-        return BashFileEnviron(output, environ)
+        return BashFileEnviron(output, src.environment.Environ({}))
     if shell == "bat":
-        return BatFileEnviron(output, environ)
+        return BatFileEnviron(output, src.environment.Environ({}))
     if shell == "cfgForPy":
         return LauncherFileEnviron(output, environ)
     if shell == "cfg":
-        return ContextFileEnviron(output, environ)
+        return ContextFileEnviron(output, src.environment.Environ({}))
     raise Exception("FileEnviron: Unknown shell = %s" % shell)
 
 class FileEnviron(object):
@@ -130,7 +131,6 @@ class FileEnviron(object):
         :param environ dict: a potential additional environment.
         """
         self.output = output
-        self.toclean = []
         if environ is not None:
             #if str(type(environ)) == "<type 'instance'>":
             if id(environ) == id(os.environ):
@@ -185,10 +185,16 @@ class FileEnviron(object):
         separator=os.pathsep
         if separator in value:
             raise Exception("FileEnviron append key '%s' value '%s' contains forbidden character '%s'" % (key, value, separator))
-
-        self.set(key, self.get(key) + sep + value)
-        if (key, sep) not in self.toclean:
-            self.toclean.append((key, sep))
+        do_append=True
+        if self.environ.is_defined(key):
+            value_list = self.environ.get(key).split(sep)
+            if self.environ._expandvars(value) in value_list:
+                do_append=False  # value is already in key path : we don't append it again
+                #print "\nCNC append_value value is already set!! key=%s, val=%s value_list=%s\n" % (key,self.environ._expandvars(value), value_list)
+            
+        if do_append:
+            self.environ.append_value(key, value,sep)
+            self.set(key, self.get(key) + sep + value)
 
     def append(self, key, value, sep=os.pathsep):
         """\
@@ -218,9 +224,16 @@ class FileEnviron(object):
         if separator in value:
             raise Exception("FileEnviron append key '%s' value '%s' contains forbidden character '%s'" % (key, value, separator))
 
-        self.set(key, value + sep + self.get(key))
-        if (key, sep) not in self.toclean:
-            self.toclean.append((key, sep))
+        do_not_prepend=False
+        if self.environ.is_defined(key):
+            value_list = self.environ.get(key).split(sep)
+            exp_val=self.environ._expandvars(value)
+            if exp_val in value_list:
+                do_not_prepend=True
+                #print "\nCNC prepend_value value is already set!! key=%s, val=%s value_list=%s\n" % (key,exp_val, value_list)
+        if not do_not_prepend:
+            self.environ.prepend_value(key, value,sep)
+            self.set(key, value + sep + self.get(key))
 
     def prepend(self, key, value, sep=os.pathsep):
         """\
@@ -242,7 +255,7 @@ class FileEnviron(object):
         
         :param key str: the environment variable to check
         """
-        return (key in self.environ)
+        return self.environ.is_defined(key)
 
     def set(self, key, value):
         """\
@@ -266,7 +279,7 @@ class FileEnviron(object):
         It can help env scripts
         :param key str: the environment variable
         """
-        return self.environ[key]
+        return self.environ.get_value(key)
 
     def command_value(self, key, command):
         """\
@@ -281,14 +294,13 @@ class FileEnviron(object):
         raise NotImplementedError("command_value is not implement "
                                   "for this shell!")
 
-    def finish(self, required=True):
+    def finish(self):
         """Add a final instruction in the out file (in case of file generation)
         
         :param required bool: Do nothing if required is False
         """
-        for (key, sep) in self.toclean:
-            if sep != ' ':
-                self.output.write('clean %s "%s"\n' % (key, sep))
+        raise NotImplementedError("command_value is not implement "
+                                  "for this shell!")
 
 class BashFileEnviron(FileEnviron):
     """\
@@ -310,7 +322,8 @@ class BashFileEnviron(FileEnviron):
         :param value str: the value
         """
         self.output.write('export %s="%s"\n' % (key, value))
-        self.environ[key] = value
+        self.environ.set(key, value)
+        
 
     def command_value(self, key, command):
         """\
@@ -324,14 +337,6 @@ class BashFileEnviron(FileEnviron):
         """
         self.output.write('export %s=$(%s)\n' % (key, command))
 
-    def finish(self, required=True):
-        """Add a final instruction in the out file (in case of file generation)
-        
-        :param required bool: Do nothing if required is False
-        """
-        if not required:
-            return
-        FileEnviron.finish(self, required)
         
 class BatFileEnviron(FileEnviron):
     """\
@@ -367,7 +372,7 @@ class BatFileEnviron(FileEnviron):
         :param value str: the value
         """
         self.output.write('set %s=%s\n' % (key, value))
-        self.environ[key] = value
+        self.environ.set(key, value)
 
     def command_value(self, key, command):
         """\
@@ -410,7 +415,7 @@ class ContextFileEnviron(FileEnviron):
         :param value str: the value
         """
         self.output.write('%s="%s"\n' % (key, value))
-        self.environ[key] = value
+        self.environ.set(key, value)
 
     def get(self, key):
         """Get the value of the environment variable "key"
@@ -453,7 +458,16 @@ class ContextFileEnviron(FileEnviron):
         :param value str: the value to prepend to key
         :param sep str: the separator string
         """
-        self.output.write('ADD_TO_%s: %s\n' % (key, value))
+        do_append=True
+        if self.environ.is_defined(key):
+            value_list = self.environ.get(key).split(sep)
+            #value cannot be expanded (unlike bash/bat case) - but it doesn't matter.
+            if value in value_list:
+                do_append=False  # value is already in key path : we don't append it again
+            
+        if do_append:
+            self.environ.append_value(key, value,sep)
+            self.output.write('ADD_TO_%s: %s\n' % (key, value))
 
     def append_value(self, key, value, sep=os.pathsep):
         """append value to key using sep
@@ -499,7 +513,6 @@ class LauncherFileEnviron:
         :param environ dict: a potential additional environment.
         """
         self.output = output
-        self.toclean = []
         if environ is not None:
             self.environ = environ
         else:
