@@ -23,6 +23,12 @@ Usage
 
   The launcher will be called *ZeLauncher*.
 
+* Set a launcher which do not initialise the PATH variables: ::
+
+    sat launcher <application>  --no_path_init
+    
+  In this case the launcher do not initialise the path variables (the defaut is to do it only for PATH, not fot LD_LIBRARY_PATH, PYTHONPATH, etc).
+
 * Set a specific resources catalog: ::
 
     sat launcher <application>  --catalog  <path of a salome resources catalog>

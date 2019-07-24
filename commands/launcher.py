@@ -40,13 +40,18 @@ parser.add_option('', 'gencat', 'string', 'gencat',
 parser.add_option('', 'use_mesa', 'boolean', 'use_mesa',
     _("Optional: Create a launcher that will use mesa products\n\t"
       "It can be usefull whan salome is used on a remote machine through ssh"))
+parser.add_option('', 'no_path_init', 'boolean', 'no_path_init',
+    _("Optional: Create a launcher that will not reinitilise all path variables\n\t"
+      "By default only PATH is not reinitialised (its value is inherited from user's environment)\n\t"
+      "Use no_path_init option to suppress the reinitilisation of every paths (LD_LIBRARY_PATH, PYTHONPATH, ...)"))
 
 def generate_launch_file(config,
                          logger,
                          launcher_name,
                          pathlauncher,
                          display=True,
-                         additional_env={}):
+                         additional_env={},
+                         no_path_init=False):
     '''Generates the launcher file.
     
     :param config Config: The global configuration
@@ -134,7 +139,8 @@ def generate_launch_file(config,
     launch_file = open(filepath, "w")
     launch_file.write(before)
     # Write
-    writer.write_cfgForPy_file(launch_file, additional_env=additional_env)
+    writer.write_cfgForPy_file(launch_file, additional_env=additional_env,
+                               no_path_init=no_path_init)
     launch_file.write(after)
     launch_file.close()
     
@@ -273,6 +279,10 @@ def run(args, runner, logger):
     else:
         launcher_name = src.get_launcher_name(runner.cfg)
 
+    no_path_initialisation=False
+    if options.no_path_init:
+        no_path_initialisation = True
+        
     # set the launcher path
     launcher_path = runner.cfg.APPLICATION.workdir
 
@@ -297,6 +307,7 @@ def run(args, runner, logger):
                                          logger,
                                          launcher_name,
                                          launcher_path,
-                                         additional_env = additional_environ )
+                                         additional_env = additional_environ,
+                                         no_path_init = no_path_initialisation )
 
     return 0

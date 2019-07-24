@@ -875,7 +875,8 @@ class FileEnvWriter:
                             filename,
                             additional_env = {},
                             for_package = None,
-                            with_commercial = True):
+                            with_commercial = True,
+                            no_path_init=False):
         """\
         Append to current opened aFile a cfgForPy 
         environment (SALOME python launcher).
@@ -892,7 +893,9 @@ class FileEnvWriter:
 
         # create then env object
         tmp = src.fileEnviron.get_file_environ(filename, "cfgForPy", {})
-        # DBG.write("fileEnviron.get_file_environ %s" % filename, tmp, True)
+        if no_path_init:
+            # specify we don't want to reinitialise paths
+            tmp.set_no_init_path()
 
         # environment for launch
         env = SalomeEnviron(self.config,

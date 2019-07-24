@@ -34,41 +34,6 @@ bash_header="""\
 #!/bin/bash
 ##########################################################################
 #
-#### cleandup ###
-# cleanup a path (first parameter) from duplicated entries;
-# second parameter is the separator
-cleandup() {
-out_var=`echo $1 | awk -v sep=$2 '{                      \\
-     na = split($1,a,sep);                               \\
-     k=0;                                                \\
-     for(i=0;i<=na;i++) {                                \\
-       found=0;                                          \\
-       for(j=0;j<k;j++) {                                \\
-         if(a[i]==aa[j])                                 \\
-         {                                               \\
-           found=1;                                      \\
-           break;                                        \\
-         };                                              \\
-       };                                                \\
-       if(found==0) {                                    \\
-         aa[k++]=a[i];                                   \\
-       };                                                \\
-     };                                                  \\
-     ORS=sep;                                            \\
-     for(i=0;i<k;i++) {                                  \\
-       print aa[i];                                      \\
-     }                                                   \\
-   }' | sed -e 's|\\(.*\\)$1|\\1|g' -e 's|^[:;]||' -e 's|[:;]$||'`
-echo $out_var
-}
-### clean ###
-clean ()
-{
-xenv=`printenv $1`
-out_var=`cleandup $xenv $2`
-export $1=$out_var
-}
-
 # This line is used only in case of a sat package
 export out_dir_Path=$(cd $(dirname ${BASH_SOURCE[0]});pwd)
 
@@ -95,7 +60,7 @@ def get_file_environ(output, shell, environ=None):
     if shell == "bat":
         return BatFileEnviron(output, src.environment.Environ({}))
     if shell == "cfgForPy":
-        return LauncherFileEnviron(output, environ)
+        return LauncherFileEnviron(output, src.environment.Environ({}))
     if shell == "cfg":
         return ContextFileEnviron(output, src.environment.Environ({}))
     raise Exception("FileEnviron: Unknown shell = %s" % shell)
@@ -109,7 +74,7 @@ class FileEnviron(object):
         Initialization
         
         :param output file: the output file stream.
-        :param environ dict: a potential additional environment.
+        :param environ dict: SalomeEnviron.
         """
         self._do_init(output, environ)
 
@@ -131,14 +96,11 @@ class FileEnviron(object):
         :param environ dict: a potential additional environment.
         """
         self.output = output
+        self.init_path=True # by default we initialise all paths, except PATH
         if environ is not None:
-            #if str(type(environ)) == "<type 'instance'>":
-            if id(environ) == id(os.environ):
-               DBG.tofix("set %s environ as python os.environ, are you sure it is safe ?" % self.__class__.__name__, True)
             self.environ = environ
         else:
-            DBG.tofix("set %s environ as COPY of python os.environ, are you sure it is safe ?" % self.__class__.__name__, True)
-            self.environ = dict(os.environ) #make a copy cvw 180320
+            self.environ = src.environment.Environ({})
 
     def add_line(self, number):
         """\
@@ -281,13 +243,29 @@ class FileEnviron(object):
         """
         return self.environ.get_value(key)
 
-    def finish(self):
+    def finish(self, required):
         """Add a final instruction in the out file (in case of file generation)
         
         :param required bool: Do nothing if required is False
         """
-        raise NotImplementedError("finish is not implement "
-                                  "for this shell!")
+        return
+
+    def set_no_init_path(self):
+        """Set the no initialisation mode for all paths.
+           By default only PATH is not reinitialised. All others paths are
+           (LD_LIBRARY_PATH, PYTHONPATH, ...)
+           After the call to these function ALL PATHS ARE NOT REINITIALISED.
+           There initial value is inherited from the environment
+        """
+        self.init_path=False
+
+    def value_filter(self, value):
+        res=value
+        # on windows platform, replace / by \
+        if src.architecture.is_windows():
+            res = value.replace("/","\\")
+        return res
+
 
 class BashFileEnviron(FileEnviron):
     """\
@@ -346,7 +324,7 @@ class BatFileEnviron(FileEnviron):
         :param key str: the environment variable to set
         :param value str: the value
         """
-        self.output.write('set %s=%s\n' % (key, value))
+        self.output.write('set %s=%s\n' % (key, self.value_filter(value)))
         self.environ.set(key, value)
 
     def finish(self, required=True):
@@ -434,23 +412,8 @@ class ContextFileEnviron(FileEnviron):
         """
         return
 
-def special_path_separator(name):
-    """\
-    TCLLIBPATH, TKLIBPATH, PV_PLUGIN_PATH environments variables need
-    some exotic path separator.
-    This function gives the separator regarding the name of the variable
-    to append or prepend.
-       
-    :param name str: The name of the variable to find the separator
-    """
-    special_blanks_keys=["TCLLIBPATH", "TKLIBPATH"]
-    special_semicolon_keys=["PV_PLUGIN_PATH"]
-    res=os.pathsep
-    if name in special_blanks_keys: res=" "
-    if name in special_semicolon_keys: res=";"
-    return res
 
-class LauncherFileEnviron:
+class LauncherFileEnviron(FileEnviron):
     """\
     Class to generate a launcher file script 
     (in python syntax) SalomeContext API
@@ -461,22 +424,7 @@ class LauncherFileEnviron:
         :param output file: the output file stream.
         :param environ dict: a potential additional environment.
         """
-        self.output = output
-        if environ is not None:
-            self.environ = environ
-        else:
-            self.environ = os.environ
-        # Initialize some variables
-        if not "PATH" in self.environ.keys():
-            self.environ["PATH"]=""
-        if not "LD_LIBRARY_PATH" in self.environ.keys():
-            self.environ["LD_LIBRARY_PATH"]=""
-        if not "PYTHONPATH" in self.environ.keys():
-            self.environ["PYTHONPATH"]=""
-        if not "TCLLIBPATH" in self.environ.keys():
-            self.environ["TCLLIBPATH"]=""
-        if not "TKLIBPATH" in self.environ.keys():
-            self.environ["TKLIBPATH"]=""
+        self._do_init(output, environ)
 
         # four whitespaces for first indentation in a python script
         self.indent="    "
@@ -485,20 +433,18 @@ class LauncherFileEnviron:
         
         self.begin=self.indent+self.prefix
         self.output.write(Launcher_header)
+
+        # for these path, we use specialired functions in salomeContext api
         self.specialKeys={"PATH": "Path",
                           "LD_LIBRARY_PATH": "LdLibraryPath",
                           "PYTHONPATH": "PythonPath"}
 
-    def change_to_launcher(self, value):
-        res=value
-        return res
+        # we do not want to reinitialise PATH.
+        # for that we make sure PATH is in self.environ
+        # and therefore we will not use setVariable for PATH
+        if not self.environ.is_defined("PATH"):
+            self.environ.set("PATH","")
 
-    def add_line(self, number):
-        """Add some empty lines in the launcher file
-        
-        :param number int: the number of lines to add
-        """
-        self.output.write("\n" * number)
 
     def add_echo(self, text):
         """Add a comment
@@ -522,15 +468,8 @@ class LauncherFileEnviron:
         :param value str: the value to append to key
         :param sep str: the separator string
         """
-        # check that value so no contain the system separator
-        separator=os.pathsep
-        if separator in value:
-            raise Exception("LauncherFileEnviron append key '%s' value '%s' contains forbidden character '%s'" % (key, value, separator))
-
-        if self.is_defined(key) :
-            self.add(key, value)
-        else :
-            self.set(key, value)
+        # append is not defined in context api
+        self.prepend_value(key, value)
 
     def append(self, key, value, sep=":"):
         """Same as append_value but the value argument can be a list
@@ -545,7 +484,7 @@ class LauncherFileEnviron:
         else:
             self.append_value(key, value, sep)
 
-    def prepend_value(self, key, value, sep=":"):
+    def prepend_value(self, key, value, sep=os.pathsep):
         """prepend value to key using sep,
         if value contains ":" or ";" then raise error
         
@@ -555,13 +494,35 @@ class LauncherFileEnviron:
         """
         # check that value so no contain the system separator
         separator=os.pathsep
+        msg="LauncherFileEnviron append key '%s' value '%s' contains forbidden character '%s'"
         if separator in value:
-            raise Exception("LauncherFileEnviron append key '%s' value '%s' contains forbidden character '%s'" % (key, value, separator))
+            raise Exception(msg % (key, value, separator))
 
-        if self.is_defined(key) :
-            self.add(key, value)
-        else :
+        if (self.init_path and (not self.environ.is_defined(key))):
+            # reinitialisation mode set to true (the default)
+            # for the first occurrence of key, we set it.
+            # therefore key will not be inherited from environment
             self.set(key, value)
+            return
+        # in all other cases we use append (except if value is already the key
+        do_append=True
+        if self.environ.is_defined(key):
+            value_list = self.environ.get(key).split(sep)
+            # rem : value cannot be expanded (unlike bash/bat case) - but it doesn't matter.
+            if value in value_list:
+                do_append=False  # value is already in key path : we don't append it again
+            
+        if do_append:
+            self.environ.append_value(key, value,sep) # register value in self.environ
+            if key in self.specialKeys.keys():
+                #for these special keys we use the specific salomeContext function
+                self.output.write(self.begin+'addTo%s(r"%s")\n' % 
+                                  (self.specialKeys[key], self.value_filter(value)))
+            else:
+                # else we use the general salomeContext addToVariable function
+                self.output.write(self.begin+'addToVariable(r"%s", r"%s",separator="%s")\n' 
+                                  % (key, self.value_filter(value), sep))
+            
 
     def prepend(self, key, value, sep=":"):
         """Same as prepend_value but the value argument can be a list
@@ -576,19 +537,6 @@ class LauncherFileEnviron:
         else:
             self.prepend_value(key, value, sep)
 
-    def is_defined(self, key):
-        """Check if the key exists in the environment
-        
-        :param key str: the environment variable to check
-        """
-        return key in self.environ.keys()
-
-    def get(self, key):
-        """Get the value of the environment variable "key"
-        
-        :param key str: the environment variable
-        """
-        return '${%s}' % key
 
     def set(self, key, value):
         """Set the environment variable "key" to value "value"
@@ -598,38 +546,9 @@ class LauncherFileEnviron:
         """
         self.output.write(self.begin+self.setVarEnv+
                           '(r"%s", r"%s", overwrite=True)\n' % 
-                          (key, self.change_to_launcher(value)))
-        self.environ[key] = value
+                          (key, self.value_filter(value)))
+        self.environ.set(key,value)
     
-    def get_value(self, key):
-        """Get the real value of the environment variable "key", not ${key}
-        It can help env scripts
-        :param key str: the environment variable
-        """
-        return self.environ[key]
-
-    def add(self, key, value):
-        """prepend value to key using sep
-        
-        :param key str: the environment variable to prepend
-        :param value str: the value to prepend to key
-        """     
-        if key in self.specialKeys.keys():
-            self.output.write(self.begin+'addTo%s(r"%s")\n' % 
-                              (self.specialKeys[key],
-                               self.change_to_launcher(value)))
-            self.environ[key]+=":"+value
-            return
-        sep=special_path_separator(key)
-        self.output.write(self.indent+
-                          '#temporary solution!!! have to be defined in API a '
-                          '?dangerous? addToSpecial(r"%s", r"%s")\n' % 
-                          (key, value))
-        #pathsep not precised because do not know future os launch?
-        self.output.write(self.begin+'addToSpecial(r"%s", r"%s")\n' 
-                          % (key, self.change_to_launcher(value)))
-        self.environ[key]+=sep+value #here yes we know os for current execution
-
 
     def add_comment(self, comment):
         # Special comment in case of the distène licence
@@ -639,17 +558,13 @@ class LauncherFileEnviron:
                               self.prefix+
                               self.setVarEnv+
                               '(r"%s", r"%s", overwrite=True)\n' % 
-                              ('DISTENE_LICENSE_FILE', 
-                               self.change_to_launcher(
-                                            'Use global envvar: DLIM8VAR')))
+                              ('DISTENE_LICENSE_FILE', 'Use global envvar: DLIM8VAR'))
             self.output.write(self.indent+
                               "#"+
                               self.prefix+
                               self.setVarEnv+
                               '(r"%s", r"%s", overwrite=True)\n' % 
-                              ('DLIM8VAR', 
-                               self.change_to_launcher(
-                                                '<your licence>')))
+                              ('DLIM8VAR', '<your licence>'))
             return
         if "setting environ for" in comment:
             self.output.write(self.indent+"#[%s]\n" % 
@@ -785,7 +700,6 @@ def main(args):
   # Create a SalomeContext which parses configFileNames to initialize environment
   try:
     from salomeContext import SalomeContext, SalomeContextException
-    SalomeContext.addToSpecial=addToSpecial
     context = SalomeContext(None)
     
     # Here set specific variables, if needed
@@ -812,30 +726,6 @@ def main(args):
     logging.getLogger("salome").error(e)
     sys.exit(1)
 #
-def addToSpecial(self, name, value, pathSep=None):
-  # add special dangerous cases: TCLLIBPATH PV_PLUGIN_PATH etc...
-  # http://computer-programming-forum.com/57-tcl/1dfddc136afccb94.htm
-  # TCLLIBPATH: Tcl treats the contents of that variable as a list. Be happy, for you can now use drive letters on windows.
-  if value == '':
-    return
-  
-  specialBlanksKeys=["TCLLIBPATH", "TKLIBPATH"]
-  specialSemicolonKeys=["PV_PLUGIN_PATH"]
-  res=os.pathsep
-  if name in specialBlanksKeys: res=" "
-  if name in specialSemicolonKeys: res=";"
-  
-  if pathSep==None:
-    sep=res
-  else:
-    sep=pathSep
-  value = os.path.expandvars(value) # expand environment variables
-  self.getLogger().debug("Add to %s: %s", name, value)
-  env = os.getenv(name, None)
-  if env is None:
-    os.environ[name] = value
-  else:
-    os.environ[name] = value + sep + env #explicitely or not special path separator ?whitespace, semicolon?
 
 if __name__ == "__main__":
   args = sys.argv[1:]
@@ -911,7 +801,6 @@ def main(args):
   # Create a SalomeContext which parses configFileNames to initialize environment
   try:
     from salomeContext import SalomeContext, SalomeContextException
-    SalomeContext.addToSpecial=addToSpecial
     context = SalomeContext(None)
     
     # Here set specific variables, if needed
@@ -938,30 +827,6 @@ def main(args):
     logging.getLogger("salome").error(e)
     sys.exit(1)
 #
-def addToSpecial(self, name, value, pathSep=None):
-  # add special dangerous cases: TCLLIBPATH PV_PLUGIN_PATH etc...
-  # http://computer-programming-forum.com/57-tcl/1dfddc136afccb94.htm
-  # TCLLIBPATH: Tcl treats the contents of that variable as a list. Be happy, for you can now use drive letters on windows.
-  if value == '':
-    return
-  
-  specialBlanksKeys=["TCLLIBPATH", "TKLIBPATH"]
-  specialSemicolonKeys=["PV_PLUGIN_PATH"]
-  res=os.pathsep
-  if name in specialBlanksKeys: res=" "
-  if name in specialSemicolonKeys: res=";"
-  
-  if pathSep==None:
-    sep=res
-  else:
-    sep=pathSep
-  value = os.path.expandvars(value) # expand environment variables
-  self.getLogger().debug("Add to %s: %s", name, value)
-  env = os.getenv(name, None)
-  if env is None:
-    os.environ[name] = value
-  else:
-    os.environ[name] = value + sep + env #explicitely or not special path separator ?whitespace, semicolon?
 
 if __name__ == "__main__":
   args = sys.argv[1:]
