@@ -22,32 +22,6 @@ import src.debug as DBG
 import src.architecture
 import src.environment
 
-bat_header="""\
-@echo off
-
-rem The following variables are used only in case of a sat package
-set out_dir_Path=%~dp0
-"""
-
-
-bash_header="""\
-#!/bin/bash
-##########################################################################
-#
-# This line is used only in case of a sat package
-export out_dir_Path=$(cd $(dirname ${BASH_SOURCE[0]});pwd)
-
-###########################################################################
-"""
-
-cfg_header="""\
-[SALOME Configuration]
-"""
-
-Launcher_header="""\
-# a generated SALOME Configuration file using python syntax
-"""
-
 def get_file_environ(output, shell, environ=None):
     """Instantiate correct FileEnvironment sub-class.
     
@@ -55,14 +29,16 @@ def get_file_environ(output, shell, environ=None):
     :param shell str: the type of shell syntax to use.
     :param environ dict: a potential additional environment.
     """
+    if environ == None:
+        environ=src.environment.Environ({})
     if shell == "bash":
-        return BashFileEnviron(output, src.environment.Environ({}))
+        return BashFileEnviron(output, environ)
     if shell == "bat":
-        return BatFileEnviron(output, src.environment.Environ({}))
+        return BatFileEnviron(output, environ)
     if shell == "cfgForPy":
-        return LauncherFileEnviron(output, src.environment.Environ({}))
+        return LauncherFileEnviron(output, environ)
     if shell == "cfg":
-        return ContextFileEnviron(output, src.environment.Environ({}))
+        return ContextFileEnviron(output, environ)
     raise Exception("FileEnviron: Unknown shell = %s" % shell)
 
 class FileEnviron(object):
@@ -243,7 +219,7 @@ class FileEnviron(object):
         """
         return self.environ.get_value(key)
 
-    def finish(self, required):
+    def finish(self):
         """Add a final instruction in the out file (in case of file generation)
         
         :param required bool: Do nothing if required is False
@@ -327,14 +303,6 @@ class BatFileEnviron(FileEnviron):
         self.output.write('set %s=%s\n' % (key, self.value_filter(value)))
         self.environ.set(key, value)
 
-    def finish(self, required=True):
-        """\
-        Add a final instruction in the out file (in case of file generation)
-        In the particular windows case, do nothing
-        
-        :param required bool: Do nothing if required is False
-        """
-        return
 
 class ContextFileEnviron(FileEnviron):
     """Class for a salome context configuration file.
@@ -405,13 +373,6 @@ class ContextFileEnviron(FileEnviron):
         """
         self.prepend_value(key, value)
 
-    def finish(self, required=True):
-        """Add a final instruction in the out file (in case of file generation)
-        
-        :param required bool: Do nothing if required is False
-        """
-        return
-
 
 class LauncherFileEnviron(FileEnviron):
     """\
@@ -425,14 +386,25 @@ class LauncherFileEnviron(FileEnviron):
         :param environ dict: a potential additional environment.
         """
         self._do_init(output, environ)
+        self.python_version=self.environ.get("sat_python_version")
+        self.bin_kernel_root_dir=self.environ.get("sat_bin_kernel_install_dir")
+        self.app_root_dir=self.environ.get("sat_app_root_dir")
 
         # four whitespaces for first indentation in a python script
         self.indent="    "
         self.prefix="context."
         self.setVarEnv="setVariable"
-        
         self.begin=self.indent+self.prefix
-        self.output.write(Launcher_header)
+
+        # write the begining of launcher file.
+        # choose the template version corresponding to python version 
+        # and substitute BIN_KERNEL_INSTALL_DIR (the path to salomeContext.py)
+        if self.python_version == 2:
+            launcher_header=launcher_header2
+        else:
+            launcher_header=launcher_header3
+        self.output.write(launcher_header\
+                          .replace("BIN_KERNEL_INSTALL_DIR", self.bin_kernel_root_dir))
 
         # for these path, we use specialired functions in salomeContext api
         self.specialKeys={"PATH": "Path",
@@ -573,13 +545,18 @@ class LauncherFileEnviron(FileEnviron):
 
         self.output.write(self.indent+"# %s\n" % comment)
 
-    def finish(self, required=True):
+    def finish(self):
         """\
         Add a final instruction in the out file (in case of file generation)
         In the particular launcher case, do nothing
         
         :param required bool: Do nothing if required is False
         """
+        if self.python_version == 2:
+            launcher_tail=launcher_tail_py2
+        else:
+            launcher_tail=launcher_tail_py3
+        self.output.write(launcher_tail)
         return
 
 class ScreenEnviron(FileEnviron):
@@ -631,8 +608,33 @@ class ScreenEnviron(FileEnviron):
     def run_env_script(self, module, script):
         self.write("load", script, "", sign="")
 
-# The SALOME launcher template 
-withProfile =  """\
+
+#
+#  Headers
+#
+bat_header="""\
+@echo off
+
+rem The following variables are used only in case of a sat package
+set out_dir_Path=%~dp0
+"""
+
+
+bash_header="""\
+#!/bin/bash
+##########################################################################
+#
+# This line is used only in case of a sat package
+export out_dir_Path=$(cd $(dirname ${BASH_SOURCE[0]});pwd)
+
+###########################################################################
+"""
+
+cfg_header="""\
+[SALOME Configuration]
+"""
+
+launcher_header2="""\
 #! /usr/bin/env python
 
 ################################################################
@@ -652,8 +654,7 @@ out_dir_Path=os.path.dirname(os.path.realpath(__file__))
 # Preliminary work to initialize path to SALOME Python modules
 def __initialize():
 
-  sys.path[:0] = [ 'BIN_KERNEL_INSTALL_DIR' ]
-  os.environ['ABSOLUTE_APPLI_PATH'] = 'KERNEL_INSTALL_DIR'
+  sys.path[:0] = [ 'BIN_KERNEL_INSTALL_DIR' ]  # to get salomeContext
   
   # define folder to store omniorb config (initially in virtual application folder)
   try:
@@ -710,30 +711,9 @@ def main(args):
 
     # Logger level error
     context.getLogger().setLevel(40)
-
-    # here your local standalone environment
-
-    if len(args) >1 and args[0]=='doc':
-        _showDoc(args[1:])
-        return
-
-    # Start SALOME, parsing command line arguments
-    out, err, status = context.runSalome(args)
-    sys.exit(status)
-
-  except SalomeContextException, e:
-    import logging
-    logging.getLogger("salome").error(e)
-    sys.exit(1)
-#
-
-if __name__ == "__main__":
-  args = sys.argv[1:]
-  main(args)
-#
 """
-    
-withProfile3 =  """\
+
+launcher_header3="""\
 #! /usr/bin/env python3
 
 ################################################################
@@ -754,7 +734,6 @@ out_dir_Path=os.path.dirname(os.path.realpath(__file__))
 def __initialize():
 
   sys.path[:0] = [ 'BIN_KERNEL_INSTALL_DIR' ]
-  os.environ['ABSOLUTE_APPLI_PATH'] = 'KERNEL_INSTALL_DIR'
   
   # define folder to store omniorb config (initially in virtual application folder)
   try:
@@ -811,9 +790,30 @@ def main(args):
 
     # Logger level error
     context.getLogger().setLevel(40)
+"""
 
-    # here your local standalone environment
+launcher_tail_py2="""\
+    if len(args) >1 and args[0]=='doc':
+        _showDoc(args[1:])
+        return
 
+    # Start SALOME, parsing command line arguments
+    out, err, status = context.runSalome(args)
+    sys.exit(status)
+
+  except SalomeContextException, e:
+    import logging
+    logging.getLogger("salome").error(e)
+    sys.exit(1)
+#
+
+if __name__ == "__main__":
+  args = sys.argv[1:]
+  main(args)
+#
+"""
+
+launcher_tail_py3="""\
     if len(args) >1 and args[0]=='doc':
         _showDoc(args[1:])
         return
@@ -834,3 +834,4 @@ if __name__ == "__main__":
 #
 """
     
+

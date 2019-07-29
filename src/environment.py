@@ -20,6 +20,7 @@ import os
 import subprocess
 import string
 import sys
+import copy
 
 import src
 import src.debug as DBG
@@ -324,7 +325,7 @@ class SalomeEnviron:
         if 'add_warning' in dir(self.environ):
             self.environ.add_warning(warning)
 
-    def finish(self, required):
+    def finish(self):
         """\
         Add a final instruction in the out file (in case of file generation)
         
@@ -334,20 +335,15 @@ class SalomeEnviron:
             self.environ.add_line(1)
             # what for ?
             # self.environ.add_comment("clean all the path")
-            self.environ.finish(required)
+            self.environ.finish()
 
     def set_python_libdirs(self):
         """Set some generic variables for python library paths"""
         ver = self.get('PYTHON_VERSION')
-        self.set('PYTHON_LIBDIR0', os.path.join('lib',
+        self.set('PYTHON_LIBDIR', os.path.join('lib',
                                                 'python' + ver,
                                                 'site-packages'))
-        self.set('PYTHON_LIBDIR1', os.path.join('lib64',
-                                                'python' + ver,
-                                                'site-packages'))
-          
-        self.python_lib0 = self.get('PYTHON_LIBDIR0')
-        self.python_lib1 = self.get('PYTHON_LIBDIR1')
+        self.python_lib = self.get('PYTHON_LIBDIR')
         self.has_python = True
 
     def get_names(self, lProducts):
@@ -467,15 +463,13 @@ class SalomeEnviron:
             bin_path = os.path.join(env_root_dir, 'bin')
             if self.has_python:
             # if the application doesn't include python, we don't need these two lines
-                pylib1_path = os.path.join(env_root_dir, self.python_lib0)
-                pylib2_path = os.path.join(env_root_dir, self.python_lib1)
+                pylib1_path = os.path.join(env_root_dir, self.python_lib)
         else:
             lib_path = os.path.join(env_root_dir, 'lib', 'salome')
             bin_path = os.path.join(env_root_dir, 'bin', 'salome')
             if self.has_python:
             # if the application doesn't include python, we don't need these two lines
-                pylib1_path = os.path.join(env_root_dir, self.python_lib0, 'salome')
-                pylib2_path = os.path.join(env_root_dir, self.python_lib1, 'salome')
+                pylib1_path = os.path.join(env_root_dir, self.python_lib, 'salome')
 
         # Construct the paths to prepend to PATH and LD_LIBRARY_PATH and 
         # PYTHONPATH
@@ -522,8 +516,7 @@ class SalomeEnviron:
 
             l = [ bin_path, lib_path ]
             if self.has_python:
-                l.append(os.path.join(env_root_dir, self.python_lib0))
-                l.append(os.path.join(env_root_dir, self.python_lib1))
+                l.append(os.path.join(env_root_dir, self.python_lib))
             self.prepend('PYTHONPATH', l)
 
     def load_cfg_environment(self, cfg_env):
@@ -726,40 +719,6 @@ class SalomeEnviron:
             traceback.print_tb(exceptionTraceback)
             traceback.print_exc()
 
-    def run_simple_env_script(self, script_path, logger=None):
-        """\
-        Runs an environment script. Same as run_env_script, but with a 
-        script path as parameter.
-        
-        :param script_path str: a path to an environment script
-        :param logger Logger: The logger instance to display messages
-        """
-        if not self.enable_simple_env_script:
-            return
-        # Check that the script exists
-        if not os.path.exists(script_path):
-            raise src.SatException(_("Environment script not found: %s") % 
-                                   script_path)
-
-        if not self.silent and logger is not None:
-            logger.write("  ** load %s\n" % script_path, 4)
-
-        script_basename = os.path.basename(script_path)
-        if script_basename.endswith(".py"):
-            script_basename = script_basename[:-len(".py")]
-
-        # import the script and run the set_env function
-        try:
-            import imp
-            pyproduct = imp.load_source(script_basename + "_env_script",
-                                        script_path)
-            pyproduct.load_env(self)
-        except:
-            __, exceptionValue, exceptionTraceback = sys.exc_info()
-            print(exceptionValue)
-            import traceback
-            traceback.print_tb(exceptionTraceback)
-            traceback.print_exc()
 
     def set_products(self, logger, src_root=None):
         """\
@@ -781,7 +740,6 @@ class SalomeEnviron:
             if product == "Python":
                 continue
             self.set_a_product(product, logger)
-            self.finish(False)
  
     def set_full_environ(self, logger, env_info):
         """\
@@ -828,13 +786,23 @@ class FileEnvWriter:
         self.silent = True
         self.env_info = env_info
 
-    def write_env_file(self, filename, forBuild, shell, for_package = None):
+    def write_env_file(self,
+                       filename,
+                       forBuild, 
+                       shell, 
+                       for_package = None,
+                       no_path_init=False,
+                       additional_env = {}):
         """\
         Create an environment file.
         
         :param filename str: the file path
         :param forBuild bool: if true, the build environment
         :param shell str: the type of file wanted (.sh, .bat)
+        :param for_package bool: if true do specific stuff for required for packages
+        :param no_path_init bool: if true generate a environ file that do not reinitialise paths
+        :param additional_env dict: contains sat_ prefixed variables to help the génération, 
+                                    and also variables to add in the environment.
         :return: The path to the generated file
         :rtype: str
         """
@@ -844,10 +812,23 @@ class FileEnvWriter:
 
         # create then env object
         env_file = open(os.path.join(self.out_dir, filename), "w")
-        tmp = src.fileEnviron.get_file_environ(env_file,
+
+        # we duplicate additional_env, and transmit it to fileEnviron, which will use its sat_ prefixed variables.
+        # the other variables of additional_env are added to the environement file at the end of this function.
+        salome_env = copy.deepcopy(additional_env)
+        file_environ = src.fileEnviron.get_file_environ(env_file,
                                                shell,
-                                               {})
-        env = SalomeEnviron(self.config, tmp, forBuild, for_package=for_package)
+                                               src.environment.Environ(salome_env))
+        if no_path_init:
+            # specify we don't want to reinitialise paths
+            # path will keep the inherited value, which will be appended with new values.
+            file_environ.set_no_init_path()
+
+        env = SalomeEnviron(self.config, 
+                            file_environ, 
+                            forBuild, 
+                            for_package=for_package)
+
         env.silent = self.silent
 
         # Set the environment
@@ -865,70 +846,22 @@ class FileEnvWriter:
             env.set_products(self.logger,
                             src_root=self.src_root)
 
-        # add cleanup and close
-        env.finish(True)
+        # Add the additional environment if it is not empty
+        if len(additional_env) != 0:
+            env.add_line(1)
+            env.add_comment("[APPLI variables]")
+            for variable in additional_env:
+                if not variable.startswith("sat_"):
+                    # by convention variables starting with sat_ are used to transfer information, 
+                    # not to be written in env
+                    env.set(variable, additional_env[variable])
+
+        # finalise the writing and close the file
+        env.finish()
         env_file.close()
 
         return env_file.name
    
-    def write_cfgForPy_file(self,
-                            filename,
-                            additional_env = {},
-                            for_package = None,
-                            with_commercial = True,
-                            no_path_init=False):
-        """\
-        Append to current opened aFile a cfgForPy 
-        environment (SALOME python launcher).
-           
-        :param filename str: the file path
-        :param additional_env dict: a dictionary of additional variables 
-                                    to add to the environment
-        :param for_package str: If not None, produce a relative environment 
-                                designed for a package. 
-        """
-        if not self.silent:
-            self.logger.write(_("Create configuration file %s\n") % 
-                              src.printcolors.printcLabel(filename.name), 3)
-
-        # create then env object
-        tmp = src.fileEnviron.get_file_environ(filename, "cfgForPy", {})
-        if no_path_init:
-            # specify we don't want to reinitialise paths
-            tmp.set_no_init_path()
-
-        # environment for launch
-        env = SalomeEnviron(self.config,
-                            tmp,
-                            forBuild=False,
-                            for_package=for_package,
-                            enable_simple_env_script = with_commercial)
-        env.silent = self.silent
-
-        DBG.write("write_cfgForPy_file", self.config.APPLICATION.environ)
-
-        if self.env_info is not None:
-            env.set_full_environ(self.logger, self.env_info)
-            DBG.write("set_full_environ", self.env_info)
-
-        else:
-            # set env from PRODUCT
-            env.set_application_env(self.logger)
-
-            # The list of products to launch
-            lProductsName = env.get_names(self.config.APPLICATION.products.keys())
-            env.set("SALOME_MODULES", ','.join(lProductsName))
-
-            # set the products
-            env.set_products(self.logger, src_root=self.src_root)
-
-        # Add the additional environment if it is not empty
-        if len(additional_env) != 0:
-            for variable in additional_env:
-                env.set(variable, additional_env[variable])
-
-        # add cleanup and close
-        env.finish(True)
 
 class Shell:
     """\
@@ -955,4 +888,3 @@ def load_environment(config, build, logger):
     environ = SalomeEnviron(config, Environ(os.environ), build)
     environ.set_application_env(logger)
     environ.set_products(logger)
-    environ.finish(True)

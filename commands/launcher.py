@@ -74,10 +74,6 @@ def generate_launch_file(config,
     if os.path.exists(filepath):
         os.remove(filepath)
 
-    # Add the APPLI variable
-    additional_env['APPLI'] = filepath
-
-
 
     # get KERNEL bin installation path 
     # (in order for the launcher to get python salomeContext API)
@@ -109,17 +105,17 @@ def generate_launch_file(config,
     else:
         app_root_dir=salome_application_name
 
-    # Get the launcher template (python3 or python2)
+    # Add two sat variables used by fileEnviron to choose the right launcher header 
+    # and do substitutions
+    additional_env['sat_bin_kernel_install_dir'] = bin_kernel_install_dir
     if "python3" in config.APPLICATION and config.APPLICATION.python3 == "yes":
-        withProfile = src.fileEnviron.withProfile3\
-                         .replace("BIN_KERNEL_INSTALL_DIR", bin_kernel_install_dir)\
-                         .replace("KERNEL_INSTALL_DIR", app_root_dir)
+        additional_env['sat_python_version'] = 3
     else:
-        withProfile = src.fileEnviron.withProfile\
-                         .replace("BIN_KERNEL_INSTALL_DIR", bin_kernel_install_dir)\
-                         .replace("KERNEL_INSTALL_DIR", app_root_dir)
+        additional_env['sat_python_version'] = 2
 
-    before, after = withProfile.split("# here your local standalone environment\n")
+    # Add the APPLI and ABSOLUTE_APPLI_PATH variable
+    additional_env['APPLI'] = filepath
+    additional_env['ABSOLUTE_APPLI_PATH'] = app_root_dir
 
     # create an environment file writer
     writer = src.environment.FileEnvWriter(config,
@@ -135,14 +131,12 @@ def generate_launch_file(config,
                      src.printcolors.printcLabel(config.VARS.application), 1)
         logger.write("  %s\n" % src.printcolors.printcLabel(filepath), 1)
     
-    # open the file and write into it
-    launch_file = open(filepath, "w")
-    launch_file.write(before)
-    # Write
-    writer.write_cfgForPy_file(launch_file, additional_env=additional_env,
-                               no_path_init=no_path_init)
-    launch_file.write(after)
-    launch_file.close()
+    # Write the launcher
+    writer.write_env_file(filepath, 
+                          False,  # for launch
+                          "cfgForPy",
+                          additional_env=additional_env,
+                          no_path_init=no_path_init)
     
     # change the rights in order to make the file executable for everybody
     os.chmod(filepath,

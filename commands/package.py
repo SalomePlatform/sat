@@ -108,8 +108,6 @@ parser.add_option('n', 'name', 'string', 'name',
     _('Optional: The name or full path of the archive.'), None)
 parser.add_option('', 'add_files', 'list2', 'add_files',
     _('Optional: The list of additional files to add to the archive.'), [])
-parser.add_option('', 'without_commercial', 'boolean', 'without_commercial',
-    _('Optional: do not add commercial licence.'), False)
 parser.add_option('', 'without_properties', 'properties', 'without_properties',
     _('Optional: Filter the products by their properties.\n\tSyntax: '
       '--without_properties <property>:<value>'))
@@ -177,8 +175,7 @@ def produce_relative_launcher(config,
                               logger,
                               file_dir,
                               file_name,
-                              binaries_dir_name,
-                              with_commercial=True):
+                              binaries_dir_name):
     '''Create a specific SALOME launcher for the binary package. This launcher 
        uses relative paths.
     
@@ -223,40 +220,35 @@ def produce_relative_launcher(config,
     else:
         app_root_dir=os.path.join(binaries_dir_name, salome_application_name)
 
-    # Get the launcher template and do substitutions
+    additional_env={}
+    additional_env['sat_bin_kernel_install_dir'] = "out_dir_Path + " +\
+                                                   config.VARS.sep + bin_kernel_install_dir
     if "python3" in config.APPLICATION and config.APPLICATION.python3 == "yes":
-        withProfile = src.fileEnviron.withProfile3
+        additional_env['sat_python_version'] = 3
     else:
-        withProfile = src.fileEnviron.withProfile
+        additional_env['sat_python_version'] = 2
 
-    withProfile = withProfile.replace(
-        "ABSOLUTE_APPLI_PATH'] = 'KERNEL_INSTALL_DIR'",
-        "ABSOLUTE_APPLI_PATH'] = out_dir_Path + '" + config.VARS.sep + app_root_dir + "'")
-    withProfile = withProfile.replace(
-        " 'BIN_KERNEL_INSTALL_DIR'",
-        " out_dir_Path + '" + config.VARS.sep + bin_kernel_install_dir + "'")
-
-    before, after = withProfile.split("# here your local standalone environment\n")
+    additional_env['ABSOLUTE_APPLI_PATH'] = "out_dir_Path" + config.VARS.sep + app_root_dir
 
     # create an environment file writer
     writer = src.environment.FileEnvWriter(config,
                                            logger,
                                            file_dir,
-                                           src_root=None)
+                                           src_root=None,
+                                           env_info=None)
     
     filepath = os.path.join(file_dir, file_name)
-    # open the file and write into it
-    launch_file = open(filepath, "w")
-    launch_file.write(before)
     # Write
-    writer.write_cfgForPy_file(launch_file,
-                               for_package = binaries_dir_name,
-                               with_commercial=with_commercial)
-    launch_file.write(after)
-    launch_file.close()
+    writer.write_env_file(filepath,
+                          False,  # for launch
+                          "cfgForPy",
+                          additional_env=additional_env,
+                          no_path_init="False",
+                          for_package = binaries_dir_name)
     
     # Little hack to put out_dir_Path outside the strings
     src.replace_in_file(filepath, 'r"out_dir_Path', 'out_dir_Path + r"' )
+    src.replace_in_file(filepath, "'out_dir_Path + ", "out_dir_Path + '" )
     
     # A hack to put a call to a file for distene licence.
     # It does nothing to an application that has no distene product
@@ -274,6 +266,7 @@ def produce_relative_launcher(config,
              stat.S_IXGRP |
              stat.S_IXOTH)
 
+    print "CNC filepath = ", filepath
     return filepath
 
 def hack_for_distene_licence(filepath, licence_file):
@@ -634,8 +627,7 @@ WARNING: existing binaries directory from previous detar installation:
                                                  logger,
                                                  tmp_working_dir,
                                                  launcher_name,
-                                                 binaries_dir_name,
-                                                 not(options.without_commercial))
+                                                 binaries_dir_name)
             d_products["launcher"] = (launcher_package, launcher_name)
 
             # if the application contains mesa products, we generate in addition to the 
@@ -655,8 +647,7 @@ WARNING: existing binaries directory from previous detar installation:
                                                      logger,
                                                      tmp_working_dir,
                                                      launcher_mesa_name,
-                                                     binaries_dir_name,
-                                                     not(options.without_commercial))
+                                                     binaries_dir_name)
                 d_products["launcher (mesa)"] = (launcher_package_mesa, launcher_mesa_name)
 
                 # if there was a use_mesa value, we restore it
