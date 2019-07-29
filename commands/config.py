@@ -576,15 +576,6 @@ class ConfigManager:
                                  'evince', 
                                  "This is the pdf_viewer used "
                                  "to read pdf documentation\n")
-# CNC 25/10/17 : plus nécessaire a priori
-#        user_cfg.USER.addMapping("base",
-#                                 src.pyconf.Reference(
-#                                            user_cfg,
-#                                            src.pyconf.DOLLAR,
-#                                            'workdir  + $VARS.sep + "BASE"'),
-#                                 "The products installation base (could be "
-#                                 "ignored if this key exists in the local.pyconf"
-#                                 " file of salomTools).\n")
 
         src.ensure_path_exists(config.VARS.personalDir)
         src.ensure_path_exists( osJoin(config.VARS.personalDir,

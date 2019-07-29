@@ -492,6 +492,15 @@ def get_install_dir(config, base, version, prod_info):
                 install_dir = os.path.join(config.APPLICATION.workdir,
                                            config.INTERNAL.config.install_dir,
                                            config.INTERNAL.config.single_install_dir)
+            elif ( src.appli_test_property(config,"pip", "yes") and 
+                   src.product.product_test_property(prod_info,"pip", "yes") and
+                   src.appli_test_property(config,"pip_install_dir", "python") ):
+                # when pip mode is activated in the application
+                # and product is pip, and pip_install_dir is set to python 
+                # we assume python in installed in install_dir/Python
+                install_dir = os.path.join(config.APPLICATION.workdir,
+                                           config.INTERNAL.config.install_dir,
+                                           "Python")   
             else:
                 install_dir = os.path.join(config.APPLICATION.workdir,
                                            config.INTERNAL.config.install_dir,
@@ -775,10 +784,13 @@ def check_installation(config, product_info):
         return True
 
     install_dir = product_info.install_dir
-    if ( src.appli_test_property(config,"single_install_dir", "yes") and 
-         src.product.product_test_property(product_info,"single_install_dir", "yes")):
-        # if the product is installed in the single install dir, we check the product file
-        #in state of the install directory.
+    if ( (src.appli_test_property(config,"single_install_dir", "yes") and 
+          src.product.product_test_property(product_info,"single_install_dir", "yes")) or
+         (src.appli_test_property(config,"pip", "yes") and 
+          src.product.product_test_property(product_info,"pip", "yes") and
+          src.appli_test_property(config,"pip_install_dir", "python") ) ):
+        # if the product is installed in the single install dir, or in python (for pip managed products)
+        # we check the product file in state of the install directory.
         filename = CONFIG_FILENAME + product_info.name + ".pyconf"
         if not os.path.exists(os.path.join(install_dir, filename)): 
             return False

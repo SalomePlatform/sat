@@ -136,6 +136,8 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
     names = sorted(d_content.keys())
     DBG.write("add tar names", names)
 
+    # used to avoid duplications (for pip install in python, or single_install_dir cases)
+    already_added=set() 
     for name in names:
         # display information
         len_points = max_len - len(name) + 3
@@ -146,7 +148,10 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
         # of the directory or file to add
         # Add it in the archive
         try:
-            tar.add(local_path, arcname=in_archive, exclude=f_exclude)
+            key=local_path+"->"+in_archive
+            if key not in already_added:
+                tar.add(local_path, arcname=in_archive, exclude=f_exclude)
+                already_added.add(key)
             logger.write(src.printcolors.printcSuccess(_("OK")), 3)
         except Exception as e:
             logger.write(src.printcolors.printcError(_("KO ")), 3)
@@ -266,7 +271,6 @@ def produce_relative_launcher(config,
              stat.S_IXGRP |
              stat.S_IXOTH)
 
-    print "CNC filepath = ", filepath
     return filepath
 
 def hack_for_distene_licence(filepath, licence_file):
@@ -608,7 +612,7 @@ WARNING: existing binaries directory from previous detar installation:
     # actual install directories and there install directory in archive
     d_products = {}
     for prod_name, install_dir in l_install_dir:
-        path_in_archive = os.path.join(binaries_dir_name, prod_name)
+        path_in_archive = os.path.join(binaries_dir_name, os.path.basename(install_dir))
         d_products[prod_name + " (bin)"] = (install_dir, path_in_archive)
         
     for prod_name, source_dir in l_source_dir:
@@ -789,7 +793,6 @@ def get_archives(config, logger):
                 pip_wheels_dir=os.path.join(config.LOCAL.archive_dir,"wheels")
                 pip_wheel_pattern=os.path.join(pip_wheels_dir, 
                     "%s-%s*" % (p_info.name, p_info.version))
-                print "CNC  pip_wheel_pattern = ",pip_wheel_pattern
                 pip_wheel_path=glob.glob(pip_wheel_pattern)
                 msg_pip_not_found="Error in get_archive, pip wheel for "\
                                   "product %s-%s was not found in %s directory"

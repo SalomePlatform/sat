@@ -432,8 +432,8 @@ class SalomeEnviron:
                         self.set(src_dir, product_info.source_dir)
                     else:
                         self.set(src_dir, os.path.join("out_dir_Path",
-                                                       "SOURCES",
-                                                       product_info.name))
+                                 "SOURCES",
+                                 os.path.basename(product_info.source_dir)))
 
     def set_salome_generic_product_env(self, pi):
         """\
@@ -463,13 +463,13 @@ class SalomeEnviron:
             bin_path = os.path.join(env_root_dir, 'bin')
             if self.has_python:
             # if the application doesn't include python, we don't need these two lines
-                pylib1_path = os.path.join(env_root_dir, self.python_lib)
+                pylib_path = os.path.join(env_root_dir, self.python_lib)
         else:
             lib_path = os.path.join(env_root_dir, 'lib', 'salome')
             bin_path = os.path.join(env_root_dir, 'bin', 'salome')
             if self.has_python:
             # if the application doesn't include python, we don't need these two lines
-                pylib1_path = os.path.join(env_root_dir, self.python_lib, 'salome')
+                pylib_path = os.path.join(env_root_dir, self.python_lib, 'salome')
 
         # Construct the paths to prepend to PATH and LD_LIBRARY_PATH and 
         # PYTHONPATH
@@ -486,8 +486,7 @@ class SalomeEnviron:
             l = [ bin_path, lib_path ]
             if not src.product.product_is_wheel(pi):
                 if self.has_python:
-                    l.append(pylib1_path)
-                    l.append(pylib2_path)
+                    l.append(pylib_path)
                 self.prepend('PYTHONPATH', l)
 
     def set_cpp_env(self, product_info):
@@ -598,9 +597,10 @@ class SalomeEnviron:
                
         
         if self.for_package:
-            pi.install_dir = os.path.join("out_dir_Path",
-                                          self.for_package,
-                                          pi.name)
+            pi.install_dir = os.path.join(
+                                 "out_dir_Path",
+                                 self.for_package,
+                                 os.path.basename(pi.install_dir))
 
         if not self.silent:
             logger.write(_("Setting environment for %s\n") % product, 4)

@@ -483,16 +483,6 @@ def run(args, runner, logger):
         logger.write("\n", 1)
         return 1
 
-    # CNC inutile
-    # Ask user confirmation if a module of the same name already exists
-    #if options.name in runner.cfg.PRODUCTS and not runner.options.batch:
-    #    logger.write(src.printcolors.printcWarning(
-    #                _("A module named '%s' already exists." % options.name)), 1)
-    #    logger.write("\n", 1)
-    #    rep = input(_("Are you sure you want to continue? [Yes/No] "))
-    #    if rep.upper() != _("YES"):
-    #        return 1
-
     if options.target is None:
         msg = _("Error: the --%s argument is required\n") % "target"
         logger.write(src.printcolors.printcError(msg), 1)
@@ -506,16 +496,6 @@ def run(args, runner, logger):
         logger.write("\n", 1)
         return 1
 
-    # CNC inutile
-    #if options.template == "Application":
-    #    if "_APPLI" not in options.name and not runner.options.batch:
-    #        msg = _("An Application module named '..._APPLI' "
-    #                "is usually recommended.")
-    #        logger.write(src.printcolors.printcWarning(msg), 1)
-    #        logger.write("\n", 1)
-    #        rep = input(_("Are you sure you want to continue? [Yes/No] "))
-    #        if rep.upper() != _("YES"):
-    #            return 1
 
     logger.write(_('Create sources from template\n'), 1)
     src.printcolors.print_value(logger, 'destination', target_dir, 2)

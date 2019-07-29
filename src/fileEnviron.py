@@ -128,7 +128,6 @@ class FileEnviron(object):
             value_list = self.environ.get(key).split(sep)
             if self.environ._expandvars(value) in value_list:
                 do_append=False  # value is already in key path : we don't append it again
-                #print "\nCNC append_value value is already set!! key=%s, val=%s value_list=%s\n" % (key,self.environ._expandvars(value), value_list)
             
         if do_append:
             self.environ.append_value(key, value,sep)
@@ -168,7 +167,6 @@ class FileEnviron(object):
             exp_val=self.environ._expandvars(value)
             if exp_val in value_list:
                 do_not_prepend=True
-                #print "\nCNC prepend_value value is already set!! key=%s, val=%s value_list=%s\n" % (key,exp_val, value_list)
         if not do_not_prepend:
             self.environ.prepend_value(key, value,sep)
             self.set(key, value + sep + self.get(key))

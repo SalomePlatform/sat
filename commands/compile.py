@@ -470,10 +470,6 @@ def compile_product_pip(sat,
                                stderr=subprocess.STDOUT) == 0)        
     if res_pip:
         res=0
-        if pip_install_in_python:
-            # when product is installed in python, create install_dir 
-            # (to put inside product info and mark the installation success)
-            os.mkdir(p_info.install_dir)
     else:
         #log_res_step(logger, res)
         res=1
