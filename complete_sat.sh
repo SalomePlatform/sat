@@ -212,7 +212,7 @@ _salomeTools_complete()
             return 0
             ;;
         launcher)
-            opts="--name --catalog --gencat --no_path_init"
+            opts="--name --exe --catalog --gencat --no_path_init"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;

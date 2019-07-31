@@ -29,6 +29,13 @@ Usage
     
   In this case the launcher do not initialise the path variables (the defaut is to do it only for PATH, not fot LD_LIBRARY_PATH, PYTHONPATH, etc).
 
+* Create a generic launcher, which set the environment (bash or bat) and call the exe given as argument: ::
+
+    sat launcher <application> -e INSTALL/SALOME/bin/salome/salome.py -n salome.sh 
+
+  The launcher will be called salome.sh. It will source the environment and call ``$APPLICATION.workdir``/INSTALL/SALOME/bin/salome/salome.py.
+  The arguments given to salome.sh are transfered to salome.py.  
+
 * Set a specific resources catalog: ::
 
     sat launcher <application>  --catalog  <path of a salome resources catalog>
