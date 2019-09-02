@@ -639,7 +639,7 @@ class SalomeEnviron:
                     source_dir_save = pi.source_dir
                     name_save = pi.name
                     pi.install_dir = os.path.join(self.cfg.APPLICATION.workdir,
-                                                  config.INTERNAL.config.install_dir,
+                                                  self.cfg.INTERNAL.config.install_dir,
                                                   pi.component_name)
                     if self.for_package:
                         pi.install_dir = os.path.join("out_dir_Path",
