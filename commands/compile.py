@@ -260,8 +260,14 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
         
         if res_prod != 0:
             res += 1
-            
-            if error_step != "CHECK":
+            # there was an error, we clean install dir, unless :
+            #  - the error step is "check", or
+            #  - the product is managed by pip and installed in python dir
+            do_not_clean_install=False
+            if (error_step == "CHECK") or (is_pip and \
+                src.appli_test_property(config,"pip_install_dir", "python")) :
+                do_not_clean_install=True
+            if not do_not_clean_install:
                 # Clean the install directory if there is any
                 logger.write(_(
                             "Cleaning the install directory if there is any\n"),
@@ -474,6 +480,7 @@ def compile_product_pip(sat,
         #log_res_step(logger, res)
         res=1
         error_step = "PIP"
+        logger.write("\nError in pip command, please consult details with sat log command's internal traces\n", 5)
 
     return res, len_end_line, error_step 
 

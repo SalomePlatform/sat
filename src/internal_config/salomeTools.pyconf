@@ -16,8 +16,8 @@ INTERNAL :
     }
     command :
     {
-        pip_download : "pip3 download --disable-pip-version-check"
-        pip_install : "pip3 install --disable-pip-version-check --no-index"
+        pip_download : "python -m pip download --disable-pip-version-check"
+        pip_install : "python -m pip install --disable-pip-version-check --no-index"
     }
 }
 PRODUCTS :
