@@ -49,7 +49,7 @@ parser.add_option('', 'sources_without_dev', 'boolean', 'sources_without_dev',
     _("Optional: do not clean the products in development mode."))
 
 
-def get_source_directories(products_infos, without_dev):
+def get_source_directories(config, products_infos, without_dev):
     """\
     Returns the list of directory source paths corresponding 
     to the list of product information given as input.
@@ -64,7 +64,10 @@ def get_source_directories(products_infos, without_dev):
     l_dir_source = []
     for __, product_info in products_infos:
         if product_has_dir(product_info, without_dev):
-            l_dir_source.append(src.Path(product_info.source_dir))
+            # we do not clean source dirs of pip products when pip is activated
+            if not ( src.appli_test_property(config,"pip", "yes") and\
+                     src.product.product_test_property(product_info,"pip", "yes") ) :
+                l_dir_source.append(src.Path(product_info.source_dir))
     return l_dir_source
 
 def get_build_directories(products_infos):
@@ -84,7 +87,7 @@ def get_build_directories(products_infos):
                 l_dir_build.append(src.Path(product_info.build_dir))
     return l_dir_build
 
-def get_install_directories(products_infos):
+def get_install_directories(config, products_infos):
     """\
     Returns the list of directory install paths corresponding to the list of 
     product information given as input.
@@ -96,7 +99,11 @@ def get_install_directories(products_infos):
     l_dir_install = []
     for __, product_info in products_infos:
         if product_has_dir(product_info):
-            l_dir_install.append(src.Path(product_info.install_dir))
+            # we do not clean pip products installed in python install dir
+            if not ( src.appli_test_property(config,"pip", "yes") and\
+                     src.product.product_test_property(product_info, "pip", "yes") and\
+                     src.appli_test_property(config,"pip_install_dir", "python") ) :
+                l_dir_install.append(src.Path(product_info.install_dir))
     return l_dir_install
 
 def get_package_directory(config):
@@ -203,21 +210,21 @@ def run(args, runner, logger):
     # Construct the list of directories to suppress
     l_dir_to_suppress = []
     if options.all:
-        l_dir_to_suppress += (get_source_directories(products_infos, 
+        l_dir_to_suppress += (get_source_directories(runner.cfg, products_infos, 
                                             options.sources_without_dev) +
                              get_build_directories(products_infos) + 
-                             get_install_directories(products_infos) + 
+                             get_install_directories(runner.cfg, products_infos) + 
                              get_generated_directories(runner.cfg, products_infos) + 
                              get_package_directory(runner.cfg) )
     else:
         if options.install:
-            l_dir_to_suppress += get_install_directories(products_infos)
+            l_dir_to_suppress += get_install_directories(runner.cfg, products_infos)
         
         if options.build:
             l_dir_to_suppress += get_build_directories(products_infos)
             
         if options.sources or options.sources_without_dev:
-            l_dir_to_suppress += get_source_directories(products_infos, 
+            l_dir_to_suppress += get_source_directories(runner.cfg, products_infos, 
                                                 options.sources_without_dev)
         if options.generated:
             l_dir_to_suppress += get_generated_directories(runner.cfg, products_infos)
