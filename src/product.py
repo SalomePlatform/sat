@@ -371,7 +371,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
     return prod_info
 
 def get_product_section(config, product_name, version, section=None, verbose=False):
-    """Get the product description from the configuration
+    """Build the product description from the configuration
     
     :param config Config: The global configuration
     :param product_name str: The product name
@@ -382,74 +382,111 @@ def get_product_section(config, product_name, version, section=None, verbose=Fal
     :rtype: Config
     """
 
-    # if section is not None, try to get the corresponding section
+
+    #get product definition and determine if the incremental definition mode is activated
     aProd = config.PRODUCTS[product_name]
+    if "default" in aProd and\
+       "properties" in aProd.default and\
+       "incremental" in aProd.default.properties and\
+       aProd.default.properties.incremental == "yes":
+        # in this (new) mode the definition of the product is given by the default section
+        # and is incremented by others.
+        is_incr=True
+    else:
+        # in this (historic) mode the definition of the product is given by a full unique section
+        is_incr=False
+    if is_incr:
+        DBG.write("Incremental definition mode activated for %s" % (product_name), "", verbose)
+
+    # decode version number
     try:
       versionMMP = VMMP.MinorMajorPatch(version)
     except: # example setuptools raise "minor in major_minor_patch is not integer: '0_6c11'"
       versionMMP = None
     DBG.write("get_product_section for product %s '%s' as version '%s'" % (product_name, version, versionMMP),
               (section, aProd.keys()), verbose)
-    # DBG.write("yoo1", aProd, True)
+
+    # if a section is explicitely specified we select it
     if section:
         if section not in aProd:
-            return None
+            pi=None
         # returns specific information for the given version
-        prod_info = aProd[section]
-        prod_info.section = section
-        prod_info.from_file = aProd.from_file
-        return prod_info
+        pi = aProd[section]
+        pi.section = section
+        pi.from_file = aProd.from_file
 
     # If it exists, get the information of the product_version
     # ex: 'version_V6_6_0' as salome version classical syntax
-    if "version_" + version in aProd:
+    elif "version_" + version in aProd:
         DBG.write("found section for version_" + version, "", verbose)
         # returns specific information for the given version
-        prod_info = aProd["version_" + version]
-        prod_info.section = "version_" + version
-        prod_info.from_file = aProd.from_file
-        return prod_info
+        pi = aProd["version_" + version]
+        pi.section = "version_" + version
+        pi.from_file = aProd.from_file
 
     # Else, check if there is a description for multiple versions
-    l_section_names = aProd.keys()
-    l_section_ranges = []
-    tagged = []
-    for name in l_section_names:
-      # DBG.write("name", name,True)
-      aRange = VMMP.getRange_majorMinorPatch(name)
-      if aRange is not None:
-        DBG.write("found version range for section '%s'" % name, aRange, verbose)
-        l_section_ranges.append((name, aRange))
+    else:
+        l_section_names = aProd.keys()
+        l_section_ranges = []
+        tagged = []
+        for name in l_section_names:
+          # DBG.write("name", name,True)
+          aRange = VMMP.getRange_majorMinorPatch(name)
+          if aRange is not None:
+            DBG.write("found version range for section '%s'" % name, aRange, verbose)
+            l_section_ranges.append((name, aRange))
 
-    if versionMMP is not None and len(l_section_ranges) > 0:
-      for name, (vmin, vmax) in l_section_ranges:
-        if versionMMP >= vmin and versionMMP <= vmax:
-          tagged.append((name, [vmin, vmax]))
+        if versionMMP is not None and len(l_section_ranges) > 0:
+          for name, (vmin, vmax) in l_section_ranges:
+            if versionMMP >= vmin and versionMMP <= vmax:
+              tagged.append((name, [vmin, vmax]))
 
-    if len(tagged) > 1:
-      DBG.write("multiple version ranges tagged for '%s', fix it" % version,
-                     PP.pformat(tagged), True)
-      return None
-    if len(tagged) == 1: # ok
-      DBG.write("one version range tagged for '%s'" % version,
-                   PP.pformat(tagged), verbose)
-      name, (vmin, vmax) = tagged[0]
-      prod_info = aProd[name]
-      prod_info.section = name
-      prod_info.from_file = aProd.from_file
-      return prod_info
+        if len(tagged) > 1:
+          DBG.write("multiple version ranges tagged for '%s', fix it" % version,
+                         PP.pformat(tagged), True)
+          pi=None
+        elif len(tagged) == 1: # ok
+          DBG.write("one version range tagged for '%s'" % version,
+                       PP.pformat(tagged), verbose)
+          name, (vmin, vmax) = tagged[0]
+          pi = aProd[name]
+          pi.section = name
+          pi.from_file = aProd.from_file
 
-    # Else, get the standard informations
-    if "default" in aProd:
-        # returns the generic information (given version not found)
-        prod_info = aProd.default
-        DBG.write("default tagged for '%s'" % version, prod_info, verbose)
-        prod_info.section = "default"
+        # Else, get the standard informations
+        elif "default" in aProd:
+            # returns the generic information (given version not found)
+            pi = aProd.default
+            DBG.write("default tagged for '%s'" % version, pi, verbose)
+            pi.section = "default"
+            pi.from_file = aProd.from_file
+        else:
+            pi=None
+
+    if is_incr:
+        # If the definition is incremental, we take the default section
+        # and then complete it with other sections : 
+        #   - default_win
+        #   - the selected section (pi)
+        #   - the selected _win section
+        prod_info=aProd["default"]
         prod_info.from_file = aProd.from_file
-        return prod_info
-    
-    # if noting was found, return None
-    return None
+        prod_info.section = "default"
+        if src.architecture.is_windows() and "default_win" in aProd:
+            for key in aProd["default_win"]:
+                prod_info[key]=aProd["default_win"][key]
+        if pi!=None and pi.section!="default":
+            # update prod_info with incremental definition contained in pi
+            for key in pi:
+                prod_info[key]=pi[key]
+            win_section=pi.section+"_win"
+            if src.architecture.is_windows() and win_section in aProd:
+                for key in aProd[win_section]:
+                    prod_info[key]=aProd[win_section][key]
+    else:
+        prod_info=pi
+
+    return prod_info
     
 def get_install_dir(config, base, version, prod_info):
     """Compute the installation directory of a given product 
