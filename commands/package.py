@@ -393,7 +393,7 @@ def produce_install_bin_file(config,
                                         "INSTALL_BIN.template")
         
         # build the name of the directory that will contain the binaries
-        binaries_dir_name = "BINARIES-" + config.VARS.dist
+        binaries_dir_name = config.INTERNAL.config.binary_dir + config.VARS.dist
         # build the substitution loop
         loop_cmd = "for f in $(grep -RIl"
         for key in d_sub:
@@ -558,7 +558,9 @@ def binary_package(config, logger, options, tmp_working_dir):
         
     # check the name of the directory that (could) contains the binaries 
     # from previous detar
-    binaries_from_detar = os.path.join(config.APPLICATION.workdir, "BINARIES-" + config.VARS.dist)
+    binaries_from_detar = os.path.join(
+                              config.APPLICATION.workdir,
+                              config.INTERNAL.config.binary_dir + config.VARS.dist)
     if os.path.exists(binaries_from_detar):
          logger.write("""
 WARNING: existing binaries directory from previous detar installation:
@@ -606,7 +608,7 @@ WARNING: existing binaries directory from previous detar installation:
                          1)
  
     # construct the name of the directory that will contain the binaries
-    binaries_dir_name = "BINARIES-" + config.VARS.dist
+    binaries_dir_name = config.INTERNAL.config.binary_dir + config.VARS.dist
     
     # construct the correlation table between the product names, there 
     # actual install directories and there install directory in archive
@@ -1536,8 +1538,9 @@ Please add it in file:
         for key in d_bin_files_to_add:
             if key.endswith("(bin)"):
                 source_dir = d_bin_files_to_add[key][0]
-                path_in_archive = d_bin_files_to_add[key][1].replace("BINARIES-" +\
-                   runner.cfg.VARS.dist,runner.cfg.INTERNAL.config.install_dir)
+                path_in_archive = d_bin_files_to_add[key][1].replace(
+                   config.INTERNAL.config.binary_dir + runner.cfg.VARS.dist,
+                   runner.cfg.INTERNAL.config.install_dir)
                 if os.path.basename(source_dir)==os.path.basename(path_in_archive):
                     # if basename is the same we will just substitute the dirname 
                     d_paths_to_substitute[os.path.dirname(source_dir)]=\

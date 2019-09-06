@@ -8,6 +8,7 @@ INTERNAL :
     {    
         copy_prefix : "LOCAL_"
         install_dir : "INSTALL"
+        binary_dir : "BINARIES-"
         single_install_dir : "PRODUCTS"
     }
     log :
