@@ -577,10 +577,10 @@ class SalomeEnviron:
                 return
 
         # skip pip products when pip is activated and installation is done in python 
-        if (src.appli_test_property(self.cfg,"pip", "yes") and 
-            src.product.product_test_property(pi,"pip", "yes") and
-            src.appli_test_property(self.cfg,"pip_install_dir", "python") ):
-                return
+        #if (src.appli_test_property(self.cfg,"pip", "yes") and 
+        #    src.product.product_test_property(pi,"pip", "yes") and
+        #    src.appli_test_property(self.cfg,"pip_install_dir", "python") ):
+        #        return
 
         # skip mesa products (if any) at run time, 
         # unless use_mesa property was activated
