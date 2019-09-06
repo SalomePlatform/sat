@@ -24,6 +24,7 @@ in mode Command Line Argument(s) (CLI)
 
 import os
 import sys
+import platform
 
 # exit OKSYS and KOSYS seems equal on linux or windows
 OKSYS = 0  # OK
@@ -50,6 +51,11 @@ DBG.write("Python version", sys.version, DBG.isDeveloper())
 # MAIN
 #################################
 if __name__ == "__main__":
+    if platform.python_version()[0]=="3":
+        msg_py3="sat is used with python 3!! It is not designed for!\n"\
+                "Please check you environment.\n"\
+                "sat should be used with a (native) python 2 version."
+        logger.warning(msg_py3)
     from src.salomeTools import Sat # it is time to do import
 
     args = sys.argv[1:] # skip useless "sat'
