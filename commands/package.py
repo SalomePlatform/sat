@@ -1539,7 +1539,7 @@ Please add it in file:
             if key.endswith("(bin)"):
                 source_dir = d_bin_files_to_add[key][0]
                 path_in_archive = d_bin_files_to_add[key][1].replace(
-                   config.INTERNAL.config.binary_dir + runner.cfg.VARS.dist,
+                   runner.cfg.INTERNAL.config.binary_dir + runner.cfg.VARS.dist,
                    runner.cfg.INTERNAL.config.install_dir)
                 if os.path.basename(source_dir)==os.path.basename(path_in_archive):
                     # if basename is the same we will just substitute the dirname 
