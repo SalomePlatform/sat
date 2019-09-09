@@ -1044,22 +1044,18 @@ def find_product_scripts_and_pyconf(p_name,
     '''
     
     # read the pyconf of the product
-    product_pyconf_path = src.find_file_in_lpath(p_name + ".pyconf",
-                                           config.PATHS.PRODUCTPATH)
-    product_pyconf_cfg = src.pyconf.Config(product_pyconf_path)
+    product_pyconf_cfg = src.pyconf.Config(p_info.from_file)
 
     # find the compilation script if any
     if src.product.product_has_script(p_info):
         compil_script_path = src.Path(p_info.compil_script)
         compil_script_path.copy(compil_scripts_tmp_dir)
-        product_pyconf_cfg[p_info.section].compil_script = os.path.basename(
-                                                    p_info.compil_script)
+
     # find the environment script if any
     if src.product.product_has_env_script(p_info):
         env_script_path = src.Path(p_info.environ.env_script)
         env_script_path.copy(env_scripts_tmp_dir)
-        product_pyconf_cfg[p_info.section].environ.env_script = os.path.basename(
-                                                p_info.environ.env_script)
+
     # find the patches if any
     if src.product.product_has_patches(p_info):
         patches = src.pyconf.Sequence()
@@ -1068,25 +1064,26 @@ def find_product_scripts_and_pyconf(p_name,
             p_path.copy(patches_tmp_dir)
             patches.append(os.path.basename(patch_path), "")
 
-        product_pyconf_cfg[p_info.section].patches = patches
-    
-    if with_vcs:
-        # put in the pyconf file the resolved values
-        for info in ["git_info", "cvs_info", "svn_info"]:
-            if info in p_info:
-                for key in p_info[info]:
-                    product_pyconf_cfg[p_info.section][info][key] = p_info[
-                                                                      info][key]
-    else:
-        # if the product is not archive, then make it become archive.
-        if src.product.product_is_vcs(p_info):
-            product_pyconf_cfg[p_info.section].get_source = "archive"
-            if not "archive_info" in product_pyconf_cfg[p_info.section]:
-                product_pyconf_cfg[p_info.section].addMapping("archive_info",
+    if (not with_vcs) and src.product.product_is_vcs(p_info):
+        # in non vcs mode, if the product is not archive, then make it become archive.
+
+        # depending upon the incremental mode, select impacted sections
+        if "properties" in p_info and "incremental" in p_info.properties and\
+            p_info.properties.incremental == "yes":
+            sections = ["default", "default_win", p_info.section, p_info.section+"_win"]
+        else:
+            sections = [p_info.section]
+        for section in sections:
+            if section in product_pyconf_cfg and "get_source" in product_pyconf_cfg[section]:
+                DBG.write("sat package set archive mode to archive for product %s and section %s" %\
+                          (p_name,section))
+                product_pyconf_cfg[section].get_source = "archive"
+                if not "archive_info" in product_pyconf_cfg[section]:
+                    product_pyconf_cfg[section].addMapping("archive_info",
                                         src.pyconf.Mapping(product_pyconf_cfg),
                                         "")
-            product_pyconf_cfg[p_info.section
-                              ].archive_info.archive_name = p_info.name + ".tgz"
+                    product_pyconf_cfg[section].archive_info.archive_name =\
+                        p_info.name + ".tgz"
     
     # write the pyconf file to the temporary project location
     product_tmp_pyconf_path = os.path.join(products_pyconf_tmp_dir,
