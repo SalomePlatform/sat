@@ -81,7 +81,7 @@ def find_path_graph(graph, start, end, path=[]):
     path = path + [start]
     if start in end:
         return path
-    if not graph.has_key(start):
+    if start not in graph:
         return None
     for node in graph[start]:
         if node not in path:
@@ -612,7 +612,6 @@ def description():
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with compile parameter.
     '''
-    # DBG.write("compile runner.cfg", runner.cfg, True)
     # Parse the options
     (options, args) = parser.parse_args(args)
 
@@ -647,7 +646,8 @@ def run(args, runner, logger):
     all_products_infos = src.product.get_products_infos(runner.cfg.APPLICATION.products,
                                                         runner.cfg)
     all_products_graph=get_dependencies_graph(all_products_infos)
-    logger.write("Dependency graph of all application products : %s\n" % all_products_graph, 6)
+    #logger.write("Dependency graph of all application products : %s\n" % all_products_graph, 6)
+    DBG.write("Dependency graph of all application products : ", all_products_graph)
 
     # Get the list of products we have to compile
     products_infos = src.product.get_products_list(options, runner.cfg, logger)

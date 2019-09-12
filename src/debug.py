@@ -253,7 +253,7 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path, nb):
         #evaluate = value.resolve(config)
         aStream.write("<header>%s%s<reset> : %s <yellow>--> '%s'<reset>\n" % (indstr, path, config, str(config)))
       except Exception as e:  
-        aStream.write("<header>%s%s<reset> : <red>!!! ERROR: %s !!!<reset>\n" % (indstr, path, e.message))     
+        aStream.write("<header>%s%s<reset> : <red>!!! ERROR: %s !!!<reset>\n" % (indstr, path, str(e)))     
       return
     '''
     
@@ -282,14 +282,14 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path, nb):
           evaluate = value.evaluate(config)
           aStream.write("%s%s.%s : %s --> '%s'\n" % (indstr, path, key, str(value), evaluate))
         except Exception as e:      
-          aStream.write("%s%s.%s : !!! ERROR: %s !!!\n" % (indstr, path, key, e.message))     
+          aStream.write("%s%s.%s : !!! ERROR: %s !!!\n" % (indstr, path, key, str(e)))     
         continue
       if "Reference" in strType:
         try:
           evaluate = value.resolve(config)
           aStream.write("%s%s.%s : %s --> '%s'\n" % (indstr, path, key, str(value), evaluate))
         except Exception as e:  
-          aStream.write("%s%s.%s : !!! ERROR: %s !!!\n" % (indstr, path, key, e.message))     
+          aStream.write("%s%s.%s : !!! ERROR: %s !!!\n" % (indstr, path, key, str(e)))     
         continue
       if type(value) in [str, bool, int, type(None), unicode]:
         aStream.write("%s%s.%s : '%s'\n" % (indstr, path, key, str(value)))
@@ -297,4 +297,4 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path, nb):
       try:
         aStream.write("!!! TODO fix that %s %s%s.%s : %s\n" % (type(value), indstr, path, key, str(value)))
       except Exception as e:      
-        aStream.write("%s%s.%s : !!! %s\n" % (indstr, path, key, e.message))
+        aStream.write("%s%s.%s : !!! %s\n" % (indstr, path, key, str(e)))

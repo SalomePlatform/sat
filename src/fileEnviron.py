@@ -677,9 +677,9 @@ def _showDoc(modules):
         if os.path.isfile(docfile):
           out, err = subprocess.Popen(["xdg-open", docfile]).communicate()
         else:
-          print "Online documentation is not accessible for module:", module
+          print ("Online documentation is not accessible for module:", module)
       else:
-        print module+"_ROOT_DIR not found!"
+        print (module+"_ROOT_DIR not found!")
 
 def main(args):
   # Identify application path then locate configuration files
@@ -690,11 +690,6 @@ def main(args):
     usage()
     sys.exit(0)
 
-  #from salomeContextUtils import getConfigFileNames
-  #configFileNames, args, unexisting = getConfigFileNames( args, checkExistence=True )
-  #if len(unexisting) > 0:
-  #  print "ERROR: unexisting configuration file(s): " + ', '.join(unexisting)
-  #  sys.exit(1)
 
   # Create a SalomeContext which parses configFileNames to initialize environment
   try:

@@ -62,6 +62,10 @@ Usage
 
     sat compile <application> --show
 
+* Print the recursive list of dependencies of one (ore several) products: ::
+
+    sat -v5 compile SALOME-master -p GEOM --with_fathers --show
+
 
 Some useful configuration pathes
 =================================
