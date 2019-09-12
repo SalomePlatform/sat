@@ -348,7 +348,6 @@ class Sat(object):
         '''
         # loop on the commands name
         for nameCmd in lCommand:
-            DBG.write("load module command '%s.py'" % nameCmd, "")
             # Exception for the jobs command that requires the paramiko module
             if nameCmd == "jobs":
                 try:

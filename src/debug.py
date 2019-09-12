@@ -55,6 +55,7 @@ import os
 import sys
 import traceback
 import pprint as PP
+import inspect
 
 # Compatibility python 2/3 for unicode
 try:
@@ -95,9 +96,13 @@ def isTypeConfig(var):
     # print "NOT isTypeConfig %s" % typ
     return False
     
-def write(title, var="", force=None, fmt="\n#### DEBUG: %s:\n%s\n"):
+def write(title, var="", force=None, fmt="  %s:\n%s\n####\n"):
     """write sys.stderr a message if _debug[-1]==True or optionaly force=True"""
     if _debug[-1] or force:
+      callerframerecord = inspect.stack()[1] # get info of the caller
+      frame = callerframerecord[0]
+      info = inspect.getframeinfo(frame)
+      sys.stderr.write("\n#### DEBUG - %s:%s (%s) ####\n" % (info.filename, info.lineno, info.function))
       tvar = type(var)
       typ = str(tvar)
       if isTypeConfig(var):
@@ -119,7 +124,11 @@ def tofix(title, var="", force=None):
     use this only if no logger accessible for classic logger.warning(message)
     """
     if _debug[-1] or isDeveloper():
-        fmt = "\n#### TOFIX: %s:\n%s\n"
+        callerframerecord = inspect.stack()[1] # get info of the caller
+        frame = callerframerecord[0]
+        info = inspect.getframeinfo(frame)
+        fmt = "#### TOFIX - " + str(info.filename) + ":" + str(info.lineno) +\
+              " (" + str(info.function) + ") ####\n   %s:\n%s\n"
         write(title, var, force, fmt)
 
 def push_debug(aBool):

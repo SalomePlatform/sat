@@ -274,9 +274,6 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
         if not arch_path:
             # arch_path is not found. It may generate an error in sat source,
             #                         unless the archive is found in ftp serveur
-            msg = _("Archive %(1)s for %(2)s not found in config.PATHS.ARCHIVEPATH") % \
-                   {"1" : arch_name, "2" : prod_info.name}
-            DBG.tofix(msg, config.PATHS.ARCHIVEPATH)
             prod_info.archive_info.archive_name = arch_name #without path
         else:
             prod_info.archive_info.archive_name = arch_path
@@ -395,16 +392,12 @@ def get_product_section(config, product_name, version, section=None):
     else:
         # in this (historic) mode the definition of the product is given by a full unique section
         is_incr=False
-    if is_incr:
-        DBG.write("Incremental definition mode activated for", product_name)
 
     # decode version number
     try:
       versionMMP = VMMP.MinorMajorPatch(version)
     except: # example setuptools raise "minor in major_minor_patch is not integer: '0_6c11'"
       versionMMP = None
-    DBG.write("get_product_section for product %s '%s' as version '%s'" % (product_name, version, versionMMP),
-              (section, aProd.keys()))
 
     # if a section is explicitely specified we select it
     if section:
@@ -418,7 +411,6 @@ def get_product_section(config, product_name, version, section=None):
     # If it exists, get the information of the product_version
     # ex: 'version_V6_6_0' as salome version classical syntax
     elif "version_" + version in aProd:
-        DBG.write("found section for version_" + version)
         # returns specific information for the given version
         pi = aProd["version_" + version]
         pi.section = "version_" + version
@@ -430,10 +422,8 @@ def get_product_section(config, product_name, version, section=None):
         l_section_ranges = []
         tagged = []
         for name in l_section_names:
-          # DBG.write("name", name,True)
           aRange = VMMP.getRange_majorMinorPatch(name)
           if aRange is not None:
-            DBG.write("found version range for section '%s'" % name, aRange)
             l_section_ranges.append((name, aRange))
 
         if versionMMP is not None and len(l_section_ranges) > 0:
@@ -446,8 +436,6 @@ def get_product_section(config, product_name, version, section=None):
                          PP.pformat(tagged))
           pi=None
         elif len(tagged) == 1: # ok
-          DBG.write("one version range tagged for '%s'" % version,
-                       PP.pformat(tagged))
           name, (vmin, vmax) = tagged[0]
           pi = aProd[name]
           pi.section = name
@@ -457,7 +445,6 @@ def get_product_section(config, product_name, version, section=None):
         elif "default" in aProd:
             # returns the generic information (given version not found)
             pi = aProd.default
-            DBG.write("default tagged for '%s'" % version, pi)
             pi.section = "default"
             pi.from_file = aProd.from_file
         else:
@@ -483,10 +470,11 @@ def get_product_section(config, product_name, version, section=None):
             if src.architecture.is_windows() and win_section in aProd:
                 for key in aProd[win_section]:
                     prod_info[key]=aProd[win_section][key]
-        DBG.write("Incremental definition, return product info :", prod_info)
     else:
         prod_info=pi
 
+    #DBG.write("product info returned for product %s with version %s and section %s" %\
+    #          (product_name, version, section), prod_info)
     return prod_info
     
 def get_install_dir(config, base, version, prod_info):
@@ -853,7 +841,6 @@ def check_source(product_info):
     :return: True if it is well installed
     :rtype: boolean
     """
-    DBG.write("check_source product_info", product_info)
     source_dir = product_info.source_dir
     if not os.path.exists(source_dir):
         return False
@@ -1050,8 +1037,6 @@ def product_has_patches(product_info):
     :rtype: boolean
     """   
     res = ( "patches" in product_info and len(product_info.patches) > 0 )
-    DBG.write('product_has_patches %s' % product_info.name, res)
-    # if product_info.name == "XDATA": return True #test #10569
     return res
 
 def product_has_logo(product_info):

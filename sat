@@ -52,9 +52,9 @@ DBG.write("Python version", sys.version, DBG.isDeveloper())
 #################################
 if __name__ == "__main__":
     if platform.python_version()[0]=="3":
-        msg_py3="sat is used with python 3!! It is not designed for!\n"\
+        msg_py3="sat is used with python 3!! It is not yet completely validated for!\n"\
                 "Please check you environment.\n"\
-                "sat should be used with a (native) python 2 version."
+                "sat should be used preferentially with a (native) python 2 version."
         logger.warning(msg_py3)
     from src.salomeTools import Sat # it is time to do import
 
