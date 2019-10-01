@@ -639,7 +639,7 @@ def check_config_exists(config, prod_dir, prod_info, verbose=False):
             continue
         # check if there is the file sat-config.pyconf file in the installation
         # directory    
-        afilename = PRODUCT_FILENAME + p_info.name + ".pyconf"
+        afilename = PRODUCT_FILENAME + prod_info.name + ".pyconf"
         config_file = os.path.join(prod_dir, dir_or_file, afilename)
         DBG.write("check_config_exists 222", config_file, verbose)
         if not os.path.exists(config_file):
