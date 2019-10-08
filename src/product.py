@@ -558,18 +558,18 @@ def get_base_install_dir(config, prod_info, version):
     :return: The path of the product installation
     :rtype: str
     """    
+    if ( src.appli_test_property(config,"pip", "yes") and 
+         src.product.product_test_property(prod_info,"pip", "yes") and
+         src.appli_test_property(config,"pip_install_dir", "python") ):
+         # when pip mode is activated in the application
+         # and product is pip, and pip_install_dir is set to python 
+        python_info=get_product_config(config, "Python")
+        return python_info.install_dir
+
     base_path = src.get_base_path(config) 
     if "base" in prod_info and prod_info.base != "no" and prod_info.base != "yes":
         # we are in the case of a named base
-        if ( src.appli_test_property(config,"pip", "yes") and 
-             src.product.product_test_property(prod_info,"pip", "yes") and
-             src.appli_test_property(config,"pip_install_dir", "python") ):
-             # when pip mode is activated in the application
-             # and product is pip, and pip_install_dir is set to python 
-            python_info=get_product_config(config, "Python")
-            prod_dir = os.path.join(base_path, "apps", prod_info.base, "Python", python_info.version)   
-        else:
-            prod_dir = os.path.join(base_path, "apps", prod_info.base, prod_info.name, version)
+        prod_dir = os.path.join(base_path, "apps", prod_info.base, prod_info.name, version)
         return prod_dir
     
     prod_dir = os.path.join(base_path, prod_info.name + "-" + version)
@@ -664,7 +664,7 @@ def check_config_exists(config, prod_dir, prod_info, verbose=False):
             continue
         # check if there is the file sat-config.pyconf file in the installation
         # directory    
-        afilename = PRODUCT_FILENAME + prod_info.name + ".pyconf"
+        afilename = CONFIG_FILENAME + prod_info.name + ".pyconf"
         config_file = os.path.join(prod_dir, dir_or_file, afilename)
         DBG.write("check_config_exists 222", config_file, verbose)
         if not os.path.exists(config_file):
