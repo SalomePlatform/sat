@@ -34,8 +34,8 @@ parser.add_option('t', 'target', 'string', 'out_dir',
     None)
 
 # list of available shells with extensions
-C_SHELLS = { "bash": "sh", "bat": "bat", "cfg" : "cfg" }
-C_ALL_SHELL = [ "bash", "bat", "cfg" ]
+C_SHELLS = { "bash": "sh", "bat": "bat", "cfg" : "cfg", "tcl" : ""}
+C_ALL_SHELL = [ "bash", "bat", "cfg", "tcl" ]
 
 
 ##
@@ -100,15 +100,22 @@ def write_all_source_files(config,
     for_build = True
     for_launch = False
     for shell in shells_list:
-        files.append(writer.write_env_file("%s_launch.%s" %
-                                           (prefix, shell.extension),
-                                           for_launch,
-                                           shell.name))
-        files.append(writer.write_env_file("%s_build.%s" %
-                                           (prefix, shell.extension),
-                                           for_build,
-                                           shell.name))
+        if shell.name=="tcl":
+            files.append(writer.write_tcl_files(for_launch,
+                                                shell.name))
+        else:
+            files.append(writer.write_env_file("%s_launch.%s" %
+                                               (prefix, shell.extension),
+                                               for_launch,
+                                               shell.name))
+            files.append(writer.write_env_file("%s_build.%s" %
+                                               (prefix, shell.extension),
+                                               for_build,
+                                               shell.name))
 
+    for f in files:
+        if f:
+            logger.write("    "+f+"\n", 3)
     return files
 
 ##################################################

@@ -33,6 +33,8 @@ def get_file_environ(output, shell, environ=None):
         environ=src.environment.Environ({})
     if shell == "bash":
         return BashFileEnviron(output, environ)
+    if shell == "tcl":
+        return TclFileEnviron(output, environ)
     if shell == "bat":
         return BatFileEnviron(output, environ)
     if shell == "cfgForPy":
@@ -241,6 +243,77 @@ class FileEnviron(object):
         return res
 
 
+class TclFileEnviron(FileEnviron):
+    """\
+    Class for tcl shell.
+    """
+    def __init__(self, output, environ=None):
+        """Initialization
+        
+        :param output file: the output file stream.
+        :param environ dict: a potential additional environment.
+        """
+        self._do_init(output, environ)
+        self.output.write(tcl_header.replace("<module_name>",
+                                             self.environ.get("sat_product_name")))
+        self.output.write("\nset software %s\n" % self.environ.get("sat_product_name") )
+        self.output.write("set version %s\n" % self.environ.get("sat_product_version") )
+        root=os.path.join(self.environ.get("sat_product_base_path"),  
+                                  "apps", 
+                                  self.environ.get("sat_product_base_name"), 
+                                  "$software", 
+                                  "$version")
+        self.output.write("set root %s\n" % root) 
+        modules_to_load=self.environ.get("sat_product_load_depend")
+        if len(modules_to_load)>0:
+            # write module load commands for product dependencies
+            self.output.write("\n")
+            for module_to_load in modules_to_load.split(";"):
+                self.output.write(module_to_load+"\n")
+
+    def set(self, key, value):
+        """Set the environment variable "key" to value "value"
+        
+        :param key str: the environment variable to set
+        :param value str: the value
+        """
+        #print "CNC TclFileEnviron set ", key, " to ", value
+        self.output.write('setenv  %s "%s"\n' % (key, value))
+        self.environ.set(key, value)
+        
+    def get(self, key):
+        """\
+        Get the value of the environment variable "key"
+        
+        :param key str: the environment variable
+        """
+        return self.environ.get(key)
+
+    def append_value(self, key, value, sep=os.pathsep):
+        """append value to key using sep
+        
+        :param key str: the environment variable to append
+        :param value str: the value to append to key
+        :param sep str: the separator string
+        """
+        if sep==os.pathsep:
+            self.output.write('append-path  %s   %s\n' % (key, value))
+        else:
+            self.output.write('append-path --delim=\%c %s   %s\n' % (sep, key, value))
+
+    def prepend_value(self, key, value, sep=os.pathsep):
+        """prepend value to key using sep
+        
+        :param key str: the environment variable to prepend
+        :param value str: the value to prepend to key
+        :param sep str: the separator string
+        """
+        if sep==os.pathsep:
+            self.output.write('prepend-path  %s   %s\n' % (key, value))
+        else:
+            self.output.write('prepend-path --delim=\%c %s   %s\n' % (sep, key, value))
+
+        
 class BashFileEnviron(FileEnviron):
     """\
     Class for bash shell.
@@ -617,6 +690,12 @@ rem The following variables are used only in case of a sat package
 set out_dir_Path=%~dp0
 """
 
+tcl_header="""\
+#%Module -*- tcl -*-
+#
+# <module_name> module for use with 'environment-modules' package
+#
+"""
 
 bash_header="""\
 #!/bin/bash

@@ -113,6 +113,8 @@ def get_product_config(config, product_name, with_install_dir=True):
         # Get the base if any
         if 'base' in dic_version:
             base = dic_version.base
+        elif 'base' in config.APPLICATION:
+            base = config.APPLICATION.base
 
         # Get the section if any
         if 'section' in dic_version:
@@ -254,6 +256,8 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
     prod_info.dev = dev
     prod_info.hpc = hpc
     prod_info.version = version
+    if base != 'maybe':
+        prod_info.base = base
 
     # Set the archive_info if the product is get in archive mode
     if prod_info.get_source == "archive":
@@ -363,7 +367,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
             prod_info.install_dir = prod_info.install_dir_save
         
         # Set the install_dir key
-        prod_info.install_dir = get_install_dir(config, base, version, prod_info)
+        prod_info.install_dir = get_install_dir(config, version, prod_info)
                 
     return prod_info
 
@@ -477,7 +481,7 @@ def get_product_section(config, product_name, version, section=None):
     #          (product_name, version, section), prod_info)
     return prod_info
     
-def get_install_dir(config, base, version, prod_info):
+def get_install_dir(config, version, prod_info):
     """Compute the installation directory of a given product 
     
     :param config Config: The global configuration
@@ -494,14 +498,16 @@ def get_install_dir(config, base, version, prod_info):
     """
     install_dir = ""
     in_base = False
-    # base : corresponds to what is specified in application pyconf (either from the global key, or from a product dict)
+    # prod_info.base : corresponds to what is specified in application pyconf (either from the global key, or from a product dict)
     # prod_info.install_dir : corresponds to what is specified in product pyconf (usually "base" for prerequisites)
-    if (("install_dir" in prod_info and prod_info.install_dir == "base") 
-                                                            or base == "yes"):
+    if ( ("install_dir" in prod_info and prod_info.install_dir == "base") 
+                                      or ("base" in prod_info  and prod_info.base != "no") ):
+        # a product goes in base if install_dir is set to base, or if product was declared based in application pyconf
         in_base = True
+
     # what was declared in application has precedence over what was said in product pyconf
     # no_base="yes" has precedence over base == "yes"
-    if (base == "no" or ("no_base" in config.APPLICATION 
+    if ( ("base" in prod_info  and prod_info.base == "no")  or ("no_base" in config.APPLICATION 
                          and config.APPLICATION.no_base == "yes")):
         in_base = False
     
@@ -543,10 +549,29 @@ def get_base_install_dir(config, prod_info, version):
     :param product_info Config: The configuration specific to 
                                the product
     :param version str: The version of the product    
+    :param base str: This corresponds to the value given by user in its 
+                     application.pyconf for the specific product. If "yes", the
+                     user wants the product to be in base. If "no", he wants the
+                     product to be in the application workdir.
+                     if it contains something else, is is interpreted as the name 
+                     of a base we build for module load.
     :return: The path of the product installation
     :rtype: str
     """    
     base_path = src.get_base_path(config) 
+    if "base" in prod_info and prod_info.base != "no" and prod_info.base != "yes":
+        # we are in the case of a named base
+        if ( src.appli_test_property(config,"pip", "yes") and 
+             src.product.product_test_property(prod_info,"pip", "yes") and
+             src.appli_test_property(config,"pip_install_dir", "python") ):
+             # when pip mode is activated in the application
+             # and product is pip, and pip_install_dir is set to python 
+            python_info=get_product_config(config, "Python")
+            prod_dir = os.path.join(base_path, "apps", prod_info.base, "Python", python_info.version)   
+        else:
+            prod_dir = os.path.join(base_path, "apps", prod_info.base, prod_info.name, version)
+        return prod_dir
+    
     prod_dir = os.path.join(base_path, prod_info.name + "-" + version)
     if not os.path.exists(prod_dir):
         return os.path.join(prod_dir, "config-1")

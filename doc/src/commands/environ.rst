@@ -28,9 +28,9 @@ Usage
     sat environ <application>
 
 * Create the environment files of the application for a given shell. 
-  Options are bash, bat (for windows) and cfg (the configuration format used by SALOME_): ::
+  Options are bash, bat (for windows), tcl, cfg (the configuration format used by SALOME_): ::
 
-    sat environ <application> --shell [bash|cfg|all]
+    sat environ <application> --shell [bash|bat|cfg|tcl|all]
 
 * Use a different prefix for the files (default is 'env'):
 
@@ -57,6 +57,26 @@ Usage
     # sat to compile a given product.
     sat environ <application> --product <product1>,<product2>, ...
 
+* Generate tcl modules for use with *environment-modules* package. 
+
+  .. code-block:: bash
+
+    sat environ <application> --shell tcl
+
+Use this command to generate tcl modules associated to a module base.
+The production of a module base is triggered when the flag *base* in the application pyconf is set to a value not equal to *yes*.
+
+  .. code-block:: bash
+
+    APPLICATION :
+    {
+        ...
+        # trigger the production of a environment module base which name is salome9
+        base : 'salome9'
+    }
+
+In this example, the module base will be produced in *BASE/apps/salome9*, and the tcl modules associated in the directory tcl *BASE/apps/modulefiles/salome9*.
+Later, it will be possible to enable these modules with the shell command *module use --append .../SAT/BASE/modulefiles*.
 
 Configuration
 =============

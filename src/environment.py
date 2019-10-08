@@ -61,8 +61,9 @@ class Environ:
             try:
                 value = zt.substitute(self.environ)
             except KeyError as exc:
-                raise src.SatException(_("Missing definition "
-                                         "in environment: %s") % str(exc))
+                pass
+                #raise src.SatException(_("Missing definition "
+                #                         "in environment: %s") % str(exc))
         return value
 
     def append_value(self, key, value, sep=os.pathsep):
@@ -346,30 +347,6 @@ class SalomeEnviron:
         self.python_lib = self.get('PYTHON_LIBDIR')
         self.has_python = True
 
-    def get_names(self, lProducts):
-        """\
-        Get the products name to add in SALOME_MODULES environment variable
-        It is the name of the product, except in the case where the is a 
-        component name. And it has to be in SALOME_MODULES variable only 
-        if the product has the property has_salome_hui = "yes"
-        
-        :param lProducts list: List of products to potentially add
-        """
-        lProdHasGui = [p for p in lProducts if 'properties' in 
-            src.product.get_product_config(self.cfg, p) and
-            'has_salome_gui' in 
-            src.product.get_product_config(self.cfg, p).properties and
-            src.product.get_product_config(self.cfg,
-                                           p).properties.has_salome_gui=='yes']
-        lProdName = []
-        for ProdName in lProdHasGui:
-            pi = src.product.get_product_config(self.cfg, ProdName)
-            if 'component_name' in pi:
-                lProdName.append(pi.component_name)
-            else:
-                lProdName.append(ProdName)
-        return lProdName
-
     def set_application_env(self, logger):
         """\
         Sets the environment defined in the APPLICATION file.
@@ -414,27 +391,33 @@ class SalomeEnviron:
         # set root dir
         DBG.write("set_salome_minimal_product_env", product_info)
         root_dir = product_info.name + "_ROOT_DIR"
-        if not self.is_defined(root_dir):
-            if 'install_dir' in product_info and product_info.install_dir:
-                self.set(root_dir, product_info.install_dir)
-            elif not self.silent:
-                logger.write("  " + _("No install_dir for product %s\n") %
-                              product_info.name, 5)
-        
+        if 'install_dir' in product_info and product_info.install_dir:
+            self.set(root_dir, product_info.install_dir)
+        elif not self.silent:
+            logger.write("  " + _("No install_dir for product %s\n") %
+                          product_info.name, 5)
+    
         source_in_package = src.get_property_in_product_cfg(product_info,
                                                            "sources_in_package")
         if not self.for_package or source_in_package == "yes":
             # set source dir, unless no source dir
             if not src.product.product_is_fixed(product_info):
                 src_dir = product_info.name + "_SRC_DIR"
-                if not self.is_defined(src_dir):
-                    if not self.for_package:
-                        self.set(src_dir, product_info.source_dir)
-                    else:
-                        self.set(src_dir, os.path.join("out_dir_Path",
-                                 "SOURCES",
-                                 os.path.basename(product_info.source_dir)))
+                if not self.for_package:
+                    self.set(src_dir, product_info.source_dir)
+                else:
+                    self.set(src_dir, os.path.join("out_dir_Path",
+                             "SOURCES",
+                             os.path.basename(product_info.source_dir)))
 
+    def expand_salome_modules(self, pi):
+        if 'component_name' in pi:
+            compo_name = pi.component_name
+        else:
+            compo_name = pi.name
+        self.prepend('SALOME_MODULES', compo_name, ',')
+        
+        
     def set_salome_generic_product_env(self, pi):
         """\
         Sets the generic environment for a SALOME product.
@@ -619,7 +602,12 @@ class SalomeEnviron:
             # set environment using definition of the product
             self.set_salome_minimal_product_env(pi, logger)
             self.set_salome_generic_product_env(pi)
+           
         
+        # Expand SALOME_MODULES variable for products which have a salome gui
+        if src.product.product_has_salome_gui(pi):
+            self.expand_salome_modules(pi)
+
         # use variable LICENCE_FILE to communicate the licence file name to the environment script
         licence_file_name = src.product.product_has_licence(pi, self.cfg.PATHS.LICENCEPATH)
         if licence_file_name:
@@ -786,6 +774,91 @@ class FileEnvWriter:
         self.silent = True
         self.env_info = env_info
 
+    def write_tcl_files(self,
+                        forBuild, 
+                        shell, 
+                        for_package = None,
+                        no_path_init=False,
+                        additional_env = {}):
+        """\
+        Create tcl environment files for environment module.
+        
+        :param forBuild bool: if true, the build environment
+        :param shell str: the type of file wanted (.sh, .bat)
+        :param for_package bool: if true do specific stuff for required for packages
+        :param no_path_init bool: if true generate a environ file that do not reinitialise paths
+        :param additional_env dict: contains sat_ prefixed variables to help the génération, 
+                                    and also variables to add in the environment.
+        :return: The path to the generated file
+        :rtype: str
+        """
+
+        # get the products informations
+        all_products=self.config.APPLICATION.products
+        products_infos = src.product.get_products_infos(all_products, self.config) 
+
+        # set a global environment (we need it to resolve variable references
+        # between dependent products
+        global_environ = src.environment.SalomeEnviron(self.config,
+                                  src.environment.Environ(additional_env),
+                                  False)
+        global_environ.set_products(self.logger)
+        
+        # The loop on the products
+        for product in all_products:
+            # create one file per product
+            pi = src.product.get_product_config(self.config, product)
+            if "base" not in pi:  # we write tcl files only for products in base
+                continue
+
+            # get the global environment, and complete it with sat_ prefixed 
+            # prefixed variables which are used to transfer info to 
+            # TclFileEnviron class  
+            product_env = copy.deepcopy(global_environ.environ)
+            product_env.environ["sat_product_name"] = pi.name
+            product_env.environ["sat_product_version"] = pi.version
+            product_env.environ["sat_product_base_path"] = src.get_base_path(self.config)
+            product_env.environ["sat_product_base_name"] = pi.base
+   
+            # store infos in sat_product_load_depend to set dependencies in tcl file
+            sat_product_load_depend=""
+            for p_name,p_info in products_infos:
+                if p_name in pi.depend:
+                    sat_product_load_depend+="module load %s/%s/%s;" % (pi.base, 
+                                                                        p_info.name, 
+                                                                        p_info.version)
+            if len(sat_product_load_depend)>0:
+                # if there are dependencies, store the module to load (get rid of trailing ;)
+                product_env.environ["sat_product_load_depend"]=sat_product_load_depend[0:-1]
+
+
+            env_file_name = os.path.join(product_env.environ["sat_product_base_path"], 
+                                         "modulefiles", 
+                                         product_env.environ["sat_product_base_name"],
+                                         product_env.environ["sat_product_name"], 
+                                         product_env.environ["sat_product_version"])
+            prod_dir_name=os.path.dirname(env_file_name)
+            if not os.path.isdir(prod_dir_name):
+                os.makedirs(prod_dir_name)
+
+            env_file = open(env_file_name, "w")
+            file_environ = src.fileEnviron.get_file_environ(env_file,
+                                           "tcl", product_env)
+            env = SalomeEnviron(self.config, 
+                                file_environ, 
+                                False, 
+                                for_package=for_package)
+            if "Python" in pi.depend:
+                # short cut, env.python_lib is required by set_a_product for salome modules
+                env.has_python="True"
+                env.python_lib=global_environ.get("PYTHON_LIBDIR")
+            env.set_a_product(product, self.logger)
+            env_file.close()
+            if not self.silent:
+                self.logger.write(_("    Create tcl module environment file %s\n") % 
+                                  src.printcolors.printcLabel(env_file_name), 3)
+
+
     def write_env_file(self,
                        filename,
                        forBuild, 
@@ -837,10 +910,6 @@ class FileEnvWriter:
         else:
             # set env from the APPLICATION
             env.set_application_env(self.logger)
-            
-            # The list of products to launch
-            lProductsName = env.get_names(self.config.APPLICATION.products.keys())
-            env.set( "SALOME_MODULES",    ','.join(lProductsName))
             
             # set the products
             env.set_products(self.logger,
