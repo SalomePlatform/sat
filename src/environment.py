@@ -765,7 +765,7 @@ class SalomeEnviron:
         # use the sorted list of all products to sort the list of products 
         # we have to set
         sorted_product_list=[]
-        for n in self.sorted_nodes:
+        for n in self.sorted_product_list:
             if n in env_info:
                 sorted_product_list.append(n)
 
