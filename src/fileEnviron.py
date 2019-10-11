@@ -277,7 +277,6 @@ class TclFileEnviron(FileEnviron):
         :param key str: the environment variable to set
         :param value str: the value
         """
-        #print "CNC TclFileEnviron set ", key, " to ", value
         self.output.write('setenv  %s "%s"\n' % (key, value))
         self.environ.set(key, value)
         
@@ -503,16 +502,45 @@ class LauncherFileEnviron(FileEnviron):
         """
         self.output.write('# "WARNING %s"\n' % warning)
 
-    def append_value(self, key, value, sep=":"):
+    def append_value(self, key, value, sep=os.pathsep):
         """append value to key using sep,
         if value contains ":" or ";" then raise error
         
-        :param key str: the environment variable to append
-        :param value str: the value to append to key
+        :param key str: the environment variable to prepend
+        :param value str: the value to prepend to key
         :param sep str: the separator string
         """
-        # append is not defined in context api
-        self.prepend_value(key, value)
+        # check that value so no contain the system separator
+        separator=os.pathsep
+        msg="LauncherFileEnviron append key '%s' value '%s' contains forbidden character '%s'"
+        if separator in value:
+            raise Exception(msg % (key, value, separator))
+
+        if (self.init_path and (not self.environ.is_defined(key))):
+            # reinitialisation mode set to true (the default)
+            # for the first occurrence of key, we set it.
+            # therefore key will not be inherited from environment
+            self.set(key, value)
+            return
+
+        # in all other cases we use append (except if value is already the key
+        do_append=True
+        if self.environ.is_defined(key):
+            value_list = self.environ.get(key).split(sep)
+            # rem : value cannot be expanded (unlike bash/bat case) - but it doesn't matter.
+            if value in value_list:
+                do_append=False  # value is already in key path : we don't append it again
+            
+        if do_append:
+            self.environ.append_value(key, value,sep) # register value in self.environ
+            if key in self.specialKeys.keys():
+                #for these special keys we use the specific salomeContext function
+                self.output.write(self.begin+'addTo%s(r"%s")\n' % 
+                                  (self.specialKeys[key], self.value_filter(value)))
+            else:
+                # else we use the general salomeContext addToVariable function
+                self.output.write(self.indent+'appendPath(r"%s", r"%s",separator="%s")\n' 
+                                  % (key, self.value_filter(value), sep))
 
     def append(self, key, value, sep=":"):
         """Same as append_value but the value argument can be a list
@@ -898,7 +926,19 @@ launcher_tail_py3="""\
     import logging
     logging.getLogger("salome").error(e)
     sys.exit(1)
-#
+ 
+# salomeContext only prepend variables, we use our own appendPath when required
+def appendPath(name, value, separator=os.pathsep):
+    if value == '':
+      return
+
+    value = os.path.expandvars(value) # expand environment variables
+    env = os.getenv(name, None)
+    if env is None:
+      os.environ[name] = value
+    else:
+      os.environ[name] = env + separator + value
+
 
 if __name__ == "__main__":
   args = sys.argv[1:]

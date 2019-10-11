@@ -212,6 +212,7 @@ class SalomeEnviron:
         self.enable_simple_env_script = enable_simple_env_script
         self.silent = False
         self.has_python = False
+        self.__set_sorted_products_list()
 
     def __repr__(self):
         """easy almost exhaustive quick resume for debug print"""
@@ -221,6 +222,25 @@ class SalomeEnviron:
           "for_package" : self.for_package,
         }
         return "%s(\n%s\n)" % (self.__class__.__name__, PP.pformat(res))
+
+    def __set_sorted_products_list(self):
+        from compile import get_dependencies_graph, depth_first_topo_graph
+        all_products_infos = src.product.get_products_infos(
+                                 self.cfg.APPLICATION.products,
+                                 self.cfg)
+        
+        all_products_graph=get_dependencies_graph(all_products_infos)
+        visited_nodes=[]
+        sorted_nodes=[]
+        for n in all_products_graph:
+            if n not in visited_nodes:
+                visited_nodes,sorted_nodes=depth_first_topo_graph(
+                                               all_products_graph, 
+                                               n, 
+                                               visited_nodes,
+                                               sorted_nodes)
+        self.sorted_product_list=sorted_nodes
+
 
     def append(self, key, value, sep=os.pathsep):
         """\
@@ -415,7 +435,7 @@ class SalomeEnviron:
             compo_name = pi.component_name
         else:
             compo_name = pi.name
-        self.prepend('SALOME_MODULES', compo_name, ',')
+        self.append('SALOME_MODULES', compo_name, ',')
         
         
     def set_salome_generic_product_env(self, pi):
@@ -707,7 +727,6 @@ class SalomeEnviron:
             traceback.print_tb(exceptionTraceback)
             traceback.print_exc()
 
-
     def set_products(self, logger, src_root=None):
         """\
         Sets the environment for all the products. 
@@ -719,12 +738,12 @@ class SalomeEnviron:
         self.add_comment('setting environ for all products')
 
         # Make sure that the python lib dirs are set after python
-        if "Python" in self.cfg.APPLICATION.products:
+        if "Python" in self.sorted_product_list:
             self.set_a_product("Python", logger)
             self.set_python_libdirs()
 
         # The loop on the products
-        for product in self.cfg.APPLICATION.products.keys():
+        for product in self.sorted_product_list:
             if product == "Python":
                 continue
             self.set_a_product(product, logger)
@@ -743,12 +762,19 @@ class SalomeEnviron:
         # set product environ
         self.set_application_env(logger)
 
-        if "Python" in env_info:
+        # use the sorted list of all products to sort the list of products 
+        # we have to set
+        sorted_product_list=[]
+        for n in self.sorted_nodes:
+            if n in env_info:
+                sorted_product_list.append(n)
+
+        if "Python" in sorted_product_list:
             self.set_a_product("Python", logger)
             self.set_python_libdirs()
 
         # set products
-        for product in env_info:
+        for product in sorted_product_list:
             if product == "Python":
                 continue
             self.set_a_product(product, logger)

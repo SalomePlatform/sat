@@ -480,7 +480,7 @@ def compile_product_pip(sat,
         #log_res_step(logger, res)
         res=1
         error_step = "PIP"
-        logger.write("\nError in pip command, please consult details with sat log command's internal traces\n", 5)
+        logger.write("\nError in pip command, please consult details with sat log command's internal traces\n", 3)
 
     return res, len_end_line, error_step 
 
@@ -683,7 +683,7 @@ def run(args, runner, logger):
     for n in all_products_graph:
         if n not in visited_nodes:
             visited_nodes,sorted_nodes=depth_first_topo_graph(all_products_graph, n, visited_nodes,sorted_nodes)
-    logger.write("Complete depndency graph topological search (sorting): %s\n" % sorted_nodes, 6)
+    logger.write("Complete dependency graph topological search (sorting): %s\n" % sorted_nodes, 6)
 
 #   use the sorted list of all products to sort the list of products we have to compile
     sorted_product_list=[]

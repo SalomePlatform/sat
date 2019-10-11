@@ -12,13 +12,16 @@ sat is a Command Line Interface (CLI_) based on python langage.
 Its purpose is to cover the maintenance and the production of the salome platform and its applications.
 
 Notably:
+
 * the definition of the applications content (the products, the resources, the options, the environment, the launcher, etc.)
-* the description of the products (the environment to set, how to get the sources; how to compilation, the dependencies, etc).
+* the description of the products (the environment to set, how to get the sources; how to compilation (which options), , the dependencies, etc).
 * the complete preparation and build
 * the management of unit or integration tests
 * the production of binary or source packages
 
-It can be used from interactively from a terminal, or in batch mode.
+It is designed to run on several Linux OS and Windows, with
+the possibility to specify platform dependent specifics (with the **__overwrite__** functionality. 
+It can be used from interactively from a terminal, or in batch mode. 
 
 .. code-block:: bash
 
@@ -38,7 +41,7 @@ To get help in terminal mode as simple text, use **--help** or **-h** option:
     sat -h          # or --help : get the list of existing commands and main options
     sat compile -h  # get the help on the specific command 'compile'
 
-completion mode
+Completion mode
 ---------------
 
 When getting started with sat, the use of the competion mode is usefull. This mode will display by type twice on the **tab key** the available options, command, applications or product available. The completion mode has to be activated by sourcing the file **complete_sat.sh** contained in salomeTool directory:

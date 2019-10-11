@@ -48,6 +48,20 @@ APPLICATION section
     # to get the current setting
     sat config SALOME-xx --value APPLICATION
 
+
+Globals
+
+  * name : the name of the application
+  * workdir : the directory in which the application is produced
+  * tag : the default tag to use for the git bases
+  * dev : activate the dev mode. in dev mode git bases are checked out only one time, to avoid risks of removing developments.
+  * verbose : activate verbosity in the compilation
+  * debug : activate debug mode in the compilation, i.e -g option
+  * python3 : 'yes/no' tell sat that the application uses python3 
+  * no_base : 'yes/no' 
+  * base : 'yes/no/name'
+
+
 PRODUCTS section
 ---------------------
 | This section contains all the information required to build the products contained in the application.
