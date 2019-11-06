@@ -54,10 +54,15 @@ class Environ:
         :return: the replaced variable
         :rtype: str
         """
-        if "$" in value:
+        if src.architecture.is_windows():
+            delim = "%"
+        else:
+            delim = "$"
+        if delim in value:
             # The string.Template class is a string class 
             # for supporting $-substitutions
             zt = string.Template(value)
+            zt.delimiter = delim
             try:
                 value = zt.substitute(self.environ)
             except KeyError as exc:
@@ -447,7 +452,6 @@ class SalomeEnviron:
         # Construct XXX_ROOT_DIR
         env_root_dir = self.get(pi.name + "_ROOT_DIR")
         l_binpath_libpath = []
-
         # create additional ROOT_DIR for CPP components
         if 'component_name' in pi:
             compo_name = pi.component_name
@@ -573,7 +577,6 @@ class SalomeEnviron:
 
         # Get the informations corresponding to the product
         pi = src.product.get_product_config(self.cfg, product)
-        
         # skip compile time products at run time 
         if not self.forBuild:
             if src.product.product_is_compile_time(pi):
@@ -758,7 +761,6 @@ class SalomeEnviron:
         """
         DBG.write("set_full_environ for", env_info)
         # DBG.write("set_full_environ config", self.cfg.APPLICATION.environ, True)
-
         # set product environ
         self.set_application_env(logger)
 
@@ -908,7 +910,6 @@ class FileEnvWriter:
         if not self.silent:
             self.logger.write(_("Create environment file %s\n") % 
                               src.printcolors.printcLabel(filename), 3)
-
         # create then env object
         env_file = open(os.path.join(self.out_dir, filename), "w")
 
@@ -936,11 +937,9 @@ class FileEnvWriter:
         else:
             # set env from the APPLICATION
             env.set_application_env(self.logger)
-            
             # set the products
             env.set_products(self.logger,
                             src_root=self.src_root)
-
         # Add the additional environment if it is not empty
         if len(additional_env) != 0:
             env.add_line(1)

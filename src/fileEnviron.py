@@ -210,7 +210,10 @@ class FileEnviron(object):
         
         :param key str: the environment variable
         """
-        return '${%s}' % key
+        if src.architecture.is_windows():
+            return '%' + key + '%'
+        else:
+            return '${%s}' % key
 
     def get_value(self, key):
         """Get the real value of the environment variable "key"
