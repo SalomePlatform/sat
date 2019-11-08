@@ -261,8 +261,12 @@ class ConfigManager:
         src.pyconf.streamOpener = ConfigOpener([
                              osJoin(cfg.VARS.srcDir, 'internal_config')])
         try:
-            internal_cfg = src.pyconf.Config(open( osJoin(cfg.VARS.srcDir,
-                                    'internal_config', 'salomeTools.pyconf')))
+            if src.architecture.is_windows(): # special internal config for windows
+                internal_cfg = src.pyconf.Config(open( osJoin(cfg.VARS.srcDir,
+                                        'internal_config', 'salomeTools_win.pyconf')))
+            else:
+                internal_cfg = src.pyconf.Config(open( osJoin(cfg.VARS.srcDir,
+                                        'internal_config', 'salomeTools.pyconf')))
         except src.pyconf.ConfigError as e:
             raise src.SatException(_("Error in configuration file:"
                                      " salomeTools.pyconf\n  %(error)s") % \
