@@ -85,21 +85,27 @@ def check_product(p_name_info, config, logger):
 
     # Verify if the command has to be launched or not
     ignored = False
-    if not src.get_property_in_product_cfg(p_info, CHECK_PROPERTY):
+    if src.product.product_is_native(p_info):
+        msg = _("The product %s is defined as being native. "
+                "product ignored." % p_name)
+        logger.write("%s\n" % msg, 4)
+        ignored = True
+    elif not src.get_property_in_product_cfg(p_info, CHECK_PROPERTY):
         msg = _("The product %s is defined as not having tests. "
                 "product ignored." % p_name)
         logger.write("%s\n" % msg, 4)
         ignored = True
-    if "build_dir" not in p_info:
-        msg = _("No build_dir key defined in "
-                "the config file of %s: product ignored." % p_name)
-        logger.write("%s\n" % msg, 4)
-        ignored = True
-    if not src.product.product_compiles(p_info):
+    elif not src.product.product_compiles(p_info):
         msg = _("The product %s is defined as not compiling. "
                 "product ignored." % p_name)
         logger.write("%s\n" % msg, 4)
         ignored = True
+    elif "build_dir" not in p_info:
+        msg = _("No build_dir key defined in "
+                "the config file of %s: product ignored." % p_name)
+        logger.write("%s\n" % msg, 4)
+        ignored = True
+
 
     # Get the command to execute for script products
     cmd_found = True
