@@ -476,6 +476,9 @@ class LauncherFileEnviron(FileEnviron):
             launcher_header=launcher_header2
         else:
             launcher_header=launcher_header3
+        # in case of Windows OS, Python scripts are not executable.  PyExe ?
+        if src.architecture.is_windows():
+            launcher_header = launcher_header.replace("#! /usr/bin/env python3",'')
         self.output.write(launcher_header\
                           .replace("BIN_KERNEL_INSTALL_DIR", self.bin_kernel_root_dir))
 
@@ -625,7 +628,7 @@ class LauncherFileEnviron(FileEnviron):
     
 
     def add_comment(self, comment):
-        # Special comment in case of the distène licence
+        # Special comment in case of the DISTENE licence
         if comment=="DISTENE license":
             self.output.write(self.indent+
                               "#"+
@@ -762,7 +765,7 @@ out_dir_Path=os.path.dirname(os.path.realpath(__file__))
 # Preliminary work to initialize path to SALOME Python modules
 def __initialize():
 
-  sys.path[:0] = [ 'BIN_KERNEL_INSTALL_DIR' ]  # to get salomeContext
+  sys.path[:0] = [ r'BIN_KERNEL_INSTALL_DIR' ]  # to get salomeContext
   
   # define folder to store omniorb config (initially in virtual application folder)
   try:
@@ -836,7 +839,7 @@ out_dir_Path=os.path.dirname(os.path.realpath(__file__))
 # Preliminary work to initialize path to SALOME Python modules
 def __initialize():
 
-  sys.path[:0] = [ 'BIN_KERNEL_INSTALL_DIR' ]
+  sys.path[:0] = [ r'BIN_KERNEL_INSTALL_DIR' ]
   
   # define folder to store omniorb config (initially in virtual application folder)
   try:

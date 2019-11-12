@@ -42,6 +42,8 @@ PROJECT_DIR = "PROJECT"
 IGNORED_DIRS = [".git", ".svn"]
 IGNORED_EXTENSIONS = []
 
+PACKAGE_EXT=".tar.gz" # the extension we use for the packages
+
 PROJECT_TEMPLATE = """#!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
@@ -354,7 +356,10 @@ def produce_relative_env_files(config,
                           for_package = binaries_dir_name)
 
     # Little hack to put out_dir_Path as environment variable
-    src.replace_in_file(filepath, '"out_dir_Path', '"${out_dir_Path}' )
+    if src.architecture.is_windows() :
+      src.replace_in_file(filepath, '"out_dir_Path', '"%out_dir_Path%' )
+    else:
+      src.replace_in_file(filepath, '"out_dir_Path', '"${out_dir_Path}' )
 
     # change the rights in order to make the file executable for everybody
     os.chmod(filepath,
@@ -921,7 +926,7 @@ def make_archive(prod_name, prod_info, where):
     :return: The path of the resulting archive
     :rtype: str
     '''
-    path_targz_prod = os.path.join(where, prod_name + ".tgz")
+    path_targz = os.path.join(dir_name, archive_name + PACKAGE_EXT)
     tar_prod = tarfile.open(path_targz_prod, mode='w:gz')
     local_path = prod_info.source_dir
     tar_prod.add(local_path,
@@ -1329,7 +1334,7 @@ The procedure to do it is:
         if options.sources:
             f.write(src.template.substitute(readme_template_path_src, d))
 
-        if options.binaries and options.sources:
+        if options.binaries and options.sources and not src.architecture.is_windows():
             f.write(readme_compilation_with_binaries)
 
         if options.project:
@@ -1503,7 +1508,7 @@ Please add it in file:
             logger.write("\n", 1)
             return 1
  
-    path_targz = os.path.join(dir_name, archive_name + ".tgz")
+    path_targz = os.path.join(dir_name, archive_name + PACKAGE_EXT)
     
     src.printcolors.print_value(logger, "Package path", path_targz, 2)
 

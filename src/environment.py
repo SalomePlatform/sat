@@ -388,7 +388,8 @@ class SalomeEnviron:
         self.add_line(1)
         self.add_comment("reset these sensitive variables to avoid bad environment interactions")
         self.add_comment("comment these to lines if you wish a different behaviour")
-        self.set("LD_LIBRARY_PATH", "")
+        if not src.architecture.is_windows():
+           self.set("LD_LIBRARY_PATH", "")
         self.set("PYTHONPATH", "")
         self.add_line(1)
 
