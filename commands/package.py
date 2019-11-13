@@ -255,7 +255,7 @@ def produce_relative_launcher(config,
     
     # Little hack to put out_dir_Path outside the strings
     src.replace_in_file(filepath, 'r"out_dir_Path', 'out_dir_Path + r"' )
-    src.replace_in_file(filepath, "'out_dir_Path + ", "out_dir_Path + '" )
+    src.replace_in_file(filepath, "r'out_dir_Path + ", "out_dir_Path + r'" )
     
     # A hack to put a call to a file for distene licence.
     # It does nothing to an application that has no distene product
@@ -926,7 +926,7 @@ def make_archive(prod_name, prod_info, where):
     :return: The path of the resulting archive
     :rtype: str
     '''
-    path_targz = os.path.join(dir_name, archive_name + PACKAGE_EXT)
+    path_targz_prod = os.path.join(where, prod_name + PACKAGE_EXT)
     tar_prod = tarfile.open(path_targz_prod, mode='w:gz')
     local_path = prod_info.source_dir
     tar_prod.add(local_path,
