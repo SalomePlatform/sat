@@ -97,7 +97,7 @@ def get_distrib_version(distrib):
     '''
 
     if is_windows():
-        return "64"
+        return platform.release()
 
     # get version from platform
     dist_version=platform.dist()[1].split('.')

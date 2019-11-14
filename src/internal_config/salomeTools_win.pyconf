@@ -8,7 +8,7 @@ INTERNAL :
     {    
         copy_prefix : "LOCAL_"
         install_dir : "W64"
-        binary_dir : ""
+        binary_dir : "W64"
         single_install_dir : "EXT"
     }
     log :

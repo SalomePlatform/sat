@@ -380,7 +380,11 @@ class SalomeEnviron:
         """
         
         if self.for_package:
-           self.set("PRODUCT_ROOT_DIR", "out_dir_Path")
+           if src.architecture.is_windows():
+              self.set("PRODUCT_ROOT_DIR", "%out_dir_Path%")
+           else:
+              self.set("PRODUCT_ROOT_DIR", "out_dir_Path")
+
         else:
            self.cfg.APPLICATION.environ.PRODUCT_ROOT_DIR = src.pyconf.Reference(self.cfg, src.pyconf.DOLLAR, "workdir")
 

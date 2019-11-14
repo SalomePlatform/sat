@@ -3,10 +3,10 @@ Binaries
 ========
 
 This package includes a binary installation of the application ¤{application}.
-The binaries are stored in BINARIES directory.
+The binaries are stored in ¤{BINARIES} directory.
 
-Warning : This binary installation depends upon some native linux packages. 
+Warning : This binary installation depends upon some native ¤{operatingSystem} packages.
 If some of these packages are missing on your system, the execution may fail. 
-If this is the case, please install the missing ones with your linux package manager.
+If this is the case, please install the missing ones with your ¤{operatingSystem} package manager.
 
 

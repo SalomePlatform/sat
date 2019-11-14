@@ -254,8 +254,15 @@ def produce_relative_launcher(config,
                           for_package = binaries_dir_name)
     
     # Little hack to put out_dir_Path outside the strings
-    src.replace_in_file(filepath, 'r"out_dir_Path', 'out_dir_Path + r"' )
-    src.replace_in_file(filepath, "r'out_dir_Path + ", "out_dir_Path + r'" )
+    if src.architecture.is_windows():
+        src.replace_in_file(filepath, '=out_dir_Path', '=%out_dir_Path%' )
+        src.replace_in_file(filepath, ';out_dir_Path', ';%out_dir_Path%' )
+        src.replace_in_file(filepath, 'out_dir_Path;', '%out_dir_Path%;' )
+        src.replace_in_file(filepath, 'r"out_dir_Path', '%out_dir_Path% + r"' )
+        src.replace_in_file(filepath, "r'out_dir_Path + ", "%out_dir_Path% + r'" )
+    else:
+        src.replace_in_file(filepath, 'r"out_dir_Path', 'out_dir_Path + r"' )
+        src.replace_in_file(filepath, "r'out_dir_Path + ", "out_dir_Path + r'" )
     
     # A hack to put a call to a file for distene licence.
     # It does nothing to an application that has no distene product
@@ -358,6 +365,7 @@ def produce_relative_env_files(config,
     # Little hack to put out_dir_Path as environment variable
     if src.architecture.is_windows() :
       src.replace_in_file(filepath, '"out_dir_Path', '"%out_dir_Path%' )
+      src.replace_in_file(filepath, '=out_dir_Path', '=%out_dir_Path%' )
     else:
       src.replace_in_file(filepath, '"out_dir_Path', '"${out_dir_Path}' )
 
@@ -613,8 +621,10 @@ WARNING: existing binaries directory from previous detar installation:
                          1)
  
     # construct the name of the directory that will contain the binaries
-    binaries_dir_name = config.INTERNAL.config.binary_dir + config.VARS.dist
-    
+    if src.architecture.is_windows():
+        binaries_dir_name = config.INTERNAL.config.binary_dir
+    else:
+        binaries_dir_name = config.INTERNAL.config.binary_dir + config.VARS.dist
     # construct the correlation table between the product names, there 
     # actual install directories and there install directory in archive
     d_products = {}
@@ -1270,6 +1280,8 @@ In the following, $$ROOT represents the directory where you have installed
 SALOME (the directory where this file is located).
 
 """
+        if src.architecture.is_windows():
+            readme_header = readme_header.replace('$$ROOT','%ROOT%')
         readme_compilation_with_binaries="""
 
 compilation based on the binaries used as prerequisites
@@ -1314,6 +1326,16 @@ The procedure to do it is:
 
         if options.binaries or options.sources:
             d['application'] = config.VARS.application
+            d['BINARIES']    = config.INTERNAL.config.install_dir
+            d['SEPARATOR'] = config.VARS.sep
+            if src.architecture.is_windows():
+                d['operatingSystem'] = 'Windows'
+                d['PYTHON3'] = 'python3'
+                d['ROOT']    = '%ROOT%'
+            else:
+                d['operatingSystem'] = 'Linux'
+                d['PYTHON3'] = ''
+                d['ROOT']    = '$ROOT'
             f.write("# Application: " + d['application'] + "\n")
             if 'KERNEL' in config.APPLICATION.products:
                 VersionSalome = src.get_salome_version(config)
