@@ -240,9 +240,6 @@ class FileEnviron(object):
 
     def value_filter(self, value):
         res=value
-        # on windows platform, replace / by \
-        if src.architecture.is_windows():
-            res = value.replace("/","\\")
         return res
 
 
