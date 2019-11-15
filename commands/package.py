@@ -254,15 +254,8 @@ def produce_relative_launcher(config,
                           for_package = binaries_dir_name)
     
     # Little hack to put out_dir_Path outside the strings
-    if src.architecture.is_windows():
-        src.replace_in_file(filepath, '=out_dir_Path', '=%out_dir_Path%' )
-        src.replace_in_file(filepath, ';out_dir_Path', ';%out_dir_Path%' )
-        src.replace_in_file(filepath, 'out_dir_Path;', '%out_dir_Path%;' )
-        src.replace_in_file(filepath, 'r"out_dir_Path', '%out_dir_Path% + r"' )
-        src.replace_in_file(filepath, "r'out_dir_Path + ", "%out_dir_Path% + r'" )
-    else:
-        src.replace_in_file(filepath, 'r"out_dir_Path', 'out_dir_Path + r"' )
-        src.replace_in_file(filepath, "r'out_dir_Path + ", "out_dir_Path + r'" )
+    src.replace_in_file(filepath, 'r"out_dir_Path', 'out_dir_Path + r"' )
+    src.replace_in_file(filepath, "r'out_dir_Path + ", "out_dir_Path + r'" )
     
     # A hack to put a call to a file for distene licence.
     # It does nothing to an application that has no distene product
@@ -309,7 +302,7 @@ def hack_for_distene_licence(filepath, licence_file):
     del text[num_line +1]
     del text[num_line +1]
     text_to_insert ="""    try:
-        distene_licence_file="%s"
+        distene_licence_file=r"%s"
         if sys.version_info[0] >= 3 and sys.version_info[1] >= 5:
             import importlib.util
             spec_dist = importlib.util.spec_from_file_location("distene_licence", distene_licence_file)
@@ -590,13 +583,13 @@ WARNING: existing binaries directory from previous detar installation:
     if len(l_not_installed) > 0:
         text_missing_prods = ""
         for p_name in l_not_installed:
-            text_missing_prods += "-" + p_name + "\n"
+            text_missing_prods += " - " + p_name + "\n"
         if not options.force_creation:
-            msg = _("ERROR: there are missing products installations:")
+            msg = _("ERROR: there are missing product installations:")
             logger.write("%s\n%s" % (src.printcolors.printcError(msg),
                                      text_missing_prods),
                          1)
-            return None
+            raise src.SatException(msg)
         else:
             msg = _("WARNING: there are missing products installations:")
             logger.write("%s\n%s" % (src.printcolors.printcWarning(msg),
@@ -609,11 +602,11 @@ WARNING: existing binaries directory from previous detar installation:
         for p_name in l_sources_not_present:
             text_missing_prods += "-" + p_name + "\n"
         if not options.force_creation:
-            msg = _("ERROR: there are missing products sources:")
+            msg = _("ERROR: there are missing product sources:")
             logger.write("%s\n%s" % (src.printcolors.printcError(msg),
                                      text_missing_prods),
                          1)
-            return None
+            raise src.SatException(msg)
         else:
             msg = _("WARNING: there are missing products sources:")
             logger.write("%s\n%s" % (src.printcolors.printcWarning(msg),
@@ -702,7 +695,6 @@ WARNING: existing binaries directory from previous detar installation:
     else:
       filename  = "env_launch.sh"
     d_products["environment file"] = (env_file, filename)      
-
     return d_products
 
 def source_package(sat, config, logger, options, tmp_working_dir):
@@ -1573,7 +1565,6 @@ Please add it in file:
                     d_paths_to_substitute[source_dir]=path_in_archive
 
         d_files_to_add.update(d_bin_files_to_add)
-
     if options.sources:
         d_files_to_add.update(source_package(runner,
                                         runner.cfg,
