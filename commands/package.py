@@ -1122,7 +1122,7 @@ def find_application_pyconf(config, application_tmp_dir):
                                     'VARS.salometoolsway + $VARS.sep + ".."')
 
     # Prevent from compilation in base
-    application_pyconf_cfg.APPLICATION.no_base = "yes"
+    application_pyconf_cfg.APPLICATION.base = "no"
     
     #remove products that are not in config (which were filtered by --without_properties)
     for product_name in application_pyconf_cfg.APPLICATION.products.keys():

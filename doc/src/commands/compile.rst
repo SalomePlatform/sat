@@ -78,4 +78,4 @@ The main options are:
   * **cmake_options** : additional options for cmake.
   * **nb_proc** : number of jobs to use with make for this product.
   * **check_install** : allow to specify a list of path (relative to install directory), that sat will check after installation. This flag allow to check an installation is complete.  
-  * **install_dir** : allow to change the default install dir. If the value is set to *'base'*, the product will by default be installed in salomeTool base. Unless no_base was set to 'yes' or base was set to 'no' in application pyconf.
+  * **install_dir** : allow to change the default install dir. If the value is set to *'base'*, the product will by default be installed in salomeTool base. Unless base was set to 'no' in application pyconf.

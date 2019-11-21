@@ -58,7 +58,6 @@ Globals
   * verbose : activate verbosity in the compilation
   * debug : activate debug mode in the compilation, i.e -g option
   * python3 : 'yes/no' tell sat that the application uses python3 
-  * no_base : 'yes/no' 
   * base : 'yes/no/name'
 
 
