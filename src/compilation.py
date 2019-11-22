@@ -467,6 +467,11 @@ CC=\\"hack_libtool\\"%g" libtool'''
         # in order for the compilation script to take it into account
         if src.product.product_is_hpc(self.product_info):
             self.build_environ.set("SAT_HPC", "1")
+        if self.debug_mode:
+            self.build_environ.set("SAT_DEBUG", "1")
+        if self.verbose_mode:
+            self.build_environ.set("SAT_VERBOSE", "1")
+
 
     def do_batch_script_build(self, script, nb_proc):
 
