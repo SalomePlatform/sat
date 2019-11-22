@@ -498,19 +498,17 @@ def get_install_dir(config, version, prod_info):
     """
     install_dir = ""
     in_base = False
-    # prod_info.base : corresponds to what is specified in application pyconf (either from the global key, or from a product dict)
+    # prod_info.base : corresponds to what is specified in application pyconf (either from the global key base, or from a product dict)
     # prod_info.install_dir : corresponds to what is specified in product pyconf (usually "base" for prerequisites)
-    if ( ("install_dir" in prod_info and prod_info.install_dir == "base") 
-                                      or ("base" in prod_info  and prod_info.base != "no") ):
+    if ( ("install_dir" in prod_info and prod_info.install_dir == "base") # product is declared as base in its own config 
+                                      or ("base" in prod_info  and prod_info.base != "no") ):  # product is declared as base in the application
         # a product goes in base if install_dir is set to base, or if product was declared based in application pyconf
         in_base = True
 
-    # what was declared in application has precedence over what was said in product pyconf
-    # no_base="yes" has precedence over base == "yes"
-    if ( ("base" in prod_info  and prod_info.base == "no")  or ("no_base" in config.APPLICATION 
-                         and config.APPLICATION.no_base == "yes")):
+    # check desactivation of base at application level
+    if ( "base" in prod_info  and prod_info.base == "no"):
         in_base = False
-    
+
     if in_base:
         install_dir = get_base_install_dir(config, prod_info, version)
     else:
