@@ -10,6 +10,8 @@ Release Notes, November 2019
 New features and improvments
 ----------------------------
 
+
+
 **pip mode for python modules**
 
 This new mode was introduced in order to simplify the management of the python products (which number is constantly raising years after years...)
@@ -111,6 +113,16 @@ Here is as an example the incremental definition used for boost products. For ve
         patches : [ "boost-1.49.0.patch" ]
     }
 
+** Suppression of the global "no_base" flag in application configuration**
+
+**no_base : "no"** is not interpreted anymore in application pyconf.
+One has to use the **base** flag.
+The possible values are:
+
+* **yes** : all the products go into the base
+* **no** : no product goes into the base
+
+The complete usage rule of bases is explaned in the documentation.
 
 
 Change log
@@ -123,6 +135,8 @@ most significant changes are listed.
 +-------------+-----------------------------------------------------------------------------------+
 | Artifact    | Description                                                                       |
 +=============+===================================================================================+
+| spns #8544  | The documentation has been improved!                                              |
++-------------+-----------------------------------------------------------------------------------+
 | spns #16894 | clean the temp directory at the end of sat package                                |
 +-------------+-----------------------------------------------------------------------------------+
 | sat #12965  | optimisation of sat compile : better, simplier and faster algo for dependencies!  |
@@ -137,7 +151,7 @@ most significant changes are listed.
 | sat # 8547  | Generalisation of sat launcher command (new option --exe to specify which exe     |
 |             | should be launched after setting the environment                                  |
 +-------------+-----------------------------------------------------------------------------------+
-| sat #17357  | New field in application pyconf "rm_rpoducts" to blacklist some products          |
+| sat #17357  | New field "rm_products" to blacklist products in overwrite section of appli pyconf|
 +-------------+-----------------------------------------------------------------------------------+
 | sat #17194  | Parametrication of the value of INSTALL and BINARIES directories                  |
 |             | (in src/internal_config/salomeTools.pyconf)                                       |
@@ -146,5 +160,11 @@ most significant changes are listed.
 +-------------+-----------------------------------------------------------------------------------+
 | sat #17359  | New incremental mode for the definition of products                               |
 +-------------+-----------------------------------------------------------------------------------+
-|             |                                                                                   |
+| sat #17766  | The environment of products is now  loaded in the order of product dependencies.  |
+| sat #17848  | To treat correctly dependencies in the environment                                |
++-------------+-----------------------------------------------------------------------------------+
+| sat #17955  | No unit tests for native products                                                 |
++-------------+-----------------------------------------------------------------------------------+
+|             | SAT_DEBUG and SAT_VERBOSE environment variables are now available in the          |
+|             | compilation, which can now forward the information and do the job!                |
 +-------------+-----------------------------------------------------------------------------------+

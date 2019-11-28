@@ -2,7 +2,40 @@
 Installation
 ************
 
-**sat** is provided either embedded into a salome package, or as a standalone package.
+**sat** is provided either embedded into a salome package, or as a standalone package. He can also be retrieved from the git repositories.
+
+
+From git bases
+--------------
+
+**sat** git bases are hosted by the `salome platftorm Tuleap forge <https://codev-tuleap.cea.fr/projects/salome>`_ . Therefore you first has to get an account to this forge.
+To get started, one has to download sat, and at last one sat project (usually SAT_SALOME project, which contains all the configuration required to build SALOME and its prerequisites). The following script get sat and SAT_SALOME project from git repos: ::
+
+    # get sat
+    BASE_SAT=https://codev-tuleap.cea.fr/plugins/git/spns/SAT.git
+    BASE_PROJET=https://codev-tuleap.cea.fr/plugins/git/spns/SAT_SALOME.git
+    TAG_SAT=master
+    TAG_PROJET=master
+    git clone ${BASE_SAT}
+    cd SAT
+    git checkout ${TAG_SAT}
+    cd ..
+    
+    # get sat project SAT_SALOME 
+    git clone ${BASE_PROJET}
+    cd  SAT_SALOME
+    git checkout ${TAG_PROJET}
+    cd ..
+
+    # initialisation de sat 
+
+    # add SAT_SALOME project to sat, other configurations projects can be added
+    SAT/sat init --add_project  $(pwd)/SAT_SALOME/salome.pyconf
+
+    # record tag and url (not mandatory)
+    SAT/sat init --VCS $BASE_SAT
+    SAT/sat init --tag $(git describe --tags)
+
 
 Embedded sat version
 --------------------

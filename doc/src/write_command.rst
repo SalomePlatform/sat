@@ -2,8 +2,9 @@
 .. include:: ../rst_prolog.rst
 
 
-Add a user custom command
-***************************
+**************************************
+Extending SAT with additional commands
+**************************************
 
 Introduction
 ============
