@@ -480,8 +480,18 @@ class Sat(object):
                     if res is None:
                         res = 0
                         
+                except src.SatException as e:
+                    # for sat exception do not display the stack, unless debug mode is set
+                    logger_command.write("\n***** ", 1)
+                    logger_command.write(src.printcolors.printcError(
+                            "salomeTools ERROR: sat %s" % __nameCmd__), 1)
+                    logger_command.write(" *****\n", 1)
+                    print(e.message)
+                    if self.options.debug_mode:
+                        logger_command.write("\n" + DBG.format_exception("") + "\n", 1)
+
                 except Exception as e:
-                    # Get error
+                    # here we print the stack in addition
                     logger_command.write("\n***** ", 1)
                     logger_command.write(src.printcolors.printcError(
                             "salomeTools ERROR: sat %s" % __nameCmd__), 1)

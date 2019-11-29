@@ -93,11 +93,14 @@ def find_path_graph(graph, start, end, path=[]):
 # return in sorted_nodes the list of sorted nodes
 def depth_first_topo_graph(graph, start, visited=[], sorted_nodes=[]):
     visited = visited + [start]
+    if start not in graph:
+        raise src.SatException('Error in product dependencies : %s product is referenced in products dependencies but is not present in the application !' % start)
     for node in graph[start]:
         if node not in visited:
             visited,sorted_nodes=depth_first_topo_graph(graph, node, visited,sorted_nodes)
         else:
-            assert node in sorted_nodes, 'Error : cycle detection for node %s and %s !' % (start,node)
+            if node not in sorted_nodes:
+                raise src.SatException('Error in product dependencies : cycle detection for node %s and %s !' % (start,node))
     
     sorted_nodes = sorted_nodes + [start]
     return visited,sorted_nodes

@@ -68,12 +68,7 @@ if __name__ == "__main__":
 
     # no Exception but may be known problem
     DBG.write("execute_cli return code", returnCode)
-    if returnCode.isOk():
-      # OK no trace
-      logger.step("sat exit code: %s" % returnCode)
-    else:
-      # KO warning as known problem have to say why
-      logger.warning("sat exit code: %s" % returnCode)
+    logger.step("sat exit code: %s" % returnCode)
     logger.close() # important to close logger
     sys.exit(returnCode.toSys())
 

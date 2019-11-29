@@ -1846,7 +1846,7 @@ msgid "shows global help or help on a specific command."
 msgstr "affiche l'aide générale ou pour une commande spécifique."
 
 msgid "overwrites a configuration parameters."
-msgstr "écrase un parametre de configuration."
+msgstr "modifie un parametre de configuration."
 
 msgid "run salomeTools in debug mode."
 msgstr "lance salomeTools en mode debug."
