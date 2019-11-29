@@ -608,10 +608,14 @@ class SalomeEnviron:
                
         
         if self.for_package:
+            prod_base_name=os.path.basename(pi.install_dir)
+            if prod_base_name.startswith("config"):
+                # case of a products installed in base. We remove "config-i"
+                prod_base_name=os.path.basename(os.path.dirname(pi.install_dir))
             pi.install_dir = os.path.join(
                                  "out_dir_Path",
                                  self.for_package,
-                                 os.path.basename(pi.install_dir))
+                                 prod_base_name)
 
         if not self.silent:
             logger.write(_("Setting environment for %s\n") % product, 4)

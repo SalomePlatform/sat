@@ -197,7 +197,13 @@ def produce_relative_launcher(config,
     '''
     
     # get KERNEL installation path 
-    kernel_root_dir = os.path.join(binaries_dir_name, "KERNEL")
+    kernel_info = src.product.get_product_config(config, "KERNEL")
+    kernel_base_name=os.path.basename(kernel_info.install_dir)
+    if kernel_base_name.startswith("config"):
+        # case of kernel installed in base. We remove "config-i"
+        kernel_base_name=os.path.basename(os.path.dirname(kernel_info.install_dir))
+    
+    kernel_root_dir = os.path.join(binaries_dir_name, kernel_base_name)
 
     # set kernel bin dir (considering fhs property)
     kernel_cfg = src.product.get_product_config(config, "KERNEL")
@@ -622,7 +628,11 @@ WARNING: existing binaries directory from previous detar installation:
     # actual install directories and there install directory in archive
     d_products = {}
     for prod_name, install_dir in l_install_dir:
-        path_in_archive = os.path.join(binaries_dir_name, os.path.basename(install_dir))
+        prod_base_name=os.path.basename(install_dir)
+        if prod_base_name.startswith("config"):
+            # case of a products installed in base. We remove "config-i"
+            prod_base_name=os.path.basename(os.path.dirname(install_dir))
+        path_in_archive = os.path.join(binaries_dir_name, prod_base_name)
         d_products[prod_name + " (bin)"] = (install_dir, path_in_archive)
         
     for prod_name, source_dir in l_source_dir:
