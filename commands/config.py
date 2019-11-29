@@ -810,18 +810,23 @@ def show_properties(config, logger):
   :param config Config: the global configuration.
   :param logger Logger: The logger instance to use for the display
   '''
+  if "properties" in config.APPLICATION:
+      # some properties are defined at application level, we display them
+      logger.write("Application properties:\n", 1)
+      for prop in config.APPLICATION.properties:
+          logger.write(src.printcolors.printcInfo("    %s : %s\n" % (prop, config.APPLICATION.properties[prop])), 1)
   oneOrMore = False
   for product in sorted(config.APPLICATION.products):
     try:
       product_info = src.product.get_product_config(config, product)
       done = False
       try:
-        for i in product_info.properties:
+        for prop in product_info.properties:
           if not done:
             logger.write("%s:\n" % product, 1)
             done = True
           oneOrMore = True
-          logger.write(src.printcolors.printcInfo("    %s\n" % i), 1)
+          logger.write(src.printcolors.printcInfo("    %s : %s\n" % (prop, product_info.properties[prop])), 1)
       except Exception as e:
         pass
     except Exception as e:

@@ -35,14 +35,16 @@ def get_user():
     
     :rtype: str
     '''
-    # In windows case, the USERNAME environment variable has to be set
-    if is_windows():
-        if not 'USERNAME' in os.environ:
-            raise Exception('USERNAME environment variable not set')
-        return os.environ['USERNAME']
-    else: # linux
-        import pwd
-        return pwd.getpwuid(os.getuid())[0]
+    try :
+        if is_windows():
+            # In windows case, the USERNAME environment variable has to be set
+            user_name=os.environ['USERNAME']
+        else: # linux
+            import pwd
+            user_name=pwd.getpwuid(os.getuid())[0]
+    except :
+        user_name="Unknown"
+    return user_name
 
 	
 def get_distribution(codes):
