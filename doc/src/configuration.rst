@@ -42,11 +42,23 @@ They are usually located in the application directory of the project:
     ls SAT_SALOME/applications
         MEDCOUPLING-9.4.0.pyconf             SALOME-7.8.0.pyconf       SALOME-8.5.0.pyconf          SALOME-9.4.0.pyconf
 
-The application configuration file defines the APPLICATION sections. The content of this section can be displayed with *sat config* command:
+These files can be edited directly, and also with the SAT:
 
 .. code-block:: bash
 
+    # edit SALOME-9.4.0.pyconf configuration file
+    SAT/sat config SALOME-9.4.0 -e
+
+
+The application configuration file defines the APPLICATION sections. The content of this section (or a part of it) can be displayed with *sat config* command:
+
+.. code-block:: bash
+
+    # display the complete APPLICATION configuration
     sat config SALOME-9.4.0 -v APPLICATION
+
+    # display only the application properties
+    sat config SALOME-9.4.0 -v APPLICATION.properties
 
 SAT users that need to create new application files for their own purpose usually copy an existing configuration file and adapt it to their application.
 Let's discribe the content of an application pyconf file. We take in the following examples the file *SAT_SALOME/applications/SALOME-9.4.0.pyconf*.
@@ -248,9 +260,9 @@ It is possible to list all the properties with the command *./sat config SALOME-
 
 Here are some properties frequently used:
 
-* **single_install_dir* : the product can be installed in a common directory 
-* **compile_time* : the product is used only at compile time (ex : swig)
-* **pip* : the product is managed by pip
+* **single_install_dir** : the product can be installed in a common directory 
+* **compile_time** : the product is used only at compile time (ex : swig)
+* **pip** : the product is managed by pip
 * **not_in_package** : the product will not be put in packages
 * **is_SALOME_module** : te product is a SALOME module
 * **is_distene** : the product requires a DISTENE licence

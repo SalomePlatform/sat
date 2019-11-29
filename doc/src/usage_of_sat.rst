@@ -8,10 +8,10 @@ Using SAT
 Getting started
 ===============
 
-sat is a Command Line Interface (CLI_) based on python langage.
-Its purpose is to cover the maintenance and the production of an application which run on several platforms and depend upon a lot of prerequisites.
+SAT is a Command Line Interface (CLI_) based on python language.
+Its purpose is to cover the maintenance and the production of an application which has to run on several platforms and depends upon a lot of prerequisites.
 It is most of the time used interactively from a terminal, but there is also a batch mode that can be used for example in automatic procedures (like jenkins jobs). 
-sat is used in command line by invoking after its name a sat option (which is non mandatory), then a command name, followed by the arguments of the command (most of the time the name of an application and command options):
+SAT is used in command line by invoking after its name a sat option (which is non mandatory), then a command name, followed by the arguments of the command (most of the time the name of an application and command options):
 
 .. code-block:: bash
 
@@ -20,20 +20,20 @@ sat is used in command line by invoking after its name a sat option (which is no
 
 The main sat options are:
 
-* **-h** : to get the list of available options and commands
-* **-o** : to overwrite at runtime a configuration parameter or option
-* **-v** : to change the verbosity (default is 3, minimum 0 and maximum 6)
-* **-b** : to enter the batch mode and avoid any question (this non interactive mode is useful for automatic procedures like jenkins jobs)
-* **-t** : to display the compilation logs in the terminal (otherwise they are logged in files and displayed by the log command
+* **-h** : to invoke the **help** and get the list of available options and commands
+* **-o** : to **overwrite** at runtime a configuration parameter or option
+* **-v** : to change the **verbosity** (default is 3, minimum 0 and maximum 6)
+* **-b** : to enter the **batch** mode and avoid any question (this non interactive mode is useful for automatic procedures like jenkins jobs)
+* **-t** : to display the compilation logs in the **terminal** (otherwise they are logged in files and displayed by the log command
    
 The main sat commands are:
 
 * **prepare** : to get the sources of the application products (from git repositories or archives) and apply patches if there are any
 * **compile** : to build the application (using cmake, automake or shell script)
-* **launcher** : to generate a launcher of the application (in the most general case the launcher sets up the run-time environment and start an exe)
+* **launcher** : to generate a launcher of the application (in the most general case the launcher sets up the run-time environment and starts an exe)
 * **package** : to build a package of the application (binary and/or source)
 * **config** : to display the configuration
-* **log** : to display within a web browser the logs of the commands
+* **log** : to display within a web browser the logs of SAT
 
 
 Getting help
@@ -42,7 +42,7 @@ Getting help
 Help option -h
 --------------
 
-More details are provided by the help of sat. The help option can ba calle at two levels : the (high) level displays information on how to use sat, the command level displays information on how to use a sat command.
+More details are provided by the help of sat. The help option can be called at two levels : the high level displays information on how to use sat, the command level displays information on how to use a sat command.
 
 .. code-block:: bash
 
@@ -55,16 +55,19 @@ More details are provided by the help of sat. The help option can ba calle at tw
 Completion mode
 ---------------
 
-When getting started with sat, the use of the competion mode is convenient. This mode will display by typing twice on the **tab key** the available options, command, applications or product available. The completion mode has to be activated by sourcing the file **complete_sat.sh** contained in SAT directory:
+When getting started with sat, the use of the competion mode is convenient. This mode will display by typing twice on the **tab key** the available options, commands, applications or products available. The completion mode has to be activated by sourcing the file **complete_sat.sh** contained in SAT directory:
 
 .. code-block:: bash
 
-    source complete_sat.sh      # activate the completion mode
+    # activate the completion mode
+    source complete_sat.sh      
 
-    ./sat conpile  <TAB> <TAB>  # liste all application available for compilation
+    # list all application available for compilation
+    ./sat conpile  <TAB> <TAB>  
     > SALOME-7.8.2   SALOME-8.5.0   SALOME-9.3.0   SALOME-master
 
-    ./sat conpile SALOME-9.3.0 <TAB> <TAB>  # list all available options 
+    # list all available options of sat compile 
+    ./sat conpile SALOME-9.3.0 <TAB> <TAB>  
     > --check              --clean_build_after  --install_flags      --properties
     > --stop_first_fail    --with_fathers       --clean_all          --clean_make
     > --products           --show               --with_children
@@ -107,18 +110,18 @@ This is the main use case : build from scratch an application.
     ./sat package SALOME-9.4.0 -b
 
 
-All the build is done in the *application directory*, which is parameted by the sat configuration variable *$APPLICATION.workdir*. In the above example t corresponds to *.../SALOME-9.4.0-CO7*.
-**sat** can only build application provided by the projects that have been loaded in sat with *sat init* command. These available applications are lister by *sat config -l* command. 
+All the build is done in the *application directory*, which is parametered by the sat configuration variable *$APPLICATION.workdir*. In the above example this directory corresponds to *.../SALOME-9.4.0-CO7*.
+SAT can only build applications provided by the projects that have been loaded with *sat init* command. The available applications are listed by *sat config -l* command. 
 
 
 Partial recompilation of a packaged application 
 ===============================================
 
-Getting all the sources and compile everything is a long process.
-The following use case has proven to be convenient for fast usage.
-It consists to get the application through a sat package containing the binaries and sat.
-This allows using directly the application (the binary part). 
-And later, if required, it is possible to add a module, or modify and recompile one.
+Getting all the sources and compile everything is often a long process.
+The following use case has proven to be convenient for fast usage!
+It consists to get the application through a sat package containing the binaries, the sources and SAT.
+This allows using directly the application after the detar (the binary part). 
+And later, if required, it is possible to add a module, or modify some source code and recompile only what was added or modified.
 
 .. code-block:: bash
 
@@ -143,7 +146,7 @@ Using SAT bases
 ===============
 
 Users or developers that have to build several applications, which share common products, may want to mutualise the compilation of the common products.
-The notion of SAT base follow this obective. It allows sharing the installation of products between several applications.
+The notion of SAT base follows this objective. It allows sharing the installation of products between several applications, and therefore compile these products only once.
 
 Location
 --------
@@ -159,9 +162,9 @@ This default can be changed by the user with sat init command :
 Which products go into the base
 -------------------------------
 
-The application developper has the possibility to declare that a products will go by default in the base.
+The application developer has the possibility to declare that a products will go by default in the base.
 He uses for that the keyword 'base' in the install_dir key within the product configuration file (products pyconf) : *install_dir : 'base'*
-It is done usually fir products that are considered as prerequisites.
+It is done usually for products that are considered as prerequisites.
 
 At this stage, all products with install_dir set to 'base' will be installed in SAT base directory.
 
@@ -169,8 +172,8 @@ At this stage, all products with install_dir set to 'base' will be installed in 
 Application configuration
 -------------------------
 
-The default behaviour of products can be modified in the application configuration, with the base flag.
-Like other application flags (debug, verbose, dev) the base flag can be used for a selection of products, or globally for all products.
+The default behavior of products can be modified in the application configuration, with the **base** flag.
+Like other application flags (debug, verbose, dev) the **base** flag can be used for a selection of products, or globally for all products.
 
 .. code-block:: bash
 
@@ -192,10 +195,89 @@ Mutualisation of products
 
 Products that go in base and have the same configuration will be shared by different application (it's the objective).
 SAT does check the configuration to prevent of an application using a product in base with a non compatible configuration. 
-To check the compatibility, SAT stores in a file *sat-config-<product name>.pyconf* the configuration.
+To check the compatibility, SAT stores the configuration in a file called *sat-config-<product name>.pyconf*.
 In a next build (for example in an other application), SAT checks if the new configuration corresponds to what is described in *sat-config-<product name>.pyconf*.
 If it corresponds, the previous build is used in base, otherwise a new build is done, and stored in a new directory called *config-<build number>*.
 
-.. warning:: Please note that only the dependencies between products are considered for the checking. If the compilation options changed, it will not be tracked (for example the use of debug mode with -g option will not produce a second configuraion, it will overwrite the previous build done in production mode)
+.. warning:: Please note that only the dependencies between products are considered for the checking. If the compilation options changed, it will not be tracked (for example the use of debug mode with -g option will not produce a second configuration, it will overwrite the previous build done in production mode)
+
+
+Developing a module with SAT
+============================
+
+SAT has some features that make developers' life easier. Let's highlight some of the developers use cases.
+(if you are not familiar with SAT configuration, you may first read Configuration Chapter before, and come back to this paragraph after)
+
+Activating the developement mode
+--------------------------------
+
+By default *sat prepare* command is not suited for development, because it erases the source directory (if it already exists) before getting the source.
+If you did developements in this directory **they will be lost!**.
+
+Therefore before you start some developments inside a product, you should **declare the product in development mode** in the application configuration.  
+For example if you plan to modify KERNEL module, modify SALOME configuration like this:
+
+.. code-block:: bash
+
+    APPLICATION :
+    {
+    ...
+        products :
+        {
+        # declare KERNEL in development mode (and also compile it
+        # with debug and verbose options)
+        'KERNEL' : {dev:'yes', debug:'yes', verbose:'yes', tag:'my_dev_branch', section:'version_7_8_0_to_8_4_0'}
+        ...
+        }
+    }
+
+When the dev mode is activated, SAT will load the sources from the git repository only the first time, when the local directory do not exist.
+For the next calls to *sat prepare*, it will keep the source intact and do nothing!
+
+In the example we have also set the debug and the berbose flag to "yes" - it is often useful when developing.
+
+Finally, we have changed the tag and replaced it with a developement branche (to be able to push developements directly in git repo - without producing patches).
+
+.. warning:: But doing this we have (probably) broken the automatic association done by SAT between the tag of the product and the product section used by SAT to compile it!  (see the chapter "Product sections" in the Configuration documentation for more details about this association) Therefore you need ot tell SAT which section use (otherwise it will take the "default" section, and it may not be the one you need).  This is done with : **section:'version_7_8_0_to_8_4_0'**. If you don't know which section should be used, print it with SAT config before changing the tag : *./sat config SALOME-9.4.0 -i KERNEL* will tell you which section is being used.
+
+Pushing developments in base, or creating patches
+-------------------------------------------------
+
+If you have set the tag to a developement branch (like in the previous example), you can directly push your developements in the git repository with *git push* command.
+If not (if you are detached to a tag, you can produce with git a patch of you developements:
+
+    git dif > my_dev.patch
+
+And use this patch either with SAT to apply it automaticaly with *sat prepare* command, or send the patch for an integration request.
+
+
+Changing the source directory
+-----------------------------
+
+By default the source directory of a product is located inside SAT installation, in the SOURCE directory.
+This defaut may not be convenient. Developers may prefer to develop inside the HOME directory (for example when this directory is automaticaly saved).
+
+To change the default source directory, you first hanve to identify which product section is used by SAT: ::
+
+    ./sat config SALOME-9.4.0 -i KERNEL
+    >  ....
+    >  section = default
+
+Then you can change the source directory in the section being used (default in the example above).
+For that you can modify the **source_dir** field in the file *SAT_SALOME/products/KERNEL.pyconf*.
+Or change it in command line: **./sat -o "PRODUCTS.KERNEL.default.source_dir='/home/KERNEL'"  <your sat command>**.
+For example the following command recompiles KERNEL using */home/KERNEL* as source directory: ::
+
+    # take KERNEL sources in /home/KERNEL
+    ./sat -o "PRODUCTS.KERNEL.default.source_dir='/home/KERNEL'" compile SALOME-master -p KERNEL --clean_all
+
+Displaying compilation logs in the terminal
+-------------------------------------------
+When developing a module you often have to compile it, and correct errors that occurs.
+In this case, using *sat log*  command to consult the compilation logs is not convenient!
+It is advised to use in this case the **-t** option of sat, it will display the logs directly inside the terminal: ::
+
+    # sat -t option put the compilation logs in the terminal
+    ./sat -t -o "PRODUCTS.KERNEL.default.source_dir='/home/KERNEL'" compile SALOME-master -p KERNEL --clean_all
 
 

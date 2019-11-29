@@ -5,7 +5,6 @@ SAT version 5.5.0
 Release Notes, November 2019
 ============================
 
-.. warning:: This documentation is under construction!
 
 New features and improvments
 ----------------------------
@@ -141,7 +140,7 @@ most significant changes are listed.
 +-------------+-----------------------------------------------------------------------------------+
 | sat #12965  | optimisation of sat compile : better, simplier and faster algo for dependencies!  |
 +-------------+-----------------------------------------------------------------------------------+
-| sat # 17206 | Use pip to manage python modules                                                  |
+| sat #17206  | Use pip to manage python modules                                                  |
 +-------------+-----------------------------------------------------------------------------------+
 | sat #17137  | check_install functionality improvement : uses linux expending shell rules and    |
 |             | interprets environment variables                                                  |
@@ -167,4 +166,6 @@ most significant changes are listed.
 +-------------+-----------------------------------------------------------------------------------+
 |             | SAT_DEBUG and SAT_VERBOSE environment variables are now available in the          |
 |             | compilation, which can now forward the information and do the job!                |
++-------------+-----------------------------------------------------------------------------------+
+| sat #18392  | Bug, binaries archives do not work when producrs are in base                      |
 +-------------+-----------------------------------------------------------------------------------+
