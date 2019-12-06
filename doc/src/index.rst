@@ -6,9 +6,9 @@
 .. toctree::
    :maxdepth: 2
 
-************
-Salome Tools
-************
+.. **********
+.. SalomeTool
+.. **********
 
 
 Welcome
@@ -44,13 +44,6 @@ Documentation
    Using SAT <usage_of_sat>
    Configuration <configuration>
 
-For SAT developers...
----------------------
-
-.. toctree::
-   :maxdepth: 1
-
-   Extending SAT with additional commands <write_command>
 
 List of Commands
 ================
@@ -63,7 +56,6 @@ List of Commands
    prepare <commands/prepare>
    compile <commands/compile>
    launcher <commands/launcher>
-   application <commands/application>
    log <commands/log>
    environ <commands/environ>
    clean <commands/clean>
@@ -71,6 +63,7 @@ List of Commands
    generate <commands/generate>
    init <commands/init>
    environ <commands/environ>
+   template <commands/template>
 
 
 Release Notes
@@ -79,7 +72,7 @@ Release Notes
 .. toctree::
    :maxdepth: 1
 
-   Release Notes 5.5.0 (in construction) <release_notes/release_notes_5.5.0>
+   Release Notes 5.5.0 <release_notes/release_notes_5.5.0>
    Release Notes 5.4.0 <release_notes/release_notes_5.4.0>
    Release Notes 5.3.0 <release_notes/release_notes_5.3.0>
    Release Notes 5.2.0 <release_notes/release_notes_5.2.0>

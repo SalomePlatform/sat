@@ -25,8 +25,7 @@ This second property is usefull on windows platform to reduce the length of pyth
 
 After several tests anf iterations, the following management was adopted:
  - sat prepare <application> does nothing for pip products (because at prepare time we don't have python compiled, and the use of native pip may not be compatible).
- - sat compile <application> use the pip module installed in python to get pip archives (wheels), store them in local archive directory, and install then either in python
-directory, or in the product directory (in accordance to pip_install_dir property).
+ - sat compile <application> use the pip module installed in python to get pip archives (wheels), store them in local archive directory, and install then either in python directory, or in the product directory (in accordance to pip_install_dir property).
 
 
 **single directory mode**
