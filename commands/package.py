@@ -1520,8 +1520,7 @@ Please add it in file:
         if options.project:
             if options.sat:
                 archive_name += "_" 
-            project_name = options.project
-            archive_name += ("satproject_" + project_name)
+            archive_name += ("satproject_" + options.project)
  
         if len(archive_name)==0: # no option worked 
             msg = _("Error: Cannot name the archive\n"
@@ -1600,8 +1599,8 @@ Please add it in file:
                                   options, logger))
         
     if options.project:
-        DBG.write("config for package %s" % project_name, runner.cfg)
-        d_files_to_add.update(project_package(runner.cfg, project_name, options.project_file_path, options.ftp, tmp_working_dir, options.sat, logger))
+        DBG.write("config for package %s" % options.project, runner.cfg)
+        d_files_to_add.update(project_package(runner.cfg, options.project, options.project_file_path, options.ftp, tmp_working_dir, options.sat, logger))
 
     if not(d_files_to_add):
         msg = _("Error: Empty dictionnary to build the archive!\n")

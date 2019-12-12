@@ -31,7 +31,8 @@ parser = src.options.Options()
 parser.add_option('n', 'name', 'string', 'name', _('Optional: The name of the'
                   ' launcher (default is APPLICATION.profile.launcher_name)'))
 parser.add_option('e', 'exe', 'string', 'path_exe', _('Use this option to generate a launcher which sets'
-                  ' the environment and call the executable given as argument (its relative path)'))
+                  ' the environment and call the executable given as argument'
+                  ' (its relative path to application workdir, or an exe name present in appli PATH)'))
 parser.add_option('c', 'catalog', 'string', 'catalog',
                   _('Optional: The resources catalog to use'))
 parser.add_option('', 'gencat', 'string', 'gencat',
@@ -47,88 +48,12 @@ parser.add_option('', 'no_path_init', 'boolean', 'no_path_init',
                    "user's environment)\n\tUse no_path_init option to suppress the reinitilisation"
                    " of every paths (LD_LIBRARY_PATH, PYTHONPATH, ...)"))
 
-def generate_exe_launch_file(config,
-                             logger,
-                             launcher_name,
-                             pathlauncher,
-                             path_exe,
-                             display=True,
-                             additional_env={},
-                             no_path_init=False):
-    '''Generates the launcher file.
-    
-    :param config Config: The global configuration
-    :param logger Logger: The logger instance to use for the display 
-                          and logging
-    :param launcher_name str: The name of the launcher to generate
-    :param pathlauncher str: The path to the launcher to generate
-    :param path_exe str: The path of the executable to use
-    :param display boolean: If False, do not print anything in the terminal
-    :param additional_env dict: The dict giving additional 
-                                environment variables
-    :return: The launcher file path.
-    :rtype: str
-    '''
-    # build absolute path of exe and check it
-    exepath=os.path.join(config.APPLICATION.workdir, path_exe)
-    if not os.path.exists(exepath):
-        raise src.SatException(_("cannot find executable given : %s" % exepath))
-        
-    # build the launcher path, delete it if it exists
-    filepath = os.path.join(pathlauncher, launcher_name)
-    if os.path.exists(filepath):
-        os.remove(filepath)
-
-    # select the shell for the launcher (bast/bat)
-    # and build the command used to launch the exe
-    if src.architecture.is_windows():
-        shell="bat"
-        cmd="\n\nrem Launch exe with user arguments\n%s " % exepath + "%*"
-    else:
-        shell="bash"
-        cmd="\n\n# Launch exe with user arguments\n%s $*" % exepath
-
-    # the writer to generate the launcher
-    writer = src.environment.FileEnvWriter(config,
-                                           logger,
-                                           pathlauncher,
-                                           src_root=None,
-                                           env_info=None)
-
-    # Display some information
-    if display:
-        logger.write(_("Generating exe launcher for %s :\n") % 
-                     src.printcolors.printcLabel(config.VARS.application), 1)
-        logger.write("  %s\n" % src.printcolors.printcLabel(filepath), 1)
-
-    # Write the environment in the launcher...
-    writer.write_env_file(filepath, 
-                          False,  # for launch
-                          shell,
-                          additional_env=additional_env,
-                          no_path_init=no_path_init)
-
-    # ... and append the launch of the exe
-    with open(filepath, "a") as exe_launcher:
-        exe_launcher.write(cmd)
-
-    # change the rights in order to make the file executable for everybody
-    os.chmod(filepath,
-             stat.S_IRUSR |
-             stat.S_IRGRP |
-             stat.S_IROTH |
-             stat.S_IWUSR |
-             stat.S_IXUSR |
-             stat.S_IXGRP |
-             stat.S_IXOTH)
-
-    return filepath
-
 
 def generate_launch_file(config,
                          logger,
                          launcher_name,
                          pathlauncher,
+                         path_exe,
                          display=True,
                          additional_env={},
                          no_path_init=False):
@@ -138,6 +63,8 @@ def generate_launch_file(config,
     :param logger Logger: The logger instance to use for the display 
                           and logging
     :param launcher_name str: The name of the launcher to generate
+    :param path_exe str: The executable to use (either a relative path to 
+                         application workdir, or an exe name in the path)
     :param pathlauncher str: The path to the launcher to generate
     :param display boolean: If False, do not print anything in the terminal
     :param additional_env dict: The dict giving additional 
@@ -145,32 +72,63 @@ def generate_launch_file(config,
     :return: The launcher file path.
     :rtype: str
     '''
-    # Compute the default launcher path if it is not provided in pathlauncher
-    # parameter
+    # build the launcher path, delete it if it exists
     filepath = os.path.join(pathlauncher, launcher_name)
-
-    # Remove the file if it exists in order to replace it
     if os.path.exists(filepath):
         os.remove(filepath)
+    kernel_root_dir=None
+    cmd=None
+    salome_application_name=None
+    app_root_dir=None
 
+    if path_exe:
+        #case of a launcher based upon an executable
+        
+        if os.path.basename(path_exe) != path_exe:
+            # for a relative (to workdir) path 
+            # build absolute path of exe and check it
+            exepath=os.path.join(config.APPLICATION.workdir, path_exe)
+            if not os.path.exists(exepath):
+                raise src.SatException(_("cannot find executable given : %s" % exepath))
+        else:
+            exepath=path_exe 
 
-    # get KERNEL bin installation path 
-    # (in order for the launcher to get python salomeContext API)
-    kernel_cfg = src.product.get_product_config(config, "KERNEL")
-    if not src.product.check_installation(config, kernel_cfg):
-        raise src.SatException(_("KERNEL is not installed"))
-    kernel_root_dir = kernel_cfg.install_dir
+        # select the shell for the launcher (bast/bat)
+        # and build the command used to launch the exe
+        if src.architecture.is_windows():
+            shell="bat"
+            cmd="\n\nrem Launch exe with user arguments\n%s " % exepath + "%*"
+        else:
+            shell="bash"
+            cmd='\n\n# Launch exe with user arguments\n%s "$*"' % exepath
 
-    # set kernel bin dir (considering fhs property)
-    if src.get_property_in_product_cfg(kernel_cfg, "fhs"):
-        bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin") 
     else:
-        bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin","salome") 
+        #case of a salome python2/3 launcher
+        shell="cfgForPy"
+
+        # get KERNEL bin installation path 
+        # (in order for the launcher to get python salomeContext API)
+        kernel_cfg = src.product.get_product_config(config, "KERNEL")
+        if not src.product.check_installation(config, kernel_cfg):
+            raise src.SatException(_("KERNEL is not installed"))
+        kernel_root_dir = kernel_cfg.install_dir
+        # set kernel bin dir (considering fhs property)
+        if src.get_property_in_product_cfg(kernel_cfg, "fhs"):
+            bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin") 
+        else:
+            bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin","salome") 
+
+        # Add two sat variables used by fileEnviron to choose the right launcher header 
+        # and do substitutions
+        additional_env['sat_bin_kernel_install_dir'] = bin_kernel_install_dir
+        if "python3" in config.APPLICATION and config.APPLICATION.python3 == "yes":
+            additional_env['sat_python_version'] = 3
+        else:
+            additional_env['sat_python_version'] = 2
 
     # check if the application contains an application module
     l_product_info = src.product.get_products_infos(config.APPLICATION.products.keys(),
                                                     config)
-    salome_application_name="Not defined" 
     for prod_name, prod_info in l_product_info:
         # look for a salome application
         if src.get_property_in_product_cfg(prod_info, "is_salome_application") == "yes":
@@ -179,22 +137,15 @@ def generate_launch_file(config,
 
     # if the application contains an application module, we set ABSOLUTE_APPLI_PATH to it.
     # if not we set it to KERNEL_INSTALL_DIR, which is sufficient, except for salome test
-    if salome_application_name == "Not defined":
-        app_root_dir=kernel_root_dir
-    else:
+    if salome_application_name:
         app_root_dir=salome_application_name
-
-    # Add two sat variables used by fileEnviron to choose the right launcher header 
-    # and do substitutions
-    additional_env['sat_bin_kernel_install_dir'] = bin_kernel_install_dir
-    if "python3" in config.APPLICATION and config.APPLICATION.python3 == "yes":
-        additional_env['sat_python_version'] = 3
-    else:
-        additional_env['sat_python_version'] = 2
+    elif kernel_root_dir:
+        app_root_dir=kernel_root_dir
 
     # Add the APPLI and ABSOLUTE_APPLI_PATH variable
     additional_env['APPLI'] = filepath
-    additional_env['ABSOLUTE_APPLI_PATH'] = app_root_dir
+    if app_root_dir:
+        additional_env['ABSOLUTE_APPLI_PATH'] = app_root_dir
 
     # create an environment file writer
     writer = src.environment.FileEnvWriter(config,
@@ -213,10 +164,16 @@ def generate_launch_file(config,
     # Write the launcher
     writer.write_env_file(filepath, 
                           False,  # for launch
-                          "cfgForPy",
+                          shell,
                           additional_env=additional_env,
                           no_path_init=no_path_init)
     
+
+    # ... and append the launch of the exe 
+    if cmd:
+        with open(filepath, "a") as exe_launcher:
+            exe_launcher.write(cmd)
+
     # change the rights in order to make the file executable for everybody
     os.chmod(filepath,
              stat.S_IRUSR |
@@ -375,21 +332,17 @@ def run(args, runner, logger):
     if options.use_mesa:
         src.activate_mesa_property(runner.cfg)
 
+    # option -e has precedence over section profile
+    if not options.path_exe and src.get_launcher_exe(runner.cfg):
+        options.path_exe=src.get_launcher_exe(runner.cfg)
+
     # Generate the launcher
-    if options.path_exe:
-        generate_exe_launch_file(runner.cfg,
-                                 logger,
-                                 launcher_name,
-                                 launcher_path,
-                                 options.path_exe,
-                                 additional_env = additional_environ,
-                                 no_path_init = no_path_initialisation )
-    else:
-        launcherPath = generate_launch_file(runner.cfg,
-                                            logger,
-                                            launcher_name,
-                                            launcher_path,
-                                            additional_env = additional_environ,
-                                            no_path_init = no_path_initialisation )
+    generate_launch_file(runner.cfg,
+                         logger,
+                         launcher_name,
+                         launcher_path,
+                         options.path_exe,
+                         additional_env = additional_environ,
+                         no_path_init = no_path_initialisation )
 
     return 0

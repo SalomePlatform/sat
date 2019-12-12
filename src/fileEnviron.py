@@ -458,7 +458,6 @@ class LauncherFileEnviron(FileEnviron):
         self._do_init(output, environ)
         self.python_version=self.environ.get("sat_python_version")
         self.bin_kernel_root_dir=self.environ.get("sat_bin_kernel_install_dir")
-        self.app_root_dir=self.environ.get("sat_app_root_dir")
 
         # four whitespaces for first indentation in a python script
         self.indent="    "

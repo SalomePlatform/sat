@@ -419,7 +419,7 @@ def run(args, runner, logger):
 
     # if section APPLICATION.virtual_app does not exists create one
     if "virtual_app" not in runner.cfg.APPLICATION:
-        msg = _("The section APPLICATION.virtual_app is not defined in the product.")
+        msg = _("The section APPLICATION.virtual_app is not defined in the product. Use sat launcher in state")
         logger.write(src.printcolors.printcError(msg), 1)
         logger.write("\n", 1)
         return 1

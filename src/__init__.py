@@ -230,6 +230,23 @@ def get_launcher_name(config):
 
     return launcher_name
 
+def get_launcher_exe(config):
+    """\
+    Returns the name of exe defined in profile section.
+    
+    :param config Config: The global Config instance.
+    :return: The name of the exe to use in launcher.
+    :rtype: str
+    """
+    check_config_has_application(config)
+    if 'profile' in config.APPLICATION and 'exe' in config.APPLICATION.profile:
+        exe_name = config.APPLICATION.profile.exe
+    else:
+        exe_name = None
+
+    return exe_name
+
+
 def get_log_path(config):
     """\
     Returns the path of the logs.
