@@ -1026,7 +1026,10 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs, with_ftp):
                                         patches_tmp_dir,
                                         products_pyconf_tmp_dir)
     
-    find_application_pyconf(config, application_tmp_dir)
+    # for the application pyconf, we write directly the config
+    # don't search for the original pyconf file
+    # to avoid problems with overwrite sections and rm_products key
+    write_application_pyconf(config, application_tmp_dir)
     
     d_project = {"project" : (project_tmp_dir, PROJECT_DIR )}
     return d_project
@@ -1110,43 +1113,34 @@ def find_product_scripts_and_pyconf(p_name,
     product_pyconf_cfg.__save__(ff, 1)
     ff.close()
 
-def find_application_pyconf(config, application_tmp_dir):
-    '''Find the application pyconf file and put it in the specific temporary 
+
+def write_application_pyconf(config, application_tmp_dir):
+    '''Write the application pyconf file in the specific temporary 
        directory containing the specific project of a source package.
 
     :param config Config: The global configuration.
     :param application_tmp_dir str: The path to the temporary application 
-                                       scripts directory of the project.
+                                    scripts directory of the project.
     '''
-    # read the pyconf of the application
     application_name = config.VARS.application
-    application_pyconf_path = src.find_file_in_lpath(
-                                            application_name + ".pyconf",
-                                            config.PATHS.APPLICATIONPATH)
-    application_pyconf_cfg = src.pyconf.Config(application_pyconf_path)
-    
-    # Change the workdir
-    application_pyconf_cfg.APPLICATION.workdir = src.pyconf.Reference(
-                                    application_pyconf_cfg,
-                                    src.pyconf.DOLLAR,
-                                    'VARS.salometoolsway + $VARS.sep + ".."')
-
-    # Prevent from compilation in base
-    application_pyconf_cfg.APPLICATION.base = "no"
-    
-    #remove products that are not in config (which were filtered by --without_properties)
-    for product_name in application_pyconf_cfg.APPLICATION.products.keys():
-        if product_name not in config.APPLICATION.products.keys():
-            application_pyconf_cfg.APPLICATION.products.__delitem__(product_name)
-
     # write the pyconf file to the temporary application location
     application_tmp_pyconf_path = os.path.join(application_tmp_dir,
                                                application_name + ".pyconf")
-
-    ff = open(application_tmp_pyconf_path, 'w')
-    ff.write("#!/usr/bin/env python\n#-*- coding:utf-8 -*-\n\n")
-    application_pyconf_cfg.__save__(ff, 1)
-    ff.close()
+    with open(application_tmp_pyconf_path, 'w') as f:
+        f.write("#!/usr/bin/env python\n#-*- coding:utf-8 -*-\n\n")
+        res = src.pyconf.Config()
+        app = src.pyconf.deepCopyMapping(config.APPLICATION)
+        # no base in packages
+        if "base" in app:
+            app.base = "no" 
+        # Change the workdir
+        app.workdir = src.pyconf.Reference(
+                                 app,
+                                 src.pyconf.DOLLAR,
+                                 'VARS.salometoolsway + $VARS.sep + ".."')
+        res.addMapping("APPLICATION", app, "")
+        res.__save__(f, evaluated=False)
+    
 
 def sat_package(config, tmp_working_dir, options, logger):
     '''Prepare a dictionary that stores all the needed directories and files to

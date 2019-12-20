@@ -527,6 +527,8 @@ class ConfigManager:
         if "APPLICATION" in cfg and "rm_products" in cfg.APPLICATION:
             for prod_to_remove in cfg.APPLICATION.rm_products:
                 cfg.APPLICATION.products.__delitem__(prod_to_remove)
+            # remove rm_products section after usage
+            cfg.APPLICATION.__delitem__("rm_products")
         return cfg
 
     def set_user_config_file(self, config):
@@ -1136,6 +1138,7 @@ def run(args, runner, logger):
     # case : give a synthetic view of all patches used in the application
     if options.show_properties:
         src.check_config_has_application(runner.cfg)
+
         # Print some informations
         logger.write(_('Properties of application %s\n') %
                     src.printcolors.printcLabel(runner.cfg.VARS.application), 3)
