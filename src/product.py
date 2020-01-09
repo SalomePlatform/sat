@@ -829,7 +829,8 @@ def check_installation(config, product_info):
     :return: True if it is well installed
     :rtype: boolean
     """
-    if not product_compiles(product_info):
+    # don't check native products, or products that are not compiled
+    if (not product_compiles(product_info)) or product_is_native(product_info):
         return True
 
     install_dir = product_info.install_dir
