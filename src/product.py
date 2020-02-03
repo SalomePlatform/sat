@@ -1172,6 +1172,36 @@ def product_test_property(product_info, property_name, property_value):
     result = eval(eval_expression)
     return result
 
+def check_system_dep(check_cmd, product_info):
+    """Search for system dependencies, check if installed
+    :param check_cmd Config: The command to use for checking (rpm/apt)
+    :param product_info Config: The configuration specific to the product
+    :rtype: two dictionnaries for runtime and compile time dependencies with text status
+    """
+    runtime_dep={}
+    build_dep={}
+    if "system_info" in product_info:
+        if check_cmd[0]=="rpm":
+            if "rpm" in product_info.system_info:
+                for pkg in product_info.system_info.rpm:
+                    runtime_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
+            if "rpm_dev" in product_info.system_info:
+                for pkg in product_info.system_info.rpm_dev:
+                    build_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
+        if check_cmd[0]=="apt":
+            if "apt" in product_info.system_info:
+                for pkg in product_info.system_info.apt:
+                    runtime_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
+            if "apt_dev" in product_info.system_info:
+                for pkg in product_info.system_info.apt_dev:
+                    build_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
+    #for pkg in runtime_dep:
+    #    print "CNC check for ", pkg
+    #    runtime_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
+    #for pkg in build_dep:
+    #    build_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
+    #print "CNC runtime_dep=", runtime_dep
+    return runtime_dep,build_dep
 
 
 def get_product_components(product_info):
