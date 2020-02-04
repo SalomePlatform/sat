@@ -370,10 +370,13 @@ def check_system_pkg(check_cmd,pkg):
     output, err = p.communicate()
     rc = p.returncode
     if rc==0:
-        msg_status="   - "+pkg + " : " + src.printcolors.printcSuccess("OK") +\
-                  " (" +  output.replace('\n',' ') + ")\n" # remove output trailing \n
+        check_res=src.printcolors.printcSuccess("OK")
+        if check_cmd[0]=="rpm": # apt output is too messy for being used
+            check_res+=" (" + output.replace('\n',' ') + ")\n" # remove output trailing \n
     else:
-        msg_status="   - "+pkg + " : " + src.printcolors.printcError("KO") +\
-                   " (package is not installed!)\n"
+        check_res=src.printcolors.printcError("KO") 
+        check_res+=" (package is not installed!)\n"
+
+    msg_status="\n   - "+pkg + " : " + check_res
     return msg_status
 
