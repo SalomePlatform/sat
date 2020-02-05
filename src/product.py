@@ -1195,12 +1195,6 @@ def check_system_dep(check_cmd, product_info):
             if "apt_dev" in product_info.system_info:
                 for pkg in product_info.system_info.apt_dev:
                     build_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
-    #for pkg in runtime_dep:
-    #    print "CNC check for ", pkg
-    #    runtime_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
-    #for pkg in build_dep:
-    #    build_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
-    #print "CNC runtime_dep=", runtime_dep
     return runtime_dep,build_dep
 
 
