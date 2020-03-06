@@ -6,8 +6,9 @@ Command application
 
 Description
 ===========
-The **application** command creates a virtual SALOME application.
-Virtual SALOME applications are used to start SALOME when distribution is needed.
+The **application** command is used to create a virtual SALOME application.
+This command use appli_gen tool to generate the virtual application.
+It uses symbolic links and do not work on windows platform.
 
 Usage
 =====
@@ -41,7 +42,7 @@ Usage
 
 * Generate a mesa application (if mesa and llvm are parts of the application). Use this option only if you have to use salome through ssh and have problems with ssh X forwarding of OpengGL modules (like Paravis): ::
 
-    sat launcher <application> --use_mesa
+    sat application <application> --use_mesa
 
 Some useful configuration paths
 =================================

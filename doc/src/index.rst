@@ -63,6 +63,7 @@ List of Commands
    generate <commands/generate>
    init <commands/init>
    template <commands/template>
+   application <commands/application>
 
 
 Release Notes
