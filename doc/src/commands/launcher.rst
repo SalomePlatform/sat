@@ -23,13 +23,13 @@ Usage
 
   The launcher will be called *ZeLauncher*.
 
-* Set a launcher which do not initialise the PATH variables: ::
+* Set a launcher which does not initialise the PATH variables: ::
 
     sat launcher <application>  --no_path_init
     
-  In this case the launcher do not initialise the path variables (the defaut is to do it only for PATH, not fot LD_LIBRARY_PATH, PYTHONPATH, etc).
+  In this case the launcher does not initialise the path variables (the default is to do it only for PATH, not for LD_LIBRARY_PATH, PYTHONPATH, etc).
 
-* Create a generic launcher, which set the environment (bash or bat) and call the exe given as argument: ::
+* Create a generic launcher, which sets the environment (bash or bat) and call the exe given as argument: ::
 
     sat launcher <application> -e INSTALL/SALOME/bin/salome/salome.py -n salome.sh 
 
@@ -46,7 +46,7 @@ Usage
 
     sat launcher <application> --gencat <list of machines>
 
-  This will create a catalog by querying each machine (memory, number of processor) with ssh.
+  This will create a catalog by querying each machine (memory, number of processors) with ssh.
 
 * Generate a mesa launcher (if mesa and llvm are parts of the application). Use this option only if you have to use salome through ssh and have problems with ssh X forwarding of OpengGL modules (like Paravis): ::
 
@@ -56,7 +56,7 @@ Usage
 Configuration
 =============
 
-Some useful configuration pathes: 
+Some useful configuration paths: 
 
 * **APPLICATION.profile**
 

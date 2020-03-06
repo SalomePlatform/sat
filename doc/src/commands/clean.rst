@@ -9,7 +9,7 @@ Description
 
 The **clean** command removes products in the *source, build, or install* directories of an application. Theses directories are usually named ``SOURCES, BUILD, INSTALL``.
 
-Use the options to define what directories you want to suppress and to set the list of products
+Use the options to define what directories you want to suppress and to set the list of products.
 
 
 Usage
@@ -22,23 +22,23 @@ Usage
     # take care, is long time to restore, sometimes
     sat clean SALOME-xx --build --install
     
-* Clean previously created *build* and *install* directories, only for products with property *is_salome_module*:
+* Clean previously created *build* and *install* directories, only for products with property *is_SALOME_module*:
 
   .. code-block:: bash
 
     sat clean SALOME-xxx --build --install \
-                         --properties is_salome_module:yes
+                         --properties is_SALOME_module:yes
 
 
-Availables options
-======================
+Available options
+=================
 
   * **--products** : Products to clean.
 
   * **--properties** : 
 
     | Filter the products by their properties.
-    | Syntax: *--properties <property>:<value>*
+    | Syntax: ``--properties <property>:<value>``
 
   * **--sources** : Clean the product source directories.
 
@@ -59,7 +59,7 @@ Availables options
 
 
 
-Some useful configuration pathes
+Some useful configuration paths
 =================================
 
 No specific configuration.

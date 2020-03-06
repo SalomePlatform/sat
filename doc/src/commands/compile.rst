@@ -19,7 +19,7 @@ Usage
 
     sat compile <application> --products <product1>,<product2> ... 
 
-* Use *sat -t* to duplicate the logs in the terminal (by default the log are stored and displayed with *sat log* command): ::
+* Use *sat -t* to duplicate the logs in the terminal (by default the logs are stored and displayed with *sat log* command): ::
 
     sat -t compile <application> --products <product1>
 
@@ -56,26 +56,26 @@ Usage
 
 * Stop the compilation as soon as the compilation of a module fails: ::
   
-    sat compile <product> --stop_first_fail
+    sat compile <application> --stop_first_fail
 
 * Do not compile, just show if products are installed or not, and where is the installation: ::
 
     sat compile <application> --show
 
-* Print the recursive list of dependencies of one (ore several) products: ::
+* Print the recursive list of dependencies of one (or several) products: ::
 
     sat -v5 compile SALOME-master -p GEOM --with_fathers --show
 
 
-Some useful configuration pathes
+Some useful configuration paths
 =================================
 
-The way to compile a product is defined in the *pyconf file configuration*.
+The way to compile a product is defined in the *pyconf* file configuration.
 The main options are: 
 
   * **build_source** : the method used to build the product (cmake/autotools/script)
   * **compil_script** : the compilation script if build_source is equal to "script"
   * **cmake_options** : additional options for cmake.
   * **nb_proc** : number of jobs to use with make for this product.
-  * **check_install** : allow to specify a list of path (relative to install directory), that sat will check after installation. This flag allow to check an installation is complete.  
+  * **check_install** : allow to specify a list of paths (relative to install directory), that sat will check after installation. This flag allows to check if an installation is complete.  
   * **install_dir** : allow to change the default install dir. If the value is set to *'base'*, the product will by default be installed in salomeTool base. Unless base was set to 'no' in application pyconf.

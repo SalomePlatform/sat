@@ -58,6 +58,7 @@ import argparse as AP
 import glob
 import fnmatch
 import pprint as PP #pretty print
+import src
 
 debug = False
 verboseImport = True
@@ -75,7 +76,7 @@ sys.path.insert(0, satdir)
 sys.path.insert(0, srcdir) # TODO remove that
 sys.path.insert(0, cmdsdir) # TODO remove that
 
-_user = os.environ['USER']
+_user = src.architecture.get_user()
 # wambeke is christian at home
 _developers = ["christian", "wambeke",] #  ...who wants
 

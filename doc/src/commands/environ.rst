@@ -11,7 +11,7 @@ to run and compile your application (as SALOME_ is an example).
 
 .. note :: 
    these files are **not** required, 
-   salomeTool set the environment himself, when compiling.
+   salomeTool sets the environment itself, when compiling.
    And so does the salome launcher.
 
    These files are useful when someone wants to check the environment.
@@ -28,7 +28,7 @@ Usage
     sat environ <application>
 
 * Create the environment files of the application for a given shell. 
-  Options are bash, bat (for windows), tcl, cfg (the configuration format used by SALOME_): ::
+  Options are bash, bat (for windows), tcl, cfg (the configuration format used by SALOME): ::
 
     sat environ <application> --shell [bash|bat|cfg|tcl|all]
 
@@ -83,9 +83,9 @@ Configuration
 
 The specification of the environment can be done through several mechanisms.
 
-1. For salome products (the products with the property ``is_SALOME_module`` as ``yes``) the environment is set automatically by sat, in respect with SALOME_ requirements.
+1. For salome products (the products with the property ``is_SALOME_module`` as ``yes``) the environment is set automatically by sat, in respect with SALOME requirements.
 
-2. For other products, the environment is set with the use of the environ section within the pyconf file of the product. The user has two possibilities, either set directly the environment within the section, or specify a python script which wil be used to set the environment programmatically.
+2. For other products, the environment is set with the use of the environ section within the pyconf file of the product. The user has two possibilities, either set directly the environment within the section, or specify a python script which will be used to set the environment programmatically.
 
 Within the section, the user can define environment variables. He can also modify PATH variables, by appending or prepending directories.
 In the following example, we prepend *<install_dir>/lib* to ``LD_LIBRARY_PATH`` (note the *left first* underscore), append *<install_dir>/lib* to ``PYTHONPATH`` (note the *right last* underscore), and set ``LAPACK_ROOT_DIR`` to *<install_dir>*:

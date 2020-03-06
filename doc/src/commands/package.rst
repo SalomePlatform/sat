@@ -6,8 +6,8 @@ Command package
 
 Description
 ============
-The **package** command creates a SALOME_ archive (usually a compressed Tar_ file .tgz).
-This tar file is used later to intall SALOME on other remote computer.
+The **package** command creates a SALOME archive (usually a compressed Tar_ file .tgz).
+This tar file is used later to install SALOME on other remote computer.
 
 Depending on the selected options, the archive includes sources and binaries
 of SALOME products and prerequisites.
@@ -16,7 +16,7 @@ Usually utility *salomeTools* is included in the archive.
 
 .. note::
   By default the package includes the sources of prerequisites and products.
-  To select a subset use the *--without_property* or *--with_vcs* options.
+  To select a subset, use the *--without_property* or *--with_vcs* options.
    
 
 Usage
@@ -65,17 +65,17 @@ Usage
     sat package SALOME_xx --binaries
     
   This command will create an archive named ``SALOME_xx _<arch>.tgz`` 
-  where <arch> is the OS_ architecture of the machine.
+  where <arch> is the OS architecture of the machine.
 
 
-* Do not delete Version Control System (VCS_) informations from the configurations files of the embedded salomeTools: ::
+* Do not delete Version Control System (VCS_) information from the configuration files of the embedded salomeTools: ::
 
     sat package SALOME_xx --with_vcs
 
   The version control systems known by this option are CVS_, SVN_ and Git_.
 
 
-Some useful configuration pathes
+Some useful configuration paths
 =================================
 
 No specific configuration.

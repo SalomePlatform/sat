@@ -62,7 +62,6 @@ List of Commands
    package <commands/package>
    generate <commands/generate>
    init <commands/init>
-   environ <commands/environ>
    template <commands/template>
 
 

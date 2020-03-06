@@ -36,7 +36,7 @@ Usage
 
 
 
-Some useful configuration pathes
+Some useful configuration paths
 =================================
 
 * **USER**

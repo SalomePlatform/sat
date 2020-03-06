@@ -18,7 +18,7 @@ Configuration projects
 
 By default SAT is provided with no configuration at all, except is own internal one.
 The configuration is brought by SAT projects : usually a git base containing all the configuration files of a project (*.pyconf* files).
-For Salome platform, the SAT project is called SAT_SALOME and can be dowloaded from salome Tuleap forge.
+For Salome platform, the SAT project is called SAT_SALOME and can be downloaded from salome Tuleap forge.
 SAT projects are loaded in sat with the sat init command:
 
 .. code-block:: bash
@@ -72,7 +72,7 @@ At the beginning of the APPLICATION sections, global variables and flags are def
   * **name** : the name of the application (mandatory)
   * **workdir** : the directory in which the application is produced (mandatory)
   * **tag** : the default tag to use for the git bases
-  * **dev** : activate the dev mode. in dev mode git bases are checked out only one time, to avoid risks of removing developments.
+  * **dev** : activate the dev mode. In dev mode git bases are checked out only one time, to avoid risks of removing developments.
   * **verbose** : activate verbosity in the compilation
   * **debug** : activate debug mode in the compilation, i.e -g option
   * **python3** : 'yes/no' tell sat that the application uses python3 
@@ -92,7 +92,7 @@ At the beginning of the APPLICATION sections, global variables and flags are def
         ...
 
 Please note the workdir variable is defined in the above example with references to other sections defined in other configurations files (i.e. $LOCAL and $VARS).
-It's a useful Pyconf functionality).
+It's a useful Pyconf functionality.
 Most of the global variables are optionnal, except name and workdir.
 
 Environment subsection
@@ -129,10 +129,10 @@ For each product, it is possible to specify in a dictionnary:
   * **verbose** : activate verbosity in the compilation
   * **debug** : activate debug mode
 
-If this flags are not specified, SAT takes the default application flag.
-In the following example, SAT uses the the default tag V9_4_BR for products SHAPER, KERNEL and MEDCOUPLING.
+If these flags are not specified, SAT takes the default application flag.
+In the following example, SAT uses the default tag V9_4_BR for products SHAPER, KERNEL and MEDCOUPLING.
 For LIBBATCH it uses the tag V2_4_2.
-KERNEL is compile in debug and verbose mode.
+KERNEL is compiled in debug and verbose mode.
 
 .. code-block:: bash
 
@@ -171,7 +171,7 @@ They can be defined in the application configuration with the properties subsect
 
 In this example the following properties are used:
 
- * **mesa_launcher_in_package** : ask to put a mesa launcher in the packages produced by sat package commans
+ * **mesa_launcher_in_package** : ask to put a mesa launcher in the packages produced by sat package command
  * **repo_dev** : use the development git base (for salome, the tuleap forge)
  * **pip** : ask to use pip to get python products
  * **pip_install_dir** : install pip products in python installation directory (not in separate directories)
@@ -216,7 +216,7 @@ Available product configuration flags
 
 * **name** : the name of the product 
 * **build_source** : the method to use when getting the sources, possible choices are script/cmake/autotools. If "script" is chosen, a compilation script should be provided with compil_script key
-* **compil_script** : to specify a compilation script (in conjonction with build_source set to "script"). The programation langage is bash under linux, and bat under windows.  
+* **compil_script** : to specify a compilation script (in conjonction with build_source set to "script"). The programming language is bash under linux, and bat under windows.  
 * **get_source** : the mode to get the sources, possible choices are archive/git/svn/cvs
 * **depend** : to give SAT the dependencies of the product
 * **patches** : provides a list of patches, if required
@@ -264,7 +264,7 @@ Here are some properties frequently used:
 * **compile_time** : the product is used only at compile time (ex : swig)
 * **pip** : the product is managed by pip
 * **not_in_package** : the product will not be put in packages
-* **is_SALOME_module** : te product is a SALOME module
+* **is_SALOME_module** : the product is a SALOME module
 * **is_distene** : the product requires a DISTENE licence
 
 The product properties allow SAT doing specific choices according to the property.
@@ -281,13 +281,13 @@ Product environment
 -------------------
 
 The product environment is declared in a subsection called environment.
-It is used by sat at compile time the set up the environment for the compilation of all the products depending upon it.
+It is used by sat at compile time to set up the environment for the compilation of all the products depending upon it.
 It is also used at run tim to set up the application environment.
 
-Two mecanisms are offered to define the environment.
+Two mechanisms are offered to define the environment.
 The first one is similar to the one used in the application configuration : inside the environ section, we declare variables or paths.
 A variable appended or prepended by an underscore is treated as a path, to which we prepend or append the valued according to the position of the underscore.
-In the above example, the value *<install_dir/share/salome/ressources/salome* is prepended to the path SalomeAppConfig.
+In the following example, the value *<install_dir/share/salome/ressources/salome* is prepended to the path SalomeAppConfig.
 
 .. code-block:: bash
 
@@ -297,11 +297,11 @@ In the above example, the value *<install_dir/share/salome/ressources/salome* is
     }
 
 
-But the most common way is to use a environment script, which specify the environment by using an API provided by sat: 
+But the most common way is to use an environment script, which specifies the environment by using an API provided by sat: 
 
 .. code-block:: bash
 
-    # use script qt.py to set up qt environement
+    # use script qt.py to set up qt environment
     environ :
     {
        env_script : "qt.py"
@@ -339,20 +339,20 @@ As an example, the environment script for qt is:
             env.prepend('LD_LIBRARY_PATH', os.path.join(prereq_dir, 'lib'))
             pass
 
-*env* is the API provided by SAT, prereq_dir is the installation directory, version the product version.
-env.set set a variable, env.prepend and env.append are used to prepend or append values to a path.
+*env* is the API provided by SAT, *prereq_dir* is the installation directory, *version* the product version.
+*env.set* sets a variable, *env.prepend* and *env.append* are used to prepend or append values to a path.
 
-The **setenv** function is used to set the environement at compile time and run time.
+The **setenv** function is used to set the environment at compile time and run time.
 It is also possible to use **set_env_build** and **set_env_launch** callback functions to set specific compile or run time environment.
-Finally the functions **set_nativ_env** is used for native products.
+Finally the function **set_nativ_env** is used for native products.
 
 
 Product sections
 ----------------
 
 The product configuration file may contain several sections.
-In addition to the  "default" section, it is possible to declare other section that will be used for specific versions of the product.
-This allows SAT compiling different version of a products.
+In addition to the  "default" section, it is possible to declare other sections that will be used for specific versions of the product.
+This allows SAT compiling different versions of a product.
 To determine which section should be used, SAT has an algorithm that takes into account the version number.
 Here are some examples of sections that will be taken into account by SAT :
 
@@ -371,15 +371,15 @@ Here are some examples of sections that will be taken into account by SAT :
     }
 
 Several version numbering are considered by SAT (not only X.Y.Z)
-For example V9, v9, 9, 9.0.0, 9_0_0, are acepted. 
+For example V9, v9, 9, 9.0.0, 9_0_0, are accepted. 
 
-By default SAT only consider one section : the one determined according to the version number, or the default one.
+By default SAT only considers one section : the one determined according to the version number, or the default one.
 But if the **incremental property** is defined in the default section, and is set to "yes", then SAT enters in the **incremental mode** and merges different sections into one,
 by proceeding incremental steps. SAT uses the following algorithm to merge the sections:
 
 #. We take the complete "default" section
-#. if a "default_win" section is defined, we merge it.
-#. If a section name correspond to the version number, we also merge it.
+#. If a "default_win" section is defined, we merge it.
+#. If a section name corresponds to the version number, we also merge it.
 #. Finally on windows platform if the same section name appended by _win exists, we merge it.
 
 
@@ -387,7 +387,7 @@ Other configuration sections
 ============================ 
 
 
-The configuration of SAT is split into height sections : VARS, APPLICATION, PRODUCTS, PROJECTS, PATHS, USER, LOCAL, INTERNAL.
+The configuration of SAT is split into eight sections : VARS, APPLICATION, PRODUCTS, PROJECTS, PATHS, USER, LOCAL, INTERNAL.
 These sections are feeded by the pyconf files which are loaded by sat: each pyconf file is parsed by SAT and merged into the global configuration.
 One file can reference variables defined in other files. Files are loaded in this order :
 
@@ -396,7 +396,7 @@ One file can reference variables defined in other files. Files are loaded in thi
 * the application pyconf
 * the products pyconf (for all products declared in the application)
 
-In order to check the configuration and the merge done by sat, it is possible to display the resulting height section with the command:
+In order to check the configuration and the merge done by sat, it is possible to display the resulting eight section with the command:
 
 .. code-block:: bash
 
@@ -407,7 +407,7 @@ In order to check the configuration and the merge done by sat, it is possible to
 Note also that if you don't remember the name of a section it is possible to display section names with the automatic completion functionality.
 
 We have already described two of the sections : APPLICATION and PRODUCTS.
-Let's describe briefly the six others
+Let's describe briefly the six others.
 
 .. _VARS-Section:
 
@@ -450,29 +450,28 @@ The ``USER`` section defines some parameters (not exhaustive):
 Other sections
 --------------
 
-* **PROJECTs** : This section contains the configuration of the projects loaded in SAT by *sat init --add_project* command. 
-* **PATHS** : This section contains paths used by saloeTools.
+* **PROJECTS** : This section contains the configuration of the projects loaded in SAT by *sat init --add_project* command. 
+* **PATHS** : This section contains paths used by salomeTools.
 * **LOCAL** : contains information relative to the local installation of SAT.
 * **INTERNAL** : contains internal SAT information
 
 
-Overwriting the configution
-===========================
+Overwriting the configuration
+=============================
 
 At the end of the process, SAT ends up with a complete global configuration resulting from the parsing of all *.pyconf* files.
 It may be interesting to overwrite the configuration.
-SAT offer two overwriting mecanism to answer these two use cases:
+SAT offers two overwriting mechanisms to answer these two use cases:
 
-#. Be able to conditionaly modify the configuration of an application to take into account specifics and support multi-platform builds
+#. Be able to conditionally modify the configuration of an application to take into account specifics and support multi-platform builds
 #. Be able to modify the configuration in the command line, to enable or disable some options at run time
 
 Application overwriting
 -----------------------
 
 At the end of the application configuration, it is possible to define an overwrite section with the keyword **__overwrite__ :**.
-It is followed by a list overwrite sections, that may be conditionnal (use of the keyword **__condition__ :**).
-A classical usage of the application overwriting is the change of a prerequisite version for a given platform (when the default version do not compile).
-/bin/bash: q : commande introuvable
+It is followed by a list of overwrite sections, that may be conditionnal (use of the keyword **__condition__ :**).
+A classical usage of the application overwriting is the change of a prerequisite version for a given platform (when the default version does not compile).
 
 .. code-block:: bash
 

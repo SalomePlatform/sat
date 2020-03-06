@@ -55,7 +55,7 @@ More details are provided by the help of sat. The help option can be called at t
 Completion mode
 ---------------
 
-When getting started with sat, the use of the competion mode is convenient. This mode will display by typing twice on the **tab key** the available options, commands, applications or products available. The completion mode has to be activated by sourcing the file **complete_sat.sh** contained in SAT directory:
+When getting started with sat, the use of the completion mode is convenient. This mode will display by typing twice on the **tab key** the available options, commands, applications or products available. The completion mode has to be activated by sourcing the file **complete_sat.sh** contained in SAT directory:
 
 .. code-block:: bash
 
@@ -63,11 +63,11 @@ When getting started with sat, the use of the competion mode is convenient. This
     source complete_sat.sh      
 
     # list all application available for compilation
-    ./sat conpile  <TAB> <TAB>  
+    ./sat compile  <TAB> <TAB>
     > SALOME-7.8.2   SALOME-8.5.0   SALOME-9.3.0   SALOME-master
 
     # list all available options of sat compile 
-    ./sat conpile SALOME-9.3.0 <TAB> <TAB>  
+    ./sat compile SALOME-9.3.0 <TAB> <TAB>
     > --check              --clean_build_after  --install_flags      --properties
     > --stop_first_fail    --with_fathers       --clean_all          --clean_make
     > --products           --show               --with_children
@@ -110,7 +110,7 @@ This is the main use case : build from scratch an application.
     ./sat package SALOME-9.4.0 -b
 
 
-All the build is done in the *application directory*, which is parametered by the sat configuration variable *$APPLICATION.workdir*. In the above example this directory corresponds to *.../SALOME-9.4.0-CO7*.
+All the build is done in the *application directory*, which is parameterized by the sat configuration variable *$APPLICATION.workdir*. In the above example this directory corresponds to *.../SALOME-9.4.0-CO7*.
 SAT can only build applications provided by the projects that have been loaded with *sat init* command. The available applications are listed by *sat config -l* command. 
 
 
@@ -120,7 +120,7 @@ Partial recompilation of a packaged application
 Getting all the sources and compile everything is often a long process.
 The following use case has proven to be convenient for fast usage!
 It consists to get the application through a sat package containing the binaries, the sources and SAT.
-This allows using directly the application after the detar (the binary part). 
+This allows using directly the application after the untar (the binary part).
 And later, if required, it is possible to add a module, or modify some source code and recompile only what was added or modified.
 
 .. code-block:: bash
@@ -131,10 +131,10 @@ And later, if required, it is possible to add a module, or modify some source co
     # start salome
     SALOME-9.4.0-CO7-SRC/salome
 
-    # copy binaries in INSTALL directory, do required substitution to enable recompilation
+    # copy binaries in INSTALL directory, do required substitutions to enable recompilation
     ./install_bin.sh
 
-    # get sources of module we want to recompile
+    # get sources of modules we want to recompile
     salomeTools/sat prepare SALOME-9.4.0 -p SHAPER,SMESH
     
     # do some modifications and recompile both modules
@@ -162,7 +162,7 @@ This default can be changed by the user with sat init command :
 Which products go into the base
 -------------------------------
 
-The application developer has the possibility to declare that a products will go by default in the base.
+The application developer has the possibility to declare that a product will go by default in the base.
 He uses for that the keyword 'base' in the install_dir key within the product configuration file (products pyconf) : *install_dir : 'base'*
 It is done usually for products that are considered as prerequisites.
 
@@ -193,10 +193,10 @@ Like other application flags (debug, verbose, dev) the **base** flag can be used
 Mutualisation of products
 -------------------------
 
-Products that go in base and have the same configuration will be shared by different application (it's the objective).
+Products that go in base and have the same configuration will be shared by different applications (it's the objective).
 SAT does check the configuration to prevent of an application using a product in base with a non compatible configuration. 
 To check the compatibility, SAT stores the configuration in a file called *sat-config-<product name>.pyconf*.
-In a next build (for example in an other application), SAT checks if the new configuration corresponds to what is described in *sat-config-<product name>.pyconf*.
+In a next build (for example in another application), SAT checks if the new configuration corresponds to what is described in *sat-config-<product name>.pyconf*.
 If it corresponds, the previous build is used in base, otherwise a new build is done, and stored in a new directory called *config-<build number>*.
 
 .. warning:: Please note that only the dependencies between products are considered for the checking. If the compilation options changed, it will not be tracked (for example the use of debug mode with -g option will not produce a second configuration, it will overwrite the previous build done in production mode)
@@ -208,11 +208,11 @@ Developing a module with SAT
 SAT has some features that make developers' life easier. Let's highlight some of the developers use cases.
 (if you are not familiar with SAT configuration, you may first read Configuration Chapter before, and come back to this paragraph after)
 
-Activating the developement mode
---------------------------------
+Activating the development mode
+-------------------------------
 
-By default *sat prepare* command is not suited for development, because it erases the source directory (if it already exists) before getting the source.
-If you did developements in this directory **they will be lost!**.
+By default *sat prepare* command is not suited for development, because it erases the source directory (if it already exists) before getting the sources.
+If you did developments in this directory **they will be lost!**.
 
 Therefore before you start some developments inside a product, you should **declare the product in development mode** in the application configuration.  
 For example if you plan to modify KERNEL module, modify SALOME configuration like this:
@@ -231,33 +231,33 @@ For example if you plan to modify KERNEL module, modify SALOME configuration lik
         }
     }
 
-When the dev mode is activated, SAT will load the sources from the git repository only the first time, when the local directory do not exist.
+When the dev mode is activated, SAT will load the sources from the git repository only the first time, when the local directory does not exist.
 For the next calls to *sat prepare*, it will keep the source intact and do nothing!
 
-In the example we have also set the debug and the berbose flag to "yes" - it is often useful when developing.
+In the example we have also set the debug and the verbose flags to "yes" - it is often useful when developing.
 
-Finally, we have changed the tag and replaced it with a developement branche (to be able to push developements directly in git repo - without producing patches).
+Finally, we have changed the tag and replaced it with a development branch (to be able to push developments directly in git repo - without producing patches).
 
-.. warning:: But doing this we have (probably) broken the automatic association done by SAT between the tag of the product and the product section used by SAT to compile it!  (see the chapter "Product sections" in the Configuration documentation for more details about this association) Therefore you need ot tell SAT which section use (otherwise it will take the "default" section, and it may not be the one you need).  This is done with : **section:'version_7_8_0_to_8_4_0'**. If you don't know which section should be used, print it with SAT config before changing the tag : *./sat config SALOME-9.4.0 -i KERNEL* will tell you which section is being used.
+.. warning:: But doing this we have (probably) broken the automatic association done by SAT between the tag of the product and the product section used by SAT to compile it!  (see the chapter "Product sections" in the Configuration documentation for more details about this association) Therefore you need to tell SAT which section to use (otherwise it will take the "default" section, and it may not be the one you need).  This is done with : **section:'version_7_8_0_to_8_4_0'**. If you don't know which section should be used, print it with SAT config before changing the tag : *./sat config SALOME-9.4.0 -i KERNEL* will tell you which section is being used.
 
 Pushing developments in base, or creating patches
 -------------------------------------------------
 
-If you have set the tag to a developement branch (like in the previous example), you can directly push your developements in the git repository with *git push* command.
-If not (if you are detached to a tag, you can produce with git a patch of you developements:
+If you have set the tag to a development branch (like in the previous example), you can directly push your developments in the git repository with *git push* command.
+If not (if you are detached to a tag, you can produce with git a patch of you developments:
 
-    git dif > my_dev.patch
+    git diff > my_dev.patch
 
-And use this patch either with SAT to apply it automaticaly with *sat prepare* command, or send the patch for an integration request.
+And use this patch either with SAT to apply it automatically with *sat prepare* command, or send the patch for an integration request.
 
 
 Changing the source directory
 -----------------------------
 
-By default the source directory of a product is located inside SAT installation, in the SOURCE directory.
-This defaut may not be convenient. Developers may prefer to develop inside the HOME directory (for example when this directory is automaticaly saved).
+By default the source directory of a product is located inside SAT installation, in the SOURCES directory.
+This default may not be convenient. Developers may prefer to develop inside the HOME directory (for example when this directory is automatically saved).
 
-To change the default source directory, you first hanve to identify which product section is used by SAT: ::
+To change the default source directory, you first have to identify which product section is used by SAT: ::
 
     ./sat config SALOME-9.4.0 -i KERNEL
     >  ....

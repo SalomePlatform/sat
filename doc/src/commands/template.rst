@@ -9,8 +9,8 @@ Description
 The **template** command generates the sources of a SALOME module out of a template.
 SAT provides two templates for SALOME 9 :
 
-* PythonComponent : a complete template for a SALOME module implemented in python (with data model and GUI)
-* CppComponent : a template for a SALOME component implemented in C++, with a code coupling API 
+* PythonComponent : a complete template for a SALOME module implemented in python (with data model and GUI).
+* CppComponent : a template for a SALOME component implemented in C++, with a code coupling API.
 
 Usage
 =====

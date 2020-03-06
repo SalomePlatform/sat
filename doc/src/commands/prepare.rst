@@ -51,12 +51,12 @@ edit the application configuration file (pyconf) and modify the product declarat
 
 The first time you will execute the *sat prepare* command, 
 your module will be downloaded in *checkout* mode 
-(inside the SOURCES directory of the application.
+(inside the SOURCES directory of the application).
 Then, you can develop in this repository, and finally push 
 them in the base when they are ready.
 If you type during the development process by mistake 
 a *sat prepare* command, the sources in dev mode will 
-not be altered/removed (Unless you use -f option)
+not be altered/removed (unless you use -f option).
 
 
 Usage
@@ -86,7 +86,7 @@ Usage
     sat prepare <application> --complete
 
 
-Some useful configuration pathes
+Some useful configuration paths
 =================================
 
 Command *sat prepare* uses the *pyconf file configuration* of each product to know how to get the sources.
@@ -100,7 +100,7 @@ Command *sat prepare* uses the *pyconf file configuration* of each product to kn
 
 * **get_method**: the method to use to prepare the module, possible values are cvs, git, archive, dir.
 * **git_info** : (used if get_method = git) information to prepare sources from git.
-* **svn_info** : (used if get_method = svn) information to prepare sources from cvs.
+* **svn_info** : (used if get_method = svn) information to prepare sources from svn.
 * **cvs_info** : (used if get_method = cvs) information to prepare sources from cvs.
 * **archive_info** : (used if get_method = archive) the path to the archive.
 * **dir_info** : (used if get_method = dir) the directory with the sources.

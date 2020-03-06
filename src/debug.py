@@ -56,6 +56,7 @@ import sys
 import traceback
 import pprint as PP
 import inspect
+import src
 
 # Compatibility python 2/3 for unicode
 try:
@@ -71,14 +72,13 @@ except ImportError:
 
 _debug = [False] #support push/pop for temporary activate debug outputs
 
-_user = os.environ['USER']
 # wambeke is christian at home
-_developers = ["christian", "wambeke"] # crouzet, kloss ...
+_developers = ["christian", "wambeke"]
 
 
 def isDeveloper():
     """if you are a developer, sometimes you want verbose traces etc."""
-    res = _user in _developers
+    res = src.architecture.get_user()  in _developers
     return res
 
 def indent(text, amount=2, ch=' '):

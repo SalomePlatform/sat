@@ -6,7 +6,7 @@ Command application
 
 Description
 ===========
-The **application** command creates a virtual SALOME_ application.
+The **application** command creates a virtual SALOME application.
 Virtual SALOME applications are used to start SALOME when distribution is needed.
 
 Usage
@@ -27,7 +27,7 @@ Usage
 
     sat application <application> --target <my_application_directory>
 
-* Set a specific SALOME_ resources catalog (it will be used for the distribution of components on distant machines): ::
+* Set a specific SALOME resources catalog (it will be used for the distribution of components on distant machines): ::
 
     sat application <application> --catalog <path_to_catalog>
     
@@ -43,10 +43,10 @@ Usage
 
     sat launcher <application> --use_mesa
 
-Some useful configuration pathes
+Some useful configuration paths
 =================================
 
-The virtual application can be configured with the virtual_app section of the configutation file.
+The virtual application can be configured with the virtual_app section of the configuration file.
 
 * **APPLICATION.virtual_app**
 

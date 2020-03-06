@@ -1,7 +1,7 @@
 .. include:: ../../rst_prolog.rst
 
-Command config
-******************
+Command init
+************
 
 Description
 ===========
@@ -10,12 +10,12 @@ It allows to initialise the content of this file.
 
 Usage
 =====
-* A sat project provides all the pyconf files relatives to a project (salome for example). Use the *--add_project* command to add a sat project locally, in data/local.pyconf (by default sat comes without any project). It is possible to add  as many projects as required. ::
+* A sat project provides all the pyconf files relative to a project (salome for example). Use the *--add_project* command to add a sat project locally, in data/local.pyconf (by default sat comes without any project). It is possible to add  as many projects as required. ::
 
     sat init --add_project <path/to/a/sat/project/project.pyconf>
 
 
-* If you need to remove a sat project from the local configuration, use the *--reset_projects* command to remove all projects and then add the nex ones with *--add_project*: ::
+* If you need to remove a sat project from the local configuration, use the *--reset_projects* command to remove all projects and then add the next ones with *--add_project*: ::
   
     sat init --reset_projects
     sat init --add_project <path/to/a/new/sat/project/project.pyconf>
@@ -24,7 +24,7 @@ Usage
 
     sat init --archive_dir  <local/path/where/to/store/product/archives>
 
-* sat enable a **base** mode, which allow to mutualize product builds between several applications. By defaut, the mutualised builds are stored locally within the directory containing salomeTool, in a subdirectory called  BASE. To change the default, use the *--base* option: ::
+* sat enables a **base** mode, which allows to mutualize product builds between several applications. By default, the mutualized builds are stored locally within the directory containing salomeTool, in a subdirectory called BASE. To change the default, use the *--base* option: ::
   
     sat init --base <local/path/where/to/store/product/mutualised/product/builds>
 
@@ -35,7 +35,7 @@ Usage
 
 
 
-Some useful configuration pathes
+Some useful configuration paths
 =================================
 
 All the sat init commands update the local pyconf salomeTool file data/local.pyconf. The same result can be achieved by editing the file directly. 
