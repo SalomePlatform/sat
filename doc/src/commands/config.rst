@@ -23,6 +23,10 @@ Usage
 
     sat config <application> --edit
 
+* Check the system dependencies (if any) used by the application: ::
+
+    sat config <application> --check_system
+
 * Copy an application configuration file into the user personal directory: ::
   
     sat config <application> --copy [new_name]
@@ -62,6 +66,10 @@ Usage
 * Print the patches that are applied: ::
 
     sat config SALOME-xx --show_patchs
+
+* Print the properties available for an application: ::
+
+    sat config SALOME-xx show_properties
 
 * Get information on a product configuration: 
 
