@@ -556,6 +556,10 @@ def get_base_install_dir(config, prod_info, version):
     :return: The path of the product installation
     :rtype: str
     """    
+    
+    # get rid of / to avoid create subdirectories cf sat #18546
+    version_wslash=version.replace("/", "_") 
+
     if ( src.appli_test_property(config,"pip", "yes") and 
          src.product.product_test_property(prod_info,"pip", "yes") and
          src.appli_test_property(config,"pip_install_dir", "python") ):
@@ -567,10 +571,10 @@ def get_base_install_dir(config, prod_info, version):
     base_path = src.get_base_path(config) 
     if "base" in prod_info and prod_info.base != "no" and prod_info.base != "yes":
         # we are in the case of a named base
-        prod_dir = os.path.join(base_path, "apps", prod_info.base, prod_info.name, version)
+        prod_dir = os.path.join(base_path, "apps", prod_info.base, prod_info.name, version_wslash)
         return prod_dir
     
-    prod_dir = os.path.join(base_path, prod_info.name + "-" + version)
+    prod_dir = os.path.join(base_path, prod_info.name + "-" + version_wslash)
     if not os.path.exists(prod_dir):
         return os.path.join(prod_dir, "config-1")
     
