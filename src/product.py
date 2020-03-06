@@ -829,9 +829,28 @@ def check_installation(config, product_info):
     :return: True if it is well installed
     :rtype: boolean
     """
-    # don't check native products, or products that are not compiled
-    if (not product_compiles(product_info)) or product_is_native(product_info):
+    # don't check products that are not compiled
+    if not product_compiles(product_info):
         return True
+
+    if product_is_native(product_info):
+        # check a system product
+        check_cmd=src.system.get_pkg_check_cmd()
+        run_pkg,build_pkg=src.product.check_system_dep(check_cmd, product_info)
+        build_dep_ko=[]
+        for pkg in build_pkg:
+            if "KO" in build_pkg[pkg]:
+               build_dep_ko.append(pkg) 
+        if build_dep_ko:
+              # the product is not installed : display message and return error status
+              msg="Please install them with %s before compiling salome" % check_cmd[0]
+              print("\nmissing compile time dependencies : ")
+              for md in build_dep_ko: 
+                  print(md)
+              print(msg)
+              return False
+        else:
+            return True    
 
     install_dir = product_info.install_dir
     if ( (src.appli_test_property(config,"single_install_dir", "yes") and 
@@ -1172,6 +1191,30 @@ def product_test_property(product_info, property_name, property_value):
     result = eval(eval_expression)
     return result
 
+def check_system_dep(check_cmd, product_info):
+    """Search for system dependencies, check if installed
+    :param check_cmd Config: The command to use for checking (rpm/apt)
+    :param product_info Config: The configuration specific to the product
+    :rtype: two dictionnaries for runtime and compile time dependencies with text status
+    """
+    runtime_dep={}
+    build_dep={}
+    if "system_info" in product_info:
+        if check_cmd[0]=="rpm":
+            if "rpm" in product_info.system_info:
+                for pkg in product_info.system_info.rpm:
+                    runtime_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
+            if "rpm_dev" in product_info.system_info:
+                for pkg in product_info.system_info.rpm_dev:
+                    build_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
+        if check_cmd[0]=="apt":
+            if "apt" in product_info.system_info:
+                for pkg in product_info.system_info.apt:
+                    runtime_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
+            if "apt_dev" in product_info.system_info:
+                for pkg in product_info.system_info.apt_dev:
+                    build_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
+    return runtime_dep,build_dep
 
 
 def get_product_components(product_info):

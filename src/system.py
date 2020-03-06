@@ -322,3 +322,60 @@ def svn_extract(user,
                           stdout=logger.logTxtFile,
                           stderr=subprocess.STDOUT)
     return (res == 0)
+
+def get_pkg_check_cmd():
+    '''Build the command to use for checking if a linux package is installed or not.'''
+    # 1- search for an installed package manager (rpm on rh, apt on db)
+    cmd_which_rpm=["which", "rpm"]
+    cmd_which_apt=["which", "apt"]
+    with open(os.devnull, 'w') as devnull:
+        # 1) we search for apt (debian based systems)
+        completed=subprocess.call(cmd_which_apt,stdout=devnull, stderr=subprocess.STDOUT)
+        if completed==0:
+            cmd_is_package_installed=["apt", "list", "--installed"]
+        else:
+            # 2) if apt not found search for rpm (redhat)
+            completed=subprocess.call(cmd_which_rpm,stdout=devnull, stderr=subprocess.STDOUT) # only 3.8! ,capture_output=True)
+            if completed==0:
+                cmd_is_package_installed=["rpm", "-q"]
+            else:
+                # no package manager was found
+                raise src.SatException("Error : command failed because sat was not able to find apt or rpm")
+    return cmd_is_package_installed
+
+def check_system_pkg(check_cmd,pkg):
+    '''Check if a package is installed
+    :param check_cmd list: the list of command to use system package manager
+    :param user str: the pkg name to check
+    :rtype: str
+    :return: a string with package name with status un message
+    '''
+    # build command
+    cmd_is_package_installed=[]
+    for cmd in check_cmd:
+        cmd_is_package_installed.append(cmd)
+    cmd_is_package_installed.append(pkg)
+    if check_cmd[0]=="apt":
+        # special treatment for apt
+        # (some debian packages have version numbers in their name, and also
+        # apt do not return status)
+        cmd_is_package_installed[-1]+="*" # we don't specify in pyconf the exact name because of version numbers
+        cmd_is_package_installed.append('|')
+        cmd_is_package_installed.append('grep') # add a grep to get an exit status
+        cmd_is_package_installed.append(cmd) 
+        
+    p=subprocess.Popen(cmd_is_package_installed, 
+                       stdout=subprocess.PIPE, 
+                       stderr=subprocess.PIPE)
+    output, err = p.communicate()
+    rc = p.returncode
+    if rc==0:
+        msg_status=src.printcolors.printcSuccess("OK")
+        if check_cmd[0]=="rpm": # apt output is too messy for being used
+            msg_status+=" (" + output.replace('\n',' ') + ")\n" # remove output trailing \n
+    else:
+        msg_status=src.printcolors.printcError("KO") 
+        msg_status+=" (package is not installed!)\n"
+
+    return msg_status
+

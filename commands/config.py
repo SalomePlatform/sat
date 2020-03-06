@@ -57,6 +57,8 @@ parser.add_option('', 'show_install', 'boolean', 'show_install',
     _("Optional: synthetic list of all install directories in the application"))
 parser.add_option('', 'show_properties', 'boolean', 'show_properties',
     _("Optional: synthetic list of all properties used in the application"))
+parser.add_option('', 'check_system', 'boolean', 'check_system',
+    _("Optional: check if system products are installed"))
 parser.add_option('c', 'copy', 'boolean', 'copy',
     _("""Optional: copy a config file to the personal config files directory.
 WARNING: the included files are not copied.
@@ -784,6 +786,61 @@ def show_patchs(config, logger):
   else:
     logger.write("No patchs found\n", 1)
 
+def check_install_system(config, logger):
+  '''Check the installation of all (declared) system products
+
+  :param config Config: the global configuration.
+  :param logger Logger: The logger instance to use for the display
+  '''
+  # get the command to use for checking the system dependencies
+  # (either rmp or apt)
+  check_cmd=src.system.get_pkg_check_cmd()
+  logger.write("\nCheck the system dependencies declared in the application\n",1)
+  pkgmgr=check_cmd[0]
+  run_dep_ko=[] # list of missing run time dependencies
+  build_dep_ko=[] # list of missing compile time dependencies
+  for product in sorted(config.APPLICATION.products):
+    try:
+      product_info = src.product.get_product_config(config, product)
+      if src.product.product_is_native(product_info):
+        # if the product is native, get (in two dictionnaries the runtime and compile time 
+        # system dependencies with the status (OK/KO)
+        run_pkg,build_pkg=src.product.check_system_dep(check_cmd, product_info)
+        #logger.write("\n*** %s ***\n" % product, 1)
+        for pkg in run_pkg:
+            logger.write("\n   - "+pkg + " : " + run_pkg[pkg], 1)
+            if "KO" in run_pkg[pkg]:
+                run_dep_ko.append(pkg)
+        for pkg in build_pkg:
+            logger.write("\n   - "+pkg + " : " + build_pkg[pkg], 1)
+            if "KO" in build_pkg[pkg]:
+                build_dep_ko.append(pkg)
+        #  logger.write(src.printcolors.printcInfo("    %s\n" % i), 1)
+
+    except Exception as e:
+      msg = "\nproblem with the check of system prerequisite %s\n%s\n" % (product, str(e))
+      logger.error(msg)
+      raise Exception(msg)
+
+  logger.write("\n\n",1)
+  if run_dep_ko:
+      msg="Some run time system dependencies are missing!\n"+\
+          "Please install them with %s before running salome" % pkgmgr
+      logger.warning(msg)
+      logger.write("missing run time dependencies : ",1)
+      for md in run_dep_ko: 
+        logger.write(md+" ",1)
+      logger.write("\n\n")
+        
+  if build_dep_ko:
+      msg="Some compile time system dependencies are missing!\n"+\
+          "Please install them with %s before compiling salome" % pkgmgr
+      logger.warning(msg)
+      logger.write("missing compile time dependencies : ",1)
+      for md in build_dep_ko: 
+        logger.write(md+" ",1)
+      logger.write("\n\n")
+    
 
 def show_install_dir(config, logger):
   '''Prints all the used installed directories in the application.
@@ -1145,3 +1202,7 @@ def run(args, runner, logger):
         logger.write("\n", 2, False)
         show_properties(runner.cfg, logger)
 
+    # check system prerequisites
+    if options.check_system:
+       check_install_system(runner.cfg, logger)
+       pass 
