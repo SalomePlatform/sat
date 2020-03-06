@@ -399,14 +399,23 @@ def get_product_sources(config,
                                     env_appli)
 
     if product_info.get_source == "native":
-        # skip
-        logger.write('%s  ' % src.printcolors.printc(src.OK_STATUS),
-                     3,
-                     False)
-        msg = _('INFORMATION : Not doing anything because the product'
-                ' is of type "native".\n')
-        logger.write(msg, 3)
-        return True        
+        # for native products we check the corresponding system packages are installed
+        logger.write("Native : Checking system packages are installed\n" , 3)
+        check_cmd=src.system.get_pkg_check_cmd() # (either rmp or apt)
+        run_pkg,build_pkg=src.product.check_system_dep(check_cmd, product_info)
+        result=True
+        for pkg in run_pkg:
+            logger.write(" - "+pkg + " : " + run_pkg[pkg], 1)
+            if "KO" in run_pkg[pkg]:
+                result=False
+        for pkg in build_pkg:
+            logger.write(" - "+pkg + " : " + build_pkg[pkg], 1)
+            if "KO" in build_pkg[pkg]:
+                result=False
+        if result==False:
+            logger.error("some system dependencies are missing, please install them with "+\
+                         check_cmd[0])
+        return result        
 
     if product_info.get_source == "fixed":
         # skip
