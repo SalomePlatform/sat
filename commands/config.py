@@ -309,7 +309,7 @@ class ConfigManager:
             cfg.LOCAL.archive_dir = os.path.abspath( osJoin(cfg.VARS.salometoolsway, "..", "ARCHIVES"))
 
         # if the sat tag was not set permanently by user
-        if cfg.LOCAL.tag == None:
+        if cfg.LOCAL.tag == "unknown":
             # get the tag with git, and store it
             sat_version=src.system.git_describe(cfg.VARS.salometoolsway) 
             if sat_version == False:

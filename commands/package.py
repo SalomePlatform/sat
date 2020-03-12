@@ -73,8 +73,8 @@ LOCAL_TEMPLATE = ("""#!/usr/bin/env python
     workdir : 'default'
     log_dir : 'default'
     archive_dir : 'default'
-    VCS : None
-    tag : None
+    VCS : 'unknown'
+    tag : 'unknown'
   }
 
 PROJECTS :
