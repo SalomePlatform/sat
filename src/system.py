@@ -68,7 +68,8 @@ def git_describe(repo_path):
     if p.returncode != 0:
         return False
     else:
-        return p.stdout.readlines()[0].strip()
+        tag_description=p.stdout.readlines()[0].strip()
+        return tag_description.decode('utf-8')
 
 
 def git_extract(from_what, tag, where, logger, environment=None):
