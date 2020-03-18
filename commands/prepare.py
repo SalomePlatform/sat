@@ -49,7 +49,7 @@ def find_products_already_prepared(l_products):
     l_res = []
     for p_name_p_cfg in l_products:
         __, prod_cfg = p_name_p_cfg
-        if os.path.exists(prod_cfg.source_dir):
+        if "source_dir" in prod_cfg and os.path.exists(prod_cfg.source_dir):
             l_res.append(p_name_p_cfg)
     return l_res
 
