@@ -401,7 +401,7 @@ def get_product_sources(config,
     if product_info.get_source == "native":
         # for native products we check the corresponding system packages are installed
         logger.write("Native : Checking system packages are installed\n" , 3)
-        check_cmd=src.system.get_pkg_check_cmd() # (either rmp or apt)
+        check_cmd=src.system.get_pkg_check_cmd(config.VARS.dist_name) # (either rmp or apt)
         run_pkg,build_pkg=src.product.check_system_dep(check_cmd, product_info)
         result=True
         for pkg in run_pkg:

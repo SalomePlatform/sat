@@ -59,7 +59,7 @@ def get_distribution(codes):
         return "W"
 
     # else get linux distribution description from platform, and encode it with code
-    lin_distrib = platform.dist()[0].lower()
+    lin_distrib = platform.linux_distribution()[0].lower()
     distrib="not found"
     for dist in codes:
         if dist in lin_distrib:
@@ -76,9 +76,9 @@ def get_version_XY():
     """
     Return major and minor version of the distribution
     from a CentOS example, returns '7.6'
-    extracted from platform.dist()
+    extracted from platform.linux_distribution()
     """
-    dist_version=platform.dist()[1].split('.')
+    dist_version=platform.linux_distribution()[1].split('.')
     if len(dist_version)==1:
         version = dist_version[0]
     else:
@@ -102,7 +102,7 @@ def get_distrib_version(distrib):
         return platform.release()
 
     # get version from platform
-    dist_version=platform.dist()[1].split('.')
+    dist_version=platform.linux_distribution()[1].split('.')
 
     # encode it (conform to src/internal_config/distrib.pyconf VERSIONS dist
     if distrib == "CO":

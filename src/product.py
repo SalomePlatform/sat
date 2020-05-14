@@ -839,7 +839,7 @@ def check_installation(config, product_info):
 
     if product_is_native(product_info):
         # check a system product
-        check_cmd=src.system.get_pkg_check_cmd()
+        check_cmd=src.system.get_pkg_check_cmd(config.VARS.dist_name)
         run_pkg,build_pkg=src.product.check_system_dep(check_cmd, product_info)
         build_dep_ko=[]
         for pkg in build_pkg:

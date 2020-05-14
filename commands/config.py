@@ -794,7 +794,7 @@ def check_install_system(config, logger):
   '''
   # get the command to use for checking the system dependencies
   # (either rmp or apt)
-  check_cmd=src.system.get_pkg_check_cmd()
+  check_cmd=src.system.get_pkg_check_cmd(config.VARS.dist_name)
   logger.write("\nCheck the system dependencies declared in the application\n",1)
   pkgmgr=check_cmd[0]
   run_dep_ko=[] # list of missing run time dependencies

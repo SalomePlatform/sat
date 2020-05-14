@@ -324,24 +324,32 @@ def svn_extract(user,
                           stderr=subprocess.STDOUT)
     return (res == 0)
 
-def get_pkg_check_cmd():
+def get_pkg_check_cmd(dist_name):
     '''Build the command to use for checking if a linux package is installed or not.'''
+
+    if dist_name in ["CO","FD","MG","MD","CO","OS"]: # linux using rpm
+        linux="RH"  
+        manager_msg_err="Error : command failed because sat was not able to find apt command"
+    else:
+        linux="DB"
+        manager_msg_err="Error : command failed because sat was not able to find rpm command"
+
     # 1- search for an installed package manager (rpm on rh, apt on db)
     cmd_which_rpm=["which", "rpm"]
     cmd_which_apt=["which", "apt"]
     with open(os.devnull, 'w') as devnull:
         # 1) we search for apt (debian based systems)
         completed=subprocess.call(cmd_which_apt,stdout=devnull, stderr=subprocess.STDOUT)
-        if completed==0:
+        if completed==0 and linux=="DB":
             cmd_is_package_installed=["apt", "list", "--installed"]
         else:
             # 2) if apt not found search for rpm (redhat)
             completed=subprocess.call(cmd_which_rpm,stdout=devnull, stderr=subprocess.STDOUT) # only 3.8! ,capture_output=True)
-            if completed==0:
+            if completed==0 and linux=="RH":
                 cmd_is_package_installed=["rpm", "-q"]
             else:
-                # no package manager was found
-                raise src.SatException("Error : command failed because sat was not able to find apt or rpm")
+                # no package manager was found corresponding to dist_name
+                raise src.SatException(manager_msg_err)
     return cmd_is_package_installed
 
 def check_system_pkg(check_cmd,pkg):
