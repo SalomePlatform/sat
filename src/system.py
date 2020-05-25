@@ -69,7 +69,10 @@ def git_describe(repo_path):
         return False
     else:
         tag_description=p.stdout.readlines()[0].strip()
-        return tag_description.decode('utf-8')
+        # with python3 this utf8 bytes should be decoded
+        if isinstance(tag_description, bytes):
+            tag_description=tag_description.decode("utf-8", "ignore")
+        return tag_description
 
 
 def git_extract(from_what, tag, where, logger, environment=None):
@@ -377,10 +380,14 @@ def check_system_pkg(check_cmd,pkg):
                        stdout=subprocess.PIPE, 
                        stderr=subprocess.PIPE)
     output, err = p.communicate()
+
     rc = p.returncode
     if rc==0:
         msg_status=src.printcolors.printcSuccess("OK")
         if check_cmd[0]=="rpm": # apt output is too messy for being used
+            # in python3 output is a byte and should be decoded
+            if isinstance(output, bytes):
+                output = output.decode("utf-8", "ignore")
             msg_status+=" (" + output.replace('\n',' ') + ")\n" # remove output trailing \n
     else:
         msg_status=src.printcolors.printcError("KO") 
