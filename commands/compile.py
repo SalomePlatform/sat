@@ -267,9 +267,15 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
             #  - the error step is "check", or
             #  - the product is managed by pip and installed in python dir
             do_not_clean_install=False
-            if (error_step == "CHECK") or (is_pip and \
-                src.appli_test_property(config,"pip_install_dir", "python")) :
-                do_not_clean_install=True
+            is_single_dir=(src.appli_test_property(config,"single_install_dir", "yes") and \
+                           src.product.product_test_property(p_info,"single_install_dir", "yes"))
+              
+            if (error_step == "CHECK") or (is_pip and src.appli_test_property(config,"pip_install_dir", "python")) or is_single_dir  :
+                # cases for which we do not want to remove install dir
+                #   for is_single_dir and is_pip, the test to determine if the product is already 
+                #   compiled is based on configuration file, not the directory
+                do_not_clean_install=True 
+
             if not do_not_clean_install:
                 # Clean the install directory if there is any
                 logger.write(_(
