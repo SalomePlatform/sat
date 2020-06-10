@@ -1363,7 +1363,7 @@ The procedure to do it is:
     
     return readme_path
 
-def update_config(config, prop, value):
+def update_config(config, logger,  prop, value):
     '''Remove from config.APPLICATION.products the products that have the property given as input.
     
     :param config Config: The global config.
@@ -1379,6 +1379,7 @@ def update_config(config, prop, value):
                 l_product_to_remove.append(product_name)
         for product_name in l_product_to_remove:
             config.APPLICATION.products.__delitem__(product_name)
+            logger.write("Remove product %s with property %s\n" % (product_name, prop), 5)
 
 def description():
     '''method that is called when salomeTools is called with --help option.
@@ -1469,14 +1470,15 @@ Please add it in file:
     
     # Remove the products that are filtered by the --without_properties option
     if options.without_properties:
-        app = runner.cfg.APPLICATION
-        logger.trace("without_properties all products:\n %s\n" % PP.pformat(sorted(app.products.keys())))
         prop, value = options.without_properties
-        update_config(runner.cfg, prop, value)
-        logger.warning("without_properties selected products:\n %s\n" % PP.pformat(sorted(app.products.keys())))
+        update_config(runner.cfg, logger, prop, value)
 
     # Remove from config the products that have the not_in_package property
-    update_config(runner.cfg, "not_in_package", "yes")
+    update_config(runner.cfg, logger, "not_in_package", "yes")
+
+    # for binary packages without sources, remove compile time products
+    if options.binaries and (not options.sources):
+        update_config(runner.cfg, logger, "compile_time", "yes")
     
     # get the name of the archive or build it
     if options.name:

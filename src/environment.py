@@ -246,6 +246,14 @@ class SalomeEnviron:
                                                sorted_nodes)
         self.sorted_product_list=sorted_nodes
 
+        # store the list of compile time products
+        # they should be added in build env
+        compile_time_products=[]
+        for (pname,pinfo) in all_products_infos:
+           if src.product.product_is_compile_time(pinfo):
+               compile_time_products.append(pname)
+        self.compile_time_products=compile_time_products
+
 
     def append(self, key, value, sep=os.pathsep):
         """\
@@ -754,6 +762,11 @@ class SalomeEnviron:
             self.set_a_product("Python", logger)
             self.set_python_libdirs()
 
+        # for a build environment, add compile time products (like cmake)
+        if self.forBuild :
+            for product in self.compile_time_products:
+                self.set_a_product(product, logger)
+
         # The loop on the products
         for product in self.sorted_product_list:
             if product == "Python":
@@ -783,6 +796,11 @@ class SalomeEnviron:
         if "Python" in sorted_product_list:
             self.set_a_product("Python", logger)
             self.set_python_libdirs()
+
+        # for a build environment, add compile time products (like cmake)
+        if self.forBuild :
+            for product in self.compile_time_products:
+                self.set_a_product(product, logger)
 
         # set products
         for product in sorted_product_list:
