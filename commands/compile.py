@@ -699,20 +699,25 @@ def run(args, runner, logger):
             visited_nodes,sorted_nodes=depth_first_topo_graph(all_products_graph, n, visited_nodes,sorted_nodes)
     logger.write("Complete dependency graph topological search (sorting): %s\n" % sorted_nodes, 6)
 
-#   use the sorted list of all products to sort the list of products we have to compile
-    sorted_product_list=[]
-    for n in sorted_nodes:
-        if n in products_list:
-            sorted_product_list.append(n)
-    logger.write("Sorted list of products to compile : %s\n" % sorted_product_list, 5)
-
-    
-    # from the sorted list of products to compile, build a sorted list of products infos
-    #  a- create a dict to facilitate products_infos sorting
+    #  Create a dict of all products to facilitate products_infos sorting
     all_products_dict={}
     for (pname,pinfo) in all_products_infos:
         all_products_dict[pname]=(pname,pinfo)
-    #  b- build a sorted list of products infos in products_infos
+
+    # Use the sorted list of all products to sort the list of products we have to compile
+    sorted_product_list=[]
+    # first loop on compile time products, we need to compile them before!
+    for n in sorted_nodes:
+        if n in products_list:
+            if src.product.product_is_compile_time(all_products_dict[n][1]):
+                sorted_product_list.append(n)
+    for n in sorted_nodes:
+        if n in products_list:
+            if not src.product.product_is_compile_time(all_products_dict[n][1]):
+                sorted_product_list.append(n)
+    logger.write("Sorted list of products to compile : %s\n" % sorted_product_list, 5)
+    
+    # from the sorted list of products to compile, build a sorted list of products infos
     products_infos=[]
     for product in sorted_product_list:
         products_infos.append(all_products_dict[product])
