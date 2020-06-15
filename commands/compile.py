@@ -706,6 +706,12 @@ def run(args, runner, logger):
 
     # Use the sorted list of all products to sort the list of products we have to compile
     sorted_product_list=[]
+    # python has no dependencies. it is sometimes required by compile time products.
+    #it's simplier to always compile python first!
+    if "Python" in sorted_nodes:
+        sorted_product_list.append("Python")
+        sorted_nodes.remove("Python")
+
     # first loop on compile time products, we need to compile them before!
     for n in sorted_nodes:
         if n in products_list:
