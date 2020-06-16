@@ -365,8 +365,10 @@ def produce_relative_env_files(config,
     if src.architecture.is_windows() :
       src.replace_in_file(filepath, '"out_dir_Path', '"%out_dir_Path%' )
       src.replace_in_file(filepath, '=out_dir_Path', '=%out_dir_Path%' )
+      src.replace_in_file(filepath, ';out_dir_Path', ';%out_dir_Path%' )
     else:
       src.replace_in_file(filepath, '"out_dir_Path', '"${out_dir_Path}' )
+      src.replace_in_file(filepath, ':out_dir_Path', ':${out_dir_Path}' )
 
     # change the rights in order to make the file executable for everybody
     os.chmod(filepath,
