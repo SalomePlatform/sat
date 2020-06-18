@@ -31,6 +31,10 @@ Usage
   
     sat compile <application> --products med --with_children
 
+* Force the compilation of a module, even if it is already installed. This option clean the build before compiling: ::
+  
+    sat compile <application> --products med --force
+
 * Clean the build and install directories before starting compilation: ::
 
     sat compile <application> --products GEOM  --clean_all

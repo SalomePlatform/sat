@@ -34,6 +34,8 @@ except NameError:
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
     _('Optional: products to compile. This option accepts a comma separated list.'))
+parser.add_option('f', 'force', 'boolean', 'force',
+    'Optional: force the compilation of product, even if it is already installed. The BUILD directory is cleaned before compilation.')
 parser.add_option('', 'with_fathers', 'boolean', 'fathers',
     _("Optional: build all necessary products to the given product (KERNEL is "
       "build before building GUI)."), False)
@@ -194,6 +196,17 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
                       verbose=0,
                       logger_add_link = logger)
         
+        # Clean the the install directory 
+        # if the corresponding option was called
+        if options.force and not options.clean_all:
+            log_step(logger, header, "CLEAN BUILD ")
+            sat.clean(config.VARS.application + 
+                      " --products " + p_name + 
+                      " --build",
+                      batch=True,
+                      verbose=0,
+                      logger_add_link = logger)
+
         # Recompute the product information to get the right install_dir
         # (it could change if there is a clean of the install directory)
         p_info = src.product.get_product_config(config, p_name)
@@ -234,8 +247,9 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
                 res += 1
                 continue
         
-        # Check if it was already successfully installed
-        if src.product.check_installation(config, p_info):
+        # if we don't force compilation, check if the was already successfully installed.
+        # we don't compile in this case.
+        if (not options.force) and src.product.check_installation(config, p_info):
             logger.write(_("Already installed"))
             logger.write(_(" in %s" % p_info.install_dir), 4)
             logger.write(_("\n"))
