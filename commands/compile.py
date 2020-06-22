@@ -143,6 +143,78 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
     :return: the number of failing commands.
     :rtype: int
     '''
+    # first loop for the cleaning 
+    check_salome_configuration=False
+    for p_name_info in products_infos:
+        
+        p_name, p_info = p_name_info
+        
+        # nothing to clean for native or fixed products
+        if (not src.product.product_compiles(p_info)) or\
+           src.product.product_is_native(p_info) or\
+           src.product.product_is_fixed(p_info):
+            continue
+
+        # Clean the build and the install directories 
+        # if the corresponding options was called
+        if options.clean_all:
+            sat.clean(config.VARS.application + 
+                      " --products " + p_name + 
+                      " --build --install",
+                      batch=True,
+                      verbose=0,
+                      logger_add_link = logger)
+
+
+        # Clean the the install directory 
+        # if the corresponding option was called
+        if options.clean_install and not options.clean_all:
+            sat.clean(config.VARS.application + 
+                      " --products " + p_name + 
+                      " --install",
+                      batch=True,
+                      verbose=0,
+                      logger_add_link = logger)
+        
+        # Clean the the install directory 
+        # if the corresponding option was called
+        if options.force and not options.clean_all:
+            sat.clean(config.VARS.application + 
+                      " --products " + p_name + 
+                      " --build",
+                      batch=True,
+                      verbose=0,
+                      logger_add_link = logger)
+        if src.product.product_is_salome(p_info):
+            check_salome_configuration=True
+
+    if check_salome_configuration:
+        # For salome applications, we check if the sources of configuration modules are present
+        # configuration modules have the property "configure_dependency"
+        # they are implicit prerequisites of the compilation.
+        res=0
+
+        # get the list of all modules in application 
+        all_products_infos = src.product.get_products_infos(config.APPLICATION.products,
+                                                            config)
+        check_source = True
+        # for configuration modules, check if sources are present
+        for prod in all_products_dict:
+            product_name, product_info = all_products_dict[prod]
+            if ("properties" in product_info and
+                "configure_dependency" in product_info.properties and
+                product_info.properties.configure_dependency == "yes"):
+                check_source = check_source and src.product.check_source(product_info)
+                if not check_source:
+                    logger.write(_("\nERROR : SOURCES of %s not found! It is required for" 
+                                   " the configuration\n" % product_name))
+                    logger.write(_("        Get it with the command : sat prepare %s -p %s \n" % 
+                                  (config.APPLICATION.name, product_name)))
+                    res += 1
+        if res>0:
+            return res  # error configure dependency : we stop the compilation
+
+    # second loop to compile
     res = 0
     for p_name_info in products_infos:
         
@@ -173,39 +245,6 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
             logger.write("\n", 3, False)
             continue
 
-        # Clean the build and the install directories 
-        # if the corresponding options was called
-        if options.clean_all:
-            log_step(logger, header, "CLEAN BUILD AND INSTALL ")
-            sat.clean(config.VARS.application + 
-                      " --products " + p_name + 
-                      " --build --install",
-                      batch=True,
-                      verbose=0,
-                      logger_add_link = logger)
-
-
-        # Clean the the install directory 
-        # if the corresponding option was called
-        if options.clean_install and not options.clean_all:
-            log_step(logger, header, "CLEAN INSTALL ")
-            sat.clean(config.VARS.application + 
-                      " --products " + p_name + 
-                      " --install",
-                      batch=True,
-                      verbose=0,
-                      logger_add_link = logger)
-        
-        # Clean the the install directory 
-        # if the corresponding option was called
-        if options.force and not options.clean_all:
-            log_step(logger, header, "CLEAN BUILD ")
-            sat.clean(config.VARS.application + 
-                      " --products " + p_name + 
-                      " --build",
-                      batch=True,
-                      verbose=0,
-                      logger_add_link = logger)
 
         # Recompute the product information to get the right install_dir
         # (it could change if there is a clean of the install directory)
@@ -220,31 +259,6 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
             if not check_source:
                 logger.write(_("Sources of product not found (try 'sat -h prepare') \n"))
                 res += 1 # one more error
-                continue
-        
-        if src.product.product_is_salome(p_info):
-            # For salome modules, we check if the sources of configuration modules are present
-            # configuration modules have the property "configure_dependency"
-
-            # get the list of all modules in application 
-            all_products_infos = src.product.get_products_infos(config.APPLICATION.products,
-                                                                config)
-            check_source = True
-            # for configuration modules, check if sources are present
-            for prod in all_products_dict:
-                product_name, product_info = all_products_dict[prod]
-                if ("properties" in product_info and
-                    "configure_dependency" in product_info.properties and
-                    product_info.properties.configure_dependency == "yes"):
-                    check_source = check_source and src.product.check_source(product_info)
-                    if not check_source:
-                        logger.write(_("\nERROR : SOURCES of %s not found! It is required for" 
-                                       " the configuration\n" % product_name))
-                        logger.write(_("        Get it with the command : sat prepare %s -p %s \n" % 
-                                      (config.APPLICATION.name, product_name)))
-            if not check_source:
-                # if at least one configuration module is not present, we stop compilation
-                res += 1
                 continue
         
         # if we don't force compilation, check if the was already successfully installed.
