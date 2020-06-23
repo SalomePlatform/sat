@@ -1174,6 +1174,19 @@ def product_is_compile_time(product_info):
             "compile_time" in product_info.properties and
             product_info.properties.compile_time == "yes")
 
+def product_is_compile_and_runtime(product_info):
+    """Know if a product is only used at compile time
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is only used at compile time
+    :rtype: boolean
+    """
+    return ("properties" in product_info and
+            "compile_and_runtime" in product_info.properties and
+            product_info.properties.compile_and_runtime == "yes")
+
+
 
 def product_test_property(product_info, property_name, property_value):
     """Generic function to test if a product has a property set to a value
