@@ -47,12 +47,13 @@ pyconf = """
             repo : 'to be filled'
             tag : 'to be filled'
         }
+        environ : 
+        { 
+            SalomeAppConfig_ : $install_dir + $VARS.sep + "share" + $VARS.sep + "salome" + $VARS.sep + "resources" + $VARS.sep + "%(PYCMP_minus)s"
+        }
 
-	environ : { }
         depend : [ 'Python', 'KERNEL', 'GUI' ]
         opt_depend : []
-
-        type : "salome"
 
         source_dir : $APPLICATION.workdir + $VARS.sep + 'SOURCES' + $VARS.sep + $name
         build_dir  : $APPLICATION.workdir + $VARS.sep + 'BUILD'   + $VARS.sep + $name
@@ -62,6 +63,7 @@ pyconf = """
             has_salome_gui   : 'yes'
             is_SALOME_module : 'yes'
             has_unit_tests   : True
+            incremental      : "yes"
         }
 
         archive_info:
