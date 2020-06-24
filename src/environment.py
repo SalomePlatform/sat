@@ -250,7 +250,8 @@ class SalomeEnviron:
         # they should be added in build env
         compile_time_products=[]
         for (pname,pinfo) in all_products_infos:
-           if src.product.product_is_compile_time(pinfo):
+           if src.product.product_is_compile_time(pinfo) or\
+              src.product.product_is_compile_and_runtime(pinfo) :
                compile_time_products.append(pname)
         self.compile_time_products=compile_time_products
 
@@ -765,11 +766,15 @@ class SalomeEnviron:
         # for a build environment, add compile time products (like cmake)
         if self.forBuild :
             for product in self.compile_time_products:
+                if product == "Python":
+                    continue
                 self.set_a_product(product, logger)
 
         # The loop on the products
         for product in self.sorted_product_list:
             if product == "Python":
+                continue
+            if self.forBuild and product in self.compile_time_products:
                 continue
             self.set_a_product(product, logger)
  
@@ -800,11 +805,15 @@ class SalomeEnviron:
         # for a build environment, add compile time products (like cmake)
         if self.forBuild :
             for product in self.compile_time_products:
+                if product == "Python":
+                    continue
                 self.set_a_product(product, logger)
 
         # set products
         for product in sorted_product_list:
             if product == "Python":
+                continue
+            if self.forBuild and product in self.compile_time_products:
                 continue
             self.set_a_product(product, logger)
 

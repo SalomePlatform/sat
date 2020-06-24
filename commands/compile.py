@@ -736,22 +736,16 @@ def run(args, runner, logger):
     sorted_product_list=[]
     product_list_runtime=[]
     product_list_compiletime=[]
-    product_list_compile_and_runtime=[]
 
     # store at beginning compile time products, we need to compile them before!
     for n in sorted_nodes:
         if n in products_list:
-            if src.product.product_is_compile_and_runtime(all_products_dict[n][1]):
-                # these products (python/graphviz) are used at compile and run time
-                # they have no dependencies.
-                # we always compile them in the first place
-                product_list_compile_and_runtime.append(n)
+            if src.product.product_is_compile_time(all_products_dict[n][1]) or\
+               src.product.product_is_compile_and_runtime(all_products_dict[n][1]):
+                product_list_compiletime.append(n)
             else:
-                if src.product.product_is_compile_time(all_products_dict[n][1]):
-                    product_list_compiletime.append(n)
-                else:
-                    product_list_runtime.append(n)
-    sorted_product_list = product_list_compile_and_runtime + product_list_compiletime + product_list_runtime
+                product_list_runtime.append(n)
+    sorted_product_list = product_list_compiletime + product_list_runtime
     logger.write("Sorted list of products to compile : %s\n" % sorted_product_list, 5)
     
     # from the sorted list of products to compile, build a sorted list of products infos
