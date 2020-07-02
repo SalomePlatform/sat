@@ -144,5 +144,11 @@ def get_nb_proc():
         import multiprocessing
         nb_proc=multiprocessing.cpu_count()
     except :
-        nb_proc=int(os.sysconf('SC_NPROCESSORS_ONLN'))
+        if is_windows():
+            if os.environ.has_key("NUMBER_OF_PROCESSORS"):
+                nb_proc = int(os.environ["NUMBER_OF_PROCESSORS"])
+            else:
+                nb_proc = 1
+        else:
+            nb_proc=int(os.sysconf('SC_NPROCESSORS_ONLN'))
     return nb_proc
