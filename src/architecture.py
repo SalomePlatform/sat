@@ -21,14 +21,31 @@ In this file : all the stuff that can change with the architecture
 on which SAT is running
 '''
 
-import os, sys, platform
+import os, sys
+from platform import system,python_version,release
+
+# linux_distribution is removed from platform module in python 3.8+
+# we have to use distro module, which is not standard. 
+# write an error message if distro is not installed
+try:
+    from platform import linux_distribution
+except:
+    try:
+        from distro import linux_distribution
+    except:
+        print ("\nError :\n"
+               "  linux_distribution was removed from platform module in Python 3.8+\n"
+               "  For python 3.8+ sat requires distro module to get information on linux distribution.\n"
+               "  Please install distro module with : pip install distro")
+        sys.exit(-1)
+
 
 def is_windows():
     '''method that checks windows OS
       
     :rtype: boolean
     '''
-    return platform.system() == 'Windows'
+    return system() == 'Windows'
 
 def get_user():
     '''method that gets the username that launched sat  
@@ -59,7 +76,7 @@ def get_distribution(codes):
         return "W"
 
     # else get linux distribution description from platform, and encode it with code
-    lin_distrib = platform.linux_distribution()[0].lower()
+    lin_distrib = linux_distribution()[0].lower()
     distrib="not found"
     for dist in codes:
         if dist in lin_distrib:
@@ -78,7 +95,7 @@ def get_version_XY():
     from a CentOS example, returns '7.6'
     extracted from platform.linux_distribution()
     """
-    dist_version=platform.linux_distribution()[1].split('.')
+    dist_version=linux_distribution()[1].split('.')
     if len(dist_version)==1:
         version = dist_version[0]
     else:
@@ -99,10 +116,10 @@ def get_distrib_version(distrib):
     '''
 
     if is_windows():
-        return platform.release()
+        return release()
 
     # get version from platform
-    dist_version=platform.linux_distribution()[1].split('.')
+    dist_version=linux_distribution()[1].split('.')
 
     # encode it (conform to src/internal_config/distrib.pyconf VERSIONS dist
     if distrib == "CO":
@@ -130,7 +147,7 @@ def get_python_version():
     '''
     
     # The platform python module gives the answer
-    return platform.python_version()
+    return python_version()
 
 def get_nb_proc():
     '''Gets the number of processors of the machine 
