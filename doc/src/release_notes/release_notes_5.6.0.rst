@@ -2,7 +2,7 @@
 SAT version 5.5.0
 *****************
 
-Release Notes, May 2020
+Release Notes, July 2020
 =======================
 
 
@@ -19,8 +19,16 @@ SAT has now the capacity to check for the system dependencies in two ways:
 * **sat prepare** command will return an error if system prerequisites are not installed.
 * **sat config** has now an option **--check_system** that list all the system prerequisites with their status.
 
+**Removing build dependencies from binary archives**
 
+SALOME archive are getting fat. In order to reduce the size of binary archives, the management by sat of the build prerequisites was modified.
+build prerequisites are not included anymore in binary archives.
 
+**New option -f --force for sat compile**
+
+This option can be used to **force** the recompilation of products.
+It is an alternative to --clean_all, which do not work properly with the single_dir mode
+(it will erase the complete PRODUCTS directory, which is usually not expected!
 
 Change log
 ----------
@@ -32,10 +40,25 @@ most significant changes are listed.
 +-------------+-----------------------------------------------------------------------------------+
 | Artifact    | Description                                                                       |
 +=============+===================================================================================+
-| sat #18501  | mauvaise gestion de la fonctionnalité rm_products dans les archives               |
+| sat #18501  | bad management of rm_products functionality in archives                           |
 +-------------+-----------------------------------------------------------------------------------+
-| sat #18546  | pour les produits installés en base, replacement dans le nom du répertoire de /   |
-|             | par _ pour éviter la création d'un sous répertoire                                |
+| sat #18546  | for products installed in BASE, replace in directory name / by _ to avoid the     |
+|             | creation if a directory                                                           |
 +-------------+-----------------------------------------------------------------------------------+
-|             |                                                                                   |
+| sat #19109  | more robust choice of the package manager to check system dependencies            |
++-------------+-----------------------------------------------------------------------------------+
+| sat #18720  | add option --use-mesa in automatic completion                                     |
++-------------+-----------------------------------------------------------------------------------+
+| sat #19192  | don't remove PRODUCTS dir when compilation fails                                  |
++-------------+-----------------------------------------------------------------------------------+
+| sat #19234  | remove build products from bin archives, better management of their environment   |
++-------------+-----------------------------------------------------------------------------------+
+| sat #19218  | correct out_dir_Path substituion for appended variables                           |
++-------------+-----------------------------------------------------------------------------------+
+| sat #18350  | -f option for sat compile : force the recompilation                               |
++-------------+-----------------------------------------------------------------------------------+
+| sat #18831  | sat compile --clean_all : do all the cleaning, then compile                       |
+|             | (bug correction with single_dir mode)                                             |
++-------------+-----------------------------------------------------------------------------------+
+| sat #18653  | replace platform.linux_distribution by distro.linux_distribution for python 3.8+  |
 +-------------+-----------------------------------------------------------------------------------+

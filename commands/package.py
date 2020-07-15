@@ -1324,7 +1324,7 @@ The procedure to do it is:
 
         if options.binaries or options.sources:
             d['application'] = config.VARS.application
-            d['BINARIES']    = config.INTERNAL.config.install_dir
+            d['BINARIES']    = config.INTERNAL.config.binary_dir
             d['SEPARATOR'] = config.VARS.sep
             if src.architecture.is_windows():
                 d['operatingSystem'] = 'Windows'
