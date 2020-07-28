@@ -64,10 +64,16 @@ parser.add_option('', 'clean_build_after', 'boolean', 'clean_build_after',
 
 # from sat product infos, represent the product dependencies in a simple python graph
 # keys are nodes, the list of dependencies are values
-def get_dependencies_graph(p_infos):
+def get_dependencies_graph(p_infos, compile_time=True):
     graph={}
     for (p_name,p_info) in p_infos:
-        graph[p_name]=p_info.depend
+        depprod=[]
+        for d in p_info.depend:
+            depprod.append(d)
+        if compile_time and "build_depend" in p_info:
+            for d in p_info.build_depend:
+                depprod.append(d)
+        graph[p_name]=depprod
     return graph
 
 # this recursive function calculates all the dependencies of node start
@@ -740,12 +746,7 @@ def run(args, runner, logger):
     # store at beginning compile time products, we need to compile them before!
     for n in sorted_nodes:
         if n in products_list:
-            if src.product.product_is_compile_time(all_products_dict[n][1]) or\
-               src.product.product_is_compile_and_runtime(all_products_dict[n][1]):
-                product_list_compiletime.append(n)
-            else:
-                product_list_runtime.append(n)
-    sorted_product_list = product_list_compiletime + product_list_runtime
+            sorted_product_list.append(n)
     logger.write("Sorted list of products to compile : %s\n" % sorted_product_list, 5)
     
     # from the sorted list of products to compile, build a sorted list of products infos
@@ -754,7 +755,7 @@ def run(args, runner, logger):
         products_infos.append(all_products_dict[product])
 
     # for all products to compile, store in "depend_all" field the complete dependencies (recursive) 
-    # (will be used by check_dependencies funvtion)
+    # (will be used by check_dependencies function)
     for pi in products_infos:
         dep_prod=[]
         dep_prod=depth_search_graph(all_products_graph,pi[0], dep_prod)

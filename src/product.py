@@ -608,7 +608,13 @@ def add_compile_config_file(p_info, config):
     res.addMapping(p_info.name, src.pyconf.Mapping(res), "")
     res[p_info.name]= p_info.version
 
-    for prod_name in p_info.depend:
+    depprod=[]
+    for d in p_info.depend:
+        depprod.append(d)
+    if "build_depend" in p_info:
+        for d in p_info.build_depend:
+            depprod.append(d)
+    for prod_name in depprod:
       if prod_name not in res:
         res.addMapping(prod_name, src.pyconf.Mapping(res), "")
       prod_dep_info = src.product.get_product_config(config, prod_name, False)
@@ -808,10 +814,19 @@ def get_product_dependencies(config, product_info):
     :return: the list of products in dependence
     :rtype: list
     """
-    if "depend" not in product_info or product_info.depend == []:
+    depend_all=[]
+    if "depend" in product_info:
+        for d in product_info.depend:
+            depend_all.append(d)
+    if "build_depend" in product_info:
+        for d in product_info.build_depend:
+            depend_all.append(d)
+
+    if len(depend_all) == 0:
         return []
+
     res = []
-    for prod in product_info.depend:
+    for prod in depend_all:
         if prod == product_info.name:
             continue
         if prod not in res:
