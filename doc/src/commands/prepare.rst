@@ -69,6 +69,11 @@ Usage
 
     sat prepare <application>  --products <product1>,<product2> ...
 
+* Prepare only some modules with a given property: ::
+
+    # prepare only SALOME modules, not prerequisites
+    ./sat prepare <application> --properties  is_SALOME_module:yes
+
 * Use --force to force to prepare the products in development mode 
   (this will remove the sources and do a new clone/checkout): ::
 

@@ -35,6 +35,17 @@ Usage
   
     sat compile <application> --products med --force
 
+* Update mode, compile only git products which source has changed, including the dependencies.
+  The option is not implemented for svn and cvs, only for git.
+  One has to call sat prepare before, to check if git sources where modified.
+  The mecanism is based upon git log -1 command, and the modification of the source directory date accordingly: ::
+  
+    # update SALOME sources
+    ./sat prepare <application> --properties  is_SALOME_module:yes
+
+    # only compile modules that has to be recompiled.
+    sat compile <application> --update
+
 * Clean the build and install directories before starting compilation: ::
 
     sat compile <application> --products GEOM  --clean_all

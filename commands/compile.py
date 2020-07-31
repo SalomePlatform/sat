@@ -36,6 +36,8 @@ parser.add_option('p', 'products', 'list2', 'products',
     _('Optional: products to compile. This option accepts a comma separated list.'))
 parser.add_option('f', 'force', 'boolean', 'force',
     'Optional: force the compilation of product, even if it is already installed. The BUILD directory is cleaned before compilation.')
+parser.add_option('u', 'update', 'boolean', 'update',
+    'Optional: update mode, compile only products which sources has changed, including the dependencies.')
 parser.add_option('', 'with_fathers', 'boolean', 'fathers',
     _("Optional: build all necessary products to the given product (KERNEL is "
       "build before building GUI)."), False)
@@ -137,7 +139,7 @@ def log_res_step(logger, res):
         logger.write("%s \n" % src.printcolors.printcError("KO"), 4)
         logger.flush()
 
-def compile_all_products(sat, config, options, products_infos, all_products_dict, logger):
+def compile_all_products(sat, config, options, products_infos, all_products_dict, all_products_graph, logger):
     '''Execute the proper configuration commands 
        in each product build directory.
 
@@ -145,15 +147,19 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
     :param products_info list: List of 
                                  (str, Config) => (product_name, product_info)
     :param all_products_dict: Dict of all products 
+    :param all_products_graph: graph of all products 
     :param logger Logger: The logger instance to use for the display and logging
     :return: the number of failing commands.
     :rtype: int
     '''
     # first loop for the cleaning 
     check_salome_configuration=False
+    updated_products=[]
     for p_name_info in products_infos:
         
         p_name, p_info = p_name_info
+        if src.product.product_is_salome(p_info):
+            check_salome_configuration=True
         
         # nothing to clean for native or fixed products
         if (not src.product.product_compiles(p_info)) or\
@@ -171,28 +177,52 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
                       verbose=0,
                       logger_add_link = logger)
 
+        else:
+            # Clean the the install directory 
+            # if the corresponding option was called
+            if options.clean_install:
+                sat.clean(config.VARS.application + 
+                          " --products " + p_name + 
+                          " --install",
+                          batch=True,
+                          verbose=0,
+                          logger_add_link = logger)
+            
+            # Clean the the install directory 
+            # if the corresponding option was called
+            if options.force:
+                sat.clean(config.VARS.application + 
+                          " --products " + p_name + 
+                          " --build",
+                          batch=True,
+                          verbose=0,
+                          logger_add_link = logger)
 
-        # Clean the the install directory 
-        # if the corresponding option was called
-        if options.clean_install and not options.clean_all:
-            sat.clean(config.VARS.application + 
-                      " --products " + p_name + 
-                      " --install",
-                      batch=True,
-                      verbose=0,
-                      logger_add_link = logger)
-        
-        # Clean the the install directory 
-        # if the corresponding option was called
-        if options.force and not options.clean_all:
-            sat.clean(config.VARS.application + 
-                      " --products " + p_name + 
-                      " --build",
-                      batch=True,
-                      verbose=0,
-                      logger_add_link = logger)
-        if src.product.product_is_salome(p_info):
-            check_salome_configuration=True
+            if options.update:
+                try: 
+                    do_update=False
+                    if len(updated_products)>0:
+                        # if other products where updated, check that the current product is a child 
+                        # in this case it will be also updated
+                        if find_path_graph(all_products_graph, p_name, updated_products):
+                            logger.write("\nUpdate product %s (child)" % p_name, 5)
+                            do_update=True
+                    if not do_update:
+                        source_time=os.path.getatime(p_info.source_dir)
+                        install_time=os.path.getatime(p_info.install_dir)
+                        if install_time<source_time:
+                            logger.write("\nupdate product %s" % p_name, 5)
+                            do_update=True
+                    if do_update:
+                        updated_products.append(p_name) 
+                        sat.clean(config.VARS.application + 
+                                  " --products " + p_name + 
+                                  " --build --install",
+                                  batch=True,
+                                  verbose=0,
+                                  logger_add_link = logger)
+                except:
+                    pass
 
     if check_salome_configuration:
         # For salome applications, we check if the sources of configuration modules are present
@@ -673,6 +703,9 @@ def run(args, runner, logger):
         if rep.upper() != _("YES").upper():
             return 0
         
+    if options.update and (options.clean_all or options.force or options.clean_install):
+        options.update=False  # update is useless in this case
+
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
 
@@ -764,7 +797,7 @@ def run(args, runner, logger):
 
     # Call the function that will loop over all the products and execute
     # the right command(s)
-    res = compile_all_products(runner, runner.cfg, options, products_infos, all_products_dict, logger)
+    res = compile_all_products(runner, runner.cfg, options, products_infos, all_products_dict, all_products_graph, logger)
     
     # Print the final state
     nb_products = len(products_infos)
