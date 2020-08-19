@@ -198,7 +198,8 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
                           verbose=0,
                           logger_add_link = logger)
 
-            if options.update:
+            if options.update and src.product.product_is_vcs(p_info):
+            # only VCS products are concerned by update option
                 try: 
                     do_update=False
                     if len(updated_products)>0:
@@ -207,9 +208,10 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
                         if find_path_graph(all_products_graph, p_name, updated_products):
                             logger.write("\nUpdate product %s (child)" % p_name, 5)
                             do_update=True
-                    if not do_update:
-                        source_time=os.path.getatime(p_info.source_dir)
-                        install_time=os.path.getatime(p_info.install_dir)
+                    if (not do_update) and os.path.isdir(p_info.source_dir) \
+                                       and os.path.isdir(p_info.install_dir):
+                        source_time=os.path.getmtime(p_info.source_dir)
+                        install_time=os.path.getmtime(p_info.install_dir)
                         if install_time<source_time:
                             logger.write("\nupdate product %s" % p_name, 5)
                             do_update=True
