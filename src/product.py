@@ -664,6 +664,13 @@ def check_config_exists(config, prod_dir, prod_info, verbose=False):
     DBG.write("check_config_exists 000",  (prod_dir, l_dir_and_files), verbose)
     DBG.write("check_config_exists 111",  prod_info, verbose)
 
+    depend_all=[]
+    if "depend" in prod_info:
+        for d in prod_info.depend:
+            depend_all.append(d)
+    if "build_depend" in prod_info:
+        for d in prod_info.build_depend:
+            depend_all.append(d)
     for dir_or_file in l_dir_and_files:
         oExpr = re.compile(config_expression)
         if not(oExpr.search(dir_or_file)):
@@ -682,7 +689,7 @@ def check_config_exists(config, prod_dir, prod_info, verbose=False):
         # dependencies of the product
         config_corresponds = True    
         compile_cfg = src.pyconf.Config(config_file)
-        for prod_dep in prod_info.depend:
+        for prod_dep in depend_all:
             # if the dependency is not in the config, 
             # the config does not correspond
             if prod_dep not in compile_cfg:
@@ -708,7 +715,7 @@ def check_config_exists(config, prod_dir, prod_info, verbose=False):
                 break
             else:
               # as old compatibility without prod_name sat-config.pyconf files
-              if prod_name not in prod_info.depend:
+              if prod_name not in depend_all:
                 # here there is an unexpected depend in an old compilation
                 config_corresponds = False
                 break
