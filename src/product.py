@@ -879,9 +879,15 @@ def check_installation(config, product_info):
             return True    
 
     install_dir = product_info.install_dir
-    filename = CONFIG_FILENAME + product_info.name + ".pyconf"
-    if not os.path.exists(os.path.join(install_dir, filename)): 
-        return False
+    if src.product.product_is_fixed(product_info):
+        # we check directly the install dir only for fixed products
+        # (there is no pyconf file in that case)
+        if not os.path.exists(install_dir):
+            return False
+    else:
+        filename = CONFIG_FILENAME + product_info.name + ".pyconf"
+        if not os.path.exists(os.path.join(install_dir, filename)): 
+            return False
 
     # check extra files if specified in present_files.install section
     if ("present_files" in product_info and 
