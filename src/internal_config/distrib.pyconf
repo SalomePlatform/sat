@@ -13,6 +13,7 @@ DISTRIBUTIONS :
   "mageia": "MG"
   "mandriva": "MD"
   "redhat": "CO"
+  "red hat": "CO"
   "ubuntu": "UB"
   "opensuse":"OS"
   "Windows" : "W"
