@@ -649,6 +649,10 @@ def show_product_info(config, name, logger):
     if "opt_depend" in pinfo:
         src.printcolors.print_value(logger, "optional", sorted(pinfo.opt_depend), 2)
 
+    if "build_depend" in pinfo:
+        src.printcolors.print_value(logger, "build depend on", sorted(pinfo.build_depend), 2)
+
+
     # information on pyconf
     logger.write("\n", 2)
     logger.write(src.printcolors.printcLabel("configuration:") + "\n", 2)

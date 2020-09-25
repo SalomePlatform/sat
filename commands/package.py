@@ -152,7 +152,7 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
         try:
             key=local_path+"->"+in_archive
             if key not in already_added:
-                tar.add(local_path, arcname=in_archive, exclude=f_exclude)
+                tar.add(local_path, arcname=in_archive, filter=f_exclude)
                 already_added.add(key)
             logger.write(src.printcolors.printcSuccess(_("OK")), 3)
         except Exception as e:
@@ -162,21 +162,22 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
         logger.write("\n", 3)
     return success
 
-def exclude_VCS_and_extensions(filename):
+def exclude_VCS_and_extensions(tarinfo):
     ''' The function that is used to exclude from package the link to the 
         VCS repositories (like .git)
 
     :param filename Str: The filname to exclude (or not).
-    :return: True if the file has to be exclude
-    :rtype: Boolean
+    :return: None if the file has to be exclude
+    :rtype: tarinfo or None
     '''
+    filename = tarinfo.name
     for dir_name in IGNORED_DIRS:
         if dir_name in filename:
-            return True
+            return None
     for extension in IGNORED_EXTENSIONS:
         if filename.endswith(extension):
-            return True
-    return False
+            return None
+    return tarinfo
 
 def produce_relative_launcher(config,
                               logger,
@@ -945,7 +946,7 @@ def make_archive(prod_name, prod_info, where):
     local_path = prod_info.source_dir
     tar_prod.add(local_path,
                  arcname=prod_name,
-                 exclude=exclude_VCS_and_extensions)
+                 filter=exclude_VCS_and_extensions)
     tar_prod.close()
     return path_targz_prod       
 

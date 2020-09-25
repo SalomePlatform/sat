@@ -234,7 +234,7 @@ class SalomeEnviron:
                                  self.cfg.APPLICATION.products,
                                  self.cfg)
         
-        all_products_graph=get_dependencies_graph(all_products_infos)
+        all_products_graph=get_dependencies_graph(all_products_infos, self.forBuild)
         visited_nodes=[]
         sorted_nodes=[]
         for n in all_products_graph:
@@ -245,15 +245,6 @@ class SalomeEnviron:
                                                visited_nodes,
                                                sorted_nodes)
         self.sorted_product_list=sorted_nodes
-
-        # store the list of compile time products
-        # they should be added in build env
-        compile_time_products=[]
-        for (pname,pinfo) in all_products_infos:
-           if src.product.product_is_compile_time(pinfo) or\
-              src.product.product_is_compile_and_runtime(pinfo) :
-               compile_time_products.append(pname)
-        self.compile_time_products=compile_time_products
 
 
     def append(self, key, value, sep=os.pathsep):
@@ -397,14 +388,6 @@ class SalomeEnviron:
         else:
            self.cfg.APPLICATION.environ.PRODUCT_ROOT_DIR = src.pyconf.Reference(self.cfg, src.pyconf.DOLLAR, "workdir")
 
-        # these sensitive variables are reset to avoid bad environment interactions
-        self.add_line(1)
-        self.add_comment("reset these sensitive variables to avoid bad environment interactions")
-        self.add_comment("comment these to lines if you wish a different behaviour")
-        if not src.architecture.is_windows():
-           self.set("LD_LIBRARY_PATH", "")
-        self.set("PYTHONPATH", "")
-        self.add_line(1)
 
         # Set the variables defined in the "environ" section
         if 'environ' in self.cfg.APPLICATION:
@@ -763,18 +746,9 @@ class SalomeEnviron:
             self.set_a_product("Python", logger)
             self.set_python_libdirs()
 
-        # for a build environment, add compile time products (like cmake)
-        if self.forBuild :
-            for product in self.compile_time_products:
-                if product == "Python":
-                    continue
-                self.set_a_product(product, logger)
-
         # The loop on the products
         for product in self.sorted_product_list:
             if product == "Python":
-                continue
-            if self.forBuild and product in self.compile_time_products:
                 continue
             self.set_a_product(product, logger)
  
@@ -802,18 +776,9 @@ class SalomeEnviron:
             self.set_a_product("Python", logger)
             self.set_python_libdirs()
 
-        # for a build environment, add compile time products (like cmake)
-        if self.forBuild :
-            for product in self.compile_time_products:
-                if product == "Python":
-                    continue
-                self.set_a_product(product, logger)
-
         # set products
         for product in sorted_product_list:
             if product == "Python":
-                continue
-            if self.forBuild and product in self.compile_time_products:
                 continue
             self.set_a_product(product, logger)
 

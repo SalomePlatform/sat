@@ -89,6 +89,7 @@ def git_extract(from_what, tag, where, logger, environment=None):
   DBG.write("git_extract", [from_what, tag, str(where)])
   if not where.exists():
     where.make()
+  where_git = os.path.join(str(where), ".git")
   if tag == "master" or tag == "HEAD":
     if src.architecture.is_windows():
       cmd = "git clone %(remote)s %(where)s"
@@ -96,12 +97,13 @@ def git_extract(from_what, tag, where, logger, environment=None):
       cmd = r"""
 set -x
 git clone %(remote)s %(where)s
+touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s
 """
-    cmd = cmd % {'remote': from_what, 'tag': tag, 'where': str(where)}
+#git --git-dir=%(where_git)s  log -1 --format=date_format > %(where)s/last_commit_date.txt
+    cmd = cmd % {'remote': from_what, 'tag': tag, 'where': str(where), 'where_git': where_git}
   else:
     # NOTICE: this command only works with recent version of git
     #         because --work-tree does not work with an absolute path
-    where_git = os.path.join(str(where), ".git")
     if src.architecture.is_windows():
       cmd = "rmdir %(where)s && git clone %(remote)s %(where)s && git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s"
     else:
@@ -110,6 +112,7 @@ set -x
 rmdir %(where)s
 git clone %(remote)s %(where)s && \
 git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s
+touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s
 """
     cmd = cmd % {'remote': from_what,
                  'tag': tag,
@@ -117,6 +120,7 @@ git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s
                  'where_git': where_git}
 
 
+  cmd=cmd.replace('date_format','"%ai"')
   logger.logTxtFile.write("\n" + cmd + "\n")
   logger.logTxtFile.flush()
 

@@ -608,7 +608,13 @@ def add_compile_config_file(p_info, config):
     res.addMapping(p_info.name, src.pyconf.Mapping(res), "")
     res[p_info.name]= p_info.version
 
-    for prod_name in p_info.depend:
+    depprod=[]
+    for d in p_info.depend:
+        depprod.append(d)
+    if "build_depend" in p_info:
+        for d in p_info.build_depend:
+            depprod.append(d)
+    for prod_name in depprod:
       if prod_name not in res:
         res.addMapping(prod_name, src.pyconf.Mapping(res), "")
       prod_dep_info = src.product.get_product_config(config, prod_name, False)
@@ -658,6 +664,13 @@ def check_config_exists(config, prod_dir, prod_info, verbose=False):
     DBG.write("check_config_exists 000",  (prod_dir, l_dir_and_files), verbose)
     DBG.write("check_config_exists 111",  prod_info, verbose)
 
+    depend_all=[]
+    if "depend" in prod_info:
+        for d in prod_info.depend:
+            depend_all.append(d)
+    if "build_depend" in prod_info:
+        for d in prod_info.build_depend:
+            depend_all.append(d)
     for dir_or_file in l_dir_and_files:
         oExpr = re.compile(config_expression)
         if not(oExpr.search(dir_or_file)):
@@ -676,7 +689,7 @@ def check_config_exists(config, prod_dir, prod_info, verbose=False):
         # dependencies of the product
         config_corresponds = True    
         compile_cfg = src.pyconf.Config(config_file)
-        for prod_dep in prod_info.depend:
+        for prod_dep in depend_all:
             # if the dependency is not in the config, 
             # the config does not correspond
             if prod_dep not in compile_cfg:
@@ -702,7 +715,7 @@ def check_config_exists(config, prod_dir, prod_info, verbose=False):
                 break
             else:
               # as old compatibility without prod_name sat-config.pyconf files
-              if prod_name not in prod_info.depend:
+              if prod_name not in depend_all:
                 # here there is an unexpected depend in an old compilation
                 config_corresponds = False
                 break
@@ -808,10 +821,19 @@ def get_product_dependencies(config, product_info):
     :return: the list of products in dependence
     :rtype: list
     """
-    if "depend" not in product_info or product_info.depend == []:
+    depend_all=[]
+    if "depend" in product_info:
+        for d in product_info.depend:
+            depend_all.append(d)
+    if "build_depend" in product_info:
+        for d in product_info.build_depend:
+            depend_all.append(d)
+
+    if len(depend_all) == 0:
         return []
+
     res = []
-    for prod in product_info.depend:
+    for prod in depend_all:
         if prod == product_info.name:
             continue
         if prod not in res:
@@ -857,18 +879,14 @@ def check_installation(config, product_info):
             return True    
 
     install_dir = product_info.install_dir
-    if ( (src.appli_test_property(config,"single_install_dir", "yes") and 
-          src.product.product_test_property(product_info,"single_install_dir", "yes")) or
-         (src.appli_test_property(config,"pip", "yes") and 
-          src.product.product_test_property(product_info,"pip", "yes") and
-          src.appli_test_property(config,"pip_install_dir", "python") ) ):
-        # if the product is installed in the single install dir, or in python (for pip managed products)
-        # we check the product file in state of the install directory.
-        filename = CONFIG_FILENAME + product_info.name + ".pyconf"
-        if not os.path.exists(os.path.join(install_dir, filename)): 
+    if src.product.product_is_fixed(product_info):
+        # we check directly the install dir only for fixed products
+        # (there is no pyconf file in that case)
+        if not os.path.exists(install_dir):
             return False
     else:
-        if not os.path.exists(install_dir):
+        filename = CONFIG_FILENAME + product_info.name + ".pyconf"
+        if not os.path.exists(os.path.join(install_dir, filename)): 
             return False
 
     # check extra files if specified in present_files.install section
