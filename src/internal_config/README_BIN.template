@@ -8,5 +8,7 @@ The binaries are stored in ¤{BINARIES} directory.
 Warning : This binary installation depends upon some native ¤{operatingSystem} packages.
 If some of these packages are missing on your system, the execution may fail. 
 If this is the case, please install the missing ones with your ¤{operatingSystem} package manager.
+Note that you can use sat to check if the native prerequisites are installed on your system. The command is : 
+    sat/sat config  ¤{application} --check_system
 
 
