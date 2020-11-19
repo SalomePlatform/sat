@@ -53,7 +53,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'salomeTools'
+project = u'sat'
 copyright = u'2019, CEA'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -197,7 +197,7 @@ html_use_smartypants = False
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'salomeToolsdoc'
+htmlhelp_basename = 'satdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -226,7 +226,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'salomeTools.tex', u'SAT Documentation',
+  ('index', 'sat.tex', u'SAT Documentation',
    u'CEA DES/ISAS/DM2S/STMF/LGLS', 'manual'),
 ]
 
@@ -259,7 +259,7 @@ latex_show_urls = 'footnote' # sphinx version 1.7 # True
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'salometools', u'SAT Documentation',
+    ('index', 'sat', u'SAT Documentation',
      [u'CEA DES/ISAS/DM2S/STMF/LGLS'], 1)
 ]
 

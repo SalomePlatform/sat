@@ -33,7 +33,8 @@ This option is **only implemented for git** (not for svn and cvs).
 To use the option, one has to call *sat prepare* before. this call will get new sources, and will allow sat checking if the source code was modified since the last compilation.
 The mechanism is based upon git *log -1* command, and the modification of the source directory date accordingly: ::
   
-    # update SALOME sources and set the date of the source directories of git products accordingly: to the last commit
+    # update SALOME sources and set the date of the source directories of git 
+    # products accordingly: to the last commit
     ./sat prepare <application> --properties  is_SALOME_module:yes
 
     # only compile products that has to be recompiled.                                             

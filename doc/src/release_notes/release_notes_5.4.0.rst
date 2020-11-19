@@ -5,7 +5,7 @@ SAT version 9.4.0
 Release Notes, April, 2019
 ==========================
 
-This version of salomeTool was used to produce SALOME 9.3.0
+This version of sat was used to produce SALOME 9.3.0
 
 New features and improvments
 ----------------------------
@@ -17,13 +17,13 @@ Options **--ftp** and **--with_vcs** have been added, in order to reduce the siz
 
 .. code-block:: bash
 
-    # produce a standalone archive of salomeTool
+    # produce a standalone archive of sat
     sat package -t   
 
-    # produce a HUGE standalone archive of salomeTool with the salome project embedded.
+    # produce a HUGE standalone archive of sat with the salome project embedded.
     sat package -t -p salome    
 
-    # produce a small archive with salomeTool and embedded salome project, 
+    # produce a small archive with sat and embedded salome project, 
     # with direct links to ftp server and git repos
     sat package -t -p salome --ftp --with_vcs 
 

@@ -11,7 +11,7 @@ to run and compile your application (as SALOME_ is an example).
 
 .. note :: 
    these files are **not** required, 
-   salomeTool sets the environment itself, when compiling.
+   sat sets the environment itself, when compiling.
    And so does the salome launcher.
 
    These files are useful when someone wants to check the environment.
@@ -150,7 +150,7 @@ Here is an example:
         env.prepend('LD_LIBRARY_PATH', os.path.join(prereq_dir, 'lib'))
         return
 
-SalomeTools defines four handles:
+sat defines four handles:
 
 * **set_env(env, prereq_dir, version)** : used at build and run time. 
 * **set_env_launch(env, prereq_dir, version)** : used only at run time (if defined!)

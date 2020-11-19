@@ -20,11 +20,11 @@ Usage
     sat init --reset_projects
     sat init --add_project <path/to/a/new/sat/project/project.pyconf>
 
-* By default the product archives are stored locally within the directory containing salomeTool, in a subdirectory called ARCHIVES. If you want to change the default, use the *--archive_dir* option: ::
+* By default the product archives are stored locally within the directory containing sat, in a subdirectory called ARCHIVES. If you want to change the default, use the *--archive_dir* option: ::
 
     sat init --archive_dir  <local/path/where/to/store/product/archives>
 
-* sat enables a **base** mode, which allows to mutualize product builds between several applications. By default, the mutualized builds are stored locally within the directory containing salomeTool, in a subdirectory called BASE. To change the default, use the *--base* option: ::
+* sat enables a **base** mode, which allows to mutualize product builds between several applications. By default, the mutualized builds are stored locally within the directory containing sat, in a subdirectory called BASE. To change the default, use the *--base* option: ::
   
     sat init --base <local/path/where/to/store/product/mutualised/product/builds>
 
@@ -38,7 +38,7 @@ Usage
 Some useful configuration paths
 =================================
 
-All the sat init commands update the local pyconf salomeTool file data/local.pyconf. The same result can be achieved by editing the file directly. 
+All the sat init commands update the local pyconf sat file data/local.pyconf. The same result can be achieved by editing the file directly. 
 The content of data/local.pyconf is dumped into two sat configuration variables:
 
 * **LOCAL**: Contains notably all the default paths in the fields archive_dir, base, log_dir and workdir.

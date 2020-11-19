@@ -68,9 +68,9 @@ When getting started with sat, the use of the completion mode is convenient. Thi
 
     # list all available options of sat compile 
     ./sat compile SALOME-9.3.0 <TAB> <TAB>
-    > --check              --clean_build_after  --install_flags      --properties
-    > --stop_first_fail    --with_fathers       --clean_all          --clean_make
-    > --products           --show               --with_children
+    > --check             --clean_build_after  --install_flags    --properties
+    > --stop_first_fail   --with_fathers       --clean_all        --clean_make
+    > --products          --show               --with_children
 
 
 
@@ -131,14 +131,15 @@ And later, if required, it is possible to add a module, or modify some source co
     # start salome
     SALOME-9.4.0-CO7-SRC/salome
 
-    # copy binaries in INSTALL directory, do required substitutions to enable recompilation
+    # copy binaries in INSTALL directory, do required substitutions 
+    # to enable recompilation
     ./install_bin.sh
 
     # get sources of modules we want to recompile
-    salomeTools/sat prepare SALOME-9.4.0 -p SHAPER,SMESH
+    sat/sat prepare SALOME-9.4.0 -p SHAPER,SMESH
     
     # do some modifications and recompile both modules
-    salomeTools/sat compile SALOME-9.4.0 -p SHAPER,SMESH  --clean_all
+    sat/sat compile SALOME-9.4.0 -p SHAPER,SMESH  --clean_all
 
 This use case is documented in the README file of the package
 
@@ -226,7 +227,8 @@ For example if you plan to modify KERNEL module, modify SALOME configuration lik
         {
         # declare KERNEL in development mode (and also compile it
         # with debug and verbose options)
-        'KERNEL' : {dev:'yes', debug:'yes', verbose:'yes', tag:'my_dev_branch', section:'version_7_8_0_to_8_4_0'}
+        'KERNEL' : {dev:'yes', debug:'yes', verbose:'yes', 
+                    tag:'my_dev_branch', section:'version_7_8_0_to_8_4_0'}
         ...
         }
     }
@@ -269,7 +271,8 @@ Or change it in command line: **./sat -o "PRODUCTS.KERNEL.default.source_dir='/h
 For example the following command recompiles KERNEL using */home/KERNEL* as source directory: ::
 
     # take KERNEL sources in /home/KERNEL
-    ./sat -o "PRODUCTS.KERNEL.default.source_dir='/home/KERNEL'" compile SALOME-master -p KERNEL --clean_all
+    ./sat -o "PRODUCTS.KERNEL.default.source_dir='/home/KERNEL'" compile SALOME-master\ 
+          -p KERNEL --clean_all
 
 Displaying compilation logs in the terminal
 -------------------------------------------
@@ -278,6 +281,7 @@ In this case, using *sat log*  command to consult the compilation logs is not co
 It is advised to use in this case the **-t** option of sat, it will display the logs directly inside the terminal: ::
 
     # sat -t option put the compilation logs in the terminal
-    ./sat -t -o "PRODUCTS.KERNEL.default.source_dir='/home/KERNEL'" compile SALOME-master -p KERNEL --clean_all
+    ./sat -t -o "PRODUCTS.KERNEL.default.source_dir='/home/KERNEL'" compile\
+           SALOME-master -p KERNEL --clean_all
 
 

@@ -11,19 +11,19 @@ New features and improvments
 **sat init**
 
 The command *sat init* has been finalized, with the addition of options **--add_project** and **--reset_projects**. 
-It is now able to manage projects after an intiale git clone of salomeTool. The capacity is used by users
-installing salomeTool from the git repositories:
+It is now able to manage projects after an intiale git clone of sat. The capacity is used by users
+installing sat from the git repositories:
 
 .. code-block:: bash
 
-    # get sources of salomeTool
-    git clone https://codev-tuleap.cea.fr/plugins/git/spns/SAT.git salomeTool
+    # get sources of sat
+    git clone https://codev-tuleap.cea.fr/plugins/git/spns/SAT.git sat
 
     # get SAT_SALOME project (the sat project that contains the configuration of SALOME) 
     git clone https://codev-tuleap.cea.fr/plugins/git/spns/SAT_SALOME.git
 
     # initialise sat with this project
-    salomeTool/sat init --add_project $(pwd)/SAT_SALOME/salome.pyconf 
+    sat init --add_project $(pwd)/SAT_SALOME/salome.pyconf 
 
 It is possible to initialise sat with several projects by calling several times *sat init --add_project*
 
@@ -96,7 +96,7 @@ most significant changes are listed.
 | sat #12994 | new git retry functionnality for sat prepare : give three trials in case of       |
 |            | failures                                                                          |
 +------------+-----------------------------------------------------------------------------------+
-| sat #8581  | traceability : save tag of salomeTool and its projects                            |
+| sat #8581  | traceability : save tag of sat and its projects                                   |
 +------------+-----------------------------------------------------------------------------------+
 | sat #8588  | reset LD_LIBRARY_PATH and PYTHONPATH before launching SALOME                      |
 +------------+-----------------------------------------------------------------------------------+

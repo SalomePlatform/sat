@@ -5,7 +5,7 @@ SAT version 5.0.0
 Release Notes, January 2018
 ===========================
 
-This version of salomeTool was used to produce SALOME 8.4.0
+This version of sat was used to produce SALOME 8.4.0
 
 New features and improvments
 ----------------------------

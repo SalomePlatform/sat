@@ -107,7 +107,7 @@ latexpdf:
 	@echo "Running LaTeX files through pdflatex..."
 	make -C $(BUILDDIR)/latex all-pdf
 	@echo
-	@echo "pdflatex available in $(BUILDDIR)/latex/salomeTools.pdf"
+	@echo "pdflatex available in $(BUILDDIR)/latex/sat.pdf"
 
 
 clean-pdf:
