@@ -1,5 +1,5 @@
 *****************
-SAT version 5.5.0
+SAT version 5.6.0
 *****************
 
 Release Notes, July 2020
@@ -22,7 +22,7 @@ SAT has now the capacity to check for the system dependencies in two ways:
 **Removing build dependencies from binary archives**
 
 SALOME archive are getting fat. In order to reduce the size of binary archives, the management by sat of the build prerequisites was modified.
-build prerequisites are not included anymore in binary archives.
+build prerequisites declared with the property **compile_time : "yes"** are not included anymore in binary archives.
 
 **New option -f --force for sat compile**
 

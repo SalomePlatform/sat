@@ -12,15 +12,15 @@ Introduction
 .. note:: This documentation is for Python_ developers.
 
 
-The salomeTools product provides a simple way to develop commands. 
-The first thing to do is to add a file with *.py* extension in the ``commands`` directory of salomeTools.
+The sat product provides a simple way to develop commands. 
+The first thing to do is to add a file with *.py* extension in the ``commands`` directory of sat.
 
 Here are the basic requirements that must be followed in this file in order to add a command.
 
 Basic requirements
 ==================
 
-By adding a file *mycommand.py* in the ``commands`` directory, salomeTools will define a new command named ``mycommand``.
+By adding a file *mycommand.py* in the ``commands`` directory, sat will define a new command named ``mycommand``.
 
 In *mycommand.py*, there must be the following method: ::
 
@@ -29,7 +29,7 @@ In *mycommand.py*, there must be the following method: ::
         pass
 
 In fact, at this point, the command will already be functional.
-But there are some useful services provided by salomeTools :
+But there are some useful services provided by sat :
 
 * You can give some options to your command:
   
@@ -71,16 +71,16 @@ But there are some useful services provided by salomeTools :
         (options, args) = parser.parse_args(args)
         # algorithm
 
-HowTo access salomeTools config and other commands
+HowTo access sat config and other commands
 ========================================================
 
 The *runner* variable is an python instance of *Sat* class. 
 It gives access to *runner.cfg* which is the data model defined from all 
-*configuration pyconf files* of salomeTools 
+*configuration pyconf files* of sat 
 For example, *runner.cfg.APPLICATION.workdir*
 contains the root directory of the current application.
 
-The *runner* variable gives also access to other commands of salomeTools:
+The *runner* variable gives also access to other commands of sat
 
 .. code-block:: python
 

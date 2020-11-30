@@ -12,7 +12,7 @@ This tar file is used later to install SALOME on other remote computer.
 Depending on the selected options, the archive includes sources and binaries
 of SALOME products and prerequisites.
 
-Usually utility *salomeTools* is included in the archive.
+Usually utility *sat* is included in the archive.
 
 .. note::
   By default the package includes the sources of prerequisites and products.
@@ -68,7 +68,7 @@ Usage
   where <arch> is the OS architecture of the machine.
 
 
-* Do not delete Version Control System (VCS_) information from the configuration files of the embedded salomeTools: ::
+* Do not delete Version Control System (VCS_) information from the configuration files of the embedded sat: ::
 
     sat package SALOME_xx --with_vcs
 

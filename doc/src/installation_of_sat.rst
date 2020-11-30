@@ -49,7 +49,8 @@ Embedded **sat** is always associated to an embedded **sat**  project, which con
     tar -xf SALOME-9.3.0-CO7-SRC.tgz
     cd SALOME-9.3.0-CO7-SRC
     ls PROJECT/   # list the embedded sat project
-    salomeTools/sat config SALOME-9.3.0 -e   # edit the SALOME-9.3.0 configuration pyconf file
+    # edit the SALOME-9.3.0 configuration pyconf file
+    sat/sat config SALOME-9.3.0 -e   
 
 
 The user has usually two main use cases with an embedded sat, which are explained in the README file of the archive:
@@ -70,7 +71,8 @@ It is possible to recompile only a part of the products (those we need to modify
 
 .. code-block:: bash
 
-    ./install_bin.sh  # pre-installation of all binaries in INSTALL dir, with substitutions
+    # pre-installation of all binaries in INSTALL dir, with substitutions
+    ./install_bin.sh  
     ./sat prepare SALOME-9.3.0 -p GEOM  # get GEOM sources, modify them
     ./sat compile SALOME-9.3.0 -p GEOM --clean_all  # only recompile GEOM
 
@@ -79,13 +81,13 @@ It is possible to recompile only a part of the products (those we need to modify
 Standalone sat packages
 ---------------------------
 
-**sat** is also delivered as a standalone package, usually associated to a sat project. The following example is an archive containing salomeTools 5.3.0 and the salome sat project. It can be used to build from scratch any salome application.
+**sat** is also delivered as a standalone package, usually associated to a sat project. The following example is an archive containing sat 5.3.0 and the salome sat project. It can be used to build from scratch any salome application.
 
 .. code-block:: bash
 
     # untar a standalone sat package, with a salome project
-    tar xf salomeTools_5.3.0_satproject_salome.tgz
-    cd salomeTools_5.3.0_satproject_salome
+    tar xf sat_5.3.0_satproject_salome.tgz
+    cd sat_5.3.0_satproject_salome
     ls projects  # list embedded sat projects
     > salome
     ./sat config -l  # list all salome applications available for build

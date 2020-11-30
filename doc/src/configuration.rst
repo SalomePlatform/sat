@@ -9,7 +9,7 @@ For the configuration, SAT uses a python module called *config*, which aims to o
 This module was slightly adapted for SAT, and renamed Pyconf.
 (see `config module <http://www.red-dove.com/config-doc/>`_ for a complete description of the module, the associated syntax, the documentation).
 
-*salomeTools* uses files with **.pyconf** extension to store the configuration parameters.
+*sat* uses files with **.pyconf** extension to store the configuration parameters.
 These *.pyconf* are parsed by SAT, and merged into a global configuration, which is passed to the sat commands and used by them.
 
 
@@ -40,7 +40,8 @@ They are usually located in the application directory of the project:
 
     # list applications provided by SAT_SALOME project
     ls SAT_SALOME/applications
-        MEDCOUPLING-9.4.0.pyconf             SALOME-7.8.0.pyconf       SALOME-8.5.0.pyconf          SALOME-9.4.0.pyconf
+    >   MEDCOUPLING-9.4.0.pyconf             SALOME-7.8.0.pyconf       
+    >   SALOME-8.5.0.pyconf          SALOME-9.4.0.pyconf
 
 These files can be edited directly, and also with the SAT:
 
@@ -107,10 +108,12 @@ This subsection allows defining environment variables at the application level (
     ...
         environ :
         {
-            build : {CONFIGURATION_ROOT_DIR : $workdir + $VARS.sep + "SOURCES" + $VARS.sep + "CONFIGURATION"}
+            build : {CONFIGURATION_ROOT_DIR : $workdir + $VARS.sep + "SOURCES" +\
+                     $VARS.sep + "CONFIGURATION"}
             launch : {PYTHONIOENCODING:"UTF_8"}
             SALOME_trace : "local" # local/file:.../with_logger
-            SALOME_MODULES : "SHAPER,GEOM,SMESH,PARAVIS,YACS,JOBMANAGER"  # specify the first modules to display in gui
+            # specify the first modules to display in gui
+            SALOME_MODULES : "SHAPER,GEOM,SMESH,PARAVIS,YACS,JOBMANAGER"  
         }
     }
 
@@ -186,29 +189,68 @@ They are usually located in the product directory of the project. SAT_SALOME sup
 .. code-block:: bash
 
     ls SAT_SALOME/products/
-    ADAO_INTERFACE.pyconf  COREFLOWS_PROFILE.pyconf  GHS3DPLUGIN.pyconf         JOBMANAGER.pyconf       omniORB.pyconf       Python.pyconf                    Sphinx.pyconf
-    ADAO_MODULE.pyconf     COREFLOWS.pyconf          GHS3DPRLPLUGIN.pyconf      KERNEL.pyconf           omniORBpy.pyconf     pytz.pyconf                      sphinx_rtd_theme.pyconf
-    ADAO.pyconf            cppunit.pyconf            gl2ps.pyconf               kiwisolver.pyconf       opencv.pyconf        qt.pyconf                        subprocess32.pyconf
-    alabaster.pyconf       cycler.pyconf             glu.pyconf                 lapack.pyconf           openmpi.pyconf       qwt.pyconf                       swig.pyconf
-    ALAMOS_PROFILE.pyconf  Cython.pyconf             GMSHPLUGIN.pyconf          lata.pyconf             ospray.pyconf        requests.pyconf                  tbb.pyconf
-    ALAMOS.pyconf          dateutil.pyconf           gmsh.pyconf                LIBBATCH.pyconf         packaging.pyconf     SALOME_FORMATION_PROFILE.pyconf  tcl.pyconf
-    Babel.pyconf           distribute.pyconf         graphviz.pyconf            libpng.pyconf           ParaViewData.pyconf  SALOME_PROFILE.pyconf            TECHOBJ_ROOT.pyconf
-    BLSURFPLUGIN.pyconf    DOCUMENTATION.pyconf      GUI.pyconf                 libxml2.pyconf          ParaView.pyconf      SALOME.pyconf                    tk.pyconf
-    boost.pyconf           docutils.pyconf           hdf5.pyconf                llvm.pyconf             PARAVIS.pyconf       SAMPLES.pyconf                   Togl.pyconf
-    bsd_xdr.pyconf         doxygen.pyconf            HELLO.pyconf               markupsafe.pyconf       ParMetis.pyconf      scipy.pyconf                     TRIOCFD_IHM.pyconf
-    CALCULATOR.pyconf      EFICAS.pyconf             HEXABLOCKPLUGIN.pyconf     matplotlib.pyconf       patches              scons.pyconf                     TrioCFD.pyconf
-    CAS.pyconf             EFICAS_TOOLS.pyconf       HEXABLOCK.pyconf           MEDCOUPLING.pyconf      petsc.pyconf         scotch.pyconf                    TRUST.pyconf
-    CDMATH.pyconf          eigen.pyconf              HexoticPLUGIN.pyconf       medfile.pyconf          planegcs.pyconf      setuptools.pyconf                typing.pyconf
-    CEATESTBASE.pyconf     embree.pyconf             Hexotic.pyconf             med_pre_windows.pyconf  pockets.pyconf       SHAPER.pyconf                    uranie_win.pyconf
-    certifi.pyconf         env_scripts               homard_bin.pyconf          MED.pyconf              pthreads.pyconf      sip.pyconf                       urllib3.pyconf
-    cgns.pyconf            expat.pyconf              homard_pre_windows.pyconf  mesa.pyconf             PY2CPP.pyconf        six.pyconf                       VISU.pyconf
-    chardet.pyconf         f2c.pyconf                HOMARD.pyconf              MeshGems.pyconf         PYCALCULATOR.pyconf  SMESH.pyconf                     vtk.pyconf
-    click.pyconf           FIELDS.pyconf             HXX2SALOME.pyconf          metis.pyconf            Pygments.pyconf      snowballstemmer.pyconf           XDATA.pyconf
-    cmake.pyconf           freeimage.pyconf          HYBRIDPLUGIN.pyconf        NETGENPLUGIN.pyconf     pyhamcrest.pyconf    solvespace.pyconf                YACSGEN.pyconf
-    colorama.pyconf        freetype.pyconf           idna.pyconf                netgen.pyconf           PYHELLO.pyconf       sphinxcontrib_napoleon.pyconf    YACS.pyconf
-    compil_scripts         ftgl.pyconf               imagesize.pyconf           nlopt.pyconf            pyparsing.pyconf     sphinxcontrib.pyconf             zlib.pyconf
-    COMPONENT.pyconf       functools32.pyconf        ispc.pyconf                numpy.pyconf            PyQt.pyconf          sphinxcontrib_websupport.pyconf
-    CONFIGURATION.pyconf   GEOM.pyconf               Jinja2.pyconf              omniNotify.pyconf       pyreadline.pyconf    sphinxintl.pyconf
+    ADAO_INTERFACE.pyconf     homard_bin.pyconf          PyQtChart.pyconf
+    ADAO.pyconf               homard_pre_windows.pyconf  PyQt.pyconf
+    alabaster.pyconf          HOMARD.pyconf              pyreadline.pyconf
+    ALAMOS_PROFILE.pyconf     HXX2SALOME.pyconf          Python.pyconf
+    ALAMOS.pyconf             HYBRIDPLUGIN.pyconf        pytz.pyconf
+    Babel.pyconf              idna.pyconf                qt.pyconf
+    BLSURFPLUGIN.pyconf       imagesize.pyconf           qwt.pyconf
+    boost.pyconf              ispc.pyconf                requests.pyconf
+    bsd_xdr.pyconf            Jinja2.pyconf              RESTRICTED.pyconf
+    CALCULATOR.pyconf         JOBMANAGER.pyconf          root.pyconf
+    CAS.pyconf                KERNEL.pyconf              ruby.pyconf
+    CDMATH.pyconf             kiwisolver.pyconf          SALOME_FORMATION_PROFILE.pyconf
+    CEATESTBASE.pyconf        lapack.pyconf              SALOME_PROFILE.pyconf
+    certifi.pyconf            lata.pyconf                SALOME.pyconf
+    cgns.pyconf               LIBBATCH.pyconf            SAMPLES.pyconf
+    chardet.pyconf            libjpeg.pyconf             scipy.pyconf
+    click.pyconf              libpng.pyconf              scons.pyconf
+    cmake.pyconf              libxml2.pyconf             scotch.pyconf
+    colorama.pyconf           llvm.pyconf                setuptools.pyconf
+    compil_scripts            markupsafe.pyconf          SHAPER.pyconf
+    COMPONENT.pyconf          matplotlib.pyconf          SHAPERSTUDY.pyconf
+    CONFIGURATION.pyconf      MEDCOUPLING.pyconf         sip.pyconf
+    COREFLOWS_PROFILE.pyconf  medfile.pyconf             six.pyconf
+    COREFLOWS.pyconf          med_pre_windows.pyconf     SMESH.pyconf
+    cppunit.pyconf            MED.pyconf                 snowballstemmer.pyconf
+    cycler.pyconf             mesa.pyconf                SOLVERLAB.pyconf
+    Cython.pyconf             MeshGems.pyconf            solvespace.pyconf
+    dateutil.pyconf           metis.pyconf               sphinxcontrib_applehelp.pyconf
+    distribute.pyconf         mpc.pyconf                 sphinxcontrib_devhelp.pyconf
+    DOCUMENTATION.pyconf      mpfr.pyconf                sphinxcontrib_htmlhelp.pyconf
+    docutils.pyconf           msvc.pyconf                sphinxcontrib_jsmath.pyconf
+    doxygen.pyconf            NETGENPLUGIN.pyconf        sphinxcontrib_napoleon.pyconf
+    EFICAS.pyconf             netgen.pyconf              sphinxcontrib.pyconf
+    EFICAS_TOOLS.pyconf       nlopt.pyconf               sphinxcontrib_qthelp.pyconf
+    eigen.pyconf              numpy.pyconf               sphinxcontrib_serializinghtml.pyconf
+    embree.pyconf             omniNotify.pyconf          sphinxcontrib_websupport.pyconf
+    env_scripts               omniORB.pyconf             sphinxintl.pyconf
+    expat.pyconf              omniORBpy.pyconf           Sphinx.pyconf
+    f2c.pyconf                openblas.pyconf            sphinx_rtd_theme.pyconf
+    ffmpeg.pyconf             opencv.pyconf              subprocess32.pyconf
+    FIELDS.pyconf             openmpi.pyconf             swig.pyconf
+    freeimage.pyconf          openssl.pyconf             tbb.pyconf
+    freetype.pyconf           ospray.pyconf              tcl.pyconf
+    ftgl.pyconf               packaging.pyconf           tcltk.pyconf
+    functools32.pyconf        ParaViewData.pyconf        TECHOBJ_ROOT.pyconf
+    gcc.pyconf                ParaView.pyconf            tk.pyconf
+    GEOM.pyconf               PARAVIS.pyconf             Togl.pyconf
+    GHS3DPLUGIN.pyconf        ParMetis.pyconf            TRIOCFD_IHM.pyconf
+    GHS3DPRLPLUGIN.pyconf     patches                    TRIOCFD_PROFILE.pyconf
+    gl2ps.pyconf              perl.pyconf                TrioCFD.pyconf
+    glu.pyconf                petsc.pyconf               TRUST.pyconf
+    gmp.pyconf                Pillow.pyconf              typing.pyconf
+    GMSHPLUGIN.pyconf         planegcs.pyconf            uranie_win.pyconf
+    gmsh.pyconf               pockets.pyconf             urllib3.pyconf
+    graphviz.pyconf           pthreads.pyconf            VISU.pyconf
+    GUI.pyconf                PY2CPP.pyconf              vtk.pyconf
+    hdf5.pyconf               pybind11.pyconf            XDATA.pyconf
+    HELLO.pyconf              PYCALCULATOR.pyconf        YACSGEN.pyconf
+    HEXABLOCKPLUGIN.pyconf    Pygments.pyconf            YACS.pyconf
+    HEXABLOCK.pyconf          PyHamcrest.pyconf          zlib.pyconf
+    HexoticPLUGIN.pyconf      PYHELLO.pyconf
+    Hexotic.pyconf            pyparsing.pyconf
 
 
 Available product configuration flags
@@ -293,7 +335,8 @@ In the following example, the value *<install_dir/share/salome/ressources/salome
 
     environ :
     {
-        _SalomeAppConfig : $install_dir + $VARS.sep + "share" + $VARS.sep + "salome" + $VARS.sep + "resources" + $VARS.sep + "salome"
+        _SalomeAppConfig : $install_dir + $VARS.sep + "share" + $VARS.sep + "salome" +\
+                           $VARS.sep + "resources" + $VARS.sep + "salome"
     }
 
 
@@ -324,7 +367,8 @@ As an example, the environment script for qt is:
         if version_maj[0] == '5':
             env.set('QT5_ROOT_DIR', prereq_dir)
             env.prepend('QT_PLUGIN_PATH', os.path.join(prereq_dir, 'plugins'))
-            env.prepend('QT_QPA_PLATFORM_PLUGIN_PATH', os.path.join(prereq_dir, 'plugins'))
+            env.prepend('QT_QPA_PLATFORM_PLUGIN_PATH', 
+                         os.path.join(prereq_dir, 'plugins'))
             pass
         else:
             env.set('QT4_ROOT_DIR', prereq_dir)
@@ -451,7 +495,7 @@ Other sections
 --------------
 
 * **PROJECTS** : This section contains the configuration of the projects loaded in SAT by *sat init --add_project* command. 
-* **PATHS** : This section contains paths used by salomeTools.
+* **PATHS** : This section contains paths used by sat.
 * **LOCAL** : contains information relative to the local installation of SAT.
 * **INTERNAL** : contains internal SAT information
 
@@ -494,5 +538,6 @@ In the following example, we suppose that the application SALOME-9.4.0 has set b
 .. code-block:: bash
 
     # recompile MEDCOUPLING in debug mode (-g) and with verbosity
-    ./sat -t -o "APPLICATION.verbose='yes'" -o "APPLICATION.debug='yes'" compile SALOME-9.4.0 -p MEDCOUPLING --clean_all
+    ./sat -t -o "APPLICATION.verbose='yes'" -o "APPLICATION.debug='yes'" compile\
+                 SALOME-9.4.0 -p MEDCOUPLING --clean_all
 
