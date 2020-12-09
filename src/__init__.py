@@ -55,8 +55,13 @@ KNOWNFAILURE_STATUS = "KF"
 TIMEOUT_STATUS = "TIMEOUT"
 
 class SatException(Exception):
-    """rename Exception Class"""
-    pass
+    """sat exception class"""
+    def message(self, arg):
+        if sys.version_info[0] >= 3:
+            # message method is not available for python 3.8+
+            return super().msg(arg)
+        else:
+            return super(SatException,self).message(arg)
 
 def ensure_path_exists(p):
     """Create a path if not existing
