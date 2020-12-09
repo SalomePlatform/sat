@@ -367,35 +367,43 @@ def check_system_pkg(check_cmd,pkg):
     :return: a string with package name with status un message
     '''
     # build command
+    FNULL = open(os.devnull, 'w')
     cmd_is_package_installed=[]
     for cmd in check_cmd:
         cmd_is_package_installed.append(cmd)
     cmd_is_package_installed.append(pkg)
+
+
     if check_cmd[0]=="apt":
         # special treatment for apt
-        # (some debian packages have version numbers in their name, and also
-        # apt do not return status)
+        # apt output is too messy for being used
+        # some debian packages have version numbers in their name, we need to add a *
+        # also apt do not return status, we need to use grep
+        # and apt output is too messy for being used 
         cmd_is_package_installed[-1]+="*" # we don't specify in pyconf the exact name because of version numbers
-        cmd_is_package_installed.append('|')
-        cmd_is_package_installed.append('grep') # add a grep to get an exit status
-        cmd_is_package_installed.append(cmd) 
-        
-    p=subprocess.Popen(cmd_is_package_installed, 
-                       stdout=subprocess.PIPE, 
-                       stderr=subprocess.PIPE)
-    output, err = p.communicate()
-
-    rc = p.returncode
-    if rc==0:
-        msg_status=src.printcolors.printcSuccess("OK")
-        if check_cmd[0]=="rpm": # apt output is too messy for being used
+        p=subprocess.Popen(cmd_is_package_installed,
+                           stdout=subprocess.PIPE,
+                           stderr=FNULL)
+        try:
+            output = subprocess.check_output(['grep', pkg], stdin=p.stdout)
+            msg_status=src.printcolors.printcSuccess("OK")
+        except:
+            msg_status=src.printcolors.printcError("KO")
+            msg_status+=" (package is not installed!)\n"
+    else:
+        p=subprocess.Popen(cmd_is_package_installed,
+                           stdout=subprocess.PIPE,
+                           stderr=FNULL)
+        output, err = p.communicate()
+        rc = p.returncode
+        if rc==0:
+            msg_status=src.printcolors.printcSuccess("OK")
             # in python3 output is a byte and should be decoded
             if isinstance(output, bytes):
                 output = output.decode("utf-8", "ignore")
             msg_status+=" (" + output.replace('\n',' ') + ")\n" # remove output trailing \n
-    else:
-        msg_status=src.printcolors.printcError("KO") 
-        msg_status+=" (package is not installed!)\n"
+        else:
+            msg_status=src.printcolors.printcError("KO")
+            msg_status+=" (package is not installed!)\n"
 
     return msg_status
-
