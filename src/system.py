@@ -111,7 +111,7 @@ touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s
 set -x
 rmdir %(where)s
 git clone %(remote)s %(where)s && \
-git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s
+git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s && \
 touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s
 """
     cmd = cmd % {'remote': from_what,

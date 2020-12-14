@@ -743,6 +743,12 @@ def show_product_info(config, name, logger):
             logger.write("  " + 
                          src.printcolors.printcWarning(_("no install dir")) + 
                          "\n", 2)
+
+        src.printcolors.print_value(logger, "debug ", pinfo.debug, 2)
+        src.printcolors.print_value(logger, "verbose ", pinfo.verbose, 2)
+        src.printcolors.print_value(logger, "hpc ", pinfo.hpc, 2)
+        src.printcolors.print_value(logger, "dev ", pinfo.dev, 2)
+
     else:
         logger.write("\n", 2)
         msg = _("This product does not compile")
