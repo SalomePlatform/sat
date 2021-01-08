@@ -75,11 +75,12 @@ def git_describe(repo_path):
         return tag_description
 
 
-def git_extract(from_what, tag, where, logger, environment=None):
+def git_extract(from_what, tag, git_options, where, logger, environment=None):
   '''Extracts sources from a git repository.
 
   :param from_what str: The remote git repository.
   :param tag str: The tag.
+  :param git_options str: git options
   :param where str: The path where to extract.
   :param logger Logger: The logger instance to use.
   :param environment src.environment.Environ: The environment to source when extracting.
@@ -92,29 +93,29 @@ def git_extract(from_what, tag, where, logger, environment=None):
   where_git = os.path.join(str(where), ".git")
   if tag == "master" or tag == "HEAD":
     if src.architecture.is_windows():
-      cmd = "git clone %(remote)s %(where)s"
+      cmd = "git clone %(git_options)s %(remote)s %(where)s"
     else:
       cmd = r"""
 set -x
-git clone %(remote)s %(where)s
+git clone %(git_options)s %(remote)s %(where)s
 touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s
 """
-#git --git-dir=%(where_git)s  log -1 --format=date_format > %(where)s/last_commit_date.txt
-    cmd = cmd % {'remote': from_what, 'tag': tag, 'where': str(where), 'where_git': where_git}
+    cmd = cmd % {'git_options': git_options, 'remote': from_what, 'tag': tag, 'where': str(where), 'where_git': where_git}
   else:
     # NOTICE: this command only works with recent version of git
     #         because --work-tree does not work with an absolute path
     if src.architecture.is_windows():
-      cmd = "rmdir %(where)s && git clone %(remote)s %(where)s && git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s"
+      cmd = "rmdir %(where)s && git clone %(git_options)s %(remote)s %(where)s && git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s"
     else:
       cmd = r"""
 set -x
 rmdir %(where)s
-git clone %(remote)s %(where)s && \
+git clone %(git_options)s %(remote)s %(where)s && \
 git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s && \
 touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s
 """
-    cmd = cmd % {'remote': from_what,
+    cmd = cmd % {'git_options': git_options,
+                 'remote': from_what,
                  'tag': tag,
                  'where': str(where),
                  'where_git': where_git}
@@ -125,7 +126,6 @@ touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s
   logger.logTxtFile.flush()
 
   DBG.write("cmd", cmd)
-
   # git commands may fail sometimes for various raisons 
   # (big module, network troubles, tuleap maintenance)
   # therefore we give several tries
@@ -144,11 +144,12 @@ touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s
   return rc.isOk()
 
 
-def git_extract_sub_dir(from_what, tag, where, sub_dir, logger, environment=None):
+def git_extract_sub_dir(from_what, tag, git_options, where, sub_dir, logger, environment=None):
   '''Extracts sources from a subtree sub_dir of a git repository.
 
   :param from_what str: The remote git repository.
   :param tag str: The tag.
+  :param git_options str: git options
   :param where str: The path where to extract.
   :param sub_dir str: The relative path of subtree to extract.
   :param logger Logger: The logger instance to use.
@@ -165,7 +166,8 @@ def git_extract_sub_dir(from_what, tag, where, sub_dir, logger, environment=None
   if os.path.isdir(strWhere):
     logger.error("do not override existing directory: %s" % strWhere)
     return False
-  aDict = {'remote': from_what,
+  aDict = {'git_options': git_options,
+           'remote': from_what,
            'tag': tag,
            'sub_dir': sub_dir,
            'where': strWhere,
@@ -178,7 +180,7 @@ def git_extract_sub_dir(from_what, tag, where, sub_dir, logger, environment=None
 set -x
 export tmpDir=%(tmpWhere)s && \
 rm -rf $tmpDir
-git clone %(remote)s $tmpDir && \
+git clone %(git_options)s %(remote)s $tmpDir && \
 cd $tmpDir && \
 git checkout %(tag)s && \
 mv %(sub_dir)s %(where)s && \
@@ -190,7 +192,7 @@ rm -rf $tmpDir
 
 set tmpDir=%(tmpWhere)s && \
 rm -rf $tmpDir
-git clone %(remote)s $tmpDir && \
+git clone %(git_options)s %(remote)s $tmpDir && \
 cd $tmpDir && \
 git checkout %(tag)s && \
 mv %(sub_dir)s %(where)s && \
