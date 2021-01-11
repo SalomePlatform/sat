@@ -25,11 +25,13 @@ import codecs
 import string
 import glob
 import pprint as PP
-
+import sys
 import src
 
 from application import get_SALOME_modules
 import src.debug as DBG
+
+old_python = sys.version_info[0] == 2 and sys.version_info[1] <= 6
 
 BINARY = "binary"
 SOURCE = "Source"
@@ -152,7 +154,14 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
         try:
             key=local_path+"->"+in_archive
             if key not in already_added:
-                tar.add(local_path, arcname=in_archive, filter=f_exclude)
+                if old_python:
+                    tar.add(local_path,
+                                 arcname=in_archive,
+                                 exclude=exclude_VCS_and_extensions_26)
+                else:
+                    tar.add(local_path,
+                                 arcname=in_archive,
+                                 filter=exclude_VCS_and_extensions)
                 already_added.add(key)
             logger.write(src.printcolors.printcSuccess(_("OK")), 3)
         except Exception as e:
@@ -161,6 +170,23 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
             success = 1
         logger.write("\n", 3)
     return success
+
+
+def exclude_VCS_and_extensions_26(filename):
+    ''' The function that is used to exclude from package the link to the 
+        VCS repositories (like .git) (only for python 2.6)
+
+    :param filename Str: The filname to exclude (or not).
+    :return: True if the file has to be exclude
+    :rtype: Boolean
+    '''
+    for dir_name in IGNORED_DIRS:
+        if dir_name in filename:
+            return True
+    for extension in IGNORED_EXTENSIONS:
+        if filename.endswith(extension):
+            return True
+    return False
 
 def exclude_VCS_and_extensions(tarinfo):
     ''' The function that is used to exclude from package the link to the 
@@ -944,9 +970,14 @@ def make_archive(prod_name, prod_info, where):
     path_targz_prod = os.path.join(where, prod_name + PACKAGE_EXT)
     tar_prod = tarfile.open(path_targz_prod, mode='w:gz')
     local_path = prod_info.source_dir
-    tar_prod.add(local_path,
-                 arcname=prod_name,
-                 filter=exclude_VCS_and_extensions)
+    if old_python:
+        tar_prod.add(local_path,
+                     arcname=prod_name,
+                     exclude=exclude_VCS_and_extensions_26)
+    else:
+        tar_prod.add(local_path,
+                     arcname=prod_name,
+                     filter=exclude_VCS_and_extensions)
     tar_prod.close()
     return path_targz_prod       
 
@@ -1631,7 +1662,10 @@ Please add it in file:
         tar = tarfile.open(path_targz, mode='w:gz')
         
         # get the filtering function if needed
-        filter_function = exclude_VCS_and_extensions
+        if old_python:
+            filter_function = exclude_VCS_and_extensions_26
+        else:
+            filter_function = exclude_VCS_and_extensions
 
         # Add the files to the tarfile object
         res = add_files(tar, archive_name, d_files_to_add, logger, f_exclude=filter_function)
