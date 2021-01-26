@@ -812,7 +812,7 @@ def get_products_list(options, cfg, logger):
 
 def get_product_dependencies(config, product_info):
     """\
-    Get recursively the list of products that are 
+    Get the list of products that are 
     in the product_info dependencies
     
     :param config Config: The global configuration
@@ -821,29 +821,14 @@ def get_product_dependencies(config, product_info):
     :return: the list of products in dependence
     :rtype: list
     """
-    depend_all=[]
-    if "depend" in product_info:
-        for d in product_info.depend:
-            depend_all.append(d)
-    if "build_depend" in product_info:
-        for d in product_info.build_depend:
-            depend_all.append(d)
-
-    if len(depend_all) == 0:
-        return []
-
-    res = []
-    for prod in depend_all:
-        if prod == product_info.name:
-            continue
-        if prod not in res:
-            res.append(prod)
-        prod_info = get_product_config(config, prod)
-        dep_prod = get_product_dependencies(config, prod_info)
-        for prod_in_dep in dep_prod:
-            if prod_in_dep not in res:
-                res.append(prod_in_dep)
-    return res
+    from compile import get_dependencies_graph, depth_search_graph
+    all_products_infos = get_products_infos(
+                             config.APPLICATION.products,
+                             config)
+    all_products_graph=get_dependencies_graph(all_products_infos)
+    res=[]
+    res=depth_search_graph(all_products_graph, product_info.name, res)
+    return res[1:]  # remove the product himself (in first position)
 
 def check_installation(config, product_info):
     """\
