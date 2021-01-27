@@ -38,12 +38,14 @@ class Builder:
     def __init__(self,
                  config,
                  logger,
+                 product_name,
                  product_info,
                  options = src.options.OptResult(),
                  check_src=True):
         self.config = config
         self.logger = logger
         self.options = options
+        self.product_name = product_name
         self.product_info = product_info
         self.build_dir = src.Path(self.product_info.build_dir)
         self.source_dir = src.Path(self.product_info.source_dir)
@@ -83,6 +85,7 @@ class Builder:
 
         # add products in depend and opt_depend list recursively
         environ_info = src.product.get_product_dependencies(self.config,
+                                                            self.product_name,
                                                             self.product_info)
         #environ_info.append(self.product_info.name)
 

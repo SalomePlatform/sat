@@ -810,7 +810,7 @@ def get_products_list(options, cfg, logger):
     return res
 
 
-def get_product_dependencies(config, product_info):
+def get_product_dependencies(config, product_name, product_info):
     """\
     Get the list of products that are 
     in the product_info dependencies
@@ -827,7 +827,7 @@ def get_product_dependencies(config, product_info):
                              config)
     all_products_graph=get_dependencies_graph(all_products_infos)
     res=[]
-    res=depth_search_graph(all_products_graph, product_info.name, res)
+    res=depth_search_graph(all_products_graph, product_name, res)
     return res[1:]  # remove the product himself (in first position)
 
 def check_installation(config, product_info):

@@ -510,6 +510,7 @@ def compile_product_pip(sat,
                              src.environment.Environ(dict(os.environ)),
                              True)
     environ_info = src.product.get_product_dependencies(config,
+                                                        p_name,
                                                         p_info)
     build_environ.silent = (config.USER.output_verbose_level < 5)
     build_environ.set_full_environ(logger, environ_info)

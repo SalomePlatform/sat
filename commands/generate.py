@@ -83,7 +83,7 @@ def generate_component(config, compo, product_info, context, header, logger):
     config.PRODUCTS.addMapping(compo, src.pyconf.Mapping(config), "")
     config.PRODUCTS[compo].default = compo_info
 
-    builder = src.compilation.Builder(config, logger, compo_info, check_src=False)
+    builder = src.compilation.Builder(config, logger, compo, compo_info, check_src=False)
     builder.header = header
 
     # generate the component

@@ -106,7 +106,7 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
 
     # Instantiate the class that manages all the construction commands
     # like cmake, make, make install, make test, environment management, etc...
-    builder = src.compilation.Builder(config, logger, p_info)
+    builder = src.compilation.Builder(config, logger, p_name, p_info)
     
     # Prepare the environment
     log_step(logger, header, "PREPARE ENV")
