@@ -313,15 +313,17 @@ def prepare_from_template(config,
                 logger.write("  - %s\n" % fpath[pathlen:], 5)
                 continue
             # read the file
-            m = file(fpath, 'r').read()
-            # make the substitution
-            template = CompoTemplate(m)
-            d = template.safe_substitute(dico)
-            # overwrite the file with substituted content
+            with open(fpath, 'r') as f:
+                m = f.read()
+                # make the substitution
+                template = CompoTemplate(m)
+                d = template.safe_substitute(dico)
+                        
             changed = " "
             if d != m:
                 changed = "*"
-                file(fpath, 'w').write(d)
+                with open(fpath, 'w') as f:
+                    f.write(d)
             logger.write("  %s %s\n" % (changed, fpath[pathlen:]), 5)
 
     if not tsettings.has_pyconf:
@@ -415,15 +417,16 @@ def get_template_info(config, template_name, logger):
             if not tsettings.check_file_for_substitution(fpath[pathlen:]):
                 continue
             # read the file
-            m = file(fpath, 'r').read()
-            zz = re.findall(reexp, m)
-            zz = list(set(zz)) # reduce
-            zz = filter(lambda l: l not in pnames, zz)
-            if len(zz) > 0:
-                logger.write("Missing definition in %s: %s" % (
-                    src.printcolors.printcLabel(
-                                            fpath[pathlen:]), ", ".join(zz)), 3)
-                retcode = 1
+            with open(fpath, 'r') as f:
+                m = f.read()
+                zz = re.findall(reexp, m)
+                zz = list(set(zz)) # reduce
+                zz = filter(lambda l: l not in pnames, zz)
+                if len(zz) > 0:
+                    logger.write("Missing definition in %s: %s" % (
+                        src.printcolors.printcLabel(
+                                                fpath[pathlen:]), ", ".join(zz)), 3)
+                    retcode = 1
 
     if retcode == 0:
         logger.write(src.printcolors.printc("OK"), 3)

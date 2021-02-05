@@ -210,57 +210,55 @@ def generate_catalog(machines, config, logger):
 
     # Create the catalog path
     catfile = src.get_tmp_filename(config, "CatalogResources.xml")
-    catalog = file(catfile, "w")
-    
-    # Write into it
-    catalog.write("<!DOCTYPE ResourcesCatalog>\n<resources>\n")
-    for k in machines:
-        if not src.architecture.is_windows(): 
-            logger.write("    ssh %s " % (k + " ").ljust(20, '.'), 4)
-            logger.flush()
+    with open(catfile, 'w') as catalog:
+        # Write into it
+        catalog.write("<!DOCTYPE ResourcesCatalog>\n<resources>\n")
+        for k in machines:
+            if not src.architecture.is_windows(): 
+                logger.write("    ssh %s " % (k + " ").ljust(20, '.'), 4)
+                logger.flush()
 
-            # Verify that the machine is accessible
-            ssh_cmd = 'ssh -o "StrictHostKeyChecking no" %s %s' % (k, cmd)
-            p = subprocess.Popen(ssh_cmd, shell=True,
-                    stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
-            p.wait()
+                # Verify that the machine is accessible
+                ssh_cmd = 'ssh -o "StrictHostKeyChecking no" %s %s' % (k, cmd)
+                p = subprocess.Popen(ssh_cmd, shell=True,
+                        stdin=subprocess.PIPE,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE)
+                p.wait()
 
-            machine_access = (p.returncode == 0) 
-            if not machine_access: # The machine is not accessible
-                logger.write(src.printcolors.printc(src.KO_STATUS) + "\n", 4)
-                logger.write("    " + 
-                             src.printcolors.printcWarning(p.stderr.read()), 2)
-            else:
-                # The machine is accessible, write the corresponding section on
-                # the xml file
-                logger.write(src.printcolors.printc(src.OK_STATUS) + "\n", 4)
-                lines = p.stdout.readlines()
-                freq = lines[0][:-1].split(':')[-1].split('.')[0].strip()
-                nb_proc = len(lines) -1
-                memory = lines[-1].split(':')[-1].split()[0].strip()
-                memory = int(memory) / 1000
+                machine_access = (p.returncode == 0) 
+                if not machine_access: # The machine is not accessible
+                    logger.write(src.printcolors.printc(src.KO_STATUS) + "\n", 4)
+                    logger.write("    " + 
+                                 src.printcolors.printcWarning(p.stderr.read()), 2)
+                else:
+                    # The machine is accessible, write the corresponding section on
+                    # the xml file
+                    logger.write(src.printcolors.printc(src.OK_STATUS) + "\n", 4)
+                    lines = p.stdout.readlines()
+                    freq = lines[0][:-1].split(':')[-1].split('.')[0].strip()
+                    nb_proc = len(lines) -1
+                    memory = lines[-1].split(':')[-1].split()[0].strip()
+                    memory = int(memory) / 1000
 
-        catalog.write("    <machine\n")
-        catalog.write("        protocol=\"ssh\"\n")
-        catalog.write("        nbOfNodes=\"1\"\n")
-        catalog.write("        mode=\"interactif\"\n")
-        catalog.write("        OS=\"LINUX\"\n")
+            catalog.write("    <machine\n")
+            catalog.write("        protocol=\"ssh\"\n")
+            catalog.write("        nbOfNodes=\"1\"\n")
+            catalog.write("        mode=\"interactif\"\n")
+            catalog.write("        OS=\"LINUX\"\n")
 
-        if (not src.architecture.is_windows()) and machine_access :
-            catalog.write("        CPUFreqMHz=\"%s\"\n" % freq)
-            catalog.write("        nbOfProcPerNode=\"%s\"\n" % nb_proc)
-            catalog.write("        memInMB=\"%s\"\n" % memory)
+            if (not src.architecture.is_windows()) and machine_access :
+                catalog.write("        CPUFreqMHz=\"%s\"\n" % freq)
+                catalog.write("        nbOfProcPerNode=\"%s\"\n" % nb_proc)
+                catalog.write("        memInMB=\"%s\"\n" % memory)
 
-        catalog.write("        userName=\"%s\"\n" % user)
-        catalog.write("        name=\"%s\"\n" % k)
-        catalog.write("        hostname=\"%s\"\n" % k)
-        catalog.write("    >\n")
-        catalog.write("    </machine>\n")
+            catalog.write("        userName=\"%s\"\n" % user)
+            catalog.write("        name=\"%s\"\n" % k)
+            catalog.write("        hostname=\"%s\"\n" % k)
+            catalog.write("    >\n")
+            catalog.write("    </machine>\n")
 
-    catalog.write("</resources>\n")
-    catalog.close()
+        catalog.write("</resources>\n")
     return catfile
 
 def copy_catalog(config, catalog_path):
