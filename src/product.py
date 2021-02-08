@@ -165,7 +165,7 @@ def get_product_config(config, product_name, with_install_dir=True):
     # substitute some character with _ in order to get the correct definition
     # in config.PRODUCTS. This is done because the pyconf tool does not handle
     # the . and - characters 
-    for c in ".-": vv = vv.replace(c, "_")
+    for c in ".-/": vv = vv.replace(c, "_")
 
     prod_info = None
     if product_name in config.PRODUCTS:
