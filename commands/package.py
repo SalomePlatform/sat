@@ -1139,6 +1139,16 @@ def find_product_scripts_and_pyconf(p_name,
                     product_pyconf_cfg[section].archive_info.archive_name =\
                         p_info.name + ".tgz"
     
+    if (with_vcs) and src.product.product_is_vcs(p_info):
+        # in vcs mode we must replace explicitely the git server url
+        # (or it will not be found later because project files are not exported in archives)
+        for section in product_pyconf_cfg:
+            # replace in all sections of the product pyconf the git repo definition by its substitued value (found in p_info)
+            if "git_info" in product_pyconf_cfg[section]:
+                for repo in product_pyconf_cfg[section].git_info:
+                    if repo in p_info.git_info:
+                        product_pyconf_cfg[section].git_info[repo] =  p_info.git_info[repo]
+
     # write the pyconf file to the temporary project location
     product_tmp_pyconf_path = os.path.join(products_pyconf_tmp_dir,
                                            p_name + ".pyconf")
