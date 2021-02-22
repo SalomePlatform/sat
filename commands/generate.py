@@ -31,7 +31,7 @@ parser.add_option('p', 'products', 'list2', 'products',
 parser.add_option('', 'yacsgen', 'string', 'yacsgen',
                   _("Optional: path to YACSGEN's module_generator package"))
 
-def generate_component_list(config, product_info, context, logger):
+def generate_component_list(config, product_name, product_info, context, logger):
     res = "?"
     logger.write("\n", 3)
     for compo in src.product.get_product_components(product_info):
@@ -39,6 +39,7 @@ def generate_component_list(config, product_info, context, logger):
                                "." * (20 - len(compo)))
         res = generate_component(config,
                                  compo,
+                                 product_name,
                                  product_info,
                                  context,
                                  header,
@@ -49,7 +50,7 @@ def generate_component_list(config, product_info, context, logger):
         logger.write("\n", 3, False)
     return res
 
-def generate_component(config, compo, product_info, context, header, logger):
+def generate_component(config, compo, product_name, product_info, context, header, logger):
 #   get from config include file name and librairy name, or take default value
     if "hxxfile" in product_info:
         hxxfile = product_info.hxxfile
@@ -83,7 +84,7 @@ def generate_component(config, compo, product_info, context, header, logger):
     config.PRODUCTS.addMapping(compo, src.pyconf.Mapping(config), "")
     config.PRODUCTS[compo].default = compo_info
 
-    builder = src.compilation.Builder(config, logger, compo, compo_info, check_src=False)
+    builder = src.compilation.Builder(config, logger, product_name, compo_info, check_src=False)
     builder.header = header
 
     # generate the component
@@ -381,6 +382,7 @@ def run(args, runner, logger):
         nbgen += 1
         try:
             result = generate_component_list(runner.cfg,
+                                             product,
                                              pi,
                                              context,
                                              logger)
