@@ -105,18 +105,18 @@ touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s
     # NOTICE: this command only works with recent version of git
     #         because --work-tree does not work with an absolute path
     if src.architecture.is_windows():
-      cmd = "rmdir %(where)s && git clone %(git_options)s %(remote)s %(where)s && git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s"
+      cmd = "rm -rf %(where)s && git clone %(git_options)s %(remote)s %(where)s && git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s"
     else:
 # for sat compile --update : changes the date of directory, only for branches, not tag
       cmd = r"""
 set -x
-rmdir %(where)s
+rm -rf %(where)s
 git clone %(git_options)s %(remote)s %(where)s && \
 git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s
 res=$?
 git --git-dir=%(where_git)s status|grep HEAD
 if [ $? -ne 0 ]; then   touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s;fi
-return $res
+exit $res
 """
     cmd = cmd % {'git_options': git_options,
                  'remote': from_what,
