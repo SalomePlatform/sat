@@ -104,6 +104,8 @@ parser.add_option('', 'ftp', 'boolean', 'ftp',
     _('Optional: Do not embed archives for products in archive mode.' 
     'Sat prepare will use ftp instead to retrieve them'),
     False)
+parser.add_option('e', 'exe', 'string', 'exe',
+    _('Optional: Produce an extra launcher based upon the exe given as argument.'), "")
 parser.add_option('p', 'project', 'string', 'project',
     _('Optional: Produce an archive that contains a project.'), "")
 parser.add_option('t', 'salometools', 'boolean', 'sat',
@@ -367,7 +369,8 @@ def hack_for_distene_licence(filepath, licence_file):
 def produce_relative_env_files(config,
                               logger,
                               file_dir,
-                              binaries_dir_name):
+                              binaries_dir_name,
+                              exe_name=None):
     '''Create some specific environment files for the binary package. These 
        files use relative paths.
     
@@ -376,6 +379,7 @@ def produce_relative_env_files(config,
     :param file_dir str: the directory where to put the files
     :param binaries_dir_name str: the name of the repository where the binaries
                                   are, in the archive.
+    :param exe_name str: if given generate a launcher executing exe_name
     :return: the list of path of the produced environment files
     :rtype: List
     '''  
@@ -392,6 +396,9 @@ def produce_relative_env_files(config,
       shell = "bash"
       filename  = "env_launch.sh"
 
+    if exe_name:
+        filename=os.path.basename(exe_name)
+
     # Write
     filepath = writer.write_env_file(filename,
                           False, # for launch
@@ -406,6 +413,14 @@ def produce_relative_env_files(config,
     else:
       src.replace_in_file(filepath, '"out_dir_Path', '"${out_dir_Path}' )
       src.replace_in_file(filepath, ':out_dir_Path', ':${out_dir_Path}' )
+
+    if exe_name:
+        if src.architecture.is_windows():
+            cmd="\n\nrem Launch exe with user arguments\n%s " % exe_name + "%*"
+        else:
+            cmd='\n\n# Launch exe with user arguments\n%s "$*"' % exe_name
+        with open(filepath, "a") as exe_launcher:
+            exe_launcher.write(cmd)
 
     # change the rights in order to make the file executable for everybody
     os.chmod(filepath,
@@ -757,6 +772,22 @@ WARNING: existing binaries directory from previous detar installation:
     else:
       filename  = "env_launch.sh"
     d_products["environment file"] = (env_file, filename)      
+
+    # If option exe, produce an extra launcher based on specified exe
+    if options.exe:
+        exe_file = produce_relative_env_files(config,
+                                              logger,
+                                              tmp_working_dir,
+                                              binaries_dir_name,
+                                              options.exe)
+            
+        if src.architecture.is_windows():
+          filename  = os.path.basename(options.exe) + ".bat"
+        else:
+          filename  = os.path.basename(options.exe) + ".sh"
+        d_products["exe file"] = (exe_file, filename)      
+    
+
     return d_products
 
 def source_package(sat, config, logger, options, tmp_working_dir):
