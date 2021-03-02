@@ -223,6 +223,13 @@ def produce_relative_launcher(config,
     :rtype: str
     '''
     
+    # set base mode to "no" for the archive - save current mode to restore it at the end
+    if "base" in config.APPLICATION:
+        base_setting=config.APPLICATION.base 
+    else:
+        base_setting="maybe"
+    config.APPLICATION.base="no"
+
     # get KERNEL installation path 
     kernel_info = src.product.get_product_config(config, "KERNEL")
     kernel_base_name=os.path.basename(kernel_info.install_dir)
@@ -305,6 +312,9 @@ def produce_relative_launcher(config,
              stat.S_IXUSR |
              stat.S_IXGRP |
              stat.S_IXOTH)
+
+    # restore modified setting by its initial value
+    config.APPLICATION.base=base_setting
 
     return filepath
 
@@ -550,6 +560,11 @@ def binary_package(config, logger, options, tmp_working_dir):
     l_products_name = sorted(config.APPLICATION.products.keys())
     l_product_info = src.product.get_products_infos(l_products_name,
                                                     config)
+
+    # suppress compile time products for binaries-only archives
+    if not options.sources:
+        update_config(config, logger, "compile_time", "yes")
+
     l_install_dir = []
     l_source_dir = []
     l_not_installed = []
@@ -580,8 +595,12 @@ def binary_package(config, logger, options, tmp_working_dir):
                 or src.product.product_is_fixed(prod_info)
                 or not src.product.product_compiles(prod_info)):
             continue
+        # 
+        # products with single_fir property will be installed in the PRODUCTS directory of the archive
+        is_single_dir=(src.appli_test_property(config,"single_install_dir", "yes") and \
+                       src.product.product_test_property(prod_info,"single_install_dir", "yes"))
         if src.product.check_installation(config, prod_info):
-            l_install_dir.append((prod_name, prod_info.install_dir))
+            l_install_dir.append((prod_name, prod_info.name, prod_info.install_dir, is_single_dir))
         else:
             l_not_installed.append(prod_name)
         
@@ -593,7 +612,7 @@ def binary_package(config, logger, options, tmp_working_dir):
                                            config.INTERNAL.config.install_dir,
                                            name_cpp) 
                 if os.path.exists(install_dir):
-                    l_install_dir.append((name_cpp, install_dir))
+                    l_install_dir.append((name_cpp, name_cpp, install_dir, False))
                 else:
                     l_not_installed.append(name_cpp)
         
@@ -656,11 +675,15 @@ WARNING: existing binaries directory from previous detar installation:
     # construct the correlation table between the product names, there 
     # actual install directories and there install directory in archive
     d_products = {}
-    for prod_name, install_dir in l_install_dir:
+    for prod_name, prod_info_name, install_dir, is_single_dir in l_install_dir:
         prod_base_name=os.path.basename(install_dir)
         if prod_base_name.startswith("config"):
-            # case of a products installed in base. We remove "config-i"
-            prod_base_name=os.path.basename(os.path.dirname(install_dir))
+            # case of a products installed in base. Because the archive is in base:no mode, 
+            # we replace "config-i" by the product name or by PRODUCTS if single-dir
+            if is_single_dir:
+                prod_base_name=config.INTERNAL.config.single_install_dir
+            else:
+                prod_base_name=prod_info_name
         path_in_archive = os.path.join(binaries_dir_name, prod_base_name)
         d_products[prod_name + " (bin)"] = (install_dir, path_in_archive)
         
@@ -1174,9 +1197,10 @@ def write_application_pyconf(config, application_tmp_dir):
         f.write("#!/usr/bin/env python\n#-*- coding:utf-8 -*-\n\n")
         res = src.pyconf.Config()
         app = src.pyconf.deepCopyMapping(config.APPLICATION)
-        # no base in packages
-        if "base" in app:
-            app.base = "no" 
+
+        # set base mode to "no" for the archive
+        app.base = "no"
+
         # Change the workdir
         app.workdir = src.pyconf.Reference(
                                  app,
@@ -1520,10 +1544,6 @@ Please add it in file:
     # Remove from config the products that have the not_in_package property
     update_config(runner.cfg, logger, "not_in_package", "yes")
 
-    # for binary packages without sources, remove compile time products
-    if options.binaries and (not options.sources):
-        update_config(runner.cfg, logger, "compile_time", "yes")
-    
     # get the name of the archive or build it
     if options.name:
         if os.path.basename(options.name) == options.name:
