@@ -235,8 +235,8 @@ def produce_relative_launcher(config,
     # get KERNEL installation path 
     kernel_info = src.product.get_product_config(config, "KERNEL")
     kernel_base_name=os.path.basename(kernel_info.install_dir)
-    if kernel_base_name.startswith("config"):
-        # case of kernel installed in base. We remove "config-i"
+    if kernel_info.install_mode == "base":
+        # case of kernel installed in base. the kernel install dir name is different in the archive
         kernel_base_name=os.path.basename(os.path.dirname(kernel_info.install_dir))
     
     kernel_root_dir = os.path.join(binaries_dir_name, kernel_base_name)
@@ -383,6 +383,14 @@ def produce_relative_env_files(config,
     :return: the list of path of the produced environment files
     :rtype: List
     '''  
+
+    # set base mode to "no" for the archive - save current mode to restore it at the end
+    if "base" in config.APPLICATION:
+        base_setting=config.APPLICATION.base 
+    else:
+        base_setting="maybe"
+    config.APPLICATION.base="no"
+
     # create an environment file writer
     writer = src.environment.FileEnvWriter(config,
                                            logger,
@@ -432,6 +440,9 @@ def produce_relative_env_files(config,
              stat.S_IXGRP |
              stat.S_IXOTH)
     
+    # restore modified setting by its initial value
+    config.APPLICATION.base=base_setting
+
     return filepath
 
 def produce_install_bin_file(config,
@@ -591,6 +602,8 @@ def binary_package(config, logger, options, tmp_working_dir):
         config.APPLICATION.properties.mesa_launcher_in_package == "yes") :
             generate_mesa_launcher=True
 
+    # first loop on products : filter products, analyse properties,
+    # and store the information that will be used to create the archive in the second loop 
     for prod_name, prod_info in l_product_info:
         # skip product with property not_in_package set to yes
         if src.get_property_in_product_cfg(prod_info, "not_in_package") == "yes":
@@ -611,11 +624,12 @@ def binary_package(config, logger, options, tmp_working_dir):
                 or not src.product.product_compiles(prod_info)):
             continue
         # 
-        # products with single_fir property will be installed in the PRODUCTS directory of the archive
+        # products with single_dir property will be installed in the PRODUCTS directory of the archive
         is_single_dir=(src.appli_test_property(config,"single_install_dir", "yes") and \
                        src.product.product_test_property(prod_info,"single_install_dir", "yes"))
         if src.product.check_installation(config, prod_info):
-            l_install_dir.append((prod_name, prod_info.name, prod_info.install_dir, is_single_dir))
+            l_install_dir.append((prod_name, prod_info.name, prod_info.install_dir,
+                                  is_single_dir, prod_info.install_mode))
         else:
             l_not_installed.append(prod_name)
         
@@ -627,7 +641,7 @@ def binary_package(config, logger, options, tmp_working_dir):
                                            config.INTERNAL.config.install_dir,
                                            name_cpp) 
                 if os.path.exists(install_dir):
-                    l_install_dir.append((name_cpp, name_cpp, install_dir, False))
+                    l_install_dir.append((name_cpp, name_cpp, install_dir, False, "value"))
                 else:
                     l_not_installed.append(name_cpp)
         
@@ -690,11 +704,12 @@ WARNING: existing binaries directory from previous detar installation:
     # construct the correlation table between the product names, there 
     # actual install directories and there install directory in archive
     d_products = {}
-    for prod_name, prod_info_name, install_dir, is_single_dir in l_install_dir:
+    for prod_name, prod_info_name, install_dir, is_single_dir, install_mode in l_install_dir:
         prod_base_name=os.path.basename(install_dir)
-        if prod_base_name.startswith("config"):
-            # case of a products installed in base. Because the archive is in base:no mode, 
-            # we replace "config-i" by the product name or by PRODUCTS if single-dir
+        if install_mode == "base":
+            # case of a products installed in base. 
+            # because the archive is in base:no mode, the name of the install dir is different inside archive
+            # we set it to the product name or by PRODUCTS if single-dir
             if is_single_dir:
                 prod_base_name=config.INTERNAL.config.single_install_dir
             else:
