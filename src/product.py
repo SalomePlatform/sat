@@ -204,6 +204,7 @@ def get_product_config(config, product_name, with_install_dir=True):
            # message to the user in case of non existing path.)
             prod_info.install_dir = version
             prod_info.get_source = "fixed"
+            prod_info.install_mode = "fixed"
         
         # Check if the product is defined as native in the application
         if prod_info is not None:
@@ -367,7 +368,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
             prod_info.install_dir = prod_info.install_dir_save
         
         # Set the install_dir key
-        prod_info.install_dir = get_install_dir(config, version, prod_info)
+        prod_info.install_dir,prod_info.install_mode = get_install_dir(config, version, prod_info)
                 
     return prod_info
 
@@ -493,11 +494,12 @@ def get_install_dir(config, version, prod_info):
     :param product_info Config: The configuration specific to 
                                the product
     
-    :return: The path of the product installation
-    :rtype: str
+    :return: The path of the product installation and the mode of the install directory (base/implicit/fixed/value)
+    :rtype: str,str
     """
     install_dir = ""
     in_base = False
+    
     # prod_info.base : corresponds to what is specified in application pyconf (either from the global key base, or from a product dict)
     # prod_info.install_dir : corresponds to what is specified in product pyconf (usually "base" for prerequisites)
     if ( ("install_dir" in prod_info and prod_info.install_dir == "base") # product is declared as base in its own config 
@@ -511,9 +513,15 @@ def get_install_dir(config, version, prod_info):
 
     if in_base:
         install_dir = get_base_install_dir(config, prod_info, version)
+        install_mode = "base"
     else:
-        if "install_dir" not in prod_info or prod_info.install_dir == "base":
+        if ("install_mode" in prod_info and prod_info.install_mode in ["implicit", "base"]) or\
+           ("install_dir" not in prod_info or prod_info.install_dir == "base"):
+            # the check to "base" comes from the package case were base mode is changed dynamically 
+            # to create a package launcher.
+
             # Set it to the default value (in application directory)
+            install_mode = "implicit"
             if ( src.appli_test_property(config,"single_install_dir", "yes") and 
                  src.product.product_test_property(prod_info,"single_install_dir", "yes")):
                 # when single_install_dir mode is activated in tha application
@@ -537,8 +545,9 @@ def get_install_dir(config, version, prod_info):
                                            prod_info.name)
         else:
             install_dir = prod_info.install_dir
+            install_mode = "value"
 
-    return install_dir
+    return install_dir,install_mode
 
 def get_base_install_dir(config, prod_info, version):
     """Compute the installation directory of a product in base 
