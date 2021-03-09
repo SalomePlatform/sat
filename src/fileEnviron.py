@@ -729,6 +729,15 @@ tcl_header="""\
 
 bash_header="""\
 #!/bin/bash
+if [ "$BASH" = "" ]
+then
+  # check that the user is not using another shell
+  echo
+  echo "Warning! SALOME environment not initialized"
+  echo "You must run this script in a bash shell."
+  echo "As you are using another shell. Please first run: bash"
+  echo
+fi
 ##########################################################################
 #
 # This line is used only in case of a sat package
