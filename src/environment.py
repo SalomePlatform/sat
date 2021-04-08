@@ -638,6 +638,12 @@ class SalomeEnviron:
             logger.write("licence file found for product %s : %s\n" % (pi.name, licence_file_name), 5) 
             self.set("LICENCE_FILE", licence_file_name)
 
+        # these infos may be needed for the environment of some products
+        if "debug" in pi and pi.debug == "yes":
+            self.set("SAT_DEBUG", "1")
+        if "verbose" in pi and pi.verbose == "yes":
+            self.set("SAT_VERBOSE", "1")
+
         if src.product.product_is_cpp(pi):
             # set a specific environment for cpp modules
             self.set_salome_minimal_product_env(pi, logger)
