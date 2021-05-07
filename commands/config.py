@@ -815,7 +815,7 @@ def check_install_system(config, logger):
       if src.product.product_is_native(product_info):
         # if the product is native, get (in two dictionnaries the runtime and compile time 
         # system dependencies with the status (OK/KO)
-        run_pkg,build_pkg=src.product.check_system_dep(check_cmd, product_info)
+        run_pkg,build_pkg=src.product.check_system_dep(config.VARS.dist, check_cmd, product_info)
         #logger.write("\n*** %s ***\n" % product, 1)
         for pkg in run_pkg:
             logger.write("\n   - "+pkg + " : " + run_pkg[pkg], 1)

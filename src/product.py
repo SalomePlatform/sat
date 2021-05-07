@@ -856,7 +856,7 @@ def check_installation(config, product_info):
     if product_is_native(product_info):
         # check a system product
         check_cmd=src.system.get_pkg_check_cmd(config.VARS.dist_name)
-        run_pkg,build_pkg=src.product.check_system_dep(check_cmd, product_info)
+        run_pkg,build_pkg=src.product.check_system_dep(config.VARS.dist, check_cmd, product_info)
         build_dep_ko=[]
         for pkg in build_pkg:
             if "KO" in build_pkg[pkg]:
@@ -1220,8 +1220,9 @@ def product_test_property(product_info, property_name, property_value):
     result = eval(eval_expression)
     return result
 
-def check_system_dep(check_cmd, product_info):
+def check_system_dep(distrib, check_cmd, product_info):
     """Search for system dependencies, check if installed
+    :param dist : The linux ditribution (CO7,DB10...)
     :param check_cmd Config: The command to use for checking (rpm/apt)
     :param product_info Config: The configuration specific to the product
     :rtype: two dictionnaries for runtime and compile time dependencies with text status
@@ -1229,19 +1230,24 @@ def check_system_dep(check_cmd, product_info):
     runtime_dep={}
     build_dep={}
     if "system_info" in product_info:
+        if distrib in product_info.system_info:
+            sysinfo=product_info.system_info[distrib]
+        else:
+            sysinfo=product_info.system_info
+
         if check_cmd[0]=="rpm":
-            if "rpm" in product_info.system_info:
-                for pkg in product_info.system_info.rpm:
+            if "rpm" in sysinfo:
+                for pkg in sysinfo.rpm:
                     runtime_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
-            if "rpm_dev" in product_info.system_info:
-                for pkg in product_info.system_info.rpm_dev:
+            if "rpm_dev" in sysinfo:
+                for pkg in sysinfo.rpm_dev:
                     build_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
         if check_cmd[0]=="apt":
-            if "apt" in product_info.system_info:
-                for pkg in product_info.system_info.apt:
+            if "apt" in sysinfo:
+                for pkg in sysinfo.apt:
                     runtime_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
-            if "apt_dev" in product_info.system_info:
-                for pkg in product_info.system_info.apt_dev:
+            if "apt_dev" in sysinfo:
+                for pkg in sysinfo.apt_dev:
                     build_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
     return runtime_dep,build_dep
 
