@@ -1229,11 +1229,15 @@ def check_system_dep(distrib, check_cmd, product_info):
     """
     runtime_dep={}
     build_dep={}
+
     if "system_info" in product_info:
-        if distrib in product_info.system_info:
-            sysinfo=product_info.system_info[distrib]
-        else:
-            sysinfo=product_info.system_info
+
+        sysinfo=product_info.system_info
+        additional_sysinfo = None
+
+        for key in sysinfo :
+            if distrib in key :
+                additional_sysinfo = sysinfo[key]
 
         if check_cmd[0]=="rpm":
             if "rpm" in sysinfo:
@@ -1242,6 +1246,13 @@ def check_system_dep(distrib, check_cmd, product_info):
             if "rpm_dev" in sysinfo:
                 for pkg in sysinfo.rpm_dev:
                     build_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
+            if additional_sysinfo :
+                if "rpm" in additional_sysinfo:
+                    for pkg in additional_sysinfo.rpm:
+                        runtime_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
+                if "rpm_dev" in additional_sysinfo:
+                    for pkg in additional_sysinfo.rpm_dev:
+                        build_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
         if check_cmd[0]=="apt":
             if "apt" in sysinfo:
                 for pkg in sysinfo.apt:
@@ -1249,6 +1260,14 @@ def check_system_dep(distrib, check_cmd, product_info):
             if "apt_dev" in sysinfo:
                 for pkg in sysinfo.apt_dev:
                     build_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
+            if additional_sysinfo :
+                if "apt" in additional_sysinfo:
+                    for pkg in additional_sysinfo.apt:
+                        runtime_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
+                if "apt_dev" in additional_sysinfo:
+                    for pkg in additional_sysinfo.apt_dev:
+                        build_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
+
     return runtime_dep,build_dep
 
 
