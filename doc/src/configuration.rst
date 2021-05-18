@@ -258,7 +258,7 @@ Available product configuration flags
 
 * **name** : the name of the product 
 * **build_source** : the method to use when getting the sources, possible choices are script/cmake/autotools. If "script" is chosen, a compilation script should be provided with compil_script key
-* **compil_script** : to specify a compilation script (in conjonction with build_source set to "script"). The programming language is bash under linux, and bat under windows.  
+* **compil_script** : to specify a compilation script (in conjunction with build_source set to "script"). The programming language is bash under linux, and bat under windows.  
 * **get_source** : the mode to get the sources, possible choices are archive/git/svn/cvs
 * **depend** : to give SAT the dependencies of the product
 * **patches** : provides a list of patches, if required
@@ -324,7 +324,7 @@ Product environment
 
 The product environment is declared in a subsection called environment.
 It is used by sat at compile time to set up the environment for the compilation of all the products depending upon it.
-It is also used at run tim to set up the application environment.
+It is also used at run time to set up the application environment.
 
 Two mechanisms are offered to define the environment.
 The first one is similar to the one used in the application configuration : inside the environ section, we declare variables or paths.
@@ -432,7 +432,7 @@ Other configuration sections
 
 
 The configuration of SAT is split into eight sections : VARS, APPLICATION, PRODUCTS, PROJECTS, PATHS, USER, LOCAL, INTERNAL.
-These sections are feeded by the pyconf files which are loaded by sat: each pyconf file is parsed by SAT and merged into the global configuration.
+These sections are fed by the pyconf files which are loaded by sat: each pyconf file is parsed by SAT and merged into the global configuration.
 One file can reference variables defined in other files. Files are loaded in this order :
 
 * the internal pyconf (declared inside sat)
@@ -514,7 +514,7 @@ Application overwriting
 -----------------------
 
 At the end of the application configuration, it is possible to define an overwrite section with the keyword **__overwrite__ :**.
-It is followed by a list of overwrite sections, that may be conditionnal (use of the keyword **__condition__ :**).
+It is followed by a list of overwrite sections, that may be conditional (use of the keyword **__condition__ :**).
 A classical usage of the application overwriting is the change of a prerequisite version for a given platform (when the default version does not compile).
 
 .. code-block:: bash

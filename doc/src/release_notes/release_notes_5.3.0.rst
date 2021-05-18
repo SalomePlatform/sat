@@ -11,7 +11,7 @@ New features and improvments
 **sat init**
 
 The command *sat init* has been finalized, with the addition of options **--add_project** and **--reset_projects**. 
-It is now able to manage projects after an intiale git clone of sat. The capacity is used by users
+It is now able to manage projects after an initial git clone of sat. The capacity is used by users
 installing sat from the git repositories:
 
 .. code-block:: bash
@@ -27,7 +27,7 @@ installing sat from the git repositories:
 
 It is possible to initialise sat with several projects by calling several times *sat init --add_project*
 
-**sat prepare : git retry functionnality**
+**sat prepare : git retry functionality**
 
 With large git repositories (>1GB) *git clone* command may fail. To decrease the risk, sat prepare will now retry 
 three times the *git clone* function in case of failure.
@@ -63,7 +63,7 @@ SALOME packages are big... It is usefull to be able to clean them whith this new
 **Global configuration keys "debug", "verbose" and "dev" in applications**
 
 
-These new keys can be defined in applications in order to triger the debug, verbose and dev mode for all products.
+These new keys can be defined in applications in order to trigger the debug, verbose and dev mode for all products.
 In the following example, the SALOME-master application will be compiled in debug mode (use of **-g** flag), but with no verbosity.
 Its products are not in development mode.
 
@@ -93,24 +93,24 @@ most significant changes are listed.
 | sat #16548 | Finalisation of sat init command (options -add_project and --reset_projects)      |
 | sat #8566  |                                                                                   |
 +------------+-----------------------------------------------------------------------------------+
-| sat #12994 | new git retry functionnality for sat prepare : give three trials in case of       |
+| sat #12994 | new git retry functionality for sat prepare : give three trials in case of        |
 |            | failures                                                                          |
 +------------+-----------------------------------------------------------------------------------+
 | sat #8581  | traceability : save tag of sat and its projects                                   |
 +------------+-----------------------------------------------------------------------------------+
 | sat #8588  | reset LD_LIBRARY_PATH and PYTHONPATH before launching SALOME                      |
 +------------+-----------------------------------------------------------------------------------+
-| sat #9575  | Improvment of the DISTENE licences management (notably for packages)              |
+| sat #9575  | Improvement of the DISTENE licences management (notably for packages)             |
 +------------+-----------------------------------------------------------------------------------+
 | sat #8597  | Implementation of option sat prepare -c (--complete) for preparing only the       |
 |            | sources that are not yet installed                                                |
 +------------+-----------------------------------------------------------------------------------+
 | sat #8655  | implementation of option sat clean --packages                                     |
 +------------+-----------------------------------------------------------------------------------+
-| sat #8532  | sat log : remane option --last_terminal in --last_compile                         |
+| sat #8532  | sat log : rename option --last_terminal in --last_compile                         |
 | sat #8594  | Extension of sat log --last_compile to the logs of make check                     |
 +------------+-----------------------------------------------------------------------------------+
-| sat #13271 | hpc mode trigered by product "hpc" key in state of MPI_ROOT variable              |
+| sat #13271 | hpc mode triggered by product "hpc" key in state of MPI_ROOT variable             |
 |            |                                                                                   |
 +------------+-----------------------------------------------------------------------------------+
 | sat #8606  | sat generate clean old directories before a new generation                        |

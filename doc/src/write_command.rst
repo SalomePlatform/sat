@@ -41,7 +41,7 @@ But there are some useful services provided by sat :
     parser = src.options.Options()
     parser.add_option('m', 'myoption', \
                       'boolean', 'myoption', \
-                      'My option changes the behavior of my command.')
+                      'My option changes the behaviour of my command.')
 
     def run(args, runner, logger):
         # Parse the options
@@ -61,7 +61,7 @@ But there are some useful services provided by sat :
     parser = src.options.Options()
     parser.add_option('m', 'myoption', \
                       'boolean', 'myoption', \
-                      'My option changes the behavior of my command.')
+                      'My option changes the behaviour of my command.')
 
     def description():
         return _("The help of mycommand.")   

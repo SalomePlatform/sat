@@ -34,7 +34,7 @@ Usage
     sat launcher <application> -e INSTALL/SALOME/bin/salome/salome.py -n salome.sh 
 
   The launcher will be called salome.sh. It will source the environment and call ``$APPLICATION.workdir``/INSTALL/SALOME/bin/salome/salome.py.
-  The arguments given to salome.sh are transfered to salome.py.  
+  The arguments given to salome.sh are transferred to salome.py.  
 
 * Set a specific resources catalog: ::
 

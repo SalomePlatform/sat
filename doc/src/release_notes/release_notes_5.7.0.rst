@@ -50,7 +50,7 @@ This option can also be mixed with *--proterties* option, to avoid recompiling s
 **sat do not reinitialise PATH, LD_LIBRARY_PATH and PYTHONPATH variables anymore**
 
 The last versions of sat were reinitialising the PATH, LD_LIBRARY_PATH and PYTHONPATH variables before the compilation.
-The objective was to avoid bad interaction with the user environment, and ensure that sat environmnent was correctly set for build.
+The objective was to avoid bad interaction with the user environment, and ensure that sat environment was correctly set for build.
 Alas this policy causes difficulties, notably on cluster where people sometimes need to use an alternate compiler and have to set it through *module load* command.
 It was therefore decided to suppress this policy.
 

@@ -7,8 +7,8 @@ Release Notes, June, 2018
 
 This version of sat was used to produce SALOME 8.5.0
 
-New features and improvments
-----------------------------
+New features and improvements
+-----------------------------
 
 **sat compile : management of a verbose and debug option**
 
@@ -21,7 +21,7 @@ The new options can be activated for a selected products (within the option dict
     # for KERNEL compilation : specify to cmake a debug compilation with verbosity
     KERNEL : {tag : "V7_8_0", base : "yes", debug : "yes", verbose : "yes"}
 
-These two options can also be activated globaly, for all products, through golbal keys:
+These two options can also be activated globally, for all products, through golbal keys:
 
 .. code-block:: bash
 
@@ -36,11 +36,11 @@ These two options can also be activated globaly, for all products, through golba
         ...
     }
 
-**Implementation of salome test functionnality with sat launcher**
+**Implementation of salome test functionality with sat launcher**
 
 **sat** launcher is now able to launch salome tests (before the development, only virtual applications where able to launch salome tests).
 SALOME module was adapted to hold the tests (through links to SALOME module test directories).
-Notablt, the results and logs of the test are stored in *INSTALL/SALOME/bin/salome/test*.
+Notably, the results and logs of the test are stored in *INSTALL/SALOME/bin/salome/test*.
 
 .. code-block:: bash
 
@@ -79,7 +79,7 @@ most significant changes are listed.
 +-------------+-----------------------------------------------------------------------------------+
 | sat #10569  | Debug and improvement of products filters in sat commands                         |
 +-------------+-----------------------------------------------------------------------------------+
-| sat #8576   | Improve if messages displayed by sat compile commande                             |
+| sat #8576   | Improve if messages displayed by sat compile command                              |
 | sat #8646   | Improve management of errors                                                      |
 | sat #8605   |                                                                                   |
 | sat #8646   |                                                                                   |

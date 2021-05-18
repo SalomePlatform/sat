@@ -11,7 +11,7 @@ It allows display, manipulation and operation on configuration files
 
 Usage
 =====
-* Edit the user personal configuration file ``$HOME/.salomeTools/SAT.pyconf``. It is used to store the user personal choices, like the favorite editor, browser, pdf viewer: ::
+* Edit the user personal configuration file ``$HOME/.salomeTools/SAT.pyconf``. It is used to store the user personal choices, like the favourite editor, browser, pdf viewer: ::
 
     sat config --edit
 

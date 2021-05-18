@@ -61,7 +61,7 @@ With time, the number of sections increased a lot. And it is not easy to visuali
 are identical, except few variations.
 With the windows version, new sections are introduced to manage windows specifics.
 
-Therefore the need of a new mode for managing sections arises, that would be simplier, more concise, and help the comprehension. 
+Therefore the need of a new mode for managing sections arises, that would be simpler, more concise, and help the comprehension. 
 This new mode is called **incremental**, and is triggered by the property **incremental** within the default section of the product::
 
     default:
@@ -74,7 +74,7 @@ This new mode is called **incremental**, and is triggered by the property **incr
         ...
     }
 
-When this mode is defined, the definition of the product is defined incrementaly, by taking into account the reference (the default section) and applying to it corrections defined in the other incremental sections. Depending upon the case, several sections may be taken into account, in a predefined order:
+When this mode is defined, the definition of the product is defined incrementally, by taking into account the reference (the default section) and applying to it corrections defined in the other incremental sections. Depending upon the case, several sections may be taken into account, in a predefined order:
 
 * the default section, which contains the reference definition
 * on windows platform, the default_win section if it exists
@@ -137,7 +137,7 @@ most significant changes are listed.
 +-------------+-----------------------------------------------------------------------------------+
 | spns #16894 | clean the temp directory at the end of sat package                                |
 +-------------+-----------------------------------------------------------------------------------+
-| sat #12965  | optimisation of sat compile : better, simplier and faster algo for dependencies!  |
+| sat #12965  | optimisation of sat compile : better, simpler and faster algo for dependencies!   |
 +-------------+-----------------------------------------------------------------------------------+
 | sat #17206  | Use pip to manage python modules                                                  |
 +-------------+-----------------------------------------------------------------------------------+
@@ -151,7 +151,7 @@ most significant changes are listed.
 +-------------+-----------------------------------------------------------------------------------+
 | sat #17357  | New field "rm_products" to blacklist products in overwrite section of appli pyconf|
 +-------------+-----------------------------------------------------------------------------------+
-| sat #17194  | Parametrication of the value of INSTALL and BINARIES directories                  |
+| sat #17194  | Parametrisation of the value of INSTALL and BINARIES directories                  |
 |             | (in src/internal_config/salomeTools.pyconf)                                       |
 +-------------+-----------------------------------------------------------------------------------+
 | sat #17639  | Warning when sat is launcher with python3                                         |
@@ -166,5 +166,5 @@ most significant changes are listed.
 |             | SAT_DEBUG and SAT_VERBOSE environment variables are now available in the          |
 |             | compilation, which can now forward the information and do the job!                |
 +-------------+-----------------------------------------------------------------------------------+
-| sat #18392  | Bug, binaries archives do not work when producrs are in base                      |
+| sat #18392  | Bug, binaries archives do not work when products are in base                      |
 +-------------+-----------------------------------------------------------------------------------+

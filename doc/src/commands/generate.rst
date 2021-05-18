@@ -18,7 +18,7 @@ Remarks
         cpp : "yes"
         generate : "yes"
 
-* The cpp modules are usually computational components, and the generated module brings the CORBA layer which allows distributing the compononent on remote machines. cpp modules should conform to YACSGEN/hxx2salome requirements (please refer to YACSGEN documentation).
+* The cpp modules are usually computational components, and the generated module brings the CORBA layer which allows distributing the component on remote machines. cpp modules should conform to YACSGEN/hxx2salome requirements (please refer to YACSGEN documentation).
 
 
 Usage

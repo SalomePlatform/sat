@@ -3,7 +3,7 @@ SAT version 5.6.0
 *****************
 
 Release Notes, July 2020
-=======================
+========================
 
 
 New features and improvements
@@ -12,7 +12,7 @@ New features and improvements
 
 **Checking of system dependencies**
 
-SALOME depends upon some system prerequisites. Recent examples are tbb and openssl. For these products SALOME made the choice not to embedd the prerequisite, but
+SALOME depends upon some system prerequisites. Recent examples are tbb and openssl. For these products SALOME made the choice not to embed the prerequisite, but
 to rely on the system version. 
 SAT has now the capacity to check for the system dependencies in two ways:
 
@@ -53,7 +53,7 @@ most significant changes are listed.
 +-------------+-----------------------------------------------------------------------------------+
 | sat #19234  | remove build products from bin archives, better management of their environment   |
 +-------------+-----------------------------------------------------------------------------------+
-| sat #19218  | correct out_dir_Path substituion for appended variables                           |
+| sat #19218  | correct out_dir_Path substitution for appended variables                          |
 +-------------+-----------------------------------------------------------------------------------+
 | sat #18350  | -f option for sat compile : force the recompilation                               |
 +-------------+-----------------------------------------------------------------------------------+
