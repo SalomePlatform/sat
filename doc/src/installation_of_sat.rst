@@ -9,7 +9,7 @@ From git bases
 --------------
 
 **sat** git bases are hosted by the `salome platform Tuleap forge <https://codev-tuleap.cea.fr/projects/salome>`_ . Therefore you first have to get an account to this forge.
-To get started, one has to download sat, and at last one sat project (usually SAT_SALOME project, which contains all the configuration required to build SALOME and its prerequisites). The following script get sat and SAT_SALOME project from git repos: ::
+To get started, one has to download sat, and at last one sat project (usually SAT_SALOME project, which contains all the configuration required to build SALOME and its prerequisites). The following script get sat and SAT_SALOME project from git repositories: ::
 
     # get sat
     BASE_SAT=https://codev-tuleap.cea.fr/plugins/git/spns/SAT.git
@@ -67,7 +67,7 @@ Please note that the sources are installed in *SOURCES* directory, and the compi
 
 2. recompile only a part of the application
 
-It is possible to recompile only a part of the products (those we need to modify and recompile). To enter this (partial recompilation mode), one has initialy to copy the binaries from *BINARIES-XXX* to *INSTALL*, and do the path substitutions by using the **install_bin.sh** script: 
+It is possible to recompile only a part of the products (those we need to modify and recompile). To enter this (partial recompilation mode), one has initially to copy the binaries from *BINARIES-XXX* to *INSTALL*, and do the path substitutions by using the **install_bin.sh** script: 
 
 .. code-block:: bash
 
@@ -93,4 +93,4 @@ Standalone sat packages
     ./sat config -l  # list all salome applications available for build
 
 
-Finally, the project also provides bash scripts that get a tagged version of sat from the git repository, and a tagged version of salome projects. This mode is dedicated to the developpers, and requires an access to the Tuleap git repositories. 
+Finally, the project also provides bash scripts that get a tagged version of sat from the git repository, and a tagged version of salome projects. This mode is dedicated to the developers, and requires an access to the Tuleap git repositories. 

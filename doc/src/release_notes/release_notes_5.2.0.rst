@@ -43,7 +43,7 @@ The old syntax is still supported for compatibility, but the new one, more expli
 When salome is used on a remote machine, the use of openGL 3 is not compatible with X11 forwarding (ssh -X).
 This cause segmentation faults when the 3D viewers are used.
 For people who have no other choice and need to use ssh (it may be useful for testing SALOME on a client remote machine), 
-we provide in the packages a mesa laucher mesa_salome.
+we provide in the packages a mesa launcher mesa_salome.
 It will avoid the segmentation faults, at the price of poor performance : it should only be used in this case!
 If performance is required, a solution based on the use of VirtualGL and TurboVNC/x2go would be recommended.
 But this requires some configuration of the tools to be done as root.
