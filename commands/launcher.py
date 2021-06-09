@@ -33,6 +33,8 @@ parser.add_option('n', 'name', 'string', 'name', _('Optional: The name of the'
 parser.add_option('e', 'exe', 'string', 'path_exe', _('Use this option to generate a launcher which sets'
                   ' the environment and call the executable given as argument'
                   ' (its relative path to application workdir, or an exe name present in appli PATH)'))
+parser.add_option('p', 'products', 'list2', 'products',
+    _("Optional: Includes only the specified products."))
 parser.add_option('c', 'catalog', 'string', 'catalog',
                   _('Optional: The resources catalog to use'))
 parser.add_option('', 'gencat', 'string', 'gencat',
@@ -54,6 +56,7 @@ def generate_launch_file(config,
                          launcher_name,
                          pathlauncher,
                          path_exe,
+                         env_info,
                          display=True,
                          additional_env={},
                          no_path_init=False):
@@ -69,6 +72,7 @@ def generate_launch_file(config,
     :param display boolean: If False, do not print anything in the terminal
     :param additional_env dict: The dict giving additional 
                                 environment variables
+    :param env_info str: The list of products to add in the files.
     :return: The launcher file path.
     :rtype: str
     '''
@@ -151,8 +155,8 @@ def generate_launch_file(config,
     writer = src.environment.FileEnvWriter(config,
                                            logger,
                                            pathlauncher,
-                                           src_root=None,
-                                           env_info=None)
+                                           None,
+                                           env_info)
 
     # Display some information
     if display:
@@ -302,6 +306,14 @@ def run(args, runner, logger):
     src.check_config_has_application( runner.cfg )
     
     # Determine the launcher name (from option, profile section or by default "salome")
+    if options.products is None:
+        environ_info = None
+    else:
+        # add products specified by user (only products 
+        # included in the application)
+        environ_info = filter(lambda l:
+                              l in runner.cfg.APPLICATION.products.keys(),
+                              options.products)
     if options.name:
         launcher_name = options.name
     else:
@@ -341,6 +353,7 @@ def run(args, runner, logger):
                          launcher_path,
                          options.path_exe,
                          additional_env = additional_environ,
+                         env_info=environ_info,
                          no_path_init = no_path_initialisation )
 
     return 0

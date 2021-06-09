@@ -212,7 +212,7 @@ _salomeTools_complete()
             return 0
             ;;
         launcher)
-            opts="--name --exe --catalog --gencat --no_path_init --use_mesa"
+            opts="--products --name --exe --catalog --gencat --no_path_init --use_mesa"
             COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
             return 0
             ;;
