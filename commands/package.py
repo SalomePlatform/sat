@@ -96,6 +96,8 @@ parser.add_option('f', 'force_creation', 'boolean', 'force_creation',
 parser.add_option('s', 'sources', 'boolean', 'sources',
     _('Optional: Produce a compilable archive of the sources of the '
       'application.'), False)
+parser.add_option('', 'bin_products', 'boolean', 'bin_products',
+    _('Optional: Create binary archives for all products.'), False)
 parser.add_option('', 'with_vcs', 'boolean', 'with_vcs',
     _('Optional: Do not make archive for products in VCS mode (git, cvs, svn). ' 
       'Sat prepare will use VCS mode instead to retrieve them'),
@@ -565,6 +567,30 @@ def product_appli_creation_script(config,
              stat.S_IXOTH)
     
     return tmp_file_path
+
+def bin_products_archives(config):
+    '''Prepare binary packages for all products
+    :param config Config: The global configuration.
+    :return: the error status
+    :rtype: bool
+    '''
+
+    print ("CNC bin_products_archives!!")
+    # Get the list of product installation to add to the archive
+    l_products_name = sorted(config.APPLICATION.products.keys())
+    l_product_info = src.product.get_products_infos(l_products_name,
+                                                    config)
+    # first loop on products : filter products, analyse properties,
+    # and store the information that will be used to create the archive in the second loop 
+    for prod_name, prod_info in l_product_info:
+        # ignore the native and fixed products for install directories
+        if (src.get_property_in_product_cfg(prod_info, "not_in_package") == "yes"
+                or src.product.product_is_native(prod_info) 
+                or src.product.product_is_fixed(prod_info)
+                or not src.product.product_compiles(prod_info)):
+            continue
+        print ("CNC produce bin archive for ", prod_name)
+    return 0
 
 def binary_package(config, logger, options, tmp_working_dir):
     '''Prepare a dictionary that stores all the needed directories and files to
@@ -1524,26 +1550,37 @@ def run(args, runner, logger):
     # Parse the options
     (options, args) = parser.parse_args(args)
 
+    
     # Check that a type of package is called, and only one
     all_option_types = (options.binaries,
                         options.sources,
                         options.project not in ["", None],
-                        options.sat)
+                        options.sat,
+                        options.bin_products)
 
     # Check if no option for package type
     if all_option_types.count(True) == 0:
         msg = _("Error: Precise a type for the package\nUse one of the "
                 "following options: --binaries, --sources, --project or"
-                " --salometools")
+                " --salometools, --bin_products")
         logger.write(src.printcolors.printcError(msg), 1)
         logger.write("\n", 1)
         return 1
-    
+    do_create_package = options.binaries or options.sources or options.project or options.sat 
+
+    if options.bin_products:
+        ret = bin_products_archives(runner.cfg)
+    if ret!=0:
+        return ret
+    if not do_create_package:
+        return 0
+
+    # continue to create a tar.gz package 
+
     # The repository where to put the package if not Binary or Source
     package_default_path = runner.cfg.LOCAL.workdir
-    
     # if the package contains binaries or sources:
-    if options.binaries or options.sources:
+    if options.binaries or options.sources or options.bin_products:
         # Check that the command has been called with an application
         src.check_config_has_application(runner.cfg)
 
