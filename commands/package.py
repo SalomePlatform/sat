@@ -608,7 +608,7 @@ def bin_products_archives(config, logger):
             bytes = f.read() # read file as bytes
             readable_hash = hashlib.md5(bytes).hexdigest();
             with open(path_targz_prod+".md5", "w") as md5sum:
-               md5sum.write("%s %s" % (readable_hash, os.path.basename(path_targz_prod))) 
+               md5sum.write("%s  %s" % (readable_hash, os.path.basename(path_targz_prod))) 
             logger.write("   archive : %s   (md5sum = %s)\n" % (path_targz_prod, readable_hash))
 
     return 0
