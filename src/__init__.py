@@ -456,7 +456,7 @@ def find_file_in_lpath(file_name, lpath, additional_dir = ""):
                 return os.path.join(dir_complete, file_name)
     return False
 
-def find_file_in_ftppath(file_name, ftppath, installation_dir, logger):
+def find_file_in_ftppath(file_name, ftppath, installation_dir, logger, additional_dir = ""):
     """\
     Find in all ftp servers in ftppath the file called file_name
     If it is found then return the destination path of the file
@@ -495,8 +495,20 @@ def find_file_in_ftppath(file_name, ftppath, installation_dir, logger):
            for directory in ftp_archive_split[1:]:
                logger.write("   Change directory to %s\n" % directory, 3)
                ftp.cwd(directory)
+           if additional_dir:
+               ftp.cwd(additional_dir)
        except:
            logger.error("while connecting to ftp server %s\n" % ftp_server)
+           continue
+
+       try:  # get md5 file if it exists
+           file_name_md5=file_name + ".md5"
+           destination_md5=destination + ".md5"
+           if ftp.size(file_name_md5) > 0:
+               with open(destination_md5,'wb') as dest_file_md5:
+                   ftp.retrbinary("RETR "+file_name_md5, dest_file_md5.write)
+       except:
+           pass
 
        try:
            if ftp.size(file_name) > 0:
@@ -507,7 +519,6 @@ def find_file_in_ftppath(file_name, ftppath, installation_dir, logger):
                return destination
        except:
            logger.error("File not found in ftp_archive %s\n" % ftp_server)
-           pass
 
     return False
 

@@ -60,8 +60,8 @@ def get_binary_from_archive(config, product_name, product_info, install_dir, log
         # bin archive was not found locally in ARCHIVEPATH
         # search on ftp site
         logger.write("\n   The bin archive is not found on local file system, we try ftp\n", 3)
-        ret=src.find_file_in_ftppath(bin_arch_name, config.PATHS.ARCHIVEFTP, 
-                                     config.LOCAL.archive_dir, logger)
+        ret=src.find_file_in_ftppath(archive_name, config.PATHS.ARCHIVEFTP, 
+                                     config.LOCAL.archive_dir, logger, "bin")
         
         if ret:
             # archive was found on ftp and stored in ret
@@ -92,107 +92,6 @@ def get_binary_from_archive(config, product_name, product_info, install_dir, log
     return retcode
 
 
-def get_product_binaries(config, 
-                         product_info, 
-                         is_dev, 
-                         source_dir,
-                         logger, 
-                         pad, 
-                         checkout=False):
-    '''Get the product binaries.
-    
-    :param config Config: The global configuration
-    :param product_info Config: The configuration specific to 
-                               the product to be prepared
-    :param is_dev boolean: True if the product is in development mode
-    :param source_dir Path: The Path instance corresponding to the 
-                            directory where to put the sources
-    :param logger Logger: The logger instance to use for the display and logging
-    :param pad int: The gap to apply for the terminal display
-    :param checkout boolean: If True, get the source in checkout mode
-    :return: True if it succeed, else False
-    :rtype: boolean
-    '''
-    
-    # Get the application environment
-    logger.write(_("Set the application environment\n"), 5)
-    env_appli = src.environment.SalomeEnviron(config,
-                                      src.environment.Environ(dict(os.environ)))
-    env_appli.set_application_env(logger)
-    
-    # Call the right function to get sources regarding the product settings
-    if not checkout and is_dev:
-        return get_source_for_dev(config, 
-                                   product_info, 
-                                   source_dir, 
-                                   logger, 
-                                   pad)
-
-    if product_info.get_source == "git":
-        return get_source_from_git(config, product_info, source_dir, logger, pad, 
-                                    is_dev,env_appli)
-
-    if product_info.get_source == "archive":
-        return get_source_from_archive(config, product_info, source_dir, logger)
-
-    if product_info.get_source == "dir":
-        return get_source_from_dir(product_info, source_dir, logger)
-    
-    if product_info.get_source == "cvs":
-        cvs_user = config.USER.cvs_user
-        return get_source_from_cvs(cvs_user, 
-                                    product_info, 
-                                    source_dir, 
-                                    checkout, 
-                                    logger,
-                                    pad,
-                                    env_appli)
-
-    if product_info.get_source == "svn":
-        svn_user = config.USER.svn_user
-        return get_source_from_svn(svn_user, product_info, source_dir, 
-                                    checkout,
-                                    logger,
-                                    env_appli)
-
-    if product_info.get_source == "native":
-        # for native products we check the corresponding system packages are installed
-        logger.write("Native : Checking system packages are installed\n" , 3)
-        check_cmd=src.system.get_pkg_check_cmd(config.VARS.dist_name) # (either rmp or apt)
-        run_pkg,build_pkg=src.product.check_system_dep(config.VARS.dist, check_cmd, product_info)
-        result=True
-        for pkg in run_pkg:
-            logger.write(" - "+pkg + " : " + run_pkg[pkg], 1)
-            if "KO" in run_pkg[pkg]:
-                result=False
-        for pkg in build_pkg:
-            logger.write(" - "+pkg + " : " + build_pkg[pkg], 1)
-            if "KO" in build_pkg[pkg]:
-                result=False
-        if result==False:
-            logger.error("some system dependencies are missing, please install them with "+\
-                         check_cmd[0])
-        return result        
-
-    if product_info.get_source == "fixed":
-        # skip
-        logger.write('%s  ' % src.printcolors.printc(src.OK_STATUS),
-                     3,
-                     False)
-        msg = "FIXED : %s\n" % product_info.install_dir
-
-        if not os.path.isdir(product_info.install_dir):
-            logger.warning("The fixed path do not exixts!! Please check it : %s\n" % product_info.install_dir)
-        else:
-            logger.write(msg, 3)
-        return True  
-
-    # if the get_source is not in [git, archive, cvs, svn, fixed, native]
-    logger.write(_("Unknown get source method \"%(get)s\" for product %(product)s") % \
-        { 'get': product_info.get_source, 'product': product_info.name }, 3, False)
-    logger.write(" ... ", 3, False)
-    logger.flush()
-    return False
 
 def get_all_product_binaries(config, products, logger):
     '''Get all the product sources.
@@ -313,9 +212,9 @@ def description():
     :return: The text to display for the source command description.
     :rtype: str
     '''
-    return _("The source command gets the sources of the application products "
-             "from cvs, git or an archive.\n\nexample:"
-             "\nsat source SALOME-master --products KERNEL,GUI")
+    return _("The install command gets the binaries of the application products "
+             "from local (ARCHIVEPATH) or ftp server.\n\nexample:"
+             "\nsat install SALOME-master --products GEOM,SMESH")
   
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with install parameter.
