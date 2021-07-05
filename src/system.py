@@ -98,7 +98,9 @@ def git_extract(from_what, tag, git_options, where, logger, environment=None):
       cmd = r"""
 set -x
 git clone %(git_options)s %(remote)s %(where)s
-touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s
+res=$?
+if [ $res -eq 0 ]; then   touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s;fi
+exit $res
 """
     cmd = cmd % {'git_options': git_options, 'remote': from_what, 'tag': tag, 'where': str(where), 'where_git': where_git}
   else:
@@ -115,7 +117,7 @@ git clone %(git_options)s %(remote)s %(where)s && \
 git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s
 res=$?
 git --git-dir=%(where_git)s status|grep HEAD
-if [ $? -ne 0 ]; then   touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s;fi
+if [ $res -eq 0 -a $? -ne 0 ]; then   touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s;fi
 exit $res
 """
     cmd = cmd % {'git_options': git_options,
