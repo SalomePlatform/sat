@@ -112,6 +112,7 @@ def print_log_command_in_terminal(filePath, logger):
 def show_last_logs(logger, config, log_dirs):
     """Show last compilation logs"""
     log_dir = os.path.join(config.APPLICATION.workdir, 'LOGS')
+    sorted_log_dirs = sorted(log_dirs)
     # list the logs
     nb = len(log_dirs)
     nb_cols = 4
@@ -120,7 +121,7 @@ def show_last_logs(logger, config, log_dirs):
         for i in range(0, nb_cols):
             k = index + i * col_size
             if k < nb:
-                l = log_dirs[k]
+                l = sorted_log_dirs[k]
                 str_indice = src.printcolors.printcLabel("%2d" % (k+1))
                 log_name = l
                 logger.write("%s: %-30s" % (str_indice, log_name), 1, False)
@@ -131,7 +132,7 @@ def show_last_logs(logger, config, log_dirs):
     while (x < 0):
         x = ask_value(nb)
         if x > 0:
-            product_log_dir = os.path.join(log_dir, log_dirs[x-1])
+            product_log_dir = os.path.join(log_dir, sorted_log_dirs[x-1])
             show_product_last_logs(logger, config, product_log_dir)
 
 def show_product_last_logs(logger, config, product_log_dir):

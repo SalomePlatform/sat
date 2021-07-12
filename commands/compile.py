@@ -104,16 +104,22 @@ def find_path_graph(graph, start, end, path=[]):
 def depth_first_topo_graph(graph, start, visited=[], sorted_nodes=[]):
     visited = visited + [start]
     if start not in graph:
-        raise src.SatException('Error in product dependencies : %s product is referenced in products dependencies but is not present in the application !' % start)
+        # get more explicit error
+        where = [k for k in graph if start in graph[k]]
+        raise src.SatException('Error in product dependencies : %s product is referenced in products dependencies, but is not present in the application, from %s' % (start, where))
+        # may be in debug mode, continue loop to get all problems, (if comment raise)
+        # print("WARNING : %s product is referenced in products dependencies but is not present in the application, from %s" % (start, where))
+        # sorted_nodes = sorted_nodes + [start]
+        # return visited, sorted_nodes
     for node in graph[start]:
         if node not in visited:
             visited,sorted_nodes=depth_first_topo_graph(graph, node, visited,sorted_nodes)
         else:
             if node not in sorted_nodes:
-                raise src.SatException('Error in product dependencies : cycle detection for node %s and %s !' % (start,node))
+                raise src.SatException('Error in product dependencies : cycle detection for node %s and %s' % (start,node))
     
     sorted_nodes = sorted_nodes + [start]
-    return visited,sorted_nodes
+    return visited, sorted_nodes
 
 
 # check for p_name that all dependencies are installed
