@@ -407,7 +407,9 @@ class ConfigManager:
                          "LICENCEPATH"]:
                 if PATH not in cfg.PROJECTS.projects[project]:
                     continue
-                cfg.PATHS[PATH].append(cfg.PROJECTS.projects[project][PATH], "")
+                pathlist=cfg.PROJECTS.projects[project][PATH].split(":")
+                for path in pathlist:
+                    cfg.PATHS[PATH].append(path, "")
         
         # apply overwrite from command line if needed
         for rule in self.get_command_line_overrides(options, ["PATHS"]):
