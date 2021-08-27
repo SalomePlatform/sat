@@ -1609,8 +1609,8 @@ def run(args, runner, logger):
 
     if options.bin_products:
         ret = bin_products_archives(runner.cfg, logger)
-    if ret!=0:
-        return ret
+        if ret!=0:
+            return ret
     if not do_create_package:
         return 0
 
