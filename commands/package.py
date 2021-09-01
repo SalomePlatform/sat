@@ -96,6 +96,8 @@ parser.add_option('f', 'force_creation', 'boolean', 'force_creation',
 parser.add_option('s', 'sources', 'boolean', 'sources',
     _('Optional: Produce a compilable archive of the sources of the '
       'application.'), False)
+parser.add_option('', 'bin_products', 'boolean', 'bin_products',
+    _('Optional: Create binary archives for all products.'), False)
 parser.add_option('', 'with_vcs', 'boolean', 'with_vcs',
     _('Optional: Do not make archive for products in VCS mode (git, cvs, svn). ' 
       'Sat prepare will use VCS mode instead to retrieve them'),
@@ -566,6 +568,51 @@ def product_appli_creation_script(config,
     
     return tmp_file_path
 
+def bin_products_archives(config, logger):
+    '''Prepare binary packages for all products
+    :param config Config: The global configuration.
+    :return: the error status
+    :rtype: bool
+    '''
+
+    logger.write("Make %s binary archives\n" % config.VARS.dist)
+    # Get the default directory where to put the packages
+    binpackage_path = os.path.join(config.APPLICATION.workdir, "PACKAGE", "products")
+    src.ensure_path_exists(binpackage_path)
+    # Get the list of product installation to add to the archive
+    l_products_name = sorted(config.APPLICATION.products.keys())
+    l_product_info = src.product.get_products_infos(l_products_name,
+                                                    config)
+    # first loop on products : filter products, analyse properties,
+    # and store the information that will be used to create the archive in the second loop 
+    l_not_installed=[] # store not installed products for warning at the end
+    for prod_name, prod_info in l_product_info:
+        # ignore the native and fixed products for install directories
+        if (src.get_property_in_product_cfg(prod_info, "not_in_package") == "yes"
+                or src.product.product_is_native(prod_info) 
+                or src.product.product_is_fixed(prod_info)
+                or not src.product.product_compiles(prod_info)):
+            continue
+        if not src.product.check_installation(config, prod_info):
+            l_not_installed.append(prod_name)
+            continue  # product is not installed, we skip it
+        # prepare call to make_bin_archive
+        path_targz_prod = os.path.join(binpackage_path, prod_name + '-' + prod_info.version + "-" + config.VARS.dist + PACKAGE_EXT) 
+        targz_prod = tarfile.open(path_targz_prod, mode='w:gz')
+        bin_path = prod_info.install_dir
+        targz_prod.add(bin_path)
+        targz_prod.close()
+        # Python program to find MD5 hash value of a file
+        import hashlib
+        with open(path_targz_prod,"rb") as f:
+            bytes = f.read() # read file as bytes
+            readable_hash = hashlib.md5(bytes).hexdigest();
+            with open(path_targz_prod+".md5", "w") as md5sum:
+               md5sum.write("%s  %s" % (readable_hash, os.path.basename(path_targz_prod))) 
+            logger.write("   archive : %s   (md5sum = %s)\n" % (path_targz_prod, readable_hash))
+
+    return 0
+
 def binary_package(config, logger, options, tmp_working_dir):
     '''Prepare a dictionary that stores all the needed directories and files to
        add in a binary package.
@@ -1024,6 +1071,24 @@ def get_archives_vcs(l_pinfo_vcs, sat, config, logger, tmp_working_dir):
       sat.cfg.APPLICATION.workdir = svgDir
       # DBG.write("END sat config", sat.cfg.APPLICATION, True)
     return d_archives_vcs
+
+def make_bin_archive(prod_name, prod_info, where):
+    '''Create an archive of a product by searching its source directory.
+
+    :param prod_name str: The name of the product.
+    :param prod_info Config: The specific configuration corresponding to the 
+                             product
+    :param where str: The path of the repository where to put the resulting 
+                      archive
+    :return: The path of the resulting archive
+    :rtype: str
+    '''
+    path_targz_prod = os.path.join(where, prod_name + PACKAGE_EXT)
+    tar_prod = tarfile.open(path_targz_prod, mode='w:gz')
+    bin_path = prod_info.install_dir
+    tar_prod.add(bin_path, arcname=path_targz_prod)
+    tar_prod.close()
+    return path_targz_prod       
 
 def make_archive(prod_name, prod_info, where):
     '''Create an archive of a product by searching its source directory.
@@ -1524,26 +1589,37 @@ def run(args, runner, logger):
     # Parse the options
     (options, args) = parser.parse_args(args)
 
+    
     # Check that a type of package is called, and only one
     all_option_types = (options.binaries,
                         options.sources,
                         options.project not in ["", None],
-                        options.sat)
+                        options.sat,
+                        options.bin_products)
 
     # Check if no option for package type
     if all_option_types.count(True) == 0:
         msg = _("Error: Precise a type for the package\nUse one of the "
                 "following options: --binaries, --sources, --project or"
-                " --salometools")
+                " --salometools, --bin_products")
         logger.write(src.printcolors.printcError(msg), 1)
         logger.write("\n", 1)
         return 1
-    
+    do_create_package = options.binaries or options.sources or options.project or options.sat 
+
+    if options.bin_products:
+        ret = bin_products_archives(runner.cfg, logger)
+        if ret!=0:
+            return ret
+    if not do_create_package:
+        return 0
+
+    # continue to create a tar.gz package 
+
     # The repository where to put the package if not Binary or Source
     package_default_path = runner.cfg.LOCAL.workdir
-    
     # if the package contains binaries or sources:
-    if options.binaries or options.sources:
+    if options.binaries or options.sources or options.bin_products:
         # Check that the command has been called with an application
         src.check_config_has_application(runner.cfg)
 

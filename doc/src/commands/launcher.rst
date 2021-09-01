@@ -52,6 +52,15 @@ Usage
 
     sat launcher <application> --use_mesa
 
+* Generate the environment files only with the given products:
+
+  .. code-block:: bash
+
+    # This will create a launcher file called salome-pre,
+    # which will contain GEOM,SMESH and their prerequisites.
+    # It is useful if you want to create a launcher with only a part of Salome
+    sat launcher  <application> --product GEOM,SMESH -n salome-pre
+
 
 Configuration
 =============

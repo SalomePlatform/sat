@@ -229,11 +229,11 @@ class SalomeEnviron:
         return "%s(\n%s\n)" % (self.__class__.__name__, PP.pformat(res))
 
     def __set_sorted_products_list(self):
-        from compile import get_dependencies_graph, depth_first_topo_graph
         all_products_infos = src.product.get_products_infos(
                                  self.cfg.APPLICATION.products,
                                  self.cfg)
         
+        from compile import get_dependencies_graph,depth_first_topo_graph
         all_products_graph=get_dependencies_graph(all_products_infos, self.forBuild)
         visited_nodes=[]
         sorted_nodes=[]
@@ -245,6 +245,7 @@ class SalomeEnviron:
                                                visited_nodes,
                                                sorted_nodes)
         self.sorted_product_list=sorted_nodes
+        self.all_products_graph=all_products_graph
 
 
     def append(self, key, value, sep=os.pathsep):
@@ -760,7 +761,7 @@ class SalomeEnviron:
  
     def set_full_environ(self, logger, env_info):
         """\
-        Sets the full environment for products 
+        Sets the full environment for products, with their dependencies 
         specified in env_info dictionary. 
         
         :param logger Logger: The logger instance to display messages
@@ -773,9 +774,13 @@ class SalomeEnviron:
 
         # use the sorted list of all products to sort the list of products 
         # we have to set
+        visited=[]
+        from compile import depth_search_graph # to get the dependencies
+        for p_name in env_info:
+            visited=depth_search_graph(self.all_products_graph, p_name, visited)
         sorted_product_list=[]
         for n in self.sorted_product_list:
-            if n in env_info:
+            if n in visited:
                 sorted_product_list.append(n)
 
         if "Python" in sorted_product_list:
