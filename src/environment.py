@@ -919,6 +919,7 @@ class FileEnvWriter:
         :return: The path to the generated file
         :rtype: str
         """
+        additional_env["sat_dist"]=self.config.VARS.dist
         if not self.silent:
             self.logger.write(_("Create environment file %s\n") % 
                               src.printcolors.printcLabel(filename), 3)
