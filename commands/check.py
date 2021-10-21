@@ -137,7 +137,7 @@ def check_product(p_name_info, config, logger):
     
     # Prepare the environment
     log_step(logger, header, "PREPARE ENV")
-    res_prepare = builder.prepare()
+    res_prepare = builder.prepare(add_env_launch=True)
     log_res_step(logger, res_prepare)
     
     len_end_line = 20

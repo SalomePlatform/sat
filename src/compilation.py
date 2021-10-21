@@ -73,7 +73,7 @@ class Builder:
     ##
     # Prepares the environment.
     # Build two environment: one for building and one for testing (launch).
-    def prepare(self):
+    def prepare(self, add_env_launch=False):
 
         if not self.build_dir.exists():
             # create build dir
@@ -96,12 +96,13 @@ class Builder:
         self.build_environ.silent = (self.config.USER.output_verbose_level < 5)
         self.build_environ.set_full_environ(self.logger, environ_info)
         
-        # create runtime environment
-        self.launch_environ = src.environment.SalomeEnviron(self.config,
-                                      src.environment.Environ(dict(os.environ)),
-                                      False)
-        self.launch_environ.silent = True # no need to show here
-        self.launch_environ.set_full_environ(self.logger, environ_info)
+        if add_env_launch:
+		# create runtime environment
+		self.launch_environ = src.environment.SalomeEnviron(self.config,
+					      src.environment.Environ(dict(os.environ)),
+					      False)
+		self.launch_environ.silent = True # no need to show here
+		self.launch_environ.set_full_environ(self.logger, environ_info)
 
         for ee in C_COMPILE_ENV_LIST:
             vv = self.build_environ.get(ee)
