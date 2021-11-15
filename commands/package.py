@@ -281,7 +281,7 @@ def produce_relative_launcher(config,
 
     additional_env['ABSOLUTE_APPLI_PATH'] = "out_dir_Path" + config.VARS.sep + app_root_dir
     launcher_name = src.get_launcher_name(config)
-    additional_env['APPLI'] = "out_dir_Path" + config.VARS.sep + launcher_name
+    additional_env['APPLI'] = "out_dir_Path" + config.VARS.sep + file_name
 
     # create an environment file writer
     writer = src.environment.FileEnvWriter(config,
@@ -815,7 +815,13 @@ WARNING: existing binaries directory from previous detar installation:
             if options.sources:
                 # if we mix binaries and sources, we add a copy of the launcher, 
                 # prefixed  with "bin",in order to avoid clashes
-                d_products["launcher (copy)"] = (launcher_package, "bin"+launcher_name)
+                launcher_copy_name="bin"+launcher_name
+                launcher_package_copy = produce_relative_launcher(config,
+                                                     logger,
+                                                     tmp_working_dir,
+                                                     launcher_copy_name,
+                                                     binaries_dir_name)
+                d_products["launcher (copy)"] = (launcher_package_copy, launcher_copy_name)
         else:
             # Provide a script for the creation of an application EDF style
             appli_script = product_appli_creation_script(config,
