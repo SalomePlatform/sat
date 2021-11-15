@@ -280,6 +280,8 @@ def produce_relative_launcher(config,
         additional_env['sat_python_version'] = 2
 
     additional_env['ABSOLUTE_APPLI_PATH'] = "out_dir_Path" + config.VARS.sep + app_root_dir
+    launcher_name = src.get_launcher_name(config)
+    additional_env['APPLI'] = "out_dir_Path" + config.VARS.sep + launcher_name
 
     # create an environment file writer
     writer = src.environment.FileEnvWriter(config,
