@@ -118,7 +118,7 @@ def get_source_from_git(config,
     logger.write('\n', 5, False)
 
     git_options= ''
-    if is_dev and "git_options" in product_info.git_info:
+    if "git_options" in product_info.git_info:
         git_options = product_info.git_info.git_options
     sub_dir = None
 
