@@ -7,17 +7,18 @@
     <title>SAlomeTools log</title>
     <style type="text/css">
         table       { 
-                      margin:1px;
-                      padding:1px;
+                      margin: 1px;
+                      padding: 1px;
                       border-collapse:collapse;
                       empty-cells : show;
                     }
-        td          { vertical-align : center;}
+        td          { vertical-align : center; text-align : left; font-size: 15px; padding: 5px;}
+        th          { vertical-align : center; text-align : left; font-weight : bold; font-size: 18px; padding: 10px;}
         h1          { text-align : center; font-style: italic; }
         .legend     { font-weight : bold;
                       text-align : center;
                     } 
-        .def        { font-family: Arial, Verdana, "Times New Roman", Times, serif;}
+        .def        { font-family: monospace, Arial, Verdana, "Times New Roman", Times, serif;}
         hr.note     { color: #BFBFBF; }
         .note       { text-align : right; font-style: italic; font-size: small; }
         div.release { -moz-column-count: 2;
@@ -40,7 +41,11 @@
 			</xsl:choose>
 			<table border="1">
 				<tr>
-				<td width="100px" bgcolor="Beige">Command</td><td width="100px" bgcolor="Beige">date</td><td width="100px" bgcolor="Beige">time</td><td bgcolor="Beige">application</td><td bgcolor="Beige">full command</td>
+				  <th bgcolor="Beige">Command</th>
+          <th bgcolor="Beige">date</th>
+          <th bgcolor="Beige">time</th>
+          <th bgcolor="Beige">application</th>
+          <th bgcolor="Beige">full command</th>
 				</tr>
 				<xsl:for-each select="LOGlist/LogCommand">
 					<xsl:sort select="." order="descending" />

@@ -7,7 +7,7 @@
 <head>
 <title>Tests of <xsl:value-of select="//product/@name" /></title>
 <style type="text/css">
-    .def        { font-family: Arial, Verdana, "Times New Roman", Times, serif;}
+    .def        { font-family: monospace, Arial, Verdana, "Times New Roman", Times, serif;}
     .OK         { background-color:#00FF00; }
     .KO         { background-color:#FF0000; }
     .KF         { background-color:#FFA500; }

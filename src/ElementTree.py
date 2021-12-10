@@ -13,14 +13,14 @@ _versionPython = sys.version_info[0]
 if _versionPython < 3:
   # python2 previous historic mode
   import src.ElementTreePython2 as etree
-  DBG.write("ElementTree Python2", etree.__file__, DBG.isDeveloper())
+  DBG.write("ElementTree Python2 %s" % etree.VERSION, etree.__file__, DBG.isDeveloper())
   tostring = etree.tostring
 
 else:
   # python3 mode
   # import xml.etree.ElementTree as etree # native version
   import src.ElementTreePython3 as etree # VERSION 1.3.0 plus _serialize 'pretty_xml'
-  DBG.write("ElementTree Python3 VERSION 1.3.0", etree.__file__, DBG.isDeveloper())
+  DBG.write("ElementTree Python3 %s" % etree.VERSION, etree.__file__, DBG.isDeveloper())
 
   def tostring(node, encoding='utf-8'):
     """

@@ -12,12 +12,12 @@
 			border-collapse:collapse;
 			empty-cells : show;
 		      }
-	  td          { vertical-align : center; padding: 15px; }
+	  td          { vertical-align : center; padding: 10px; }
 	  h1          { text-align : center; font-style: italic; font-size: 20px; }
 	  .legend     { font-weight : bold;
 			text-align : center;
 		      } 
-	  .def        { font-family: Arial, Verdana, "Times New Roman", Times, serif;}
+	  .def        { font-family: monospace;}
 	  hr.note     { color: #BFBFBF; }
 	  .note       { text-align : right; font-style: italic; font-size: small; }
 	  div.release { -moz-column-count: 2;

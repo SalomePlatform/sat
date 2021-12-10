@@ -120,8 +120,8 @@ def get_source_from_git(config,
     git_options= ''
     if "git_options" in product_info.git_info:
         git_options = product_info.git_info.git_options
-    sub_dir = None
 
+    sub_dir = None
     # what do we do with git tree structure and history
     if is_dev and "sub_dir" in product_info.git_info:
         logger.error("dev mode for product is incompatible with 'sub_dir' option")
@@ -130,10 +130,10 @@ def get_source_from_git(config,
     if not is_dev and "sub_dir" in product_info.git_info:
         sub_dir = product_info.git_info.sub_dir
 
-    if sub_dir  is None:
+    if sub_dir is None:
       # Call the system function that do the extraction in git mode
       retcode = src.system.git_extract(repo_git,
-                                   product_info.git_info.tag,git_options,
+                                   product_info.git_info.tag, git_options,
                                    source_dir, logger, environ)
     else:
       # Call the system function that do the extraction of a sub_dir in git mode
@@ -376,7 +376,7 @@ def get_product_sources(config,
 
     if product_info.get_source == "git":
         return get_source_from_git(config, product_info, source_dir, logger, pad, 
-                                    is_dev,env_appli)
+                                    is_dev, env_appli)
 
     if product_info.get_source == "archive":
         return get_source_from_archive(config, product_info, source_dir, logger)
@@ -386,20 +386,13 @@ def get_product_sources(config,
     
     if product_info.get_source == "cvs":
         cvs_user = config.USER.cvs_user
-        return get_source_from_cvs(cvs_user, 
-                                    product_info, 
-                                    source_dir, 
-                                    checkout, 
-                                    logger,
-                                    pad,
-                                    env_appli)
+        return get_source_from_cvs(cvs_user, product_info, source_dir, 
+                                    checkout, logger, pad, env_appli)
 
     if product_info.get_source == "svn":
         svn_user = config.USER.svn_user
         return get_source_from_svn(svn_user, product_info, source_dir, 
-                                    checkout,
-                                    logger,
-                                    env_appli)
+                                    checkout, logger, env_appli)
 
     if product_info.get_source == "native":
         # for native products we check the corresponding system packages are installed
@@ -487,12 +480,8 @@ def get_all_product_sources(config, products, logger):
             continue
 
         # Call to the function that get the sources for one product
-        retcode = get_product_sources(config, 
-                                     product_info, 
-                                     is_dev, 
-                                     source_dir,
-                                     logger, 
-                                     max_product_name_len, 
+        retcode = get_product_sources(config, product_info, is_dev, 
+                                     source_dir, logger, max_product_name_len, 
                                      checkout=False)
         
         '''
@@ -583,9 +572,7 @@ def run(args, runner, logger):
     products_infos = src.product.get_products_list(options, runner.cfg, logger)
     
     # Call to the function that gets all the sources
-    good_result, results = get_all_product_sources(runner.cfg, 
-                                                  products_infos,
-                                                  logger)
+    good_result, results = get_all_product_sources(runner.cfg, products_infos, logger)
 
     # Display the results (how much passed, how much failed, etc...)
     status = src.OK_STATUS

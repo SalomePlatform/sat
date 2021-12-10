@@ -61,7 +61,12 @@ class XmlLogFile(object):
           with open(log_file_path, 'w') as f:
             f.write("<?xml version='1.0' encoding='utf-8'?>\n")
             if stylesheet:
-                f.write("<?xml-stylesheet type='text/xsl' href='%s'?>\n" %  stylesheet)
+                # example as href='./hat.xsl' 
+                # as local file xml with local file xsl
+                # with 'python3 -m http.server 8765 &' and
+                # 'chromium-browser http://localhost:8765/hat.xml' or
+                # 'firefox http://localhost:8765/hat.xml'
+                f.write("<?xml-stylesheet type='text/xsl' href='./%s'?>\n" %  stylesheet)
                 pass
             res= etree.tostring(self.xmlroot, encoding='utf-8')
             f.write(res)

@@ -22,9 +22,12 @@ like open a browser or an editor, or call a git command
 '''
 
 import os
-import subprocess
+import subprocess as SP
 import time
 import tarfile
+import psutil
+import time
+ 
 
 import debug as DBG
 import utilsSat as UTS
@@ -49,21 +52,62 @@ def show_in_editor(editor, filePath, logger):
         # launch cmd using subprocess.Popen
         cmd = editor % filePath
         logger.write('Launched command:\n' + cmd + '\n', 5)
-        p = subprocess.Popen(cmd, shell=True)
+        p = SP.Popen(cmd, shell=True)
         p.communicate()
     except:
         logger.write(printcolors.printcError(_("Unable to edit file %s\n") 
                                              % filePath), 1)
+
+def show_in_webbrowser(editor, filePath, logger):
+    '''open filePath using web browser firefox, chromium etc...
+    if file is xml, previous http sever is done before to fix new security problems
+    
+    :param editor str: The web browser to use.
+    :param filePath str: The path to the file to open.
+    '''
+    # default editor is firefox
+    if editor is None or len(editor) == 0:
+        editor = 'firefox'
+    
+    path, namefile = os.path.split(filePath)
+    basefile, ext = os.path.splitext(namefile)
+
+    # previouly http.server 8765 kill ... or not ? TODO wait and see REX
+    for proc in psutil.process_iter():
+      # help(proc)
+      cmdline = " ".join(proc.cmdline())
+      if "python3 -m http.server 8765" in cmdline:
+        print("kill previous process '%s'" % cmdline)
+        proc.kill()  # TODO may be not owner ? -> change 8765+n
+        
+    # The argument -u will make it so that stdout and stderr are not buffered 
+    # and will be written in real time.
+    cmd = """
+set -x
+cd %(path)s
+python3 -m http.server 8765 &> /dev/null &
+%(editor)s http://localhost:8765/%(namefile)s
+""" % {"path": path, "editor": editor, "namefile": namefile}
+
+    # print("show_in_webbrowser:\n%s" % cmd)
+    
+    try:
+        # launch cmd using subprocess.Popen
+        logger.write('Launched command:\n%s\n' % cmd, 5)
+        p = SP.Popen(cmd, shell=True, stdout=SP.PIPE, stderr=SP.STDOUT)
+        res_out, res_err = p.communicate() # res_err = None as stderr=SP.STDOUT
+        # print("Launched command stdout:\n%s" % res_out)
+    except Exception as e:
+        logger.write(printcolors.printcError(_("Unable to display file %s\n%s\n") 
+                                             % (filePath, e)), 1)
+    
 
 def git_describe(repo_path):
     '''Use git describe --tags command to return tag description of the git repository"
     :param repo_path str: The git repository to describe
     '''
     git_cmd="cd %s;git describe --tags" % repo_path
-    p = subprocess.Popen(git_cmd, shell=True,
-                    stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
+    p = SP.Popen(git_cmd, shell=True, stdin=SP.PIPE, stdout=SP.PIPE, stderr=SP.PIPE)
     p.wait()
     if p.returncode != 0:
         return False
@@ -99,7 +143,9 @@ def git_extract(from_what, tag, git_options, where, logger, environment=None):
 set -x
 git clone %(git_options)s %(remote)s %(where)s
 res=$?
-if [ $res -eq 0 ]; then   touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s;fi
+if [ $res -eq 0 ]; then
+  touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s
+fi
 exit $res
 """
     cmd = cmd % {'git_options': git_options, 'remote': from_what, 'tag': tag, 'where': str(where), 'where_git': where_git}
@@ -116,8 +162,10 @@ rm -rf %(where)s
 git clone %(git_options)s %(remote)s %(where)s && \
 git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s
 res=$?
-git --git-dir=%(where_git)s status|grep HEAD
-if [ $res -eq 0 -a $? -ne 0 ]; then   touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s;fi
+git --git-dir=%(where_git)s status | grep HEAD
+if [ $res -eq 0 -a $? -ne 0 ]; then
+  touch -d "$(git --git-dir=%(where_git)s  log -1 --format=date_format)" %(where)s
+fi
 exit $res
 """
     cmd = cmd % {'git_options': git_options,
@@ -127,7 +175,7 @@ exit $res
                  'where_git': where_git}
 
 
-  cmd=cmd.replace('date_format','"%ai"')
+  cmd=cmd.replace('date_format', '"%ai"')
   logger.logTxtFile.write("\n" + cmd + "\n")
   logger.logTxtFile.flush()
 
@@ -279,12 +327,11 @@ def cvs_extract(protocol, user, server, base, tag, product, where,
 
     logger.logTxtFile.write("\n" + command + "\n")
     logger.logTxtFile.flush()        
-    res = subprocess.call(command,
-                          cwd=str(where.dir()),
-                          env=environment.environ.environ,
-                          shell=True,
-                          stdout=logger.logTxtFile,
-                          stderr=subprocess.STDOUT)
+    res = SP.call(command, cwd=str(where.dir()),
+                           env=environment.environ.environ,
+                           shell=True,
+                           stdout=logger.logTxtFile,
+                           stderr=SP.STDOUT)
     return (res == 0)
 
 def svn_extract(user,
@@ -331,12 +378,11 @@ def svn_extract(user,
     logger.write(command + "\n", 5)
     logger.logTxtFile.write("\n" + command + "\n")
     logger.logTxtFile.flush()
-    res = subprocess.call(command,
-                          cwd=str(where.dir()),
-                          env=environment.environ.environ,
-                          shell=True,
-                          stdout=logger.logTxtFile,
-                          stderr=subprocess.STDOUT)
+    res = SP.call(command, cwd=str(where.dir()),
+                           env=environment.environ.environ,
+                           shell=True,
+                           stdout=logger.logTxtFile,
+                           stderr=SP.STDOUT)
     return (res == 0)
 
 def get_pkg_check_cmd(dist_name):
@@ -354,12 +400,12 @@ def get_pkg_check_cmd(dist_name):
     cmd_which_apt=["which", "apt"]
     with open(os.devnull, 'w') as devnull:
         # 1) we search for apt (debian based systems)
-        completed=subprocess.call(cmd_which_apt,stdout=devnull, stderr=subprocess.STDOUT)
+        completed=SP.call(cmd_which_apt,stdout=devnull, stderr=SP.STDOUT)
         if completed==0 and linux=="DB":
             cmd_is_package_installed=["apt", "list", "--installed"]
         else:
             # 2) if apt not found search for rpm (redhat)
-            completed=subprocess.call(cmd_which_rpm,stdout=devnull, stderr=subprocess.STDOUT) # only 3.8! ,capture_output=True)
+            completed=SP.call(cmd_which_rpm,stdout=devnull, stderr=SP.STDOUT) # only 3.8! ,capture_output=True)
             if completed==0 and linux=="RH":
                 cmd_is_package_installed=["rpm", "-q"]
             else:
@@ -389,19 +435,15 @@ def check_system_pkg(check_cmd,pkg):
         # also apt do not return status, we need to use grep
         # and apt output is too messy for being used 
         cmd_is_package_installed[-1]+="*" # we don't specify in pyconf the exact name because of version numbers
-        p=subprocess.Popen(cmd_is_package_installed,
-                           stdout=subprocess.PIPE,
-                           stderr=FNULL)
+        p=SP.Popen(cmd_is_package_installed, stdout=SP.PIPE, stderr=FNULL)
         try:
-            output = subprocess.check_output(['grep', pkg], stdin=p.stdout)
+            output = SP.check_output(['grep', pkg], stdin=p.stdout)
             msg_status=src.printcolors.printcSuccess("OK")
         except:
             msg_status=src.printcolors.printcError("KO")
             msg_status+=" (package is not installed!)\n"
     else:
-        p=subprocess.Popen(cmd_is_package_installed,
-                           stdout=subprocess.PIPE,
-                           stderr=FNULL)
+        p=SP.Popen(cmd_is_package_installed, stdout=SP.PIPE, stderr=FNULL)
         output, err = p.communicate()
         rc = p.returncode
         if rc==0:
