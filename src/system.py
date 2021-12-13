@@ -72,22 +72,21 @@ def show_in_webbrowser(editor, filePath, logger):
     path, namefile = os.path.split(filePath)
     basefile, ext = os.path.splitext(namefile)
 
-    # previouly http.server 8765 kill ... or not ? TODO wait and see REX
+    # previouly http.server 8765/6/7... kill ... or not ? TODO wait and see REX
+    port = os.getenv('SAT_PORT_LOG', '8765')
     for proc in psutil.process_iter():
       # help(proc)
       cmdline = " ".join(proc.cmdline())
-      if "python3 -m http.server 8765" in cmdline:
+      if "python3 -m http.server %s" % port in cmdline:
         print("kill previous process '%s'" % cmdline)
-        proc.kill()  # TODO may be not owner ? -> change 8765+n
+        proc.kill()  # TODO may be not owner ? -> change 8766/7/8... as SAT_PORT_LOG
         
-    # The argument -u will make it so that stdout and stderr are not buffered 
-    # and will be written in real time.
     cmd = """
 set -x
 cd %(path)s
-python3 -m http.server 8765 &> /dev/null &
-%(editor)s http://localhost:8765/%(namefile)s
-""" % {"path": path, "editor": editor, "namefile": namefile}
+python3 -m http.server %(port)s &> /dev/null &
+%(editor)s http://localhost:%(port)s/%(namefile)s
+""" % {"path": path, "editor": editor, "namefile": namefile, 'port': port}
 
     # print("show_in_webbrowser:\n%s" % cmd)
     
@@ -95,7 +94,7 @@ python3 -m http.server 8765 &> /dev/null &
         # launch cmd using subprocess.Popen
         logger.write('Launched command:\n%s\n' % cmd, 5)
         p = SP.Popen(cmd, shell=True, stdout=SP.PIPE, stderr=SP.STDOUT)
-        res_out, res_err = p.communicate() # res_err = None as stderr=SP.STDOUT
+        res_out, _ = p.communicate()   # _ = None as stderr=SP.STDOUT
         # print("Launched command stdout:\n%s" % res_out)
     except Exception as e:
         logger.write(printcolors.printcError(_("Unable to display file %s\n%s\n") 
@@ -121,7 +120,7 @@ def git_describe(repo_path):
 
 def git_extract(from_what, tag, git_options, where, logger, environment=None):
   '''Extracts sources from a git repository.
-
+87
   :param from_what str: The remote git repository.
   :param tag str: The tag.
   :param git_options str: git options
