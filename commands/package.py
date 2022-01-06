@@ -46,7 +46,8 @@ IGNORED_EXTENSIONS = []
 
 PACKAGE_EXT=".tar.gz" # the extension we use for the packages
 
-PROJECT_TEMPLATE = """#!/usr/bin/env python
+if src.architecture.is_windows():
+    PROJECT_TEMPLATE = """#!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
 # The path to the archive root directory
@@ -65,6 +66,25 @@ JOBPATH : $project_path + "jobs/"
 # Where to search the pyconf of the machines of the project
 MACHINEPATH : $project_path + "machines/"
 """
+else:
+    PROJECT_TEMPLATE = """#!/usr/bin/env python
+#-*- coding:utf-8 -*-
+
+# path to the PROJECT
+project_path : $PWD + "/"
+
+# Where to search the archives of the products
+ARCHIVEPATH : $project_path + "ARCHIVES"
+# Where to search the pyconf of the applications
+APPLICATIONPATH : $project_path + "applications/"
+# Where to search the pyconf of the products
+PRODUCTPATH : $project_path + "products/"
+# Where to search the pyconf of the jobs of the project
+JOBPATH : $project_path + "jobs/"
+# Where to search the pyconf of the machines of the project
+MACHINEPATH : $project_path + "machines/"
+"""
+
 
 LOCAL_TEMPLATE = ("""#!/usr/bin/env python
 #-*- coding:utf-8 -*-
@@ -81,8 +101,9 @@ LOCAL_TEMPLATE = ("""#!/usr/bin/env python
 
 PROJECTS :
 {
-project_file_paths : [$VARS.salometoolsway + $VARS.sep + \"..\" + $VARS.sep"""
-""" + \"""" + PROJECT_DIR + """\" + $VARS.sep + "project.pyconf"]
+  project_file_paths : 
+  [
+  ]
 }
 """)
 
@@ -570,7 +591,7 @@ def product_appli_creation_script(config,
     
     return tmp_file_path
 
-def bin_products_archives(config, logger):
+def bin_products_archives(config, logger, only_vcs):
     '''Prepare binary packages for all products
     :param config Config: The global configuration.
     :return: the error status
@@ -594,6 +615,8 @@ def bin_products_archives(config, logger):
                 or src.product.product_is_native(prod_info) 
                 or src.product.product_is_fixed(prod_info)
                 or not src.product.product_compiles(prod_info)):
+            continue
+        if only_vcs and not src.product.product_is_vcs(prod_info):
             continue
         if not src.product.check_installation(config, prod_info):
             l_not_installed.append(prod_name)
@@ -768,7 +791,10 @@ WARNING: existing binaries directory from previous detar installation:
         
     for prod_name, source_dir in l_source_dir:
         path_in_archive = os.path.join("SOURCES", prod_name)
+        logpath_in_archive = os.path.join("LOGS", prod_name)
+        logpath=os.path.join(src.get_log_path(config), prod_name)
         d_products[prod_name + " (sources)"] = (source_dir, path_in_archive)
+        d_products[prod_name + " (logs)"] = (logpath, logpath_in_archive)
 
     # for packages of SALOME applications including KERNEL, 
     # we produce a salome launcher or a virtual application (depending on salome version)
@@ -907,23 +933,26 @@ def source_package(sat, config, logger, options, tmp_working_dir):
     
     # Add salomeTools
     tmp_sat = add_salomeTools(config, tmp_working_dir)
-    d_sat = {"salomeTools" : (tmp_sat, "salomeTools")}
+    d_sat = {"salomeTools" : (tmp_sat, "sat")}
     
     # Add a sat symbolic link if not win
     if not src.architecture.is_windows():
-        tmp_satlink_path = os.path.join(tmp_working_dir, 'sat')
         try:
             t = os.getcwd()
         except:
             # In the jobs, os.getcwd() can fail
             t = config.LOCAL.workdir
         os.chdir(tmp_working_dir)
-        if os.path.lexists(tmp_satlink_path):
-            os.remove(tmp_satlink_path)
-        os.symlink(os.path.join('salomeTools', 'sat'), 'sat')
+
+        # create a symlink, to avoid reference with "salomeTool/.."
+        os.chdir("PROJECT")
+        if os.path.lexists("ARCHIVES"):
+            os.remove("ARCHIVES")
+        os.symlink("../ARCHIVES", "ARCHIVES")
         os.chdir(t)
         
-        d_sat["sat link"] = (tmp_satlink_path, "sat")
+        d_sat["sat archive link"] = (os.path.join(tmp_working_dir,"PROJECT", "ARCHIVES"), 
+                                     os.path.join("PROJECT", "ARCHIVES"))
     
     d_source = src.merge_dicts(d_archives, d_archives_vcs, d_project, d_sat)
     return d_source
@@ -1616,7 +1645,7 @@ def run(args, runner, logger):
     do_create_package = options.binaries or options.sources or options.project or options.sat 
 
     if options.bin_products:
-        ret = bin_products_archives(runner.cfg, logger)
+        ret = bin_products_archives(runner.cfg, logger, options.with_vcs)
         if ret!=0:
             return ret
     if not do_create_package:

@@ -1,6 +1,7 @@
 #!/bin/bash
 # 
 # This script copies BINARIES content into INSTALL, and substitute paths to enable extra compilation. 
+# It also initialises sat with PROJECTS/project.pyconf
 # If INSTALL already exists : does nothing!
 if [ -d ¤{INSTALL_DIR} ]
 then
@@ -11,6 +12,10 @@ if [ ! -d ¤{BINARIES_DIR} ]
 then
     echo Error: ¤{BINARIES_DIR} directory not found!
     exit
+fi
+if [ -d sat ]
+then
+    sat/sat init --add_project $(pwd)/PROJECTS/project.pyconf
 fi
 mkdir ¤{INSTALL_DIR}
 echo copies ¤{BINARIES_DIR} into ¤{INSTALL_DIR}

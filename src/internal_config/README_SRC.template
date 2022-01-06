@@ -5,16 +5,16 @@ Sources
 This package includes the sources of the application. 
 They are located in the $ROOT/ARCHIVES directory.
 
-It also includes a version of SAlomeTools (sat), a suite of scripts to manage
+It also includes a version of sat, a suite of scripts to manage
 operations on your application (get sources, compilation, test, packaging ...).
 This version is configured to work with the application of the package.
 
 sat is located in $ROOT and you can read its documentation in 
-$ROOT/salomeTools/doc or by using:
+$ROOT/sat/doc or by using:
 > $ROOT/sat --help
 
-If you use bash, you can have completion for sat by sourcing $ROOT/salomeTools/complete_sat.sh:
-> source $ROOT/salomeTools/complete_sat.sh
+If you use bash, you can have completion for sat by sourcing $ROOT/sat/complete_sat.sh:
+> source $ROOT/sat/complete_sat.sh
 
 
 a) Preparing the sources of your application
