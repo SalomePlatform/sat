@@ -791,11 +791,16 @@ WARNING: existing binaries directory from previous detar installation:
         
     for prod_name, source_dir in l_source_dir:
         path_in_archive = os.path.join("SOURCES", prod_name)
-        logpath_in_archive = os.path.join("LOGS", prod_name)
-        logpath=os.path.join(src.get_log_path(config), prod_name)
         d_products[prod_name + " (sources)"] = (source_dir, path_in_archive)
-        d_products[prod_name + " (logs)"] = (logpath, logpath_in_archive)
 
+    # create an archives of compilation logs, and insert it into the tarball
+    logpath=os.path.join(config.APPLICATION.workdir, "LOGS")
+    path_targz_logs = os.path.join(tmp_working_dir, "logs.tgz")
+    tar_log = tarfile.open(path_targz_logs, mode='w:gz')
+    tar_log.add(logpath, arcname="LOGS")
+    tar_log.close()
+    d_products["LOGS"] = (path_targz_logs, "logs.tgz")
+ 
     # for packages of SALOME applications including KERNEL, 
     # we produce a salome launcher or a virtual application (depending on salome version)
     if 'KERNEL' in config.APPLICATION.products:
