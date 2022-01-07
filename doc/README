@@ -32,5 +32,5 @@ firefox build/html/index.html &
 # make doc pdf
 cd doc
 make latexpdf
-evince build/latex/salomeTools.pdf &
+evince build/latex/sat.pdf &
 

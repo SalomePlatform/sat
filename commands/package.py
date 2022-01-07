@@ -121,7 +121,8 @@ parser.add_option('', 'bin_products', 'boolean', 'bin_products',
     _('Optional: Create binary archives for all products.'), False)
 parser.add_option('', 'with_vcs', 'boolean', 'with_vcs',
     _('Optional: Do not make archive for products in VCS mode (git, cvs, svn). ' 
-      'Sat prepare will use VCS mode instead to retrieve them'),
+      'Sat prepare will use VCS mode instead to retrieve them.'
+      '\n          Also, when combined with "--bin_products" option, restrict the building of product archives to VCS products.'),
     False)
 parser.add_option('', 'ftp', 'boolean', 'ftp',
     _('Optional: Do not embed archives for products in archive mode.' 

@@ -66,6 +66,7 @@ List of Commands
    init <commands/init>
    template <commands/template>
    application <commands/application>
+   install <commands/install>
 
 
 Release Notes

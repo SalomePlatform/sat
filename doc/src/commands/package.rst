@@ -74,6 +74,13 @@ Usage
 
   The version control systems known by this option are CVS_, SVN_ and Git_.
 
+* Create binary archives for each product: ::
+
+    # Create binary product archives for all products
+    sat package SALOME_xx --bin_products
+
+    # Create binary product archives only for VCS products
+    sat package SALOME_xx --bin_products --with_vcs
 
 Some useful configuration paths
 =================================
