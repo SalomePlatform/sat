@@ -904,6 +904,21 @@ def main(args):
 """
 
 launcher_tail_py2="""\
+    #[hook to integrate in launcher additionnal user modules]
+    
+    # Load all files extra.env.d/*.py and call the module's init routine]
+
+    if os.path.exists("extra.env.d"):
+        sys.path.insert(0, os.path.join(os.getcwd(), "extra.env.d"))
+        for filename in os.listdir("extra.env.d"):
+            if filename.endswith(".py"):
+                f = os.path.join("extra.env.d", filename)
+                module_name = os.path.splitext(os.path.basename(f))[0]
+                fp, path, desc = imp.find_module(module_name)
+                module = imp.load_module(module_name, fp, path, desc)
+                module.init(context, out_dir_Path) 
+
+    #[manage salome doc command]
     if len(args) >1 and args[0]=='doc':
         _showDoc(args[1:])
         return
@@ -937,6 +952,21 @@ if __name__ == "__main__":
 """
 
 launcher_tail_py3="""\
+    #[hook to integrate in launcher additionnal user modules]
+    
+    # Load all files extra.env.d/*.py and call the module's init routine]
+
+    if os.path.exists("extra.env.d"):
+        sys.path.insert(0, os.path.join(os.getcwd(), "extra.env.d"))
+        for filename in os.listdir("extra.env.d"):
+            if filename.endswith(".py"):
+                f = os.path.join("extra.env.d", filename)
+                module_name = os.path.splitext(os.path.basename(f))[0]
+                fp, path, desc = imp.find_module(module_name)
+                module = imp.load_module(module_name, fp, path, desc)
+                module.init(context, out_dir_Path) 
+
+    #[manage salome doc command]
     if len(args) >1 and args[0]=='doc':
         _showDoc(args[1:])
         return
