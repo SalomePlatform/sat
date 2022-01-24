@@ -7,6 +7,7 @@
 DISTRIBUTIONS :
 {
   "centos": "CO"
+  "rocky": "CO"
   "debian": "DB"
   "fedora": "FD"
   "linuxmint": "MN"
