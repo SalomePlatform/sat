@@ -149,7 +149,7 @@ def get_product_config(config, product_name, with_install_dir=True):
         
         # Get the hpc if any
         if 'hpc' in dic_version:
-            hpc = dic_version.hpc
+            hpc = dic_version['hpc']
         elif 'hpc' in config.APPLICATION:
             hpc = config.APPLICATION.hpc
 
