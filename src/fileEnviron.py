@@ -908,15 +908,20 @@ launcher_tail_py2="""\
     
     # Load all files extra.env.d/*.py and call the module's init routine]
 
-    if os.path.exists("extra.env.d"):
-        sys.path.insert(0, os.path.join(os.getcwd(), "extra.env.d"))
-        for filename in os.listdir("extra.env.d"):
+    extradir=out_dir_Path + r"/extra.env.d"
+
+    if os.path.exists(extradir):
+        sys.path.insert(0, os.path.join(os.getcwd(), extradir))
+        for filename in sorted(
+            filter(lambda x: os.path.isfile(os.path.join(extradir, x)),
+                   os.listdir(extradir))):
+
             if filename.endswith(".py"):
-                f = os.path.join("extra.env.d", filename)
+                f = os.path.join(extradir, filename)
                 module_name = os.path.splitext(os.path.basename(f))[0]
                 fp, path, desc = imp.find_module(module_name)
                 module = imp.load_module(module_name, fp, path, desc)
-                module.init(context, out_dir_Path) 
+                module.init(context, out_dir_Path)
 
     #[manage salome doc command]
     if len(args) >1 and args[0]=='doc':
@@ -956,15 +961,20 @@ launcher_tail_py3="""\
     
     # Load all files extra.env.d/*.py and call the module's init routine]
 
-    if os.path.exists("extra.env.d"):
-        sys.path.insert(0, os.path.join(os.getcwd(), "extra.env.d"))
-        for filename in os.listdir("extra.env.d"):
+    extradir=out_dir_Path + r"/extra.env.d"
+
+    if os.path.exists(extradir):
+        sys.path.insert(0, os.path.join(os.getcwd(), extradir))
+        for filename in sorted(
+            filter(lambda x: os.path.isfile(os.path.join(extradir, x)),
+                   os.listdir(extradir))):
+
             if filename.endswith(".py"):
-                f = os.path.join("extra.env.d", filename)
+                f = os.path.join(extradir, filename)
                 module_name = os.path.splitext(os.path.basename(f))[0]
                 fp, path, desc = imp.find_module(module_name)
                 module = imp.load_module(module_name, fp, path, desc)
-                module.init(context, out_dir_Path) 
+                module.init(context, out_dir_Path)
 
     #[manage salome doc command]
     if len(args) >1 and args[0]=='doc':
