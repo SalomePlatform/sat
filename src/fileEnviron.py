@@ -761,7 +761,8 @@ launcher_header2="""\
 import os
 import sys
 import subprocess
-
+import os.path
+import imp
 
 # Add the pwdPath to able to run the launcher after unpacking a package
 # Used only in case of a salomeTools package
@@ -835,7 +836,8 @@ launcher_header3="""\
 import os
 import sys
 import subprocess
-
+import os.path
+import imp
 
 # Add the pwdPath to able to run the launcher after unpacking a package
 # Used only in case of a salomeTools package
