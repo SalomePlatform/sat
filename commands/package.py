@@ -623,7 +623,7 @@ def bin_products_archives(config, logger, only_vcs):
             l_not_installed.append(prod_name)
             continue  # product is not installed, we skip it
         # prepare call to make_bin_archive
-        path_targz_prod = os.path.join(binpackage_path, prod_name + '-' + prod_info.version + "-" + config.VARS.dist + PACKAGE_EXT) 
+        path_targz_prod = os.path.join(binpackage_path, prod_name + '-' + prod_info.version.replace("/", "_") + "-" + config.VARS.dist + PACKAGE_EXT)
         targz_prod = tarfile.open(path_targz_prod, mode='w:gz')
         bin_path = prod_info.install_dir
         targz_prod.add(bin_path)
