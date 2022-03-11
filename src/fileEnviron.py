@@ -762,7 +762,6 @@ import os
 import sys
 import subprocess
 import os.path
-import imp
 
 # Add the pwdPath to able to run the launcher after unpacking a package
 # Used only in case of a salomeTools package
@@ -837,7 +836,6 @@ import os
 import sys
 import subprocess
 import os.path
-import imp
 
 # Add the pwdPath to able to run the launcher after unpacking a package
 # Used only in case of a salomeTools package
@@ -913,6 +911,7 @@ launcher_tail_py2="""\
     extradir=out_dir_Path + r"/extra.env.d"
 
     if os.path.exists(extradir):
+        import imp
         sys.path.insert(0, os.path.join(os.getcwd(), extradir))
         for filename in sorted(
             filter(lambda x: os.path.isfile(os.path.join(extradir, x)),
@@ -966,6 +965,7 @@ launcher_tail_py3="""\
     extradir=out_dir_Path + r"/extra.env.d"
 
     if os.path.exists(extradir):
+        import imp
         sys.path.insert(0, os.path.join(os.getcwd(), extradir))
         for filename in sorted(
             filter(lambda x: os.path.isfile(os.path.join(extradir, x)),
