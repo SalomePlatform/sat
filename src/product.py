@@ -797,15 +797,27 @@ def get_products_list(options, cfg, logger):
       ko = []
       res =[]
       prop, value = options.properties # for example 'is_SALOME_module', 'yes'
-      for p_name, p_info in resAll:
-        try:
-          if p_info.properties[prop] == value:
-            res.append((p_name, p_info))
-            ok.append(p_name)
-          else:
-            ko.append(p_name)
-        except:
-          ko.append(p_name)
+      if value[0] == '!':
+          for p_name, p_info in resAll:
+            try:
+              if p_info.properties[prop] == value[1:]:
+                ko.append(p_name)
+              else:
+                res.append((p_name, p_info))
+                ok.append(p_name)
+            except:
+              res.append((p_name, p_info))
+              ok.append(p_name)
+      else:
+          for p_name, p_info in resAll:
+            try:
+              if p_info.properties[prop] == value:
+                res.append((p_name, p_info))
+                ok.append(p_name)
+              else:
+                ko.append(p_name)
+            except:
+              ko.append(p_name)
 
       if len(ok) != len(resAll):
         logger.trace("on properties %s\n products accepted:\n %s\n products rejected:\n %s\n" %
