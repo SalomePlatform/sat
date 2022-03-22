@@ -178,7 +178,7 @@ def get_product_config(config, product_name, with_install_dir=True):
         # merge opt_depend in depend
         if prod_info is not None and 'opt_depend' in prod_info:
             for depend in prod_info.opt_depend:
-                if depend in config.APPLICATION.products:
+                if (depend in config.APPLICATION.products) and (depend not in prod_info.depend) :
                     prod_info.depend.append(depend,'')
         
 
