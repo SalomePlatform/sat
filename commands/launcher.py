@@ -136,7 +136,9 @@ def generate_launch_file(config,
     for prod_name, prod_info in l_product_info:
         # look for a salome application
         if src.get_property_in_product_cfg(prod_info, "is_salome_application") == "yes":
-            salome_application_name=prod_info.install_dir
+            # if user choose -p option (env_info not None), the set appli name only if product was selected.
+            if env_info == None or ( prod_name in env_info):
+                salome_application_name=prod_info.install_dir
             continue
 
     # if the application contains an application module, we set ABSOLUTE_APPLI_PATH to it.

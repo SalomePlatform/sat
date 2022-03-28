@@ -318,7 +318,7 @@ def produce_relative_launcher(config,
                           False,  # for launch
                           "cfgForPy",
                           additional_env=additional_env,
-                          no_path_init="False",
+                          no_path_init=False,
                           for_package = binaries_dir_name)
     
     # Little hack to put out_dir_Path outside the strings
