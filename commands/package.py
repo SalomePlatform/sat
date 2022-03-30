@@ -1359,7 +1359,7 @@ def write_application_pyconf(config, application_tmp_dir):
         app.workdir = src.pyconf.Reference(
                                  app,
                                  src.pyconf.DOLLAR,
-                                 'VARS.salometoolsway + $VARS.sep + ".."')
+                                 'LOCAL.workdir')
         res.addMapping("APPLICATION", app, "")
         res.__save__(f, evaluated=False)
     
