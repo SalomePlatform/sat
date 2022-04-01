@@ -579,6 +579,10 @@ class SalomeEnviron:
         if not self.forBuild:
             if src.product.product_is_compile_time(pi):
                 return
+        else:
+            if src.product.product_is_native(pi) :
+                self.set("SAT_%s_IS_NATIVE"%pi.name, "1")
+                
 
         # skip pip products when pip is activated and installation is done in python 
         #if (src.appli_test_property(self.cfg,"pip", "yes") and 
