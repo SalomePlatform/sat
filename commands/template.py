@@ -123,8 +123,7 @@ class TemplateSettings:
         self.delimiter_char = get_dico_param(ldic, "delimiter", ":sat:")
 
         # get the ignore filter
-        self.ignore_filters = map(lambda l: l.strip(),
-                                  ldic["ignore_filters"].split(','))
+        self.ignore_filters = [l.strip() for l in ldic["ignore_filters"].split(',')]
 
     def has_pyconf(self):
         return len(self.pyconf) > 0
