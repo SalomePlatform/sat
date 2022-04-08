@@ -74,7 +74,7 @@
     h4            { text-align : left; font-size: small; font-weight: bold; display: inline; }
     h_err         { text-align : left; font-size: small; font-weight: normal; display: inline; 	color: red; }
     .legend       { text-align : center; } 
-    .def        { font-family: Arial, Verdana, "Times New Roman", Times, serif;}
+    .def        { font-family: monospace, Arial, Verdana, "Times New Roman", Times, serif;}
    
 </style>
 

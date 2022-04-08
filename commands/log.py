@@ -347,7 +347,7 @@ def run(args, runner, logger):
     # open the hat xml in the user editor
     if not options.no_browser:
         logger.write(_("\nOpening the hat log file %s\n" % xmlHatFilePath), 3)
-        src.system.show_in_editor(runner.cfg.USER.browser, xmlHatFilePath, logger)
+        src.system.show_in_webbrowser(runner.cfg.USER.browser, xmlHatFilePath, logger)
     else:
         logger.write("\nHat log File is %s\n" % xmlHatFilePath, 3)
     return 0

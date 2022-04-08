@@ -72,14 +72,17 @@ except ImportError:
 
 _debug = [False] #support push/pop for temporary activate debug outputs
 
-# wambeke is christian at home
-_developers = ["xchristian", "xwambeke"]
-
 
 def isDeveloper():
-    """if you are a developer, sometimes you want verbose traces etc."""
-    res = src.architecture.get_user()  in _developers
-    return res
+    """
+    if you are a developer, sometimes you want verbose traces unconditionally
+    export SAT_DEVELOPER_MODE=1 before launch sat command to do that
+    """
+    res = os.getenv("SAT_DEVELOPER_MODE", "0")
+    if res in "YES yes 1 Y y".split():
+        return True
+    else:
+        return False
 
 def indent(text, amount=2, ch=' '):
     """indent multi lines message"""
@@ -148,7 +151,7 @@ def format_exception(msg, limit=None, trace=None):
   """
   Format a stack trace and the exception information.
   as traceback.format_exception(), without color
-  with traceback only if (_debug) or (DBG._user in DBG._developers)
+  with traceback only if (_debug) or (DBG.isDeveloper())
   """
   etype, value, tb = sys.exc_info()
   res = msg
