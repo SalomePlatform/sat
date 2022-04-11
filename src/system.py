@@ -25,7 +25,6 @@ import os
 import subprocess as SP
 import time
 import tarfile
-import psutil
 import time
  
 
@@ -65,6 +64,7 @@ def show_in_webbrowser(editor, filePath, logger):
     :param editor str: The web browser to use.
     :param filePath str: The path to the file to open.
     '''
+    import psutil
     # default editor is firefox
     if editor is None or len(editor) == 0:
         editor = 'firefox'
