@@ -103,6 +103,7 @@ PROJECTS :
 {
   project_file_paths : 
   [
+$LOCAL.workdir + $VARS.sep + \"""" + PROJECT_DIR + """\" + $VARS.sep + "project.pyconf"
   ]
 }
 """)
