@@ -13,10 +13,6 @@ then
     echo Error: ¤{BINARIES_DIR} directory not found!
     exit
 fi
-if [ -d sat ]
-then
-    sat/sat init --add_project $(pwd)/PROJECT/project.pyconf
-fi
 mkdir ¤{INSTALL_DIR}
 echo copies ¤{BINARIES_DIR} into ¤{INSTALL_DIR}
 cp -RP ¤{BINARIES_DIR}/*  ¤{INSTALL_DIR}
