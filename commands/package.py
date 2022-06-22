@@ -448,6 +448,7 @@ def produce_relative_env_files(config,
     else:
       src.replace_in_file(filepath, '"out_dir_Path', '"${out_dir_Path}' )
       src.replace_in_file(filepath, ':out_dir_Path', ':${out_dir_Path}' )
+      src.replace_in_file(filepath, ';out_dir_Path', ';${out_dir_Path}' )
 
     if exe_name:
         if src.architecture.is_windows():
