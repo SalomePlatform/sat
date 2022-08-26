@@ -53,6 +53,8 @@ parser.add_option('l', 'list', 'boolean', 'list',
     _("Optional: list all available applications."))
 parser.add_option('', 'show_patchs', 'boolean', 'show_patchs',
     _("Optional: synthetic list of all patches used in the application"))
+parser.add_option('', 'show_dependencies', 'boolean', 'show_dependencies',
+    _("Optional: list of product dependencies in the application"))
 parser.add_option('', 'show_install', 'boolean', 'show_install',
     _("Optional: synthetic list of all install directories in the application"))
 parser.add_option('', 'show_properties', 'boolean', 'show_properties',
@@ -854,6 +856,74 @@ def check_install_system(config, logger):
       logger.write("\n\n")
     
 
+def show_dependencies(config, products, logger):
+    '''Prints dependencies of products in the application.
+
+    :param config Config: the global configuration.
+    :param logger Logger: The logger instance to use for the display
+    '''
+
+    from compile import get_dependencies_graph,depth_search_graph,find_path_graph
+    # Get the list of all application products, and create its dependency graph
+    all_products_infos = src.product.get_products_infos(config.APPLICATION.products,config)
+    all_products_graph=get_dependencies_graph(all_products_infos, compile_time=False)
+
+    products_list=[]
+    product_liste_name=""
+    if products is None:
+        products_list=config.APPLICATION.products
+        products_graph = all_products_graph
+    else:
+        # 1. Extend the list with all products that depends upon the given list of products
+        products_list=products
+        product_liste_name="_".join(products)
+        visited=[]
+        for p_name in products_list:
+            visited=depth_search_graph(all_products_graph, p_name, visited)
+        products_infos = src.product.get_products_infos(visited, config)
+        products_graph = get_dependencies_graph(products_infos, compile_time=False)
+
+        # 2. Extend the list with all the dependencies of the given list of products
+        children=[]
+        for n in all_products_graph:
+            # for all products (that are not in products_list):
+            # if we we find a path from the product to the product list,
+            # then we product is a child and we add it to the children list 
+            if (n not in children) and (n not in products_list):
+                if find_path_graph(all_products_graph, n, products_list):
+                    children = children + [n]
+        products_infos_rev = src.product.get_products_infos(children, config)
+        products_graph_rev = get_dependencies_graph(products_infos_rev, compile_time=False)
+
+    logger.write("Dependency graph (python format)\n%s\n" % products_graph, 3)
+
+    gv_file_name='%s_%s_dep.gv' % (config.VARS.application,product_liste_name)
+    logger.write("\nDependency graph (graphviz format) written in file %s\n" % 
+                 src.printcolors.printcLabel(gv_file_name), 3)
+    with open(gv_file_name,"w") as f:
+        f.write("digraph G {\n")
+        for p in products_graph:
+            for dep in products_graph[p]:
+                f.write ("\t%s -> %s\n" % (p,dep))
+        f.write("}\n")
+        
+
+    if products is not None:
+        # if a list of products was given, produce also the reverse dependencies
+        gv_revfile_name='%s_%s_rev_dep.gv' % (config.VARS.application,product_liste_name)
+        logger.write("\nReverse dependency graph (graphviz format) written in file %s\n" % 
+                 src.printcolors.printcLabel(gv_revfile_name), 3)
+        with open(gv_revfile_name,"w") as rf:
+            rf.write("digraph G {\n")
+            for p in products_graph_rev:
+                for dep in products_graph_rev[p]:
+                    rf.write ("\t%s -> %s\n" % (p,dep))
+            rf.write("}\n")
+    
+    graph_cmd = "dot -Tpdf %s -o %s.pdf" % (gv_file_name,gv_file_name)
+    logger.write("\nTo generate a graph use dot tool : \n  %s" % 
+                 src.printcolors.printcLabel(graph_cmd), 3)
+ 
 def show_install_dir(config, logger):
   '''Prints all the used installed directories in the application.
 
@@ -1203,6 +1273,15 @@ def run(args, runner, logger):
                     src.printcolors.printcLabel(runner.cfg.VARS.application), 3)
         logger.write("\n", 2, False)
         show_install_dir(runner.cfg, logger)
+
+    # case : give a synthetic view of all dependencies between products of the application
+    if options.show_dependencies:
+        src.check_config_has_application(runner.cfg)
+        # Print some informations
+        logger.write(_('List of run-time dependencies of the application %s, product by product\n') %
+                    src.printcolors.printcLabel(runner.cfg.VARS.application), 3)
+        logger.write("\n", 2, False)
+        show_dependencies(runner.cfg, options.products, logger)
 
     # case : give a synthetic view of all patches used in the application
     if options.show_properties:

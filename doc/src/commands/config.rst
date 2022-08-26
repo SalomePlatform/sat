@@ -69,7 +69,13 @@ Usage
 
 * Print the properties available for an application: ::
 
-    sat config SALOME-xx show_properties
+    sat config SALOME-xx --show_properties
+
+* Print the dependencies of products for an application: ::
+
+    # if -p not specified, print dependencies for all products
+    sat config SALOME-xx --show_dependencies -p GEOM,SMESH
+
 
 * Get information on a product configuration: 
 
