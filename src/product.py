@@ -935,6 +935,18 @@ def product_is_salome(product_info):
             "is_SALOME_module" in product_info.properties and
             product_info.properties.is_SALOME_module == "yes")
 
+def product_is_configuration(product_info):
+    """Know if a product is a configuration module
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is a configuration module, else False
+    :rtype: boolean
+    """
+    return ("properties" in product_info and
+            "configure_dependency" in product_info.properties and
+            product_info.properties.configure_dependency == "yes")
+
 def product_is_fixed(product_info):
     """Know if a product is fixed
     

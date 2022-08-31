@@ -245,9 +245,7 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
         # for configuration modules, check if sources are present
         for prod in all_products_dict:
             product_name, product_info = all_products_dict[prod]
-            if ("properties" in product_info and
-                "configure_dependency" in product_info.properties and
-                product_info.properties.configure_dependency == "yes"):
+            if src.product.product_is_configuration(product_info):
                 check_source = check_source and src.product.check_source(product_info)
                 if not check_source:
                     logger.write(_("\nERROR : SOURCES of %s not found! It is required for" 
@@ -464,6 +462,10 @@ def compile_product(sat, p_name_info, config, options, logger, header, len_end):
     # product that have been successfully compiled
     if res==0:       
         logger.write(_("Add the config file in installation directory\n"), 5)
+        # for git bases : add the description of git tag
+        src_sha1=src.system.git_describe(p_info.source_dir)
+        if src_sha1:
+            p_info.git_tag_description=src_sha1
         src.product.add_compile_config_file(p_info, config)
         
         if options.check:

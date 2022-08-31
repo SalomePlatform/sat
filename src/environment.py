@@ -411,10 +411,20 @@ class SalomeEnviron:
         :param product_info Config: The product description
         :param logger Logger: The logger instance to display messages        
         """
-        # set root dir
         DBG.write("set_salome_minimal_product_env", product_info)
+
+        # set root dir
         root_dir = product_info.name + "_ROOT_DIR"
-        if 'install_dir' in product_info and product_info.install_dir:
+        
+        if src.product.product_is_configuration(product_info):
+            # configuration modules are not installed, root_dir points at source dir
+            if not self.for_package:
+                self.set(root_dir, product_info.source_dir)
+            else:
+                self.set(root_dir, os.path.join("out_dir_Path",
+                         "SOURCES",
+                         os.path.basename(product_info.source_dir)))
+        elif 'install_dir' in product_info and product_info.install_dir:
             self.set(root_dir, product_info.install_dir)
         elif not self.silent:
             logger.write("  " + _("No install_dir for product %s\n") %
@@ -447,6 +457,10 @@ class SalomeEnviron:
         
         :param pi Config: The product description
         """
+        if src.product.product_is_configuration(pi):
+            # configuration modules are not installed and should not be set like others
+            return
+
         # Construct XXX_ROOT_DIR
         env_root_dir = self.get(pi.name + "_ROOT_DIR")
         l_binpath_libpath = []
