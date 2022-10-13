@@ -720,6 +720,9 @@ def run(args, runner, logger):
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
 
+    # write warning if platform is not declared as supported
+    src.check_platform_is_supported( runner.cfg, logger )
+
     # Print some informations
     logger.write(_('Executing the compile commands in the build '
                                 'directories of the products of '

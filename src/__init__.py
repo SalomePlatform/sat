@@ -82,6 +82,17 @@ def check_config_has_application( config, details = None ):
             details.append(message)
         raise SatException( message )
 
+def check_platform_is_supported( config, logger ):
+    """check that the platform is supported, write warning if not.
+    
+    :param config class 'common.pyconf.Config': The config.
+    """
+    if 'platform' in config.APPLICATION and config.VARS.dist not in config.APPLICATION.platform:
+        msg = "WARNING: Your application configuration is not supported on this platform (%s)\n"\
+              "         Please consider using the native application!" % config.VARS.dist
+        logger.write("\n%s\n\n" % printcolors.printcWarning(msg), 1)
+    return
+
 def check_config_has_profile( config, details = None ):
     """\
     check that the config has the key APPLICATION.profile.

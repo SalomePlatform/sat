@@ -1318,7 +1318,9 @@ def find_product_scripts_and_pyconf(p_name,
                     product_pyconf_cfg[section].archive_info.archive_name =\
                         p_info.name + ".tgz"
     
-    if (with_vcs) and src.product.product_is_vcs(p_info):
+    # save git repositories for vcs products, even if archive is not in VCS mode
+    # in this case the user will be able to change get_source flag and work with git
+    if src.product.product_is_vcs(p_info):
         # in vcs mode we must replace explicitely the git server url
         # (or it will not be found later because project files are not exported in archives)
         for section in product_pyconf_cfg:

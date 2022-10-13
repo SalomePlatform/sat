@@ -489,6 +489,10 @@ class LauncherFileEnviron(FileEnviron):
         if not self.environ.is_defined("PATH"):
             self.environ.set("PATH","")
 
+        if self.init_path:
+            self.output.write('\n'+self.indent)
+            self.add_echo("Modifier cette variable pour ne pas réinitialiser les PATHS")
+            self.output.write(self.indent+'reinitialise_paths=True\n\n')
 
     def add_echo(self, text):
         """Add a comment
@@ -518,23 +522,28 @@ class LauncherFileEnviron(FileEnviron):
         if separator in value:
             raise Exception(msg % (key, value, separator))
 
-        if (self.init_path and (not self.environ.is_defined(key))):
+        is_key_defined=self.environ.is_defined(key)
+        conditional_reinit=False
+        if (self.init_path and (not is_key_defined)):
             # reinitialisation mode set to true (the default)
             # for the first occurrence of key, we set it.
             # therefore key will not be inherited from environment
+            self.output.write(self.indent+'if reinitialise_paths:\n'+self.indent)
             self.set(key, value)
-            return
+            self.output.write(self.indent+'else:\n'+self.indent)
+            conditional_reinit=True # in this case do not register value in self.environ a second time
 
         # in all other cases we use append (except if value is already the key
         do_append=True
-        if self.environ.is_defined(key):
+        if is_key_defined:
             value_list = self.environ.get(key).split(sep)
             # rem : value cannot be expanded (unlike bash/bat case) - but it doesn't matter.
             if value in value_list:
                 do_append=False  # value is already in key path : we don't append it again
             
         if do_append:
-            self.environ.append_value(key, value,sep) # register value in self.environ
+            if not conditional_reinit:
+                self.environ.append_value(key, value,sep) # register value in self.environ
             if key in self.specialKeys.keys():
                 #for these special keys we use the specific salomeContext function
                 self.output.write(self.begin+'addTo%s(r"%s")\n' % 
@@ -571,22 +580,28 @@ class LauncherFileEnviron(FileEnviron):
         if separator in value:
             raise Exception(msg % (key, value, separator))
 
-        if (self.init_path and (not self.environ.is_defined(key))):
+        is_key_defined=self.environ.is_defined(key)
+        conditional_reinit=False
+        if (self.init_path and (not is_key_defined)):
             # reinitialisation mode set to true (the default)
             # for the first occurrence of key, we set it.
             # therefore key will not be inherited from environment
+            self.output.write(self.indent+'if reinitialise_paths:\n'+self.indent)
             self.set(key, value)
-            return
+            self.output.write(self.indent+'else:\n'+self.indent)
+            conditional_reinit=True # in this case do not register value in self.environ a second time
+
         # in all other cases we use append (except if value is already the key
         do_append=True
-        if self.environ.is_defined(key):
+        if is_key_defined:
             value_list = self.environ.get(key).split(sep)
             # rem : value cannot be expanded (unlike bash/bat case) - but it doesn't matter.
             if value in value_list:
                 do_append=False  # value is already in key path : we don't append it again
             
         if do_append:
-            self.environ.append_value(key, value,sep) # register value in self.environ
+            if not conditional_reinit:
+                self.environ.append_value(key, value,sep) # register value in self.environ
             if key in self.specialKeys.keys():
                 #for these special keys we use the specific salomeContext function
                 self.output.write(self.begin+'addTo%s(r"%s")\n' % 

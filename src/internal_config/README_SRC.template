@@ -11,7 +11,7 @@ This version is configured to work with the application of the package.
 
 sat is located in $ROOT and you can read its documentation in 
 $ROOT/sat/doc or by using:
-> $ROOT/sat --help
+> $ROOT/sat/sat --help
 
 If you use bash, you can have completion for sat by sourcing $ROOT/sat/complete_sat.sh:
 > source $ROOT/sat/complete_sat.sh
@@ -20,7 +20,7 @@ If you use bash, you can have completion for sat by sourcing $ROOT/sat/complete_
 a) Preparing the sources of your application
 ============================================
 Type the following command to get the source and apply the patches:
-> $ROOT/sat prepare ¤{application}
+> $ROOT/sat/sat prepare ¤{application}
 
 The sources are retrieved from tgz archives located in ARCHIVES directory (or from VCS tools 
 if they were included)
@@ -29,7 +29,7 @@ if they were included)
 b) Build ¤{application}
 =======================
 Type the following command to compile and install the products of your application:
-> $ROOT/sat -t compile ¤{application}
+> $ROOT/sat/sat -t compile ¤{application}
 
 The -t option displays the compilation logs in the terminal.
 
@@ -51,14 +51,14 @@ In this case please refer to the instructions after
 c) Set environment for libraries inside ¤{application}
 ======================================================
 Type the following command to produce the environment files:
-> $ROOT/sat environ ¤{application}
+> $ROOT/sat/sat environ ¤{application}
 
 
 d) Create a SALOME launcher
 ===========================
 
 Create the launcher:
-> $ROOT/sat launcher ¤{application}
+> $ROOT/sat/sat launcher ¤{application}
 
 IMPORTANT : 
 If your package already contains a binary installation 

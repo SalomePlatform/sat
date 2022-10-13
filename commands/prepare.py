@@ -88,6 +88,9 @@ def run(args, runner, logger):
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
 
+    # write warning if platform is not declared as supported
+    src.check_platform_is_supported( runner.cfg, logger )
+
     products_infos = src.product.get_products_list(options, runner.cfg, logger)
 
     # Construct the arguments to pass to the clean, source and patch commands
