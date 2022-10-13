@@ -538,20 +538,35 @@ def compile_product_pip(sat,
     # here we just print a message
     if not res_pip_dwl:
         logger.write("Error in pip download\n", 4, False)
-
-
+    try:
+        pip_version_cmd = 'python -c "import pip;print(pip.__version__)"'
+        res_pip_version = subprocess.check_output(pip_version_cmd,
+                               shell=True,
+                               cwd=config.LOCAL.workdir,
+                               env=build_environ.environ.environ,
+                               stderr=subprocess.STDOUT).strip()
+        pip_build_options=res_pip_version.split('.')[0] < 21
+    except:
+        pip_build_options= True
     # d- install (in python or in separate product directory)
     if src.appli_test_property(config,"pip_install_dir", "python"):
         # pip will install product in python directory"
-        pip_install_cmd+=" --find-links=%s --build %s %s==%s" %\
-        (pip_wheels_dir, p_info.build_dir, p_info.name, p_info.version)
+        if pip_build_options:
+            pip_install_cmd+=" --find-links=%s --build %s %s==%s" %\
+                (pip_wheels_dir, p_info.build_dir, p_info.name, p_info.version)
+        else:
+            pip_install_cmd+=" --find-links=%s --cache-dir %s %s==%s" %\
+                (pip_wheels_dir, p_info.build_dir, p_info.name, p_info.version)
         pip_install_in_python=True
-        
     else: 
         # pip will install product in product install_dir
-        pip_install_dir=os.path.join(p_info.install_dir, "lib", "python${PYTHON_VERSION:0:3}", "site-packages")
-        pip_install_cmd+=" --find-links=%s --build %s --target %s %s==%s" %\
-        (pip_wheels_dir, p_info.build_dir, pip_install_dir, p_info.name, p_info.version)
+        pip_install_dir=os.path.join(p_info.install_dir, "lib", "python${PYTHON}", "site-packages")
+        if pip_build_options:
+            pip_install_cmd+=" --find-links=%s --build %s --target %s %s==%s" %\
+                (pip_wheels_dir, p_info.build_dir, pip_install_dir, p_info.name, p_info.version)
+        else:
+            pip_install_cmd+=" --find-links=%s --cache-dir %s --target %s %s==%s" %\
+                (pip_wheels_dir,  p_info.build_dir, pip_install_dir, p_info.name, p_info.version)
     log_step(logger, header, "PIP")
     logger.write("\n"+pip_install_cmd+"\n", 4)
     len_end_line = len_end + 3
