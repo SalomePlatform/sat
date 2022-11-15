@@ -112,14 +112,28 @@ def makeinstall_product(p_name_info, config, logger):
         logger.write("\r" + header + src.printcolors.printcError("KO"))
         logger.write("==== %(KO)s in make install of %(name)s \n" %
             { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
+        logger.write("\n", 3, False)
         logger.flush()
-    else:
-        logger.write("\r%s%s" % (header, " " * 20), 3)
-        logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
-        logger.write("==== %s \n" % src.printcolors.printcInfo("OK"), 4)
-        logger.write("==== Make install of %(name)s %(OK)s \n" %
-            { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
-        logger.flush()
+        return res
+
+    if src.product.product_has_post_script(p_info):
+        # the product has a post install script we run
+        res = builder.do_script_build(p_info.post_script)
+        if res > 0:
+            logger.write("\r%s%s" % (header, " " * len_end_line), 3)
+            logger.write("\r" + header + src.printcolors.printcError("KO"))
+            logger.write("==== %(KO)s in post script execution of %(name)s \n" %
+                { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
+            logger.write("\n", 3, False)
+            logger.flush()
+            return res
+
+    logger.write("\r%s%s" % (header, " " * 20), 3)
+    logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
+    logger.write("==== %s \n" % src.printcolors.printcInfo("OK"), 4)
+    logger.write("==== Make install of %(name)s %(OK)s \n" %
+        { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
+    logger.flush()
     logger.write("\n", 3, False)
 
     return res

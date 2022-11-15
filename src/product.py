@@ -313,6 +313,30 @@ Please provide a 'compil_script' key in its definition.""") % product_name
         if os.path.exists(prod_info.compil_script) and not os.access(prod_info.compil_script, os.X_OK):
             DBG.tofix("Compilation script  file is not in 'execute mode'", prod_info.compil_script, True)
     
+    # If the product has a post install script, check the script existence
+    # and if it is executable
+    if product_has_post_script(prod_info):
+        # Check the compil_script key existence
+        
+        # Get the path of the script file
+        # if windows supposed '.bat', if linux supposed '.sh'
+        # but user set extension script file in his pyconf as he wants, no obligation.
+        script = prod_info.post_script
+        script_name = os.path.basename(script)
+        if script == script_name:
+            # Only a name is given. Search in the default directory
+            script_path = src.find_file_in_lpath(script_name, config.PATHS.PRODUCTPATH, "post_scripts")
+            if not script_path:
+                msg = _("Post install script %s not found in") % script_name
+                DBG.tofix(msg, config.PATHS.PRODUCTPATH, True) # say where searched
+                script_path = "%s_(Not_Found_by_Sat!!)" % script_name
+            prod_info.post_script = script_path
+
+       
+        # Check that the script is executable
+        if os.path.exists(prod_info.post_script) and not os.access(prod_info.post_script, os.X_OK):
+            DBG.tofix("Post install script file is not in 'execute mode'", prod_info.post_script, True)
+
     # Get the full paths of all the patches
     if product_has_patches(prod_info):
         patches = []
@@ -1120,6 +1144,17 @@ def product_has_patches(product_info):
     :rtype: boolean
     """   
     res = ( "patches" in product_info and len(product_info.patches) > 0 )
+    return res
+
+def product_has_post_script(product_info):
+    """Know if a product has a post install script
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product has one or more patches
+    :rtype: boolean
+    """   
+    res = ( "post_script" in product_info and len(product_info.post_script) > 0 )
     return res
 
 def product_has_logo(product_info):

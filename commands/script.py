@@ -127,15 +127,32 @@ def run_script_of_product(p_name_info, nb_proc, config, logger):
         logger.write("\r" + header + src.printcolors.printcError("KO"))
         logger.write("==== %(KO)s in script execution of %(name)s \n" %
             { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
+        logger.write("\n", 3, False)
         logger.flush()
-    else:
-        logger.write("\r%s%s" % (header, " " * len_end_line), 3)
-        logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
-        logger.write("==== %s \n" % src.printcolors.printcInfo("OK"), 4)
-        logger.write("==== Script execution of %(name)s %(OK)s \n" %
-            { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
-        logger.flush()
+        return res
+
+    if src.product.product_has_post_script(p_info):
+        # the product has a post install script we run
+        #script_path_display = src.printcolors.printcLabel(p_info.p_info.post_script)
+        #log_step(logger, header, "POST SCRIPT " + script_path_display)
+        res = builder.do_script_build(p_info.post_script)
+        #log_res_step(logger, res)
+        if res > 0:
+            logger.write("\r%s%s" % (header, " " * len_end_line), 3)
+            logger.write("\r" + header + src.printcolors.printcError("KO"))
+            logger.write("==== %(KO)s in post script execution of %(name)s \n" %
+                { "name" : p_name , "KO" : src.printcolors.printcInfo("ERROR")}, 4)
+            logger.write("\n", 3, False)
+            logger.flush()
+            return res
+    
+    logger.write("\r%s%s" % (header, " " * len_end_line), 3)
+    logger.write("\r" + header + src.printcolors.printcSuccess("OK"))
+    logger.write("==== %s \n" % src.printcolors.printcInfo("OK"), 4)
+    logger.write("==== Script execution of %(name)s %(OK)s \n" %
+        { "name" : p_name , "OK" : src.printcolors.printcInfo("OK")}, 4)
     logger.write("\n", 3, False)
+    logger.flush()
 
     return res
 

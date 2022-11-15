@@ -259,6 +259,7 @@ Available product configuration flags
 * **name** : the name of the product 
 * **build_source** : the method to use when getting the sources, possible choices are script/cmake/autotools. If "script" is chosen, a compilation script should be provided with compil_script key
 * **compil_script** : to specify a compilation script (in conjunction with build_source set to "script"). The programming language is bash under linux, and bat under windows.  
+* **post_script** : to specify a post installation script (use it as a hook to do extra wokr after installation).
 * **get_source** : the mode to get the sources, possible choices are archive/git/svn/cvs
 * **depend** : to give SAT the dependencies of the product
 * **patches** : provides a list of patches, if required
