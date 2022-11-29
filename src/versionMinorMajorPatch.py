@@ -137,8 +137,8 @@ def toCompactStr_majorMinorPatch(version):
 
   res = "".join([str(i) for i in version])
   if version[1] > 9 or version[2] > 9:
-     raise Exception("ambigous major_minor_patch compact representation '%s' from '%s'" % (res, version))
-
+     #raise Exception("ambigous major_minor_patch compact representation '%s' from '%s'" % (res, version))
+     return "999"  # CNC patch provisoire en attendant correction de fond
   return res
 
 #############################################
