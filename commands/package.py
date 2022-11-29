@@ -29,6 +29,7 @@ import sys
 import src
 
 from application import get_SALOME_modules
+from  src.versionMinorMajorPatch import MinorMajorPatch as MMP
 import src.debug as DBG
 
 old_python = sys.version_info[0] == 2 and sys.version_info[1] <= 6
@@ -101,7 +102,7 @@ LOCAL_TEMPLATE = ("""#!/usr/bin/env python
 
 PROJECTS :
 {
-  project_file_paths : 
+  project_file_paths :
   [
 $LOCAL.workdir + $VARS.sep + \"""" + PROJECT_DIR + """\" + $VARS.sep + "project.pyconf"
   ]
@@ -121,12 +122,12 @@ parser.add_option('s', 'sources', 'boolean', 'sources',
 parser.add_option('', 'bin_products', 'boolean', 'bin_products',
     _('Optional: Create binary archives for all products.'), False)
 parser.add_option('', 'with_vcs', 'boolean', 'with_vcs',
-    _('Optional: Do not make archive for products in VCS mode (git, cvs, svn). ' 
+    _('Optional: Do not make archive for products in VCS mode (git, cvs, svn). '
       'Sat prepare will use VCS mode instead to retrieve them.'
       '\n          Also, when combined with "--bin_products" option, restrict the building of product archives to VCS products.'),
     False)
 parser.add_option('', 'ftp', 'boolean', 'ftp',
-    _('Optional: Do not embed archives for products in archive mode.' 
+    _('Optional: Do not embed archives for products in archive mode.'
     'Sat prepare will use ftp instead to retrieve them'),
     False)
 parser.add_option('e', 'exe', 'string', 'exe',
@@ -147,12 +148,12 @@ parser.add_option('', 'without_properties', 'properties', 'without_properties',
 def add_files(tar, name_archive, d_content, logger, f_exclude=None):
     '''Create an archive containing all directories and files that are given in
        the d_content argument.
-    
+
     :param tar tarfile: The tarfile instance used to make the archive.
     :param name_archive str: The name of the archive to make.
     :param d_content dict: The dictionary that contain all directories and files
                            to add in the archive.
-                           d_content[label] = 
+                           d_content[label] =
                                         (path_on_local_machine, path_in_archive)
     :param logger Logger: the logging instance
     :param f_exclude Function: the function that filters
@@ -161,21 +162,21 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
     '''
     # get the max length of the messages in order to make the display
     max_len = len(max(d_content.keys(), key=len))
-    
+
     success = 0
     # loop over each directory or file stored in the d_content dictionary
     names = sorted(d_content.keys())
     DBG.write("add tar names", names)
 
     # used to avoid duplications (for pip install in python, or single_install_dir cases)
-    already_added=set() 
+    already_added=set()
     for name in names:
         # display information
         len_points = max_len - len(name) + 3
         local_path, archive_path = d_content[name]
         in_archive = os.path.join(name_archive, archive_path)
         logger.write(name + " " + len_points * "." + " "+ in_archive + " ", 3)
-        # Get the local path and the path in archive 
+        # Get the local path and the path in archive
         # of the directory or file to add
         # Add it in the archive
         try:
@@ -200,7 +201,7 @@ def add_files(tar, name_archive, d_content, logger, f_exclude=None):
 
 
 def exclude_VCS_and_extensions_26(filename):
-    ''' The function that is used to exclude from package the link to the 
+    ''' The function that is used to exclude from package the link to the
         VCS repositories (like .git) (only for python 2.6)
 
     :param filename Str: The filname to exclude (or not).
@@ -216,7 +217,7 @@ def exclude_VCS_and_extensions_26(filename):
     return False
 
 def exclude_VCS_and_extensions(tarinfo):
-    ''' The function that is used to exclude from package the link to the 
+    ''' The function that is used to exclude from package the link to the
         VCS repositories (like .git)
 
     :param filename Str: The filname to exclude (or not).
@@ -237,9 +238,9 @@ def produce_relative_launcher(config,
                               file_dir,
                               file_name,
                               binaries_dir_name):
-    '''Create a specific SALOME launcher for the binary package. This launcher 
+    '''Create a specific SALOME launcher for the binary package. This launcher
        uses relative paths.
-    
+
     :param config Config: The global configuration.
     :param logger Logger: the logging instance
     :param file_dir str: the directory where to put the launcher
@@ -249,41 +250,41 @@ def produce_relative_launcher(config,
     :return: the path of the produced launcher
     :rtype: str
     '''
-    
+
     # set base mode to "no" for the archive - save current mode to restore it at the end
     if "base" in config.APPLICATION:
-        base_setting=config.APPLICATION.base 
+        base_setting=config.APPLICATION.base
     else:
         base_setting="maybe"
     config.APPLICATION.base="no"
 
-    # get KERNEL installation path 
+    # get KERNEL installation path
     kernel_info = src.product.get_product_config(config, "KERNEL")
     kernel_base_name=os.path.basename(kernel_info.install_dir)
     if kernel_info.install_mode == "base":
         # case of kernel installed in base. the kernel install dir name is different in the archive
         kernel_base_name=os.path.basename(os.path.dirname(kernel_info.install_dir))
-    
+
     kernel_root_dir = os.path.join(binaries_dir_name, kernel_base_name)
 
     # set kernel bin dir (considering fhs property)
     kernel_cfg = src.product.get_product_config(config, "KERNEL")
     if src.get_property_in_product_cfg(kernel_cfg, "fhs"):
-        bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin") 
+        bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin")
     else:
-        bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin","salome") 
+        bin_kernel_install_dir = os.path.join(kernel_root_dir,"bin","salome")
 
     # check if the application contains an application module
-    # check also if the application has a distene product, 
+    # check also if the application has a distene product,
     # in this case get its licence file name
     l_product_info = src.product.get_products_infos(config.APPLICATION.products.keys(), config)
-    salome_application_name="Not defined" 
+    salome_application_name="Not defined"
     distene_licence_file_name=False
     for prod_name, prod_info in l_product_info:
         # look for a "salome application" and a distene product
         if src.get_property_in_product_cfg(prod_info, "is_distene") == "yes":
-            distene_licence_file_name = src.product.product_has_licence(prod_info, 
-                                            config.PATHS.LICENCEPATH) 
+            distene_licence_file_name = src.product.product_has_licence(prod_info,
+                                            config.PATHS.LICENCEPATH)
         if src.get_property_in_product_cfg(prod_info, "is_salome_application") == "yes":
             salome_application_name=prod_info.name
 
@@ -312,7 +313,7 @@ def produce_relative_launcher(config,
                                            file_dir,
                                            src_root=None,
                                            env_info=None)
-    
+
     filepath = os.path.join(file_dir, file_name)
     # Write
     writer.write_env_file(filepath,
@@ -321,17 +322,17 @@ def produce_relative_launcher(config,
                           additional_env=additional_env,
                           no_path_init=False,
                           for_package = binaries_dir_name)
-    
+
     # Little hack to put out_dir_Path outside the strings
     src.replace_in_file(filepath, 'r"out_dir_Path', 'out_dir_Path + r"' )
     src.replace_in_file(filepath, "r'out_dir_Path + ", "out_dir_Path + r'" )
-    
+
     # A hack to put a call to a file for distene licence.
     # It does nothing to an application that has no distene product
     if distene_licence_file_name:
         logger.write("Application has a distene licence file! We use it in package launcher", 5)
         hack_for_distene_licence(filepath, distene_licence_file_name)
-       
+
     # change the rights in order to make the file executable for everybody
     os.chmod(filepath,
              stat.S_IRUSR |
@@ -349,9 +350,9 @@ def produce_relative_launcher(config,
 
 def hack_for_distene_licence(filepath, licence_file):
     '''Replace the distene licence env variable by a call to a file.
-    
+
     :param filepath Str: The path to the launcher to modify.
-    '''  
+    '''
     shutil.move(filepath, filepath + "_old")
     fileout= filepath
     filein = filepath + "_old"
@@ -389,18 +390,18 @@ def hack_for_distene_licence(filepath, licence_file):
     text.insert(num_line + 1, text_to_insert)
     for line in text:
         fout.write(line)
-    fin.close()    
+    fin.close()
     fout.close()
     return
-    
+
 def produce_relative_env_files(config,
                               logger,
                               file_dir,
                               binaries_dir_name,
                               exe_name=None):
-    '''Create some specific environment files for the binary package. These 
+    '''Create some specific environment files for the binary package. These
        files use relative paths.
-    
+
     :param config Config: The global configuration.
     :param logger Logger: the logging instance
     :param file_dir str: the directory where to put the files
@@ -409,11 +410,11 @@ def produce_relative_env_files(config,
     :param exe_name str: if given generate a launcher executing exe_name
     :return: the list of path of the produced environment files
     :rtype: List
-    '''  
+    '''
 
     # set base mode to "no" for the archive - save current mode to restore it at the end
     if "base" in config.APPLICATION:
-        base_setting=config.APPLICATION.base 
+        base_setting=config.APPLICATION.base
     else:
         base_setting="maybe"
     config.APPLICATION.base="no"
@@ -423,7 +424,7 @@ def produce_relative_env_files(config,
                                            logger,
                                            file_dir,
                                            src_root=None)
-    
+
     if src.architecture.is_windows():
       shell = "bat"
       filename  = "env_launch.bat"
@@ -467,7 +468,7 @@ def produce_relative_env_files(config,
              stat.S_IXUSR |
              stat.S_IXGRP |
              stat.S_IXOTH)
-    
+
     # restore modified setting by its initial value
     config.APPLICATION.base=base_setting
 
@@ -478,9 +479,9 @@ def produce_install_bin_file(config,
                              file_dir,
                              d_sub,
                              file_name):
-    '''Create a bash shell script which do substitutions in BIRARIES dir 
+    '''Create a bash shell script which do substitutions in BIRARIES dir
        in order to use it for extra compilations.
-    
+
     :param config Config: The global configuration.
     :param logger Logger: the logging instance
     :param file_dir str: the directory where to put the files
@@ -488,7 +489,7 @@ def produce_install_bin_file(config,
     :param file_name str: the name of the install script file
     :return: the produced file
     :rtype: str
-    '''  
+    '''
     # Write
     filepath = os.path.join(file_dir, file_name)
     # open the file and write into it
@@ -496,7 +497,7 @@ def produce_install_bin_file(config,
     with codecs.open(filepath, "w", 'utf-8') as installbin_file:
         installbin_template_path = os.path.join(config.VARS.internal_dir,
                                         "INSTALL_BIN.template")
-        
+
         # build the name of the directory that will contain the binaries
         binaries_dir_name = config.INTERNAL.config.binary_dir + config.VARS.dist
         # build the substitution loop
@@ -513,7 +514,7 @@ def produce_install_bin_file(config,
         d["BINARIES_DIR"] = binaries_dir_name
         d["SUBSTITUTION_LOOP"]=loop_cmd
         d["INSTALL_DIR"]=config.INTERNAL.config.install_dir
-        
+
         # substitute the template and write it in file
         content=src.template.substitute(installbin_template_path, d)
         installbin_file.write(content)
@@ -526,7 +527,7 @@ def produce_install_bin_file(config,
                  stat.S_IXUSR |
                  stat.S_IXGRP |
                  stat.S_IXOTH)
-    
+
     return filepath
 
 def product_appli_creation_script(config,
@@ -535,7 +536,7 @@ def product_appli_creation_script(config,
                                   binaries_dir_name):
     '''Create a script that can produce an application (EDF style) in the binary
        package.
-    
+
     :param config Config: The global configuration.
     :param logger Logger: the logging instance
     :param file_dir str: the directory where to put the file
@@ -549,11 +550,11 @@ def product_appli_creation_script(config,
     text_to_fill = open(template_path, "r").read()
     text_to_fill = text_to_fill.replace("TO BE FILLED 1",
                                         '"' + binaries_dir_name + '"')
-    
+
     text_to_add = ""
     for product_name in get_SALOME_modules(config):
         product_info = src.product.get_product_config(config, product_name)
-       
+
         if src.product.product_is_smesh_plugin(product_info):
             continue
 
@@ -561,27 +562,27 @@ def product_appli_creation_script(config,
             if src.product.product_is_cpp(product_info):
                 # cpp module
                 for cpp_name in src.product.get_product_components(product_info):
-                    line_to_add = ("<module name=\"" + 
-                                   cpp_name + 
+                    line_to_add = ("<module name=\"" +
+                                   cpp_name +
                                    "\" gui=\"yes\" path=\"''' + "
-                                   "os.path.join(dir_bin_name, \"" + 
+                                   "os.path.join(dir_bin_name, \"" +
                                    cpp_name + "\") + '''\"/>")
             else:
                 # regular module
-                line_to_add = ("<module name=\"" + 
-                               product_name + 
+                line_to_add = ("<module name=\"" +
+                               product_name +
                                "\" gui=\"yes\" path=\"''' + "
-                               "os.path.join(dir_bin_name, \"" + 
+                               "os.path.join(dir_bin_name, \"" +
                                product_name + "\") + '''\"/>")
             text_to_add += line_to_add + "\n"
-    
+
     filled_text = text_to_fill.replace("TO BE FILLED 2", text_to_add)
-    
+
     tmp_file_path = os.path.join(file_dir, "create_appli.py")
     ff = open(tmp_file_path, "w")
     ff.write(filled_text)
     ff.close()
-    
+
     # change the rights in order to make the file executable for everybody
     os.chmod(tmp_file_path,
              stat.S_IRUSR |
@@ -591,7 +592,7 @@ def product_appli_creation_script(config,
              stat.S_IXUSR |
              stat.S_IXGRP |
              stat.S_IXOTH)
-    
+
     return tmp_file_path
 
 def bin_products_archives(config, logger, only_vcs):
@@ -610,12 +611,12 @@ def bin_products_archives(config, logger, only_vcs):
     l_product_info = src.product.get_products_infos(l_products_name,
                                                     config)
     # first loop on products : filter products, analyse properties,
-    # and store the information that will be used to create the archive in the second loop 
+    # and store the information that will be used to create the archive in the second loop
     l_not_installed=[] # store not installed products for warning at the end
     for prod_name, prod_info in l_product_info:
         # ignore the native and fixed products for install directories
         if (src.get_property_in_product_cfg(prod_info, "not_in_package") == "yes"
-                or src.product.product_is_native(prod_info) 
+                or src.product.product_is_native(prod_info)
                 or src.product.product_is_fixed(prod_info)
                 or not src.product.product_compiles(prod_info)):
             continue
@@ -636,7 +637,7 @@ def bin_products_archives(config, logger, only_vcs):
             bytes = f.read() # read file as bytes
             readable_hash = hashlib.md5(bytes).hexdigest();
             with open(path_targz_prod+".md5", "w") as md5sum:
-               md5sum.write("%s  %s" % (readable_hash, os.path.basename(path_targz_prod))) 
+               md5sum.write("%s  %s" % (readable_hash, os.path.basename(path_targz_prod)))
             logger.write("   archive : %s   (md5sum = %s)\n" % (path_targz_prod, readable_hash))
 
     return 0
@@ -644,12 +645,12 @@ def bin_products_archives(config, logger, only_vcs):
 def binary_package(config, logger, options, tmp_working_dir):
     '''Prepare a dictionary that stores all the needed directories and files to
        add in a binary package.
-    
+
     :param config Config: The global configuration.
     :param logger Logger: the logging instance
     :param options OptResult: the options of the launched command
-    :param tmp_working_dir str: The temporary local directory containing some 
-                                specific directories or files needed in the 
+    :param tmp_working_dir str: The temporary local directory containing some
+                                specific directories or files needed in the
                                 binary package
     :return: the dictionary that stores all the needed directories and files to
              add in a binary package.
@@ -678,13 +679,13 @@ def binary_package(config, logger, options, tmp_working_dir):
             generate_mesa_launcher=True
 
     # first loop on products : filter products, analyse properties,
-    # and store the information that will be used to create the archive in the second loop 
+    # and store the information that will be used to create the archive in the second loop
     for prod_name, prod_info in l_product_info:
         # skip product with property not_in_package set to yes
         if src.get_property_in_product_cfg(prod_info, "not_in_package") == "yes":
-            continue  
+            continue
 
-        # Add the sources of the products that have the property 
+        # Add the sources of the products that have the property
         # sources_in_package : "yes"
         if src.get_property_in_product_cfg(prod_info,
                                            "sources_in_package") == "yes":
@@ -694,11 +695,11 @@ def binary_package(config, logger, options, tmp_working_dir):
                 l_sources_not_present.append(prod_name)
 
         # ignore the native and fixed products for install directories
-        if (src.product.product_is_native(prod_info) 
+        if (src.product.product_is_native(prod_info)
                 or src.product.product_is_fixed(prod_info)
                 or not src.product.product_compiles(prod_info)):
             continue
-        # 
+        #
         # products with single_dir property will be installed in the PRODUCTS directory of the archive
         is_single_dir=(src.appli_test_property(config,"single_install_dir", "yes") and \
                        src.product.product_test_property(prod_info,"single_install_dir", "yes"))
@@ -707,20 +708,20 @@ def binary_package(config, logger, options, tmp_working_dir):
                                   is_single_dir, prod_info.install_mode))
         else:
             l_not_installed.append(prod_name)
-        
+
         # Add also the cpp generated modules (if any)
         if src.product.product_is_cpp(prod_info):
             # cpp module
             for name_cpp in src.product.get_product_components(prod_info):
                 install_dir = os.path.join(config.APPLICATION.workdir,
                                            config.INTERNAL.config.install_dir,
-                                           name_cpp) 
+                                           name_cpp)
                 if os.path.exists(install_dir):
                     l_install_dir.append((name_cpp, name_cpp, install_dir, False, "value"))
                 else:
                     l_not_installed.append(name_cpp)
-        
-    # check the name of the directory that (could) contains the binaries 
+
+    # check the name of the directory that (could) contains the binaries
     # from previous detar
     binaries_from_detar = os.path.join(
                               config.APPLICATION.workdir,
@@ -729,14 +730,14 @@ def binary_package(config, logger, options, tmp_working_dir):
          logger.write("""
 WARNING: existing binaries directory from previous detar installation:
          %s
-         To make new package from this, you have to: 
-         1) install binaries in INSTALL directory with the script "install_bin.sh" 
+         To make new package from this, you have to:
+         1) install binaries in INSTALL directory with the script "install_bin.sh"
             see README file for more details
-         2) or recompile everything in INSTALL with "sat compile" command 
-            this step is long, and requires some linux packages to be installed 
+         2) or recompile everything in INSTALL with "sat compile" command
+            this step is long, and requires some linux packages to be installed
             on your system\n
 """ % binaries_from_detar)
-    
+
     # Print warning or error if there are some missing products
     if len(l_not_installed) > 0:
         text_missing_prods = ""
@@ -770,19 +771,19 @@ WARNING: existing binaries directory from previous detar installation:
             logger.write("%s\n%s" % (src.printcolors.printcWarning(msg),
                                      text_missing_prods),
                          1)
- 
+
     # construct the name of the directory that will contain the binaries
     if src.architecture.is_windows():
         binaries_dir_name = config.INTERNAL.config.binary_dir
     else:
         binaries_dir_name = config.INTERNAL.config.binary_dir + config.VARS.dist
-    # construct the correlation table between the product names, there 
+    # construct the correlation table between the product names, there
     # actual install directories and there install directory in archive
     d_products = {}
     for prod_name, prod_info_name, install_dir, is_single_dir, install_mode in l_install_dir:
         prod_base_name=os.path.basename(install_dir)
         if install_mode == "base":
-            # case of a products installed in base. 
+            # case of a products installed in base.
             # because the archive is in base:no mode, the name of the install dir is different inside archive
             # we set it to the product name or by PRODUCTS if single-dir
             if is_single_dir:
@@ -791,7 +792,7 @@ WARNING: existing binaries directory from previous detar installation:
                 prod_base_name=prod_info_name
         path_in_archive = os.path.join(binaries_dir_name, prod_base_name)
         d_products[prod_name + " (bin)"] = (install_dir, path_in_archive)
-        
+
     for prod_name, source_dir in l_source_dir:
         path_in_archive = os.path.join("SOURCES", prod_name)
         d_products[prod_name + " (sources)"] = (source_dir, path_in_archive)
@@ -803,13 +804,13 @@ WARNING: existing binaries directory from previous detar installation:
     tar_log.add(logpath, arcname="LOGS")
     tar_log.close()
     d_products["LOGS"] = (path_targz_logs, "logs.tgz")
- 
-    # for packages of SALOME applications including KERNEL, 
+
+    # for packages of SALOME applications including KERNEL,
     # we produce a salome launcher or a virtual application (depending on salome version)
     if 'KERNEL' in config.APPLICATION.products:
         VersionSalome = src.get_salome_version(config)
         # Case where SALOME has the launcher that uses the SalomeContext API
-        if VersionSalome >= 730:
+        if VersionSalome >= MMP([7,3,0]):
             # create the relative launcher and add it to the files to add
             launcher_name = src.get_launcher_name(config)
             launcher_package = produce_relative_launcher(config,
@@ -819,13 +820,13 @@ WARNING: existing binaries directory from previous detar installation:
                                                  binaries_dir_name)
             d_products["launcher"] = (launcher_package, launcher_name)
 
-            # if the application contains mesa products, we generate in addition to the 
-            # classical salome launcher a launcher using mesa and called mesa_salome 
+            # if the application contains mesa products, we generate in addition to the
+            # classical salome launcher a launcher using mesa and called mesa_salome
             # (the mesa launcher will be used for remote usage through ssh).
             if generate_mesa_launcher:
                 #if there is one : store the use_mesa property
                 restore_use_mesa_option=None
-                if ('properties' in config.APPLICATION and 
+                if ('properties' in config.APPLICATION and
                     'use_mesa' in config.APPLICATION.properties):
                     restore_use_mesa_option = config.APPLICATION.properties.use_mesa
 
@@ -847,7 +848,7 @@ WARNING: existing binaries directory from previous detar installation:
                     config.APPLICATION.properties.use_mesa="no"
 
             if options.sources:
-                # if we mix binaries and sources, we add a copy of the launcher, 
+                # if we mix binaries and sources, we add a copy of the launcher,
                 # prefixed  with "bin",in order to avoid clashes
                 launcher_copy_name="bin"+launcher_name
                 launcher_package_copy = produce_relative_launcher(config,
@@ -862,7 +863,7 @@ WARNING: existing binaries directory from previous detar installation:
                                                         logger,
                                                         tmp_working_dir,
                                                         binaries_dir_name)
-            
+
             d_products["appli script"] = (appli_script, "create_appli.py")
 
     # Put also the environment file
@@ -875,7 +876,7 @@ WARNING: existing binaries directory from previous detar installation:
       filename  = "env_launch.bat"
     else:
       filename  = "env_launch.sh"
-    d_products["environment file"] = (env_file, filename)      
+    d_products["environment file"] = (env_file, filename)
 
     # If option exe, produce an extra launcher based on specified exe
     if options.exe:
@@ -884,32 +885,32 @@ WARNING: existing binaries directory from previous detar installation:
                                               tmp_working_dir,
                                               binaries_dir_name,
                                               options.exe)
-            
+
         if src.architecture.is_windows():
           filename  = os.path.basename(options.exe) + ".bat"
         else:
           filename  = os.path.basename(options.exe) + ".sh"
-        d_products["exe file"] = (exe_file, filename)      
-    
+        d_products["exe file"] = (exe_file, filename)
+
 
     return d_products
 
 def source_package(sat, config, logger, options, tmp_working_dir):
     '''Prepare a dictionary that stores all the needed directories and files to
        add in a source package.
-    
+
     :param config Config: The global configuration.
     :param logger Logger: the logging instance
     :param options OptResult: the options of the launched command
-    :param tmp_working_dir str: The temporary local directory containing some 
-                                specific directories or files needed in the 
+    :param tmp_working_dir str: The temporary local directory containing some
+                                specific directories or files needed in the
                                 binary package
     :return: the dictionary that stores all the needed directories and files to
              add in a source package.
              {label : (path_on_local_machine, path_in_archive)}
     :rtype: dict
     '''
-    
+
     d_archives={}
     # Get all the products that are prepared using an archive
     # unless ftp mode is specified (in this case the user of the
@@ -938,11 +939,11 @@ def source_package(sat, config, logger, options, tmp_working_dir):
                                                options.with_vcs,
                                                options.ftp)
     logger.write("Done\n")
-    
+
     # Add salomeTools
     tmp_sat = add_salomeTools(config, tmp_working_dir)
     d_sat = {"salomeTools" : (tmp_sat, "sat")}
-    
+
     # Add a sat symbolic link if not win
     if not src.architecture.is_windows():
         try:
@@ -958,22 +959,22 @@ def source_package(sat, config, logger, options, tmp_working_dir):
             os.remove("ARCHIVES")
         os.symlink("../ARCHIVES", "ARCHIVES")
         os.chdir(t)
-        
-        d_sat["sat archive link"] = (os.path.join(tmp_working_dir,"PROJECT", "ARCHIVES"), 
+
+        d_sat["sat archive link"] = (os.path.join(tmp_working_dir,"PROJECT", "ARCHIVES"),
                                      os.path.join("PROJECT", "ARCHIVES"))
-    
+
     d_source = src.merge_dicts(d_archives, d_archives_vcs, d_project, d_sat)
     return d_source
 
 def get_archives(config, logger):
     '''Find all the products that are get using an archive and all the products
        that are get using a vcs (git, cvs, svn) repository.
-    
+
     :param config Config: The global configuration.
     :param logger Logger: the logging instance
-    :return: the dictionary {name_product : 
+    :return: the dictionary {name_product :
              (local path of its archive, path in the package of its archive )}
-             and the list of specific configuration corresponding to the vcs 
+             and the list of specific configuration corresponding to the vcs
              products
     :rtype: (Dict, List)
     '''
@@ -986,9 +987,9 @@ def get_archives(config, logger):
     for p_name, p_info in l_product_info:
         # skip product with property not_in_package set to yes
         if src.get_property_in_product_cfg(p_info, "not_in_package") == "yes":
-            continue  
+            continue
         # ignore the native and fixed products
-        if (src.product.product_is_native(p_info) 
+        if (src.product.product_is_native(p_info)
                 or src.product.product_is_fixed(p_info)):
             continue
         if p_info.get_source == "archive":
@@ -996,11 +997,11 @@ def get_archives(config, logger):
             archive_name = os.path.basename(archive_path)
             d_archives[p_name] = (archive_path,
                                   os.path.join(ARCHIVE_DIR, archive_name))
-            if (src.appli_test_property(config,"pip", "yes") and 
+            if (src.appli_test_property(config,"pip", "yes") and
                 src.product.product_test_property(p_info,"pip", "yes")):
                 # if pip mode is activated, and product is managed by pip
                 pip_wheels_dir=os.path.join(config.LOCAL.archive_dir,"wheels")
-                pip_wheel_pattern=os.path.join(pip_wheels_dir, 
+                pip_wheel_pattern=os.path.join(pip_wheels_dir,
                     "%s-%s*" % (p_info.name, p_info.version))
                 pip_wheel_path=glob.glob(pip_wheel_pattern)
                 msg_pip_not_found="Error in get_archive, pip wheel for "\
@@ -1015,22 +1016,22 @@ def get_archives(config, logger):
                         (p_info.name, p_info.version, pip_wheels_dir))
 
                 pip_wheel_name=os.path.basename(pip_wheel_path[0])
-                d_archives[p_name+" (pip wheel)"]=(pip_wheel_path[0], 
+                d_archives[p_name+" (pip wheel)"]=(pip_wheel_path[0],
                     os.path.join(ARCHIVE_DIR, "wheels", pip_wheel_name))
         else:
-            # this product is not managed by archive, 
+            # this product is not managed by archive,
             # an archive of the vcs directory will be created by get_archive_vcs
-            l_pinfo_vcs.append((p_name, p_info)) 
-            
+            l_pinfo_vcs.append((p_name, p_info))
+
     return d_archives, l_pinfo_vcs
 
 def add_salomeTools(config, tmp_working_dir):
-    '''Prepare a version of salomeTools that has a specific local.pyconf file 
+    '''Prepare a version of salomeTools that has a specific local.pyconf file
        configured for a source package.
 
     :param config Config: The global configuration.
-    :param tmp_working_dir str: The temporary local directory containing some 
-                                specific directories or files needed in the 
+    :param tmp_working_dir str: The temporary local directory containing some
+                                specific directories or files needed in the
                                 source package
     :return: The path to the local salomeTools directory to add in the package
     :rtype: str
@@ -1039,14 +1040,14 @@ def add_salomeTools(config, tmp_working_dir):
     sat_tmp_path = src.Path(os.path.join(tmp_working_dir, "salomeTools"))
     sat_running_path = src.Path(config.VARS.salometoolsway)
     sat_running_path.copy(sat_tmp_path)
-    
+
     # Update the local.pyconf file that contains the path to the project
     local_pyconf_name = "local.pyconf"
     local_pyconf_dir = os.path.join(tmp_working_dir, "salomeTools", "data")
     local_pyconf_file = os.path.join(local_pyconf_dir, local_pyconf_name)
     # Remove the .pyconf file in the root directory of salomeTools if there is
-    # any. (For example when launching jobs, a pyconf file describing the jobs 
-    # can be here and is not useful) 
+    # any. (For example when launching jobs, a pyconf file describing the jobs
+    # can be here and is not useful)
     files_or_dir_SAT = os.listdir(os.path.join(tmp_working_dir, "salomeTools"))
     for file_or_dir in files_or_dir_SAT:
         if file_or_dir.endswith(".pyconf") or file_or_dir.endswith(".txt"):
@@ -1054,15 +1055,15 @@ def add_salomeTools(config, tmp_working_dir):
                                      "salomeTools",
                                      file_or_dir)
             os.remove(file_path)
-    
+
     ff = open(local_pyconf_file, "w")
     ff.write(LOCAL_TEMPLATE)
     ff.close()
-    
+
     return sat_tmp_path.path
 
 def get_archives_vcs(l_pinfo_vcs, sat, config, logger, tmp_working_dir):
-    '''For sources package that require that all products are get using an 
+    '''For sources package that require that all products are get using an
        archive, one has to create some archive for the vcs products.
        So this method calls the clean and source command of sat and then create
        the archives.
@@ -1073,14 +1074,14 @@ def get_archives_vcs(l_pinfo_vcs, sat, config, logger, tmp_working_dir):
                     products
     :param config Config: The global configuration.
     :param logger Logger: the logging instance
-    :param tmp_working_dir str: The temporary local directory containing some 
-                                specific directories or files needed in the 
+    :param tmp_working_dir str: The temporary local directory containing some
+                                specific directories or files needed in the
                                 source package
-    :return: the dictionary that stores all the archives to add in the source 
+    :return: the dictionary that stores all the archives to add in the source
              package. {label : (path_on_local_machine, path_in_archive)}
     :rtype: dict
     '''
-    # clean the source directory of all the vcs products, then use the source 
+    # clean the source directory of all the vcs products, then use the source
     # command and thus construct an archive that will not contain the patches
     l_prod_names = [pn for pn, __ in l_pinfo_vcs]
     if False: # clean is dangerous in user/SOURCES, fixed in tmp_local_working_dir
@@ -1105,7 +1106,7 @@ def get_archives_vcs(l_pinfo_vcs, sat, config, logger, tmp_working_dir):
       # sat.source(args_source, batch=True, verbose=5, logger_add_link = logger)
       import source
       source.run(args_source, sat, logger) #use this mode as runner.cfg reference
-      
+
       # make the new archives
       d_archives_vcs = {}
       for pn, pinfo in l_pinfo_vcs:
@@ -1121,9 +1122,9 @@ def make_bin_archive(prod_name, prod_info, where):
     '''Create an archive of a product by searching its source directory.
 
     :param prod_name str: The name of the product.
-    :param prod_info Config: The specific configuration corresponding to the 
+    :param prod_info Config: The specific configuration corresponding to the
                              product
-    :param where str: The path of the repository where to put the resulting 
+    :param where str: The path of the repository where to put the resulting
                       archive
     :return: The path of the resulting archive
     :rtype: str
@@ -1133,15 +1134,15 @@ def make_bin_archive(prod_name, prod_info, where):
     bin_path = prod_info.install_dir
     tar_prod.add(bin_path, arcname=path_targz_prod)
     tar_prod.close()
-    return path_targz_prod       
+    return path_targz_prod
 
 def make_archive(prod_name, prod_info, where):
     '''Create an archive of a product by searching its source directory.
 
     :param prod_name str: The name of the product.
-    :param prod_info Config: The specific configuration corresponding to the 
+    :param prod_info Config: The specific configuration corresponding to the
                              product
-    :param where str: The path of the repository where to put the resulting 
+    :param where str: The path of the repository where to put the resulting
                       archive
     :return: The path of the resulting archive
     :rtype: str
@@ -1158,19 +1159,19 @@ def make_archive(prod_name, prod_info, where):
                      arcname=prod_name,
                      filter=exclude_VCS_and_extensions)
     tar_prod.close()
-    return path_targz_prod       
+    return path_targz_prod
 
 def create_project_for_src_package(config, tmp_working_dir, with_vcs, with_ftp):
     '''Create a specific project for a source package.
 
     :param config Config: The global configuration.
-    :param tmp_working_dir str: The temporary local directory containing some 
-                                specific directories or files needed in the 
+    :param tmp_working_dir str: The temporary local directory containing some
+                                specific directories or files needed in the
                                 source package
-    :param with_vcs boolean: True if the package is with vcs products (not 
+    :param with_vcs boolean: True if the package is with vcs products (not
                              transformed into archive products)
     :param with_ftp boolean: True if the package use ftp servers to get archives
-    :return: The dictionary 
+    :return: The dictionary
              {"project" : (produced project, project path in the archive)}
     :rtype: Dict
     '''
@@ -1198,7 +1199,7 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs, with_ftp):
         src.ensure_path_exists(directory)
 
     # Create the pyconf that contains the information of the project
-    project_pyconf_name = "project.pyconf"        
+    project_pyconf_name = "project.pyconf"
     project_pyconf_file = os.path.join(project_tmp_dir, project_pyconf_name)
     ff = open(project_pyconf_file, "w")
     ff.write(PROJECT_TEMPLATE)
@@ -1210,18 +1211,18 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs, with_ftp):
         ff.write("# ftp servers where to search for prerequisite archives\n")
         ff.write(ftp_path)
     # add licence paths if any
-    if len(config.PATHS.LICENCEPATH) > 0:  
+    if len(config.PATHS.LICENCEPATH) > 0:
         licence_path='LICENCEPATH : "'+config.PATHS.LICENCEPATH[0]
         for path in config.PATHS.LICENCEPATH[1:]:
             licence_path=licence_path+":"+path
         licence_path+='"'
         ff.write("\n# Where to search for licences\n")
         ff.write(licence_path)
-        
+
 
     ff.close()
-    
-    # Loop over the products to get there pyconf and all the scripts 
+
+    # Loop over the products to get there pyconf and all the scripts
     # (compilation, environment, patches)
     # and create the pyconf file to add to the project
     lproducts_name = config.APPLICATION.products.keys()
@@ -1229,7 +1230,7 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs, with_ftp):
     for p_name, p_info in l_products:
         # skip product with property not_in_package set to yes
         if src.get_property_in_product_cfg(p_info, "not_in_package") == "yes":
-            continue  
+            continue
         find_product_scripts_and_pyconf(p_name,
                                         p_info,
                                         config,
@@ -1238,12 +1239,12 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs, with_ftp):
                                         env_scripts_tmp_dir,
                                         patches_tmp_dir,
                                         products_pyconf_tmp_dir)
-    
+
     # for the application pyconf, we write directly the config
     # don't search for the original pyconf file
     # to avoid problems with overwrite sections and rm_products key
     write_application_pyconf(config, application_tmp_dir)
-    
+
     d_project = {"project" : (project_tmp_dir, PROJECT_DIR )}
     return d_project
 
@@ -1255,27 +1256,27 @@ def find_product_scripts_and_pyconf(p_name,
                                     env_scripts_tmp_dir,
                                     patches_tmp_dir,
                                     products_pyconf_tmp_dir):
-    '''Create a specific pyconf file for a given product. Get its environment 
+    '''Create a specific pyconf file for a given product. Get its environment
        script, its compilation script and patches and put it in the temporary
        working directory. This method is used in the source package in order to
        construct the specific project.
 
     :param p_name str: The name of the product.
-    :param p_info Config: The specific configuration corresponding to the 
+    :param p_info Config: The specific configuration corresponding to the
                              product
     :param config Config: The global configuration.
-    :param with_vcs boolean: True if the package is with vcs products (not 
+    :param with_vcs boolean: True if the package is with vcs products (not
                              transformed into archive products)
-    :param compil_scripts_tmp_dir str: The path to the temporary compilation 
+    :param compil_scripts_tmp_dir str: The path to the temporary compilation
                                        scripts directory of the project.
-    :param env_scripts_tmp_dir str: The path to the temporary environment script 
+    :param env_scripts_tmp_dir str: The path to the temporary environment script
                                     directory of the project.
-    :param patches_tmp_dir str: The path to the temporary patch scripts 
+    :param patches_tmp_dir str: The path to the temporary patch scripts
                                 directory of the project.
-    :param products_pyconf_tmp_dir str: The path to the temporary product 
+    :param products_pyconf_tmp_dir str: The path to the temporary product
                                         scripts directory of the project.
     '''
-    
+
     # read the pyconf of the product
     product_pyconf_cfg = src.pyconf.Config(p_info.from_file)
 
@@ -1317,7 +1318,7 @@ def find_product_scripts_and_pyconf(p_name,
                                         "")
                     product_pyconf_cfg[section].archive_info.archive_name =\
                         p_info.name + ".tgz"
-    
+
     # save git repositories for vcs products, even if archive is not in VCS mode
     # in this case the user will be able to change get_source flag and work with git
     if src.product.product_is_vcs(p_info):
@@ -1340,11 +1341,11 @@ def find_product_scripts_and_pyconf(p_name,
 
 
 def write_application_pyconf(config, application_tmp_dir):
-    '''Write the application pyconf file in the specific temporary 
+    '''Write the application pyconf file in the specific temporary
        directory containing the specific project of a source package.
 
     :param config Config: The global configuration.
-    :param application_tmp_dir str: The path to the temporary application 
+    :param application_tmp_dir str: The path to the temporary application
                                     scripts directory of the project.
     '''
     application_name = config.VARS.application
@@ -1366,13 +1367,13 @@ def write_application_pyconf(config, application_tmp_dir):
                                  'LOCAL.workdir')
         res.addMapping("APPLICATION", app, "")
         res.__save__(f, evaluated=False)
-    
+
 
 def sat_package(config, tmp_working_dir, options, logger):
     '''Prepare a dictionary that stores all the needed directories and files to
        add in a salomeTool package.
-    
-    :param tmp_working_dir str: The temporary local working directory 
+
+    :param tmp_working_dir str: The temporary local working directory
     :param options OptResult: the options of the launched command
     :return: the dictionary that stores all the needed directories and files to
              add in a salomeTool package.
@@ -1398,7 +1399,7 @@ def sat_package(config, tmp_working_dir, options, logger):
 
     # if the archive contains a project, we write its relative path in local.pyconf
     if options.project:
-        project_arch_path = os.path.join("projects", options.project, 
+        project_arch_path = os.path.join("projects", options.project,
                                          os.path.basename(options.project_file_path))
         local_cfg.PROJECTS.project_file_paths.append(project_arch_path, "")
 
@@ -1407,16 +1408,16 @@ def sat_package(config, tmp_working_dir, options, logger):
     ff.close()
     d_project["local.pyconf"]=(local_pyconf_tmp_path, "data/local.pyconf")
     return d_project
-    
+
 
 def project_package(config, name_project, project_file_path, ftp_mode, tmp_working_dir, embedded_in_sat, logger):
     '''Prepare a dictionary that stores all the needed directories and files to
        add in a project package.
-    
+
     :param project_file_path str: The path to the local project.
     :param ftp_mode boolean: Do not embed archives, the archive will rely on ftp mode to retrieve them.
-    :param tmp_working_dir str: The temporary local directory containing some 
-                                specific directories or files needed in the 
+    :param tmp_working_dir str: The temporary local directory containing some
+                                specific directories or files needed in the
                                 project package
     :param embedded_in_sat boolean : the project package is embedded in a sat package
     :return: the dictionary that stores all the needed directories and files to
@@ -1426,15 +1427,15 @@ def project_package(config, name_project, project_file_path, ftp_mode, tmp_worki
     '''
     d_project = {}
     # Read the project file and get the directories to add to the package
-    
-    try: 
+
+    try:
       project_pyconf_cfg = config.PROJECTS.projects.__getattr__(name_project)
     except:
       logger.write("""
 WARNING: inexisting config.PROJECTS.projects.%s, try to read now from:\n%s\n""" % (name_project, project_file_path))
       project_pyconf_cfg = src.pyconf.Config(project_file_path)
       project_pyconf_cfg.PWD = os.path.dirname(project_file_path)
-    
+
     paths = {"APPLICATIONPATH" : "applications",
              "PRODUCTPATH" : "products",
              "JOBPATH" : "jobs",
@@ -1462,7 +1463,7 @@ WARNING: inexisting config.PROJECTS.projects.%s, try to read now from:\n%s\n""" 
                                     project_pyconf_cfg,
                                     src.pyconf.DOLLAR,
                                     'project_path + "/' + paths[path] + '"')
-    
+
     # Modify some values
     if "project_path" not in project_pyconf_cfg:
         project_pyconf_cfg.addMapping("project_path",
@@ -1476,7 +1477,7 @@ WARNING: inexisting config.PROJECTS.projects.%s, try to read now from:\n%s\n""" 
     project_pyconf_cfg.__delitem__("PWD")
     if ftp_mode:
         project_pyconf_cfg.__delitem__("ARCHIVEPATH")
-    
+
     # Write the project pyconf file
     project_pyconf_tmp_path = os.path.join(tmp_working_dir, project_file_name)
     ff = open(project_pyconf_tmp_path, 'w')
@@ -1484,7 +1485,7 @@ WARNING: inexisting config.PROJECTS.projects.%s, try to read now from:\n%s\n""" 
     project_pyconf_cfg.__save__(ff, 1)
     ff.close()
     d_project["Project hat file"] = (project_pyconf_tmp_path, project_file_dest)
-    
+
     return d_project
 
 def add_readme(config, options, where):
@@ -1498,7 +1499,7 @@ def add_readme(config, options, where):
 # User: $user
 # Distribution : $dist
 
-In the following, $$ROOT represents the directory where you have installed 
+In the following, $$ROOT represents the directory where you have installed
 SALOME (the directory where this file is located).
 
 """
@@ -1520,7 +1521,7 @@ The procedure to do it is:
  2) Execute the shell script install_bin.sh:
  > cd $ROOT
  > ./install_bin.sh
- 3) Use SalomeTool (as explained in Sources section) and compile only the 
+ 3) Use SalomeTool (as explained in Sources section) and compile only the
     modules you need to (with -p option)
 
 """
@@ -1562,7 +1563,7 @@ The procedure to do it is:
             if 'KERNEL' in config.APPLICATION.products:
                 VersionSalome = src.get_salome_version(config)
                 # Case where SALOME has the launcher that uses the SalomeContext API
-                if VersionSalome >= 730:
+                if VersionSalome >= MMP([7,3,0]):
                     d['launcher'] = config.APPLICATION.profile.launcher_name
                 else:
                     d['virtual_app'] = 'runAppli' # this info is not used now)
@@ -1586,12 +1587,12 @@ The procedure to do it is:
 
         if options.sat:
             f.write(src.template.substitute(readme_template_path_sat, d))
-    
+
     return readme_path
 
 def update_config(config, logger,  prop, value):
     '''Remove from config.APPLICATION.products the products that have the property given as input.
-    
+
     :param config Config: The global config.
     :param prop str: The property to filter
     :param value str: The value of the property to filter
@@ -1609,7 +1610,7 @@ def update_config(config, logger,  prop, value):
 
 def description():
     '''method that is called when salomeTools is called with --help option.
-    
+
     :return: The text to display for the package command description.
     :rtype: str
     '''
@@ -1617,26 +1618,26 @@ def description():
 The package command creates a tar file archive of a product.
 There are four kinds of archive, which can be mixed:
 
- 1 - The binary archive. 
+ 1 - The binary archive.
      It contains the product installation directories plus a launcher.
- 2 - The sources archive. 
+ 2 - The sources archive.
      It contains the product archives, a project (the application plus salomeTools).
- 3 - The project archive. 
+ 3 - The project archive.
      It contains a project (give the project file path as argument).
- 4 - The salomeTools archive. 
+ 4 - The salomeTools archive.
      It contains code utility salomeTools.
 
 example:
  >> sat package SALOME-master --binaries --sources""")
-  
+
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with package parameter.
     '''
-    
+
     # Parse the options
     (options, args) = parser.parse_args(args)
 
-    
+
     # Check that a type of package is called, and only one
     all_option_types = (options.binaries,
                         options.sources,
@@ -1652,7 +1653,7 @@ def run(args, runner, logger):
         logger.write(src.printcolors.printcError(msg), 1)
         logger.write("\n", 1)
         return 1
-    do_create_package = options.binaries or options.sources or options.project or options.sat 
+    do_create_package = options.binaries or options.sources or options.project or options.sat
 
     if options.bin_products:
         ret = bin_products_archives(runner.cfg, logger, options.with_vcs)
@@ -1661,7 +1662,7 @@ def run(args, runner, logger):
     if not do_create_package:
         return 0
 
-    # continue to create a tar.gz package 
+    # continue to create a tar.gz package
 
     # The repository where to put the package if not Binary or Source
     package_default_path = runner.cfg.LOCAL.workdir
@@ -1673,11 +1674,11 @@ def run(args, runner, logger):
         # Display information
         logger.write(_("Packaging application %s\n") % src.printcolors.printcLabel(
                                                     runner.cfg.VARS.application), 1)
-        
+
         # Get the default directory where to put the packages
         package_default_path = os.path.join(runner.cfg.APPLICATION.workdir, "PACKAGE")
         src.ensure_path_exists(package_default_path)
-        
+
     # if the package contains a project:
     if options.project:
         # check that the project is visible by SAT
@@ -1704,7 +1705,7 @@ Please add it in file:
         else:
             options.project_file_path = foundProject
             src.printcolors.print_value(logger, "Project path", options.project_file_path, 2)
-    
+
     # Remove the products that are filtered by the --without_properties option
     if options.without_properties:
         prop, value = options.without_properties
@@ -1717,18 +1718,18 @@ Please add it in file:
     if options.name:
         if os.path.basename(options.name) == options.name:
             # only a name (not a path)
-            archive_name = options.name           
+            archive_name = options.name
             dir_name = package_default_path
         else:
             archive_name = os.path.basename(options.name)
             dir_name = os.path.dirname(options.name)
-        
+
         # suppress extension
         if archive_name[-len(".tgz"):] == ".tgz":
             archive_name = archive_name[:-len(".tgz")]
         if archive_name[-len(".tar.gz"):] == ".tar.gz":
             archive_name = archive_name[:-len(".tar.gz")]
-        
+
     else:
         archive_name=""
         dir_name = package_default_path
@@ -1737,7 +1738,7 @@ Please add it in file:
 
         if options.binaries:
             archive_name += "-"+runner.cfg.VARS.dist
-            
+
         if options.sources:
             archive_name += "-SRC"
             if options.with_vcs:
@@ -1748,10 +1749,10 @@ Please add it in file:
 
         if options.project:
             if options.sat:
-                archive_name += "_" 
+                archive_name += "_"
             archive_name += ("satproject_" + options.project)
- 
-        if len(archive_name)==0: # no option worked 
+
+        if len(archive_name)==0: # no option worked
             msg = _("Error: Cannot name the archive\n"
                     " check if at least one of the following options was "
                     "selected : --binaries, --sources, --project or"
@@ -1759,9 +1760,9 @@ Please add it in file:
             logger.write(src.printcolors.printcError(msg), 1)
             logger.write("\n", 1)
             return 1
- 
+
     path_targz = os.path.join(dir_name, archive_name + PACKAGE_EXT)
-    
+
     src.printcolors.print_value(logger, "Package path", path_targz, 2)
 
     # Create a working directory for all files that are produced during the
@@ -1770,24 +1771,24 @@ Please add it in file:
     src.ensure_path_exists(tmp_working_dir)
     logger.write("\n", 5)
     logger.write(_("The temporary working directory: %s\n" % tmp_working_dir),5)
-    
+
     logger.write("\n", 3)
 
     msg = _("Preparation of files to add to the archive")
     logger.write(src.printcolors.printcLabel(msg), 2)
     logger.write("\n", 2)
-    
+
     d_files_to_add={}  # content of the archive
 
     # a dict to hold paths that will need to be substitute for users recompilations
-    d_paths_to_substitute={}  
+    d_paths_to_substitute={}
 
     if options.binaries:
         d_bin_files_to_add = binary_package(runner.cfg,
                                             logger,
                                             options,
                                             tmp_working_dir)
-        # for all binaries dir, store the substitution that will be required 
+        # for all binaries dir, store the substitution that will be required
         # for extra compilations
         for key in d_bin_files_to_add:
             if key.endswith("(bin)"):
@@ -1796,7 +1797,7 @@ Please add it in file:
                    runner.cfg.INTERNAL.config.binary_dir + runner.cfg.VARS.dist,
                    runner.cfg.INTERNAL.config.install_dir)
                 if os.path.basename(source_dir)==os.path.basename(path_in_archive):
-                    # if basename is the same we will just substitute the dirname 
+                    # if basename is the same we will just substitute the dirname
                     d_paths_to_substitute[os.path.dirname(source_dir)]=\
                         os.path.dirname(path_in_archive)
                 else:
@@ -1806,11 +1807,11 @@ Please add it in file:
     if options.sources:
         d_files_to_add.update(source_package(runner,
                                         runner.cfg,
-                                        logger, 
+                                        logger,
                                         options,
                                         tmp_working_dir))
         if options.binaries:
-            # for archives with bin and sources we provide a shell script able to 
+            # for archives with bin and sources we provide a shell script able to
             # install binaries for compilation
             file_install_bin=produce_install_bin_file(runner.cfg,logger,
                                                       tmp_working_dir,
@@ -1824,9 +1825,9 @@ Please add it in file:
         # --salomeTool option is not considered when --sources is selected, as this option
         # already brings salomeTool!
         if options.sat:
-            d_files_to_add.update(sat_package(runner.cfg, tmp_working_dir, 
+            d_files_to_add.update(sat_package(runner.cfg, tmp_working_dir,
                                   options, logger))
-        
+
     if options.project:
         DBG.write("config for package %s" % options.project, runner.cfg)
         d_files_to_add.update(project_package(runner.cfg, options.project, options.project_file_path, options.ftp, tmp_working_dir, options.sat, logger))
@@ -1859,7 +1860,7 @@ Please add it in file:
     try:
         # Creating the object tarfile
         tar = tarfile.open(path_targz, mode='w:gz')
-        
+
         # get the filtering function if needed
         if old_python:
             filter_function = exclude_VCS_and_extensions_26
@@ -1877,7 +1878,7 @@ Please add it in file:
         logger.write(_("OK"), 1)
         logger.write(_("\n"), 1)
         return 1
-    
+
     # case if no application, only package sat as 'sat package -t'
     try:
         app = runner.cfg.APPLICATION
@@ -1893,9 +1894,9 @@ Please add it in file:
     # remove the tmp directory, unless user has registered as developer
     if os.path.isdir(tmp_working_dir) and (not DBG.isDeveloper()):
         shutil.rmtree(tmp_working_dir)
-    
+
     # Print again the path of the package
     logger.write("\n", 2)
     src.printcolors.print_value(logger, "Package path", path_targz, 2)
-    
+
     return res

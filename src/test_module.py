@@ -39,6 +39,7 @@ verbose = False
 
 from . import fork
 import src
+from  src.versionMinorMajorPatch import MinorMajorPatch as MMP
 
 # directories not considered as test grids
 C_IGNORE_GRIDS = ['.git', '.svn', 'RESSOURCES']
@@ -78,7 +79,7 @@ class Test:
         if res == 1:
             # Fail
             self.test_base_found = False
-        
+
         self.settings = {}
         self.known_errors = None
 
@@ -175,13 +176,13 @@ class Test:
             cmd = cmd % { 'user': user,
                          'base': testbase_base,
                          'dir': testbase_name }
-            
+
             # Get the application environment
             self.logger.write(_("Set the application environment\n"), 5)
             env_appli = src.environment.SalomeEnviron(self.config,
                                       src.environment.Environ(dict(os.environ)))
             env_appli.set_application_env(self.logger)
-            
+
             self.logger.write("> %s\n" % cmd, 5)
             if src.architecture.is_windows():
                 # preexec_fn not supported on windows platform
@@ -227,15 +228,15 @@ class Test:
             for t_b_info in project_info.test_bases:
                 if t_b_info.name == test_base_name:
                     test_base_info = t_b_info
-        
+
         if not test_base_info:
             if os.path.exists(test_base_name):
                 self.prepare_testbase_from_dir("DIR", test_base_name)
                 self.currentTestBase = "DIR"
                 return 0
-        
+
         if not test_base_info:
-            message = (_("########## ERROR: test base '%s' not found\n") % 
+            message = (_("########## ERROR: test base '%s' not found\n") %
                        test_base_name)
             self.logger.write("%s\n" % src.printcolors.printcError(message))
             return 1
@@ -278,7 +279,7 @@ class Test:
         error = self.known_errors.get_error(test_path, application, platform)
         if error is None:
             return status, []
-        
+
         if status == src.OK_STATUS:
             if not error.fixed:
                 # the error is fixed
@@ -361,13 +362,13 @@ class Test:
                 except:
                   results[test] = ["?", -1, "", []]
                   # results[test] = [src.O_STATUS, -1, open(resfile, 'r').read(), []]
-            
+
             # check if <test>.py file exists
             testfile = os.path.join(self.currentDir,
                                    self.currentgrid,
                                    self.currentsession,
                                    test)
-            
+
             if not os.path.exists(testfile):
                 results[test].append('')
             else:
@@ -379,7 +380,7 @@ class Test:
                                    self.currentgrid,
                                    self.currentsession,
                                    test[:-3] + ".out.py")
-            
+
             if not os.path.exists(outfile):
                 results[test].append('')
             else:
@@ -397,7 +398,7 @@ class Test:
         tFile = os.path.join(self.config.VARS.srcDir, "test", "scriptTemplate.py")
         with open(tFile, 'r') as f:
           template = string.Template(f.read())
-        
+
         # create substitution dictionary
         d = dict()
         d['resourcesWay'] = os.path.join(self.currentDir, 'RESSOURCES')
@@ -419,31 +420,31 @@ class Test:
     # Find the getTmpDir function that gives access to *_pidict file directory.
     # (the *_pidict file exists when SALOME is launched)
     def get_tmp_dir(self):
-        # Rare case where there is no KERNEL in grid list 
+        # Rare case where there is no KERNEL in grid list
         # (for example MED_STANDALONE)
-        if ('APPLICATION' in self.config 
-                and 'KERNEL' not in self.config.APPLICATION.products 
+        if ('APPLICATION' in self.config
+                and 'KERNEL' not in self.config.APPLICATION.products
                 and 'KERNEL_ROOT_DIR' not in os.environ):
             return getTmpDirDEFAULT
-        
+
         # Case where "sat test" is launched in an existing SALOME environment
         if 'KERNEL_ROOT_DIR' in os.environ:
             root_dir =  os.environ['KERNEL_ROOT_DIR']
-        
+
         if ('APPLICATION' in self.config and
             'KERNEL' in self.config.APPLICATION.products):
             root_dir = src.product.get_product_config(self.config, "KERNEL").install_dir
 
         # Case where there the appli option is called (with path to launcher)
         if len(self.launcher) > 0:
-            # There are two cases : The old application (runAppli) 
+            # There are two cases : The old application (runAppli)
             # and the new one
             launcherName = os.path.basename(self.launcher)
             launcherDir = os.path.dirname(self.launcher)
             if launcherName == 'runAppli':
                 # Old application
                 cmd = """
-for i in %s/env.d/*.sh; 
+for i in %s/env.d/*.sh;
   do source ${i};
 done
 echo $KERNEL_ROOT_DIR
@@ -466,10 +467,10 @@ echo -e 'import os\nprint(os.environ[\"KERNEL_ROOT_DIR\"])' > tmpscript.py
                             shell=True,
                             executable='/bin/bash').communicate()
                 pass
-            
+
             root_dir = subproc_res[0].split()[-1]
-        
-        # import grid salome_utils from KERNEL that gives 
+
+        # import grid salome_utils from KERNEL that gives
         # the right getTmpDir function
         root_dir = root_dir.decode('utf-8')
         aPath = [os.path.join(root_dir, 'bin', 'salome')]
@@ -492,17 +493,17 @@ echo -e 'import os\nprint(os.environ[\"KERNEL_ROOT_DIR\"])' > tmpscript.py
 
 
     def get_test_timeout(self, test_name, default_value):
-        if ("timeout" in self.settings and 
+        if ("timeout" in self.settings and
                 test_name in self.settings["timeout"]):
             return self.settings["timeout"][test_name]
 
         return default_value
 
     def generate_launching_commands(self):
-        
+
         # Case where there the appli option is called (with path to launcher)
         if len(self.launcher) > 0:
-            # There are two cases : The old application (runAppli) 
+            # There are two cases : The old application (runAppli)
             # and the new one
             launcherName = os.path.basename(self.launcher)
             launcherDir = os.path.dirname(self.launcher)
@@ -528,29 +529,29 @@ echo -e 'import os\nprint(os.environ[\"KERNEL_ROOT_DIR\"])' > tmpscript.py
         appdir = 'APPLI'
         if "APPLI" in self.config and "application_name" in self.config.APPLI:
             appdir = self.config.APPLI.application_name
-        
+
         # Case where SALOME has NOT the launcher that uses the SalomeContext API
-        if VersionSalome < 730:
+        if VersionSalome < MMP([7,3,0]):
             binSalome = os.path.join(self.config.APPLICATION.workdir,
                                      appdir,
                                      "runAppli")
             binPython = "python"
             killSalome = "killSalome.py"
-            src.environment.load_environment(self.config, False, self.logger)           
+            src.environment.load_environment(self.config, False, self.logger)
             return binSalome, binPython, killSalome
-        
+
         # Case where SALOME has the launcher that uses the SalomeContext API
-        else:            
+        else:
             launcher_name = src.get_launcher_name(self.config)
             binSalome = os.path.join(self.config.APPLICATION.workdir,
                                      launcher_name)
-            
+
             binPython = binSalome + ' shell'
             killSalome = binSalome + ' killall'
             return binSalome, binPython, killSalome
-                
+
         return binSalome, binPython, killSalome
-        
+
 
     ##
     # Runs tests of a session (using a single instance of Salome).
@@ -648,10 +649,10 @@ echo -e 'import os\nprint(os.environ[\"KERNEL_ROOT_DIR\"])' > tmpscript.py
                 script_info.known_error.expected = kfres[1]
                 script_info.known_error.comment = kfres[2]
                 script_info.known_error.fixed = kfres[3]
-            
+
             script_info.content = script_results[sr][4]
             script_info.out = script_results[sr][5]
-            
+
             # add it to the list of results
             test_info.script.append(script_info, '')
 
@@ -683,14 +684,14 @@ echo -e 'import os\nprint(os.environ[\"KERNEL_ROOT_DIR\"])' > tmpscript.py
                 self.nb_run -= 1
             elif script_info.res == "?":
                 self.nb_not_run += 1
-                
+
 
         self.config.TESTS.append(test_info, '')
 
     ##
     # Runs all tests of a session.
     def run_session_tests(self):
-       
+
         self.logger.write(self.write_test_margin(2), 3)
         self.logger.write("Session = %s\n" % src.printcolors.printcLabel(
                                                     self.currentsession), 3, False)
@@ -765,8 +766,8 @@ Existing sessions are:
     # Runs test testbase.
     def run_testbase_tests(self):
         res_dir = os.path.join(self.currentDir, "RESSOURCES")
-        os.environ['PYTHONPATH'] =  (res_dir + 
-                                     os.pathsep + 
+        os.environ['PYTHONPATH'] =  (res_dir +
+                                     os.pathsep +
                                      os.environ['PYTHONPATH'])
         os.environ['TT_BASE_RESSOURCES'] = res_dir
         src.printcolors.print_value(self.logger,
@@ -904,7 +905,7 @@ Existing grids are:
             status = src.KO_STATUS
         elif self.nb_acknoledge:
             status = src.KNOWNFAILURE_STATUS
-        
+
         self.logger.write(_("Status: %s\n" % status), 3)
 
         return self.nb_run - self.nb_succeed - self.nb_acknoledge
@@ -915,4 +916,3 @@ Existing grids are:
         if tab == 0:
             return ""
         return "|   " * (tab - 1) + "+ "
-

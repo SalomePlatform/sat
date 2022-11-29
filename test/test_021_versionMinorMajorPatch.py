@@ -94,14 +94,6 @@ class TestCase(unittest.TestCase):
     with self.assertRaises(Exception): VMMP.toList_majorMinorPatch(" \n 11...22.333-rc2\n")
     with self.assertRaises(Exception): VMMP.toList_majorMinorPatch(" \n 11...22.333-rc2\n")
 
-  def test_030(self):
-    self.assertEqual(VMMP.toCompactStr_majorMinorPatch([1, 2, 3]), "123")
-    self.assertEqual(VMMP.toCompactStr_majorMinorPatch([11, 2, 3]), "1123")
-    self.assertEqual(VMMP.toCompactStr_majorMinorPatch([1, 9, 9]), "199")
-
-    with self.assertRaises(Exception): VMMP.toCompactStr_majorMinorPatch([1, 2, 10])
-    with self.assertRaises(Exception): VMMP.toCompactStr_majorMinorPatch([1, 10, 3])
-    with self.assertRaises(Exception): VMMP.toCompactStr_majorMinorPatch([10, 10, 10])
 
   def test_040(self):
     MMP = VMMP.MinorMajorPatch
@@ -118,13 +110,11 @@ class TestCase(unittest.TestCase):
 
     self.assertEqual(MMP(['  123 \n', 2, 10]).strClassic(), "123.2.10")
     self.assertEqual(MMP(['  123 \n', 2, 10]).strSalome(), "123_2_10")
-    self.assertEqual(MMP(['  123 \n', 2, 9]).strCompact(), "12329") # no ambigous
 
     with self.assertRaises(Exception): MMP([-5, 2, 10])
     with self.assertRaises(Exception): MMP([5, -2, 10])
     with self.assertRaises(Exception): MMP([5, 2, -10])
     with self.assertRaises(Exception): MMP(['-123', 2, 10])
-    with self.assertRaises(Exception): MMP([123, 2, 10].strCompact()) # ambigous
 
   def test_050(self):
     MMP = VMMP.MinorMajorPatch
@@ -171,7 +161,7 @@ class TestCase(unittest.TestCase):
     tests = """\
 toto_from_1_to_2
    _from_1.0.0_to_2.0.0
-_from_1_0.  0_to_  2.0_0   
+_from_1_0.  0_to_  2.0_0
 _from_V1.0.0_to_2.0.0
 _from_version_1.0.0_to_2.0.0
 version_1.0.0_to_2.0.0
@@ -233,4 +223,3 @@ toto_from_2""".split("\n")
 if __name__ == '__main__':
   unittest.main(exit=False)
   pass
-

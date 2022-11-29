@@ -23,6 +23,7 @@ import imp
 import subprocess
 
 import src
+from  src.versionMinorMajorPatch import MinorMajorPatch as MMP
 import src.debug as DBG
 
 parser = src.options.Options()
@@ -113,10 +114,10 @@ def generate_component(config, compo, product_name, product_info, context, heade
             if ier != 0:
                 raise src.SatException("bootstrap has ended in error")
 
-    
+
     # determine salome version
     VersionSalome = src.get_salome_version(config)
-    if VersionSalome >= 750 :
+    if VersionSalome >= MMP([7,5,0]) :
         use_autotools=False
         builder.log('USE CMAKE', 3)
     else:
@@ -125,7 +126,7 @@ def generate_component(config, compo, product_name, product_info, context, heade
 
     result = "GENERATE"
     builder.log('GENERATE', 3)
-    
+
     prevstdout = sys.stdout
     prevstderr = sys.stderr
 
@@ -214,7 +215,7 @@ def build_context(config, logger):
             val = ctxenv.environ.environ[prod_env]
         dicdir[p] = val
 
-    # the dictionary requires all keys 
+    # the dictionary requires all keys
     # but the generation requires only values for KERNEL and GUI
     context = {
         "update": 1,
@@ -231,7 +232,7 @@ def build_context(config, logger):
 
 def check_module_generator(directory=None):
     """Check if module_generator is available.
-    
+
     :param directory str: The directory of YACSGEN.
     :return: The YACSGEN path if the module_generator is available, else None
     :rtype: str
@@ -240,7 +241,7 @@ def check_module_generator(directory=None):
     if directory is not None and directory not in sys.path:
         sys.path.insert(0, directory)
         undo = True
-    
+
     res = None
     try:
         #import module_generator
@@ -255,7 +256,7 @@ def check_module_generator(directory=None):
 
 def check_yacsgen(config, directory, logger):
     """Check if YACSGEN is available.
-    
+
     :param config Config: The global configuration.
     :param directory str: The directory given by option --yacsgen
     :param logger Logger: The logger instance
@@ -278,19 +279,19 @@ def check_yacsgen(config, directory, logger):
 
     if yacsgen_dir is None:
         return (False, _("The generate command requires YACSGEN."))
-    
+
     logger.write("  %s\n" % yacs_src, 2, True)
     logger.write("  %s\n" % yacsgen_dir, 5, True)
 
     if not os.path.exists(yacsgen_dir):
         message = _("YACSGEN directory not found: '%s'") % yacsgen_dir
         return (False, _(message))
-    
+
     # load module_generator
     c = check_module_generator(yacsgen_dir)
     if c is not None:
         return c
-    
+
     pv = os.getenv("PYTHON_VERSION")
     if pv is None:
         python_info = src.product.get_product_config(config, "Python")
@@ -308,7 +309,7 @@ def check_yacsgen(config, directory, logger):
 
 def description():
     '''method that is called when salomeTools is called with --help option.
-    
+
     :return: The text to display for the generate command description.
     :rtype: str
     '''
@@ -320,10 +321,10 @@ def description():
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with generate parameter.
     '''
-    
+
     # Check that the command has been called with an application
     src.check_config_has_application(runner.cfg)
-    
+
     logger.write(_('Generation of SALOME modules for application %s\n') % \
         src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
 
@@ -333,7 +334,7 @@ def run(args, runner, logger):
 
     # verify that YACSGEN is available
     yacsgen_dir = check_yacsgen(runner.cfg, options.yacsgen, logger)
-    
+
     if isinstance(yacsgen_dir, tuple):
         # The check failed
         __, error = yacsgen_dir
@@ -341,7 +342,7 @@ def run(args, runner, logger):
         logger.write(src.printcolors.printcError(msg), 1)
         logger.write("\n", 1)
         return 1
-    
+
     # Make the generator module visible by python
     sys.path.insert(0, yacsgen_dir)
 
@@ -373,8 +374,8 @@ def run(args, runner, logger):
         logger.write(_("\nCleaning generated directories\n"), 3, False)
         # clean source, build and install directories of the generated product
         # no verbosity to avoid warning at the first generation, for which dirs don't exist
-        runner.clean(runner.cfg.VARS.application + 
-                  " --products " + pi.name + 
+        runner.clean(runner.cfg.VARS.application +
+                  " --products " + pi.name +
                   " --generated",
                   batch=True,
                   verbose=0,
@@ -405,4 +406,3 @@ def run(args, runner, logger):
     if status == src.OK_STATUS:
         return 0
     return len(details)
-

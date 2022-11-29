@@ -120,6 +120,7 @@ def toList_majorMinorPatch(aStr, verbose=False):
 #############################################
 def toCompactStr_majorMinorPatch(version):
   """
+  OBSOLETE method
   parameter version is list of integer as  [major, minor, patch]
 
   | returns "789" for [7, 8, 9]
@@ -128,18 +129,9 @@ def toCompactStr_majorMinorPatch(version):
   |   raise exception for [7, 10, 11]
   |   (which returns "71011" as ambigous 710.1.1 for example)
   """
-  if len(version) != 3:
-    msg = "version major_minor_patch is incorrect: '%s'" % version
-    raise Exception(msg)
+  # forbidden use from nov. 2023 and SALOME 9.10.0
+  raise Exception("obsolete toCompactStr_majorMinorPatch method: forbiden use of compact representation of '%s', fix problem in caller" % version)
 
-  aStr = '_'.join([str(i) for i in version])
-  toList_majorMinorPatch(aStr) # will raise error if problem (as too much or negative values)
-
-  res = "".join([str(i) for i in version])
-  if version[1] > 9 or version[2] > 9:
-     #raise Exception("ambigous major_minor_patch compact representation '%s' from '%s'" % (res, version))
-     return "999"  # CNC patch provisoire en attendant correction de fond
-  return res
 
 #############################################
 def getRange_majorMinorPatch(aStr, verbose=False):
@@ -249,7 +241,9 @@ class MinorMajorPatch(object):
 
   def strCompact(self):
     """example is '123' from '1.2.3' """
-    return toCompactStr_majorMinorPatch(self.toList())
+    # forbidden use from nov. 2023 and SALOME 9.10.0
+    raise Exception("obsolete strCompact method: forbiden use of compact representation of '%s', fix problem in caller" % str(self))
+    # return toCompactStr_majorMinorPatch(self.toList())
 
   def toList(self):
     """example is list of integer [1, 2, 3] from '1.2.3' """
@@ -278,5 +272,3 @@ class MinorMajorPatch(object):
   def __ne__(self, other):
     res = (self.toList() != other.toList())
     return res
-
-

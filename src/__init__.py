@@ -65,15 +65,15 @@ class SatException(Exception):
 
 def ensure_path_exists(p):
     """Create a path if not existing
-    
+
     :param p str: The path.
     """
     if not os.path.exists(p):
         os.makedirs(p)
-        
+
 def check_config_has_application( config, details = None ):
     """check that the config has the key APPLICATION. Else raise an exception.
-    
+
     :param config class 'common.pyconf.Config': The config.
     """
     if 'APPLICATION' not in config:
@@ -84,7 +84,7 @@ def check_config_has_application( config, details = None ):
 
 def check_platform_is_supported( config, logger ):
     """check that the platform is supported, write warning if not.
-    
+
     :param config class 'common.pyconf.Config': The config.
     """
     if 'platform' in config.APPLICATION and config.VARS.dist not in config.APPLICATION.platform:
@@ -97,7 +97,7 @@ def check_config_has_profile( config, details = None ):
     """\
     check that the config has the key APPLICATION.profile.
     else, raise an exception.
-    
+
     :param config class 'common.pyconf.Config': The config.
     """
     check_config_has_application(config)
@@ -126,7 +126,7 @@ def appli_test_property(config,property_name, property_value):
                       (property_name,property_value)
     result = eval(eval_expression)
     return result
-    
+
 
 def config_has_application( config ):
     return 'APPLICATION' in config
@@ -134,10 +134,10 @@ def config_has_application( config ):
 def get_cfg_param(config, param_name, default):
     """\
     eearch for param_name value in config.
-    if param_name is not in config 
+    if param_name is not in config
     then return default,
     else return the found value
-       
+
     :param config class 'common.pyconf.Config': The config.
     :param param_name str: the name of the parameter to get the value
     :param default str: The value to return if param_name is not in config
@@ -199,7 +199,7 @@ def getProductNames(cfg, wildcards, logger):
 def print_info(logger, info):
     """\
     Prints the tuples that are in info variable in a formatted way.
-    
+
     :param logger Logger: The logging instance to use for the prints.
     :param info list: The list of tuples to display
     """
@@ -214,7 +214,7 @@ def print_info(logger, info):
 def get_base_path(config):
     """\
     Returns the path of the products base.
-    
+
     :param config Config: The global Config instance.
     :return: The path of the products base.
     :rtype: str
@@ -225,15 +225,15 @@ def get_base_path(config):
                                       "local.pyconf")
         msg = _("Please define a base path in the file %s" % local_file_path)
         raise SatException(msg)
-        
+
     base_path = os.path.abspath(config.LOCAL.base)
-    
+
     return base_path
 
 def get_launcher_name(config):
     """\
     Returns the name of salome launcher.
-    
+
     :param config Config: The global Config instance.
     :return: The name of salome launcher.
     :rtype: str
@@ -249,7 +249,7 @@ def get_launcher_name(config):
 def get_launcher_exe(config):
     """\
     Returns the name of exe defined in profile section.
-    
+
     :param config Config: The global Config instance.
     :return: The name of the exe to use in launcher.
     :rtype: str
@@ -266,7 +266,7 @@ def get_launcher_exe(config):
 def get_log_path(config):
     """\
     Returns the path of the logs.
-    
+
     :param config Config: The global Config instance.
     :return: The path of the logs.
     :rtype: str
@@ -277,9 +277,9 @@ def get_log_path(config):
                                       "local.pyconf")
         msg = _("Please define a log_dir in the file %s" % local_file_path)
         raise SatException(msg)
-      
+
     log_dir_path = os.path.abspath(config.LOCAL.log_dir)
-    
+
     return log_dir_path
 
 def get_salometool_version(config):
@@ -309,9 +309,8 @@ def get_salome_version(config):
           line = f.readline()  # example: '[SALOME KERNEL] : 8.4.0'
         version = VMMP.MinorMajorPatch(line.split(":")[1])
 
-    res = version.strCompact()
-    # print("get_salome_version %s -> %s" % (version, res))
-    return int(res) # TODO may be future avoid test(s) on integer, use MajorMinorPatch
+    # from nov. 2023 and SALOME 9.10.0 forbid test(s) on integer, use MajorMinorPatch class tests
+    return version
 
 def read_config_from_a_file(filePath):
         try:
@@ -367,14 +366,14 @@ class Path:
         return Path(os.path.basename(self.path))
 
     def make(self, mode=None):
-        os.makedirs(self.path)        
+        os.makedirs(self.path)
         if mode:
             os.chmod(self.path, mode)
-        
+
     def chmod(self, mode):
         os.chmod(self.path, mode)
 
-    def rm(self):    
+    def rm(self):
         if self.islink():
             os.remove(self.path)
         else:
@@ -443,14 +442,14 @@ class Path:
 def find_file_in_lpath(file_name, lpath, additional_dir = ""):
     """\
     Find in all the directories in lpath list the file that has the same name
-    as file_name. 
-    If it is found 
+    as file_name.
+    If it is found
     then return the full path of the file
     else return False.
- 
-    The additional_dir (optional) is the name of the directory to add to all 
+
+    The additional_dir (optional) is the name of the directory to add to all
     paths in lpath.
-    
+
     :param file_name str: The file name to search
     :param lpath List: The list of directories where to search
     :param additional_dir str: The name of the additional directory
@@ -473,7 +472,7 @@ def find_file_in_ftppath(file_name, ftppath, installation_dir, logger, additiona
     If it is found then return the destination path of the file
     (the place where the file was downloaded"
     else return False.
-    
+
     :param file_name str: The file name to search
     :param ftppath, List: The list of ftp servers where to search
     :param installation_dir str: The name of the installation directory
@@ -494,7 +493,7 @@ def find_file_in_ftppath(file_name, ftppath, installation_dir, logger, additiona
     for ipath in ftppath:
         splpath=ipath.split(":")
         bigftppath+=splpath
-        
+
     for ftp_archive in bigftppath:
        try:
            # ftp_archive has the form ftp.xxx.yyy/dir1/dir2/...
@@ -544,7 +543,7 @@ def handleRemoveReadonly(func, path, exc):
 def deepcopy_list(input_list):
     """\
     Do a deep copy of a list
-    
+
     :param input_list List: The list to copy
     :return: The copy of the list
     :rtype: List
@@ -557,7 +556,7 @@ def deepcopy_list(input_list):
 def remove_item_from_list(input_list, item):
     """\
     Remove all occurences of item from input_list
-    
+
     :param input_list List: The list to modify
     :return: The without any item
     :rtype: List
@@ -572,7 +571,7 @@ def remove_item_from_list(input_list, item):
 def parse_date(date):
     """\
     Transform YYYYMMDD_hhmmss into YYYY-MM-DD hh:mm:ss.
-    
+
     :param date str: The date to transform
     :return: The date in the new format
     :rtype: str
@@ -616,11 +615,10 @@ def get_property_in_product_cfg(product_cfg, pprty):
 
 def activate_mesa_property(config):
     """Add mesa property into application properties
-    
+
     :param config Config: The global configuration. It must have an application!
     """
     # Verify the existence of the file
     if not 'properties' in config.APPLICATION:
         config.APPLICATION.addMapping( 'properties', pyconf.Mapping(), None )
     config.APPLICATION.properties.use_mesa="yes"
-

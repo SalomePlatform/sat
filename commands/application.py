@@ -25,6 +25,7 @@ import getpass
 
 from src import ElementTree as etree
 import src
+from  src.versionMinorMajorPatch import MinorMajorPatch as MMP
 
 parser = src.options.Options()
 parser.add_option('n', 'name', 'string', 'name',
@@ -85,7 +86,7 @@ def create_config_file(config, modules, env_files, logger):
     for env_file in env_files:
         if env_file.endswith("cfg"):
             f.write('<context path="%s"/>\n' % env_file)
-        else:   
+        else:
             f.write('<prerequisites path="%s"/>\n' % env_file)
 
     f.write('<resources path="CatalogResources.xml"/>\n')
@@ -193,8 +194,8 @@ def generate_application(config, appli_dir, config_file, logger):
     script = os.path.join(install_KERNEL_dir, "bin", "salome", "appli_gen.py")
     if not os.path.exists(script):
         raise src.SatException(_("KERNEL is not installed"))
-    
-    # Add SALOME python in the environment in order to avoid python version 
+
+    # Add SALOME python in the environment in order to avoid python version
     # problems at appli_gen.py call
     if 'Python' in config.APPLICATION.products:
         envi = src.environment.SalomeEnviron(config,
@@ -202,7 +203,7 @@ def generate_application(config, appli_dir, config_file, logger):
                                                               dict(os.environ)),
                                              True)
         envi.set_a_product('Python', logger)
-    
+
     command = "python %s --prefix=%s --config=%s" % (script,
                                                      appli_dir,
                                                      config_file)
@@ -213,7 +214,7 @@ def generate_application(config, appli_dir, config_file, logger):
                     env=envi.environ.environ,
                     stdout=logger.logTxtFile,
                     stderr=subprocess.STDOUT)
-    
+
     if res != 0:
         raise src.SatException(_("Cannot create application, code = %d\n") % res)
 
@@ -228,9 +229,9 @@ def write_step(logger, message, level=3, pad=50):
 ##
 # Creates a SALOME application.
 def create_application(config, appli_dir, catalog, logger, display=True):
-      
+
     SALOME_modules = get_SALOME_modules(config)
-    
+
     warn = ['KERNEL', 'GUI']
     if display:
         for w in warn:
@@ -244,7 +245,7 @@ def create_application(config, appli_dir, catalog, logger, display=True):
                                    catalog,
                                    logger,
                                    SALOME_modules)
-    
+
     if retcode == 0:
         cmd = src.printcolors.printcLabel("%s/salome" % appli_dir)
 
@@ -259,7 +260,7 @@ def get_SALOME_modules(config):
     l_modules = []
     for product in config.APPLICATION.products:
         product_info = src.product.get_product_config(config, product)
-        if (src.product.product_is_salome(product_info) or 
+        if (src.product.product_is_salome(product_info) or
                src.product.product_is_generated(product_info)):
             l_modules.append(product)
     return l_modules
@@ -272,14 +273,14 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
 
     if len(catalog) > 0 and not os.path.exists(catalog):
         raise IOError(_("Catalog not found: %s") % catalog)
-    
+
     write_step(logger, _("Creating environment files"))
     status = src.KO_STATUS
 
     # build the application (the name depends upon salome version
     env_file = os.path.join(config.APPLICATION.workdir, "env_launch")
     VersionSalome = src.get_salome_version(config)
-    if VersionSalome>=820:
+    if VersionSalome>=MMP([8,2,0]):
         # for salome 8+ we use a salome context file for the virtual app
         app_shell=["cfg", "bash"]
         env_files=[env_file+".cfg", env_file+".sh"]
@@ -290,7 +291,7 @@ def generate_launch_file(config, appli_dir, catalog, logger, l_SALOME_modules):
     try:
         import environ
         # generate only shells the user wants (by default bash, csh, batch)
-        # the environ command will only generate file compatible 
+        # the environ command will only generate file compatible
         # with the current system.
         environ.write_all_source_files(config,
                                        logger,
@@ -342,7 +343,7 @@ def generate_catalog(machines, config, logger):
     with open(catfile, 'w') as catalog:
         catalog.write("<!DOCTYPE ResourcesCatalog>\n<resources>\n")
         for k in machines:
-            if not src.architecture.is_windows(): 
+            if not src.architecture.is_windows():
                 logger.write("    ssh %s " % (k + " ").ljust(20, '.'), 4)
                 logger.flush()
 
@@ -353,7 +354,7 @@ def generate_catalog(machines, config, logger):
                         stderr=subprocess.PIPE)
                 p.wait()
 
-                machine_access = (p.returncode == 0) 
+                machine_access = (p.returncode == 0)
                 if not machine_access:
                     logger.write(src.printcolors.printc(src.KO_STATUS) + "\n", 4)
                     logger.write("    " + src.printcolors.printcWarning(p.stderr.read()),
@@ -392,7 +393,7 @@ def generate_catalog(machines, config, logger):
 # Describes the command
 def description():
     '''method that is called when salomeTools is called with --help option.
-    
+
     :return: The text to display for the application command description.
     :rtype: str
     '''
@@ -407,7 +408,7 @@ def run(args, runner, logger):
     '''method that is called when salomeTools is called with application
        parameter.
     '''
-    
+
     (options, args) = parser.parse_args(args)
 
     # check for product
@@ -440,7 +441,7 @@ def run(args, runner, logger):
     if options.name:
         runner.cfg.APPLICATION.virtual_app['name'] = options.name
         runner.cfg.APPLICATION.virtual_app['application_name'] = options.name + "_appdir"
-    
+
     application_name = src.get_cfg_param(runner.cfg.APPLICATION.virtual_app,
                                          "application_name",
                                          runner.cfg.APPLICATION.virtual_app.name + "_appdir")
@@ -514,4 +515,3 @@ def run(args, runner, logger):
         logger.write("\n", 3, False)
 
     return retcode
-
