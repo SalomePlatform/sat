@@ -1154,6 +1154,9 @@ def product_has_post_script(product_info):
     :return: True if the product has one or more patches
     :rtype: boolean
     """   
+    is src.architecture.is_windows():
+#       post install scripts are not necessary on windows
+        return False
     res = ( "post_script" in product_info and len(product_info.post_script) > 0 )
     return res
 
