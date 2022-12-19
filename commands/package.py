@@ -1001,8 +1001,12 @@ def get_archives(config, logger):
                 src.product.product_test_property(p_info,"pip", "yes")):
                 # if pip mode is activated, and product is managed by pip
                 pip_wheels_dir=os.path.join(config.LOCAL.archive_dir,"wheels")
-                pip_wheel_pattern=os.path.join(pip_wheels_dir,
-                    "%s-%s*" % (p_info.name, p_info.version))
+                if "archive_prefix" in p_info.archive_info and p_info.archive_info.archive_prefix:
+                    pip_wheel_pattern=os.path.join(pip_wheels_dir,
+                                                   "%s-%s*" % (p_info.archive_info.archive_prefix, p_info.version))
+                else:
+                    pip_wheel_pattern=os.path.join(pip_wheels_dir,
+                                                   "%s-%s*" % (p_info.name, p_info.version))
                 pip_wheel_path=glob.glob(pip_wheel_pattern)
                 msg_pip_not_found="Error in get_archive, pip wheel for "\
                                   "product %s-%s was not found in %s directory"
