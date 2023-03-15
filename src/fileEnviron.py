@@ -550,7 +550,7 @@ class LauncherFileEnviron(FileEnviron):
                                   (self.specialKeys[key], self.value_filter(value)))
             else:
                 # else we use the general salomeContext addToVariable function
-                self.output.write(self.indent+'appendPath(r"%s", r"%s",separator="%s")\n' 
+                self.output.write(self.begin+'appendVariable(r"%s", r"%s",separator="%s")\n'
                                   % (key, self.value_filter(value), sep))
 
     def append(self, key, value, sep=":"):
@@ -952,19 +952,6 @@ launcher_tail_py2="""\
     import logging
     logging.getLogger("salome").error(e)
     sys.exit(1)
-#
-# salomeContext only prepend variables, we use our own appendPath when required
-def appendPath(name, value, separator=os.pathsep):
-    if value == '':
-      return
-
-    value = os.path.expandvars(value) # expand environment variables
-    env = os.getenv(name, None)
-    if env is None:
-      os.environ[name] = value
-    else:
-      os.environ[name] = env + separator + value
-
 
 if __name__ == "__main__":
   args = sys.argv[1:]
@@ -1007,18 +994,6 @@ launcher_tail_py3="""\
     logging.getLogger("salome").error(e)
     sys.exit(1)
  
-# salomeContext only prepend variables, we use our own appendPath when required
-def appendPath(name, value, separator=os.pathsep):
-    if value == '':
-      return
-
-    value = os.path.expandvars(value) # expand environment variables
-    env = os.getenv(name, None)
-    if env is None:
-      os.environ[name] = value
-    else:
-      os.environ[name] = env + separator + value
-
 
 if __name__ == "__main__":
   args = sys.argv[1:]
