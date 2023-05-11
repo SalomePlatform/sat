@@ -1187,6 +1187,9 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs, with_ftp):
     compil_scripts_tmp_dir = os.path.join(project_tmp_dir,
                                          "products",
                                          "compil_scripts")
+    post_scripts_tmp_dir = os.path.join(project_tmp_dir,
+                                         "products",
+                                         "post_scripts")
     env_scripts_tmp_dir = os.path.join(project_tmp_dir,
                                          "products",
                                          "env_scripts")
@@ -1198,6 +1201,7 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs, with_ftp):
     for directory in [project_tmp_dir,
                       compil_scripts_tmp_dir,
                       env_scripts_tmp_dir,
+                      post_scripts_tmp_dir,
                       patches_tmp_dir,
                       application_tmp_dir]:
         src.ensure_path_exists(directory)
@@ -1241,6 +1245,7 @@ def create_project_for_src_package(config, tmp_working_dir, with_vcs, with_ftp):
                                         with_vcs,
                                         compil_scripts_tmp_dir,
                                         env_scripts_tmp_dir,
+                                        post_scripts_tmp_dir,
                                         patches_tmp_dir,
                                         products_pyconf_tmp_dir)
 
@@ -1258,6 +1263,7 @@ def find_product_scripts_and_pyconf(p_name,
                                     with_vcs,
                                     compil_scripts_tmp_dir,
                                     env_scripts_tmp_dir,
+                                    post_scripts_tmp_dir,
                                     patches_tmp_dir,
                                     products_pyconf_tmp_dir):
     '''Create a specific pyconf file for a given product. Get its environment
@@ -1274,6 +1280,8 @@ def find_product_scripts_and_pyconf(p_name,
     :param compil_scripts_tmp_dir str: The path to the temporary compilation
                                        scripts directory of the project.
     :param env_scripts_tmp_dir str: The path to the temporary environment script
+                                    directory of the project.
+    :param post_scripts_tmp_dir str: The path to the temporary post-processing script
                                     directory of the project.
     :param patches_tmp_dir str: The path to the temporary patch scripts
                                 directory of the project.
@@ -1293,6 +1301,11 @@ def find_product_scripts_and_pyconf(p_name,
     if src.product.product_has_env_script(p_info):
         env_script_path = src.Path(p_info.environ.env_script)
         env_script_path.copy(env_scripts_tmp_dir)
+
+    # find the post script if any
+    if src.product.product_has_post_script(p_info):
+        post_script_path = src.Path(p_info.post_script)
+        post_script_path.copy(post_scripts_tmp_dir)
 
     # find the patches if any
     if src.product.product_has_patches(p_info):
