@@ -827,8 +827,22 @@ def main(args):
   # Create a SalomeContext which parses configFileNames to initialize environment
   try:
     from salomeContext import SalomeContext, SalomeContextException
+    if 'appendVariable' not in dir(SalomeContext):
+      # check whether the appendVariable method is implemented
+      def appendVariable(self, name, value, separator=os.pathsep):
+        if value == '':
+          return
+        value = os.path.expandvars(value) # expand environment variables
+        env = os.getenv(name, None)
+        if env is None:
+          os.environ[name] = value
+        else:
+          os.environ[name] = env + separator + value
+        return
+      SalomeContext.appendVariable = appendVariable
+
     context = SalomeContext(None)
-    
+
     # Here set specific variables, if needed
     # context.addToPath('mypath')
     # context.addToLdLibraryPath('myldlibrarypath')
@@ -906,8 +920,21 @@ def main(args):
   # Create a SalomeContext which parses configFileNames to initialize environment
   try:
     from salomeContext import SalomeContext, SalomeContextException
+    if 'appendVariable' not in dir(SalomeContext):
+      # check whether the appendVariable method is implemented
+      def appendVariable(self, name, value, separator=os.pathsep):
+        if value == '':
+          return
+        value = os.path.expandvars(value) # expand environment variables
+        env = os.getenv(name, None)
+        if env is None:
+          os.environ[name] = value
+        else:
+          os.environ[name] = env + separator + value
+        return
+      SalomeContext.appendVariable = appendVariable
+
     context = SalomeContext(None)
-    
     # Here set specific variables, if needed
     # context.addToPath('mypath')
     # context.addToLdLibraryPath('myldlibrarypath')
