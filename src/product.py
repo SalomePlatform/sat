@@ -1154,7 +1154,7 @@ def product_has_post_script(product_info):
     :return: True if the product has one or more patches
     :rtype: boolean
     """   
-    res = ( "post_script" in product_info and len(product_info.post_script) > 0 )
+    res = ( "post_script" in product_info and len(product_info.post_script) > 0 and not src.architecture.is_windows())
     return res
 
 def product_has_logo(product_info):
