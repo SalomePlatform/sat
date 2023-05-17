@@ -994,7 +994,8 @@ launcher_tail_py3="""\
     extradir=out_dir_Path + r"/extra.env.d"
 
     if os.path.exists(extradir):
-        import imp
+        import importlib
+        import importlib.util
         sys.path.insert(0, os.path.join(os.getcwd(), extradir))
         for filename in sorted(
             filter(lambda x: os.path.isfile(os.path.join(extradir, x)),
@@ -1003,9 +1004,9 @@ launcher_tail_py3="""\
             if filename.endswith(".py"):
                 f = os.path.join(extradir, filename)
                 module_name = os.path.splitext(os.path.basename(f))[0]
-                fp, path, desc = imp.find_module(module_name)
-                module = imp.load_module(module_name, fp, path, desc)
-                module.init(context, out_dir_Path)
+                _specs = importlib.util.find_spec(module_name)
+                _module = importlib.util.module_from_spec(_specs)
+                _specs.loader.exec_module(_module)
 
     #[manage salome doc command]
     if len(args) >1 and args[0]=='doc':
