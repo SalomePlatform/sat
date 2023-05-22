@@ -1007,7 +1007,7 @@ launcher_tail_py3="""\
                 _specs = importlib.util.find_spec(module_name)
                 _module = importlib.util.module_from_spec(_specs)
                 _specs.loader.exec_module(_module)
-
+                _module.init(context, out_dir_Path)
     #[manage salome doc command]
     if len(args) >1 and args[0]=='doc':
         _showDoc(args[1:])
