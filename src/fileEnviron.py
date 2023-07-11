@@ -491,7 +491,7 @@ class LauncherFileEnviron(FileEnviron):
 
         if self.init_path:
             self.output.write('\n'+self.indent)
-            self.add_echo("change this variable to not reset the PATHS")
+            self.add_echo("Modify this variable to not reset the PATHS")
             self.output.write(self.indent+'reinitialise_paths=True\n\n')
 
     def add_echo(self, text):
