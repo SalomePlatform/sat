@@ -5,10 +5,16 @@ Binaries
 This package includes a binary installation of the application ¤{application}.
 The binaries are stored in ¤{BINARIES} directory.
 
-Warning : This binary installation depends upon some native ¤{operatingSystem} packages.
+Warning 1 : This binary installation depends upon some native ¤{operatingSystem} packages.
 If some of these packages are missing on your system, the execution may fail. 
 If this is the case, please install the missing ones with your ¤{operatingSystem} package manager.
 Note that you can use sat to check if the native prerequisites are installed on your system. The command is : 
     ${ROOT}/sat/sat config  ¤{application} --check_system
 
+Warning 2 : This binary installation cannot be used directly to build new code that depends upon it.
+            That's because the paths insides ressources (like .la files) are not substitued within ¤{BINARIES} directory.
+            If you wish to build new code using this binary (using cmake, automake, pip ...), you first need to execute
+            the ./install_bin.sh script : it will copy all binary in INSTALL directory and do the required substitutions 
+            (replace the build directories with the installation directory). 
+            Please see section "compilation based on the binaries used as prerequisites" if this package contains also the source code.
 
