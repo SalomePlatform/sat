@@ -401,11 +401,11 @@ def get_product_sources(config,
         run_pkg,build_pkg=src.product.check_system_dep(config.VARS.dist, check_cmd, product_info)
         result=True
         for pkg in run_pkg:
-            logger.write(" - "+pkg + " : " + run_pkg[pkg], 1)
+            logger.write(" - " + pkg + " : " + run_pkg[pkg] + '\n', 1)
             if "KO" in run_pkg[pkg]:
                 result=False
         for pkg in build_pkg:
-            logger.write(" - "+pkg + " : " + build_pkg[pkg], 1)
+            logger.write(" - " + pkg + " : " + build_pkg[pkg] + '\n', 1)
             if "KO" in build_pkg[pkg]:
                 result=False
         if result==False:
