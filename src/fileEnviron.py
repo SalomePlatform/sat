@@ -489,11 +489,6 @@ class LauncherFileEnviron(FileEnviron):
         if not self.environ.is_defined("PATH"):
             self.environ.set("PATH","")
 
-        if self.init_path:
-            self.output.write('\n'+self.indent)
-            self.add_echo("Modify this variable to not reset the PATHS")
-            self.output.write(self.indent+'reinitialise_paths=True\n\n')
-
     def add_echo(self, text):
         """Add a comment
         
@@ -906,10 +901,15 @@ def main(args):
   # Identify application path then locate configuration files
   __initialize()
 
-  if args == ['--help']:
+  if '--help' in args:
     from salomeContext import usage
     usage()
     sys.exit(0)
+
+  reinitialise_paths=True
+  if '--keep-paths' in args:
+    reinitialise_paths=False
+    args.remove('--keep-paths')
 
   #from salomeContextUtils import getConfigFileNames
   #configFileNames, args, unexisting = getConfigFileNames( args, checkExistence=True )
