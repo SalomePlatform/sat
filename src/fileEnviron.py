@@ -744,9 +744,10 @@ then
   # check that the user is not using another shell
   echo
   echo "Warning! SALOME environment not initialized"
-  echo "You must run this script in a bash shell."
+  echo "You must run this script in a BASH shell."
   echo "As you are using another shell. Please first run: bash"
   echo
+  exit 1
 fi
 ##########################################################################
 #
