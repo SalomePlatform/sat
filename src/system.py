@@ -394,22 +394,28 @@ def get_pkg_check_cmd(dist_name):
         linux="DB"
         manager_msg_err="Error : command failed because sat was not able to find rpm command"
 
-    # 1- search for an installed package manager (rpm on rh, apt on db)
-    cmd_which_rpm=["which", "rpm"]
-    cmd_which_apt=["which", "apt"]
+    # 1- search for an installed package manager (rpm on rh, apt or dpkg-query on db)
+    cmd_which_rpm  = ["which", "rpm"]
+    cmd_which_apt  = ["which", "apt"]
+    cmd_which_dpkg = ["which", "dpkg-query"]
     with open(os.devnull, 'w') as devnull:
         # 1) we search for apt (debian based systems)
-        completed=SP.call(cmd_which_apt,stdout=devnull, stderr=SP.STDOUT)
+        completed=SP.call(cmd_which_dpkg,stdout=devnull, stderr=SP.STDOUT)
         if completed==0 and linux=="DB":
-            cmd_is_package_installed=["apt", "list", "--installed"]
+            cmd_is_package_installed = ["dpkg-query", "--no-pager", "-l"]
         else:
-            # 2) if apt not found search for rpm (redhat)
-            completed=SP.call(cmd_which_rpm,stdout=devnull, stderr=SP.STDOUT) # only 3.8! ,capture_output=True)
-            if completed==0 and linux=="RH":
-                cmd_is_package_installed=["rpm", "-q"]
+            # 2) if dpkg not found search for apt
+            completed = SP.call(cmd_which_apt, stdout=devnull, stderr=SP.STDOUT)
+            if completed == 0 and linux == "DB":
+                cmd_is_package_installed = ["apt", "list", "--installed"]
             else:
-                # no package manager was found corresponding to dist_name
-                raise src.SatException(manager_msg_err)
+                # 3) if apt not found search for rpm (redhat)
+                completed=SP.call(cmd_which_rpm,stdout=devnull, stderr=SP.STDOUT) # only 3.8! ,capture_output=True)
+                if completed==0 and linux=="RH":
+                    cmd_is_package_installed=["rpm", "-q"]
+                else:
+                    # no package manager was found corresponding to dist_name
+                    raise src.SatException(manager_msg_err)
     return cmd_is_package_installed
 
 def check_system_pkg(check_cmd,pkg):
@@ -441,6 +447,21 @@ def check_system_pkg(check_cmd,pkg):
         except:
             msg_status=src.printcolors.printcError("KO")
             msg_status+=" (package is not installed!)\n"
+    elif check_cmd[0] == "dpkg-query":
+        # special treatment for dpkg-query
+        # some debian packages have version numbers in their name, we need to add a *
+        # also dpkg-query do not return status, we need to use grep
+        # and dpkg-query output is too messy for being used
+        cmd_is_package_installed[-1] = (
+            cmd_is_package_installed[-1] + "*"
+        )  # we don't specify in pyconf the exact name because of version numbers
+        p = SP.Popen(cmd_is_package_installed, stdout=SP.PIPE, stderr=FNULL)
+        try:
+            output = SP.check_output(["grep", "^ii"], stdin=p.stdout)
+            msg_status = src.printcolors.printcSuccess("OK")
+        except SP.CalledProcessError:
+            msg_status = src.printcolors.printcError("KO")
+            msg_status += " (package is not installed!)\n"
     else:
         p=SP.Popen(cmd_is_package_installed, stdout=SP.PIPE, stderr=FNULL)
         output, err = p.communicate()

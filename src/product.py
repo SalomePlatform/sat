@@ -1312,7 +1312,7 @@ def check_system_dep(distrib, check_cmd, product_info):
                 if "rpm_dev" in additional_sysinfo:
                     for pkg in additional_sysinfo.rpm_dev:
                         build_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
-        if check_cmd[0]=="apt":
+        if check_cmd[0]=="apt" or check_cmd[0]=="dpkg-query":
             if "apt" in sysinfo:
                 for pkg in sysinfo.apt:
                     runtime_dep[pkg]=src.system.check_system_pkg(check_cmd,pkg)
