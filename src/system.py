@@ -402,7 +402,7 @@ def get_pkg_check_cmd(dist_name):
         # 1) we search for apt (debian based systems)
         completed=SP.call(cmd_which_dpkg,stdout=devnull, stderr=SP.STDOUT)
         if completed==0 and linux=="DB":
-            cmd_is_package_installed = ["dpkg-query", "--no-pager", "-l"]
+            cmd_is_package_installed = ["dpkg-query", "-l"]
         else:
             # 2) if dpkg not found search for apt
             completed = SP.call(cmd_which_apt, stdout=devnull, stderr=SP.STDOUT)
