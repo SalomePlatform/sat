@@ -545,7 +545,7 @@ def compile_product_pip(sat,
                                cwd=config.LOCAL.workdir,
                                env=build_environ.environ.environ,
                                stderr=subprocess.STDOUT).strip()
-        pip_build_options=res_pip_version.split('.')[0] < 21
+        pip_build_options=int(res_pip_version.split('.')[0]) < 21
     except:
         pip_build_options= True
     # d- install (in python or in separate product directory)
