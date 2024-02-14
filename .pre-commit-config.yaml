@@ -1,0 +1,81 @@
+---
+repos:
+    - repo: https://github.com/pre-commit/pre-commit-hooks
+      rev: v4.5.0  # Use the ref you want to point at
+      hooks:
+          - id: trailing-whitespace
+            exclude: |
+                (?x)^(
+                  .*\.py
+                )$
+          - id: check-added-large-files
+          - id: debug-statements
+          - id: detect-private-key
+          - id: end-of-file-fixer
+          - id: mixed-line-ending
+            exclude: |
+                (?x)^(
+                  .*\.py
+                )$
+          - id: check-case-conflict
+            exclude: |
+                (?x)^(
+                  .*\.py
+                )$
+          - id: check-json
+          - id: pretty-format-json
+          - id: check-merge-conflict
+          - id: check-toml
+          - id: check-xml
+          - id: requirements-txt-fixer
+    - repo: https://github.com/astral-sh/ruff-pre-commit
+      # Ruff version.
+      rev: v0.1.9
+      hooks:
+        # Run the linter.
+          - id: ruff
+            types_or: [python, pyi, jupyter]
+            args: [--fix]
+            exclude: |
+                (?x)^(
+                    .*[Tt]est.*|
+                    __init__.py
+                )$
+        # Run the formatter.
+          - id: ruff-format
+            types_or: [python, pyi, jupyter]
+    - repo: https://github.com/pre-commit/mirrors-mypy
+      rev: v1.8.0
+      hooks:
+          - id: mypy
+            exclude: |
+                (?x)^(
+                    .*[Tt]est.*
+                )$
+            args: [--ignore-missing-imports, --explicit-package-bases]
+    - repo: https://github.com/scop/pre-commit-shfmt
+      rev: v3.7.0-4
+      hooks:
+          # Choose one of:
+          - id: shfmt  # prebuilt upstream executable
+            args: [--indent=4, -w, -s]
+    - repo: https://github.com/shellcheck-py/shellcheck-py
+      rev: v0.9.0.6
+      hooks:
+          - id: shellcheck
+            args: [--severity=warning]
+    - repo: https://github.com/adrienverge/yamllint.git
+      rev: v1.21.0  # or higher tag
+      hooks:
+          - id: yamllint
+            args: [--strict, '--config-data={extends: relaxed, rules: {line-length: {max: 120}}}']
+    - repo: https://github.com/jumanjihouse/pre-commit-hook-yamlfmt
+      rev: 0.2.1  # or other specific tag
+      hooks:
+          - id: yamlfmt
+    - repo: https://github.com/pre-commit/pygrep-hooks
+      rev: v1.10.0  # Use the ref you want to point at
+      hooks:
+          - id: rst-backticks
+          - id: rst-directive-colons
+          - id: rst-inline-touching-normal

@@ -22,6 +22,7 @@ import platform
 import datetime
 import shutil
 import gettext
+from pathlib import Path
 import pprint as PP
 
 import src
@@ -286,9 +287,15 @@ class ConfigManager:
         # Load LOCAL config file
         # search only in the data directory
         src.pyconf.streamOpener = ConfigOpener([cfg.VARS.datadir])
+
+        # if `local.pyconf` file is missing, create it from 
+        # `local_original.pyconf` template file
+        localconf_path = osJoin(cfg.VARS.datadir, 'local.pyconf')
+        if not Path(localconf_path).is_file():
+            shutil.copyfile(osJoin(cfg.VARS.datadir, 'local_original.pyconf'), localconf_path)
+
         try:
-            local_cfg = src.pyconf.Config(open( osJoin(cfg.VARS.datadir,
-                                                           'local.pyconf')),
+            local_cfg = src.pyconf.Config(open(localconf_path),
                                          PWD = ('LOCAL', cfg.VARS.datadir) )
         except src.pyconf.ConfigError as e:
             raise src.SatException(_("Error in configuration file: "
