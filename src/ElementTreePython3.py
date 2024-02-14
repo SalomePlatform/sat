@@ -1266,7 +1266,7 @@ def iterparse(source, events=None, parser=None):
         close_source = True
     try:
         return _IterParseIterator(source, events, parser, close_source)
-    except:
+    except Exception:
         if close_source:
             source.close()
         raise
@@ -1365,7 +1365,7 @@ class _IterParseIterator:
                 else:
                     self._root = self._parser._close_and_return_root()
             self.root = self._root
-        except:
+        except Exception:
             if self._close_file:
                 self._file.close()
             raise

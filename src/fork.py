@@ -131,7 +131,7 @@ def batch_salome(cmd, logger, cwd, args, getTmpDir,
             try:
                 statinfo = os.stat(os.path.join(tmp_dir, file_name))
                 currentTime = statinfo.st_mtime
-            except:
+            except Exception:
                 pass
 
             if currentTime and currentTime > beginTime:

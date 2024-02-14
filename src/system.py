@@ -53,7 +53,7 @@ def show_in_editor(editor, filePath, logger):
         logger.write('Launched command:\n' + cmd + '\n', 5)
         p = SP.Popen(cmd, shell=True)
         p.communicate()
-    except:
+    except Exception:
         logger.write(printcolors.printcError(_("Unable to edit file %s\n") 
                                              % filePath), 1)
 
@@ -444,7 +444,7 @@ def check_system_pkg(check_cmd,pkg):
         try:
             output = SP.check_output(['grep', pkg], stdin=p.stdout)
             msg_status=src.printcolors.printcSuccess("OK")
-        except:
+        except Exception:
             msg_status=src.printcolors.printcError("KO")
             msg_status+=" (package is not installed!)\n"
     elif check_cmd[0] == "dpkg-query":

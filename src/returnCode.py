@@ -148,7 +148,7 @@ class ReturnCode(object):
     """return system return code as bash or bat"""
     try:
       return self._TOSYS[self._status]
-    except:
+    except Exception:
       return self._TOSYS[self.NA_STATUS]
 
   def toXmlPassed(self):

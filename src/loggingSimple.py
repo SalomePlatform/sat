@@ -377,7 +377,7 @@ class StreamHandlerSimple(LOGI.StreamHandler, object): # object force new-style 
       self.flush()
     except (KeyboardInterrupt, SystemExit):
       raise
-    except:
+    except Exception:
       self.handleError(record)
 
 

@@ -30,7 +30,7 @@ else:
     """
     try:
       aStr = etree.tostring(node, encoding='unicode', method="pretty_xml")
-    except:
+    except Exception:
       print("*****************************\n problem node", node)
       # try no pretty
       aStr = etree.tostring(node, encoding='unicode')

@@ -1,0 +1,16 @@
+  
+  LOCAL :
+  {
+    base : 'default'
+    workdir : 'default'
+    log_dir : 'default'
+    archive_dir : 'default'
+    VCS : 'unknown'
+    tag : 'unknown'
+  }
+  PROJECTS :
+  {
+    project_file_paths :
+    [
+    ]
+  }

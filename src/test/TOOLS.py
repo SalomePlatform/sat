@@ -90,7 +90,7 @@ def compMED(file1, file2, tol=0, diff_flags=""):
                 try:
                     line.index('Universal name of mesh')
                     continue
-                except:
+                except Exception:
                     dumpfile.write(line.replace(med, 'filename'))
         return dump
 

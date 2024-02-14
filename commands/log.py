@@ -181,7 +181,7 @@ def ask_value(nb):
             x = int(rep)
             if x > nb:
                 x = -1
-    except:
+    except Exception:
         x = -1
     
     return x
@@ -269,7 +269,7 @@ def run(args, runner, logger):
       src.ensure_path_exists(os.path.join(logDir, "TEST"))
       shutil.copy(xsltest, os.path.join(logDir, "TEST"))
       shutil.copy(imgLogo, logDir)
-    except:
+    except Exception:
       # we are here  if an user make sat log in jenkins LOGS without write rights
       # Make a warning and do nothing
       logger.warning("problem for writing in directory '%s', may be not owner." % logDir)
@@ -338,7 +338,7 @@ def run(args, runner, logger):
                               notShownCommands = notShownCommands)
 
       logger.write(src.printcolors.printc("OK"), 3)
-    except:
+    except Exception:
       logger.write(src.printcolors.printc("KO"), 3)
       logger.write(" problem update hat.xml", 3)
 

@@ -88,7 +88,7 @@ def verbose():
     if __verbose__ is None:
         try:
             __verbose__ = int( os.getenv( 'SALOME_VERBOSE', 0 ) )
-        except:
+        except Exception:
             __verbose__ = 0
             pass
         pass
@@ -177,7 +177,7 @@ def findOrCreateComponent( study ):
         try:
             builder.DefineComponentInstance( father, getEngine() )
             pass
-        except:
+        except Exception:
             pass
         pass
     return father

@@ -29,10 +29,10 @@ from platform import system,python_version,release
 # write an error message if distro is not installed
 try:
     from platform import linux_distribution
-except:
+except Exception:
     try:
         from distro import linux_distribution
-    except:
+    except Exception:
         print ("\nError :\n"
                "  linux_distribution was removed from platform module in Python 3.8+\n"
                "  For python 3.8+ sat requires distro module to get information on linux distribution.\n"
@@ -59,7 +59,7 @@ def get_user():
         else: # linux
             import pwd
             user_name=pwd.getpwuid(os.getuid())[0]
-    except :
+    except Exception:
         user_name="Unknown"
     return user_name
 
@@ -160,7 +160,7 @@ def get_nb_proc():
     try :
         import multiprocessing
         nb_proc=multiprocessing.cpu_count()
-    except :
+    except Exception:
         if is_windows():
             if os.environ.has_key("NUMBER_OF_PROCESSORS"):
                 nb_proc = int(os.environ["NUMBER_OF_PROCESSORS"])

@@ -35,7 +35,7 @@ except NameError:
 # Python 2/3 compatibility for execfile function
 try:
     execfile
-except:
+except Exception:
     def execfile(somefile, global_vars, local_vars):
         with open(somefile) as f:
             code = compile(f.read(), somefile, 'exec')

@@ -9,7 +9,7 @@ import os, sys
 
 try:
   __LANG__ = os.environ["LANG"] # original locale
-except:
+except Exception:
   __LANG__ = "en_US.utf8" #default
 
 __FR__={
@@ -27,7 +27,7 @@ def _loc(text):
   if "FR" in __LANG__:
     try:
       return __FR__[text]
-    except:
+    except Exception:
       return text
   return text
 

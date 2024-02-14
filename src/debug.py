@@ -61,7 +61,7 @@ import src
 # Compatibility python 2/3 for unicode
 try:
     _test = unicode
-except:
+except Exception:
     unicode = str
 
 # Compatibility python 2/3 for StringIO
@@ -272,7 +272,7 @@ def _saveConfigRecursiveDbg(config, aStream, indent, path, nb):
     try: #type config, mapping
       order = object.__getattribute__(config, 'order')
       data = object.__getattribute__(config, 'data')
-    except:
+    except Exception:
       aStream.write("%s%s : '%s'\n" % (indstr, path, str(config)))
       return     
     for key in sorted(data): #order): # data as sort alphabetical, order as initial order

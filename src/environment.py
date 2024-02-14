@@ -321,7 +321,7 @@ class SalomeEnviron:
         for k in self.environ.environ.keys():
             try:
                 value = self.get(k)
-            except:
+            except Exception:
                 value = "?"
             out.write("%s=%s\n" % (k, value))
 
@@ -743,7 +743,7 @@ class SalomeEnviron:
                 # not mandatory, if set_nativ_env not defined, we do nothing
                 if "set_nativ_env" in dir(pyproduct):
                     pyproduct.set_nativ_env(self)
-        except:
+        except Exception:
             __, exceptionValue, exceptionTraceback = sys.exc_info()
             print(exceptionValue)
             import traceback

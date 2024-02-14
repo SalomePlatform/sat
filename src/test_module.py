@@ -19,7 +19,7 @@
 # Python 2/3 compatibility for execfile function
 try:
     execfile
-except:
+except Exception:
     def execfile(somefile, global_vars, local_vars):
         with open(somefile) as f:
             code = compile(f.read(), somefile, 'exec')
@@ -354,12 +354,12 @@ class Test:
                   if 'time' in ldic:
                       try:
                           exec_time = float(ldic['time'])
-                      except:
+                      except Exception:
                           pass
 
                   results[test] = [status, exec_time, callback, expected]
 
-                except:
+                except Exception:
                   results[test] = ["?", -1, "", []]
                   # results[test] = [src.O_STATUS, -1, open(resfile, 'r').read(), []]
 
@@ -484,7 +484,7 @@ echo -e 'import os\nprint(os.environ[\"KERNEL_ROOT_DIR\"])' > tmpscript.py
         try:
             grid = imp.load_module(sal_uts, file_, pathname, description)
             return grid.getLogDir
-        except:
+        except Exception:
             grid = imp.load_module(sal_uts, file_, pathname, description)
             return grid.getTmpDir
         finally:

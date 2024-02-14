@@ -30,7 +30,7 @@ import re
 # generate problem
 try:
   import paramiko
-except:
+except Exception:
   paramiko = "import paramiko impossible"
   pass
 
@@ -114,7 +114,7 @@ class Machine(object):
         except paramiko.SSHException:
             message = ( _("SSHException error connecting or "
                           "establishing an SSH session"))            
-        except:
+        except Exception:
             message = ( _("Error connecting or establishing an SSH session"))
         else:
             self._connection_successful = True
@@ -215,7 +215,7 @@ class Machine(object):
                             ": the server failed to execute the command\n")
             logger.write( src.printcolors.printcError(message))
             return (None, None, None)
-        except:
+        except Exception:
             logger.write( src.printcolors.printcError(src.KO_STATUS + '\n'))
             return (None, None, None)
         else:
@@ -327,7 +327,7 @@ class Job(object):
         '''
         try:
             pids = self.get_pids()
-        except:
+        except Exception:
             return ("Unable to get the pid of the command.", "")
             
         cmd_kill = " ; ".join([("kill -2 " + pid) for pid in pids])

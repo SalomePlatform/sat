@@ -355,7 +355,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
                                        "prod_name" : prod_info.name}) 
                       raise src.SatException(msg)
               patches.append(patch_path)
-        except:
+        except Exception:
           DBG.tofix("problem in prod_info.patches", prod_info)
         prod_info.patches = patches
 
@@ -425,7 +425,7 @@ def get_product_section(config, product_name, version, section=None):
     # decode version number
     try:
       versionMMP = VMMP.MinorMajorPatch(version)
-    except: # example setuptools raise "minor in major_minor_patch is not integer: '0_6c11'"
+    except Exception: # example setuptools raise "minor in major_minor_patch is not integer: '0_6c11'"
       versionMMP = None
 
     # if a section is explicitely specified we select it
@@ -666,7 +666,7 @@ def add_compile_config_file(p_info, config):
     try:
       with open(aFile, 'w') as f:
         p_info.__save__(f, evaluated=True) # evaluated expressions mode
-    except:
+    except Exception:
       # sometime some information cannot be evaluated.
       # for example, in the context of non VCS archives, information on git server is not available.
       DBG.write("Warning : sat was not able to evaluate and write down some information in file %s" % aFile)
@@ -829,7 +829,7 @@ def get_products_list(options, cfg, logger):
               else:
                 res.append((p_name, p_info))
                 ok.append(p_name)
-            except:
+            except Exception:
               res.append((p_name, p_info))
               ok.append(p_name)
       else:
@@ -840,7 +840,7 @@ def get_products_list(options, cfg, logger):
                 ok.append(p_name)
               else:
                 ko.append(p_name)
-            except:
+            except Exception:
               ko.append(p_name)
 
       if len(ok) != len(resAll):

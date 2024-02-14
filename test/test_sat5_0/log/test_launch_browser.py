@@ -64,7 +64,7 @@ class TestCase(unittest.TestCase):
             sat.log('-t')
             OK = "OK"
             sys.stdin = sys.__stdin__
-        except:
+        except Exception:
             sys.stdin = sys.__stdin__
         self.assertEqual(OK, "OK")
 
@@ -84,7 +84,7 @@ class TestCase(unittest.TestCase):
             sat.log('appli-test -t --last')
             OK = "OK"
             sys.stdin = sys.__stdin__
-        except:
+        except Exception:
             pass
         self.assertEqual(OK, "OK")
 

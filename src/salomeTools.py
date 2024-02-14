@@ -67,7 +67,7 @@ gettext.install("salomeTools", os.path.join(srcdir, "i18n"))
 
 try:
   _LANG = os.environ["LANG"] # original locale
-except:
+except Exception:
   _LANG = "en_US.utf8" #default
 
 # The possible hooks : 
@@ -356,7 +356,7 @@ class Sat(object):
                     sys.stderr = ff
                     import paramiko
                     sys.stderr = saveout
-                except:
+                except Exception:
                     sys.stderr = saveout
                     continue
 

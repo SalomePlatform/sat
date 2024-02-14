@@ -116,7 +116,7 @@ def caller_name_stack(skip=1):
       if namesrc == "__main__":
         namesrc = os.path.basename(fr.f_globals["__file__"])
       lineno.insert(0, (namesrc + "[%s]" % fr.f_lineno))
-    except:
+    except Exception:
       lineno.insert(0, ("??", fr.f_lineno))
 
   if codename != '<module>':  # top level usually

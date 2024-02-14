@@ -86,7 +86,7 @@ def errPrint(aStr):
 
 try:
   import unittestpy.HTMLTestRunner as HTST
-except:
+except Exception:
   HTST = None
   errPrint("""
 WARNING: no HTML output available.
@@ -96,7 +96,7 @@ WARNING: no HTML output available.
 
 try:
   import xmlrunner as XTST
-except:
+except Exception:
   XTST = None
   errPrint("""
 WARNING: no XML output available for unittest.

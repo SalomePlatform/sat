@@ -700,7 +700,7 @@ class ElementTree:
             if items or xmlns_items:
                 try:
                     items = sorted(items) # lexical order
-                except:
+                except Exception:
                     print("*** problem sorting items", items)
                 for k, v in items:
                     try:
@@ -1086,7 +1086,7 @@ class TreeBuilder:
                 for item in self._data:
                     try:
                         text += item
-                    except:
+                    except Exception:
                         text += item.decode()
                 if self._tail:
                     assert self._last.tail is None, "internal error (tail)"
@@ -1292,7 +1292,7 @@ class XMLTreeBuilder:
         """
         try:
             self._parser.Parse(data, 0)
-        except:
+        except Exception:
             print("*** problem feed:\n%s" % data.decode('utf-8'))
 
     ##

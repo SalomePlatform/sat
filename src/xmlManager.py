@@ -23,7 +23,7 @@ try: # For python2
     import sys
     reload(sys)  
     sys.setdefaultencoding('utf8')
-except:
+except Exception:
     pass
 
 import src

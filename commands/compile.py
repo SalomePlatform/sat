@@ -230,7 +230,7 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
                                   batch=True,
                                   verbose=0,
                                   logger_add_link = logger)
-                except:
+                except Exception:
                     pass
 
     if check_salome_configuration:
@@ -547,7 +547,7 @@ def compile_product_pip(sat,
                                env=build_environ.environ.environ,
                                stderr=subprocess.STDOUT).decode(sys.stdout.encoding).strip()
         pip_build_options=int(res_pip_version.split('.')[0]) < 21
-    except:
+    except Exception:
         pip_build_options= True
     # d- install (in python or in separate product directory)
     if src.appli_test_property(config,"pip_install_dir", "python"):

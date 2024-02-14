@@ -155,7 +155,7 @@ def customize_app(config, appli_dir, logger):
         if text is not None:
             try:
                 n.text = text.strip("\n\t").decode("UTF-8")
-            except:
+            except Exception:
                 sys.stderr.write("################ %s %s\n" % (node_name, text))
                 n.text = "?"
         parent.append(n)

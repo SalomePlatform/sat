@@ -403,14 +403,14 @@ class Path:
         try:
             os.symlink(str(path), self.path)
             return True
-        except:
+        except Exception:
             return False
 
     def copylink(self, path):
         try:
             os.symlink(os.readlink(self.path), str(path))
             return True
-        except:
+        except Exception:
             return False
 
     def copydir(self, dst, smart=False):
@@ -429,14 +429,14 @@ class Path:
                 dstname = dst + name
                 srcname.copy(dstname, smart)
             return True
-        except:
+        except Exception:
             return False
 
     def copyfile(self, path):
         try:
             shutil.copy2(self.path, str(path))
             return True
-        except:
+        except Exception:
             return False
 
 def find_file_in_lpath(file_name, lpath, additional_dir = ""):
@@ -507,7 +507,7 @@ def find_file_in_ftppath(file_name, ftppath, installation_dir, logger, additiona
                ftp.cwd(directory)
            if additional_dir:
                ftp.cwd(additional_dir)
-       except:
+       except Exception:
            logger.error("while connecting to ftp server %s\n" % ftp_server)
            continue
 
@@ -517,7 +517,7 @@ def find_file_in_ftppath(file_name, ftppath, installation_dir, logger, additiona
            if ftp.size(file_name_md5) > 0:
                with open(destination_md5,'wb') as dest_file_md5:
                    ftp.retrbinary("RETR "+file_name_md5, dest_file_md5.write)
-       except:
+       except Exception:
            pass
 
        try:
@@ -527,7 +527,7 @@ def find_file_in_ftppath(file_name, ftppath, installation_dir, logger, additiona
                    ftp.retrbinary("RETR "+file_name, dest_file.write)
                logger.write("   Archive %s was retrieved and stored in %s\n" % (file_name, destination), 3)
                return destination
-       except:
+       except Exception:
            logger.error("File not found in ftp_archive %s\n" % ftp_server)
 
     return False

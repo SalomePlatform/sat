@@ -147,7 +147,7 @@ def generate_component(config, compo, product_name, product_info, context, heade
             # get files to build a template GUI
             try: # try new yacsgen api
                 gui_files = salome_compo.getGUIfilesTemplate(compo)
-            except:  # use old yacsgen api
+            except Exception:  # use old yacsgen api
                 gui_files = salome_compo.getGUIfilesTemplate()
         else:
             gui_files = None

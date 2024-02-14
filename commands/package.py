@@ -385,7 +385,7 @@ def hack_for_distene_licence(filepath, licence_file):
             import imp
             distene = imp.load_source('distene_licence', distene_licence_file)
         distene.set_distene_variables(context)
-    except:
+    except Exception:
         pass\n"""  % licence_file
     text.insert(num_line + 1, text_to_insert)
     for line in text:
@@ -948,7 +948,7 @@ def source_package(sat, config, logger, options, tmp_working_dir):
     if not src.architecture.is_windows():
         try:
             t = os.getcwd()
-        except:
+        except Exception:
             # In the jobs, os.getcwd() can fail
             t = config.LOCAL.workdir
         os.chdir(tmp_working_dir)
@@ -1447,7 +1447,7 @@ def project_package(config, name_project, project_file_path, ftp_mode, tmp_worki
 
     try:
       project_pyconf_cfg = config.PROJECTS.projects.__getattr__(name_project)
-    except:
+    except Exception:
       logger.write("""
 WARNING: inexisting config.PROJECTS.projects.%s, try to read now from:\n%s\n""" % (name_project, project_file_path))
       project_pyconf_cfg = src.pyconf.Config(project_file_path)
@@ -1899,7 +1899,7 @@ Please add it in file:
     # case if no application, only package sat as 'sat package -t'
     try:
         app = runner.cfg.APPLICATION
-    except:
+    except Exception:
         app = None
 
     # unconditionaly remove the tmp_local_working_dir

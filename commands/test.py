@@ -174,7 +174,7 @@ def move_test_results(in_dir, what, out_dir, logger):
                 #shutil.rmtree(finalPath)
                 os.makedirs(finalPath)
             pathIsOk = True
-        except:
+        except Exception:
             logger.error(_("%s cannot be created.") % finalPath)
             finalPath = ask_a_path()
 
@@ -664,7 +664,7 @@ def run(args, runner, logger):
     if os.access(tmp_dir, os.F_OK):
         try:
             shutil.rmtree(tmp_dir)
-        except:
+        except Exception:
             logger.error(_("error removing TT_TMP_RESULT %s\n") 
                                 % tmp_dir)
 

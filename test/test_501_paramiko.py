@@ -161,7 +161,7 @@ class TestCase(unittest.TestCase):
 
     try:
       import paramiko as PK
-    except:
+    except Exception:
       print("\nproblem 'import paramiko', no tests")
       return
 

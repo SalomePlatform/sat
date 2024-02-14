@@ -440,7 +440,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
             pymodule = imp.load_source(product + "_compile_script", script)
             self.nb_proc = nb_proc
             retcode = pymodule.compil(self.config, self, self.logger)
-        except:
+        except Exception:
             __, exceptionValue, exceptionTraceback = sys.exc_info()
             self.logger.write(str(exceptionValue), 1)
             import traceback

@@ -155,7 +155,7 @@ else:
 
 try:
     has_utf32 = True
-except:
+except Exception:
     has_utf32 = False
 
 class ConfigInputStream(object):
@@ -951,7 +951,7 @@ class Reference(object):
                         rv = eval(str(self)[1:-1], vars(ns))
                         found = True
                         break
-                    except:
+                    except Exception:
                         pass
                 if found:
                     break
@@ -963,7 +963,7 @@ class Reference(object):
                         key = item[1]
                         rv = rv[key]
                     break
-                except:
+                except Exception:
                     rv = None
                     pass
             current = object.__getattribute__(current, 'parent')
@@ -1632,13 +1632,13 @@ class ConfigMerger(object):
                             continue
                         try:
                             exec( 'map1.' + key + " = " + repr(overwrite_instruction[key]))
-                        except:
+                        except Exception:
                             exec('map1.' + key + " = " + str(overwrite_instruction[key]))
             else:
                 for key in overwrite_instruction.keys():
                     try:
                         exec('map1.' + key + " = " + repr(overwrite_instruction[key]))
-                    except:
+                    except Exception:
                         exec('map1.' + key + " = " + str(overwrite_instruction[key]))
 
     def mergeMapping(self, map1, map2):

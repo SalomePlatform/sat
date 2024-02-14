@@ -91,7 +91,7 @@ class TestCase(unittest.TestCase):
         try:
             sat.prepare(appli + " --force --force_patch")
             OK = 'OK'
-        except:
+        except Exception:
             pass
         self.assertEqual(OK, 'OK')
 

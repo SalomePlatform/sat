@@ -90,7 +90,7 @@ def toList_majorMinorPatch(aStr, verbose=False):
 
   try:
     ii = int(res[0])
-  except:
+  except Exception:
     msg = "major in major_minor_patch is not integer: '%s'" % aStr
     raise Exception(msg)
   if ii < 0:
@@ -99,7 +99,7 @@ def toList_majorMinorPatch(aStr, verbose=False):
 
   try:
     ii = int(res[1])
-  except:
+  except Exception:
     msg = "minor in major_minor_patch is not integer: '%s'" % aStr
     raise Exception(msg)
   if ii < 0:
@@ -108,7 +108,7 @@ def toList_majorMinorPatch(aStr, verbose=False):
 
   try:
     ii = int(res[2])
-  except:
+  except Exception:
     msg = "patch in major_minor_patch is not integer: '%s'" % aStr
     raise Exception(msg)
   if ii < 0:
@@ -186,7 +186,7 @@ def getRange_majorMinorPatch(aStr, verbose=False):
   try:
     rMin = MinorMajorPatch(aMin)
     rMax = MinorMajorPatch(aMax)
-  except:
+  except Exception:
     msg = "problem version range in '%s'" % aStr
     raise Exception(msg)
     """if verbose:
