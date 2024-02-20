@@ -17,6 +17,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
+import sys
 import re
 import subprocess
 import src
@@ -544,7 +545,7 @@ def compile_product_pip(sat,
                                shell=True,
                                cwd=config.LOCAL.workdir,
                                env=build_environ.environ.environ,
-                               stderr=subprocess.STDOUT).strip()
+                               stderr=subprocess.STDOUT).decode(sys.stdout.encoding).strip()
         pip_build_options=int(res_pip_version.split('.')[0]) < 21
     except:
         pip_build_options= True
