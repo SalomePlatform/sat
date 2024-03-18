@@ -53,7 +53,6 @@ KO_STATUS = "KO"
 NA_STATUS = "NA"
 KNOWNFAILURE_STATUS = "KF"
 TIMEOUT_STATUS = "TIMEOUT"
-
 class SatException(Exception):
     """sat exception class"""
     def message(self, arg):
@@ -107,6 +106,20 @@ def check_config_has_profile( config, details = None ):
             details.append(message)
         raise SatException( message )
 
+def check_application_syntax_deprecated(config, logger):
+    """\
+    check that the application has the key git_server.
+    else, raise a warning
+
+    :param config class 'common.pyconf.Config': The config.
+    :param logger Logger: The logging instance to use for the prints.
+    """
+    if 'APPLICATION' in config and 'properties' in config.APPLICATION and not 'git_server' in config.APPLICATION.properties :
+        msg = 'WARNING: Your application is using repo_dev key which is deprecated and will be removed from future SAT releases!\n'
+        msg+= '         Please upgrade your application configuration file and add a valid git_server key.\n'
+        msg+= '         git_server key values need to be defined in the project file (e.g. salome.pyconf)!'
+        logger.write("\n%s\n\n" % printcolors.printcWarning(msg), 1)
+
 def appli_test_property(config,property_name, property_value):
     """Generic function to test if an application has a property set to a value
     :param config class 'common.pyconf.Config': The config.
@@ -126,7 +139,6 @@ def appli_test_property(config,property_name, property_value):
                       (property_name,property_value)
     result = eval(eval_expression)
     return result
-
 
 def config_has_application( config ):
     return 'APPLICATION' in config
@@ -622,3 +634,27 @@ def activate_mesa_property(config):
     if not 'properties' in config.APPLICATION:
         config.APPLICATION.addMapping( 'properties', pyconf.Mapping(), None )
     config.APPLICATION.properties.use_mesa="yes"
+
+def git_server_has_all_repositories( config, the_git_server):
+    """check that the git  server contains all repositories (closed and open)
+    :param config class 'common.pyconf.Config': The config.
+    :param logger Logger: The logging instance to use for the prints.
+    """
+    if 'opensource_git_servers' in config.VARS:
+        for git_server in config.VARS['opensource_git_servers']:
+            if git_server == the_git_server:
+                return False
+    return True
+
+def get_git_server(config, logger):
+    the_git_server= None
+    has_properties =  'properties' in config.APPLICATION
+    if has_properties and "git_server" in config.APPLICATION.properties:
+        the_git_server =  config.APPLICATION.properties.git_server
+    elif has_properties and "repo_dev" in config.APPLICATION.properties:
+        # Fall back to deprecated approach but issue a warning that this approach is deprecated
+        if config.APPLICATION.properties.repo_dev == 'yes':
+            the_git_server = [ git_server for git_server in config.VARS.git_servers if git_server not in config.VARS.opensource_git_servers][0]
+        else:
+            the_git_server =  [ git_server for git_server in config.VARS.git_servers if git_server in config.VARS.opensource_git_servers][0]
+    return the_git_server

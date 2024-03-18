@@ -678,11 +678,15 @@ def binary_package(config, logger, options, tmp_working_dir):
         config.APPLICATION.properties.mesa_launcher_in_package == "yes") :
             generate_mesa_launcher=True
 
+    has_properties  = "APPLICATION" in config and "properties" in config.APPLICATION
     # first loop on products : filter products, analyse properties,
     # and store the information that will be used to create the archive in the second loop
     for prod_name, prod_info in l_product_info:
         # skip product with property not_in_package set to yes
         if src.get_property_in_product_cfg(prod_info, "not_in_package") == "yes":
+            continue
+
+        if src.product.product_is_not_opensource(prod_info) and not src.git_server_has_all_repositories( cfg, git_server):
             continue
 
         # Add the sources of the products that have the property
@@ -992,6 +996,15 @@ def get_archives(config, logger):
         if (src.product.product_is_native(p_info)
                 or src.product.product_is_fixed(p_info)):
             continue
+
+        # skip product if git server misses non opensource products
+        is_not_prod_opensource       = src.product.product_is_not_opensource(p_info)
+        git_server = src.get_git_server(config,logger)
+        if src.product.product_is_not_opensource(p_info) and not src.git_server_has_all_repositories(config, git_server):
+            logger.warning("%s is a closed-source software and is not available on %s" % (product, git_server))
+            logger.flush()
+            continue
+
         if p_info.get_source == "archive":
             archive_path = p_info.archive_info.archive_name
             archive_name = os.path.basename(archive_path)

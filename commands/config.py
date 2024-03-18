@@ -148,7 +148,6 @@ class ConfigManager:
         var['datadir'] =  osJoin(var['salometoolsway'], 'data')
         if datadir is not None:
             var['datadir'] = datadir
-
         var['personalDir'] =  osJoin(os.path.expanduser('~'), '.salomeTools')
         src.ensure_path_exists(var['personalDir'])
 
@@ -201,7 +200,7 @@ class ConfigManager:
         # particular win case 
         if src.architecture.is_windows() : 
             var['tmp_root'] =  os.path.expanduser('~') + os.sep + 'tmp'
-        
+
         return var
 
     def get_command_line_overrides(self, options, sections):
@@ -381,7 +380,6 @@ class ConfigManager:
         cfg.addMapping("PATHS", src.pyconf.Mapping(cfg), "The paths\n")
         cfg.PATHS["APPLICATIONPATH"] = src.pyconf.Sequence(cfg.PATHS)
         cfg.PATHS.APPLICATIONPATH.append(cfg.VARS.personal_applications_dir, "")
-
         
         cfg.PATHS["PRODUCTPATH"] = src.pyconf.Sequence(cfg.PATHS)
         cfg.PATHS.PRODUCTPATH.append(cfg.VARS.personal_products_dir, "")
@@ -417,11 +415,33 @@ class ConfigManager:
         for rule in self.get_command_line_overrides(options, ["PATHS"]):
             exec('cfg.' + rule) # this cannot be factorized because of the exec
 
+        # add git servers if any
+        cfg.addMapping("git_info", src.pyconf.Mapping(cfg), "The repositories\n")
+        cfg.VARS['git_servers'] = []
+        cfg.VARS['opensource_git_servers'] =[]
+
+        for project in cfg.PROJECTS.projects:
+          if 'git_info' not in  cfg.PROJECTS.projects[project]:
+            logger.warning("Project: {} does not have any git_info section! Please define one!")
+            continue
+          if 'git_server' in cfg.PROJECTS.projects[project]['git_info']:
+            git_servers=cfg.PROJECTS.projects[project]['git_info']['git_server']
+            for git_server in git_servers:
+              cfg.VARS['git_servers']+=[git_server]
+              if git_servers[git_server]['opensource_only'] == 'yes' :
+                cfg.VARS['opensource_git_servers']+=[git_server]
+          if 'default_git_server_dev' in cfg.PROJECTS.projects[project]['git_info'].keys():
+            cfg.VARS['git_servers']+=['tuleap']
+            cfg.VARS['default_git_server_dev'] = cfg.PROJECTS.projects[project]['git_info']['default_git_server_dev']
+          if 'default_git_server' in cfg.PROJECTS.projects[project]['git_info'].keys():
+            cfg.VARS['git_servers']+=['gitpub']
+            cfg.VARS['opensource_git_servers']+=['gitpub']
+            cfg.VARS['default_git_server'] = cfg.PROJECTS.projects[project]['git_info']['default_git_server']
+
         # AT END append APPLI_TEST directory in APPLICATIONPATH, for unittest
         appli_test_dir =  osJoin(satdir, "test", "APPLI_TEST")
         if appli_test_dir not in cfg.PATHS.APPLICATIONPATH:
           cfg.PATHS.APPLICATIONPATH.append(appli_test_dir, "unittest APPLI_TEST path")
-
         # =====================================================================
         # Load APPLICATION config file
         if application is not None:

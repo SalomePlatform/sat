@@ -90,6 +90,11 @@ Usage
 
     sat prepare <application> --complete
 
+* Use GitHub repositories.
+  To prepare SALOME sources which are available on GitHub, run::
+
+    sat -o 'APPLICATION.properties.git_server="github"' prepare <application>
+  
 
 Some useful configuration paths
 =================================

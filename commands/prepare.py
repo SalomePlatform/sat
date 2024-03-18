@@ -36,7 +36,6 @@ parser.add_option('c', 'complete', 'boolean', 'complete',
     _("Optional: completion mode, only prepare products not present in SOURCES dir."),
     False)
 
-
 def find_products_already_prepared(l_products):
     '''function that returns the list of products that have an existing source 
        directory.
@@ -88,11 +87,13 @@ def run(args, runner, logger):
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
 
+    # check if application configuration file was migrated to newer repository approach
+    src.check_application_syntax_deprecated(runner.cfg, logger)
+
     # write warning if platform is not declared as supported
     src.check_platform_is_supported( runner.cfg, logger )
 
     products_infos = src.product.get_products_list(options, runner.cfg, logger)
-
     # Construct the arguments to pass to the clean, source and patch commands
     args_appli = runner.cfg.VARS.application + " "  # useful whitespace
     if options.products:
@@ -100,6 +101,17 @@ def run(args, runner, logger):
     else: # no product interpeted as all products
         listProd = [name for name, tmp in products_infos]
 
+    git_server = src.get_git_server(runner.cfg,logger)
+
+    # current git server hosts only opensource repositories - then remove products which are not hosted
+    if not src.git_server_has_all_repositories(runner.cfg, git_server):
+        not_opensource_products = [p for p in products_infos if src.product.product_is_not_opensource(p[1])]
+        listProd = [p for p in listProd if p not in [name for name, tmp in not_opensource_products]]
+        logger.flush()
+        if len(not_opensource_products) > 0:
+            lp = ','.join([ name for name, tmp in not_opensource_products])
+            msg = "WARNING: Following products are not available, since these are closed-source products: %s !" % lp
+            logger.write("\n%s\n\n" % src.printcolors.printcWarning(msg), 1)
     if options.complete:
         # remove products that are already prepared 'completion mode)
         pi_already_prepared=find_products_already_prepared(products_infos)
@@ -156,7 +168,6 @@ Use the --force_patch option to overwrite it.
     args_clean = args_appli + args_product_opt_clean + " --sources"
     args_source = args_appli + args_product_opt  
     args_patch = args_appli + args_product_opt_patch
-      
     # Initialize the results to a running status
     res_clean = 0
     res_source = 0

@@ -393,7 +393,6 @@ Please provide a 'compil_script' key in its definition.""") % product_name
         
         # Set the install_dir key
         prod_info.install_dir,prod_info.install_mode = get_install_dir(config, version, prod_info)
-                
     return prod_info
 
 def get_product_section(config, product_name, version, section=None):
@@ -798,7 +797,23 @@ def get_products_list(options, cfg, logger):
     # Get the products to be prepared, regarding the options
     if options.products is None:
         # No options, get all products sources
-        products = cfg.APPLICATION.products
+        products=[]
+        for product in cfg.APPLICATION.products.keys():
+            prod_info = get_product_config(cfg, product)
+            if prod_info is None:
+                logger.error("%s does not have associated information" % (product))
+                continue
+            if 'get_source' in prod_info and prod_info.get_source == 'git':
+                git_server = src.get_git_server(cfg,logger)
+            else:
+                git_server =  cfg.VARS['default_git_server_dev']
+
+            if src.product.product_is_not_opensource(prod_info) and not src.git_server_has_all_repositories(cfg, git_server):
+                logger.warning("%s is a closed-source software and is not available on %s" % (product, git_server))
+                logger.flush()
+                continue
+            products+=[product]
+        products = src.getProductNames(cfg, products, logger)
     else:
         # if option --products, check that all products of the command line
         # are present in the application.
@@ -810,7 +825,6 @@ def get_products_list(options, cfg, logger):
                         { 'product': p, 'application': cfg.VARS.application} )"""
 
         products = src.getProductNames(cfg, options.products, logger)
-
     # Construct the list of tuple containing
     # the products name and their definition
     resAll = src.product.get_products_infos(products, cfg)
@@ -1096,6 +1110,18 @@ def product_is_cpp(product_info):
     return ("properties" in product_info and
             "cpp" in product_info.properties and
             product_info.properties.cpp == "yes")
+
+def product_is_not_opensource(product_info):
+    """Check if a given product is closed-source
+    
+    :param product_info Config: The configuration specific to 
+                               the product
+    :return: True if the product is a closed-source, False otherwise
+    :rtype: boolean
+    """
+    return ("properties" in product_info and
+            "is_opensource" in product_info.properties and
+            product_info.properties.is_opensource == "no")
 
 def product_compiles(product_info):
     """\

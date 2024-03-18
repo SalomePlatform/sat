@@ -73,7 +73,7 @@ At the beginning of the APPLICATION sections, global variables and flags are def
   * **name** : the name of the application (mandatory)
   * **workdir** : the directory in which the application is produced (mandatory)
   * **tag** : the default tag to use for the git bases
-  * **dev** : activate the dev mode. In dev mode git bases are checked out only one time, to avoid risks of removing developments.
+.
   * **verbose** : activate verbosity in the compilation
   * **debug** : activate debug mode in the compilation, i.e -g option
   * **python3** : 'yes/no' tell sat that the application uses python3 
@@ -537,7 +537,6 @@ Command line overwriting is triggered by sat **-o** option, followed in double q
 In the following example, we suppose that the application SALOME-9.4.0 has set both flags debug and verbose to "no", and that we want to recompile MEDCOUPLING in debug mode, with cmake verbosity activated. The command to use is:
 
 .. code-block:: bash
-
     # recompile MEDCOUPLING in debug mode (-g) and with verbosity
     ./sat -t -o "APPLICATION.verbose='yes'" -o "APPLICATION.debug='yes'" compile\
                  SALOME-9.4.0 -p MEDCOUPLING --clean_all

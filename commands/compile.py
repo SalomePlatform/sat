@@ -167,7 +167,9 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
         p_name, p_info = p_name_info
         if src.product.product_is_salome(p_info):
             check_salome_configuration=True
-        
+        # if product is closed source and git server is public skip the current product
+        if src.product.product_is_not_opensource(p_info) and not src.git_server_has_all_repositories(config, config.APPLICATION.properties.git_server):
+            continue
         # nothing to clean for native or fixed products
         if (not src.product.product_compiles(p_info)) or\
            src.product.product_is_native(p_info) or\
@@ -276,6 +278,13 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
             logger.write("\n", 3, False)
             continue
 
+        # skip product if git server does not host all git repositories
+        # product is not opensource and git server does not have all repositories (closed and open sources)
+        if src.product.product_is_not_opensource(p_info) and not src.git_server_has_all_repositories(config, config.APPLICATION.properties.git_server):
+            log_step(logger, header, "ignored")
+            logger.write("\n", 3, False)
+            continue
+
         # Do nothing if the product is native
         if src.product.product_is_native(p_info):
             log_step(logger, header, "native")
@@ -298,12 +307,11 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
         is_pip= (src.appli_test_property(config,"pip", "yes") and src.product.product_test_property(p_info,"pip", "yes"))
         # don't check sources with option --show 
         # or for products managed by pip (there sources are in wheels stored in LOCAL.ARCHIVE
-        if not (options.no_compile or is_pip): 
+        if not (options.no_compile or is_pip):
             if not check_source:
                 logger.write(_("Sources of product not found (try 'sat -h prepare') \n"))
                 res += 1 # one more error
                 continue
-        
         # if we don't force compilation, check if the was already successfully installed.
         # we don't compile in this case.
         if (not options.force) and src.product.check_installation(config, p_info):
@@ -311,12 +319,12 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
             logger.write(_(" in %s" % p_info.install_dir), 4)
             logger.write(_("\n"))
             continue
-        
+
         # If the show option was called, do not launch the compilation
         if options.no_compile:
             logger.write(_("Not installed in %s\n" % p_info.install_dir))
             continue
-        
+
         # Check if the dependencies are installed
         l_depends_not_installed = check_dependencies(config, p_name_info, all_products_dict)
         if len(l_depends_not_installed) > 0:
@@ -327,7 +335,7 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
                 logger.write(src.printcolors.printcError(prod_name + " "))
             logger.write("\n")
             continue
-        
+
         # Call the function to compile the product
         res_prod, len_end_line, error_step = compile_product(
              sat, p_name_info, config, options, logger, header, len_end_line)
@@ -744,7 +752,7 @@ def run(args, runner, logger):
                                 'directories of the products of '
                                 'the application %s\n') % 
                 src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
-    
+
     info = [
             (_("SOURCE directory"),
              os.path.join(runner.cfg.APPLICATION.workdir, 'SOURCES')),

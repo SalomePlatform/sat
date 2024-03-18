@@ -85,24 +85,42 @@ def get_source_from_git(config,
     '''
     # The str to display
     coflag = 'git'
-
-    use_repo_dev=False
-    if ("APPLICATION" in config  and
-            "properties"  in config.APPLICATION  and
-            "repo_dev"    in config.APPLICATION.properties  and
-            config.APPLICATION.properties.repo_dev == "yes") :
-                use_repo_dev=True
-
     # Get the repository address.
     # If the application has the repo_dev property
     # Or if the product is in dev mode
     # Then we use repo_dev if the key exists
-    if (is_dev or use_repo_dev) and 'repo_dev' in product_info.git_info:
-        coflag = src.printcolors.printcHighlight(coflag.upper())
-        repo_git = product_info.git_info.repo_dev    
-    else:
-        repo_git = product_info.git_info.repo    
+    coflag = src.printcolors.printcHighlight(coflag.upper())
+    repo_git = None
+    git_server = src.get_git_server(config,logger)
+    product_file = product_info.from_file.split('/').pop()
+    if 'git_info' in  product_info and 'repositories' in product_info.git_info:
+        if git_server in product_info.git_info.repositories.keys(): # keys are git servers
+            repo_git = product_info.git_info.repositories[git_server]
+        elif 'properties' in product_info and 'is_opensource' in product_info.properties and product_info.properties.is_opensource == 'yes' :
+            for git_server in product_info.git_info.repositories.keys():
+                if git_server in config.VARS.opensource_git_servers:
+                    repo_git =  product_info.git_info.repositories[git_server]
+                    break
+        elif 'properties' in product_info and not 'is_opensource' in product_info.properties:
+            for git_server in product_info.git_info.repositories.keys():
+                if git_server in config.VARS.opensource_git_servers:
+                    repo_git =  product_info.git_info.repositories[git_server]
+                    logger.warning("Using opensource repository ({}) for product {}".format(git_server, product_info.name))
+                    logger.flush()
+                    break
+        else:
+            logger.error("Error in configuration file: define git repository for product: {} in file {}".format(product_info.name, product_file))
+            return False
 
+    elif 'repo_dev' in product_info.git_info:
+        repo_git = product_info.git_info.repo_dev
+    else:
+        logger.error("Error in configuration file: define git repository for product: {}".format(product_info.name))
+        return False
+
+    if repo_git is None:
+        logger.error("Error in configuration file: define git repository for product: {} in file {}.".format(product_info.name, product_file))
+        return False
 
     # Display informations
     logger.write('%s:%s' % (coflag, src.printcolors.printcInfo(repo_git)), 3, 

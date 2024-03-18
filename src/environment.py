@@ -604,6 +604,12 @@ class SalomeEnviron:
         #    src.appli_test_property(self.cfg,"pip_install_dir", "python") ):
         #        return
 
+        # skip product if git server does not host all git repositories
+        git_server= src.get_git_server(self.cfg, logger)
+        if src.product.product_is_not_opensource(pi) and not src.git_server_has_all_repositories( self.cfg, git_server):
+            logger.warning("%s is a closed-source software and is not available on %s" % (pi.name, git_server))
+            return
+
         # skip mesa products (if any) at run time, 
         # unless use_mesa property was activated
         if not self.forBuild:
