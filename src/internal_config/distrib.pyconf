@@ -16,6 +16,8 @@ DISTRIBUTIONS :
   "redhat": "CO"
   "red hat": "CO"
   "ubuntu": "UB"
+  "kde neon" :  "UB"
+  "tuxedo os" : "UB"
   "opensuse":"OS"
   "Windows" : "W"
 }
