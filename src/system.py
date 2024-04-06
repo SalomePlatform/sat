@@ -152,7 +152,7 @@ exit $res
     # NOTICE: this command only works with recent version of git
     #         because --work-tree does not work with an absolute path
     if src.architecture.is_windows():
-      cmd = "rm -rf %(where)s && git clone %(git_options)s %(remote)s %(where)s && git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s"
+      cmd = "rmdir /S /Q %(where)s && git clone %(git_options)s %(remote)s %(where)s && git --git-dir=%(where_git)s --work-tree=%(where)s checkout %(tag)s"
     else:
 # for sat compile --update : changes the date of directory, only for branches, not tag
       cmd = r"""
@@ -244,13 +244,13 @@ rm -rf $tmpDir
     cmd = r"""
 
 set tmpDir=%(tmpWhere)s && \
-rm -rf $tmpDir
-git clone %(git_options)s %(remote)s $tmpDir && \
-cd $tmpDir && \
+rmdir /S /Q %tmpDir%
+git clone %(git_options)s %(remote)s %tmpDir% && \
+cd %tmpDir% && \
 git checkout %(tag)s && \
 mv %(sub_dir)s %(where)s && \
-git log -1 > %(where)s/README_git_log.txt && \
-rm -rf $tmpDir
+git log -1 > %(where)s\\README_git_log.txt && \
+rmdir /S /Q %tmpDir%
 """ % aDict
 
   DBG.write("cmd", cmd)
