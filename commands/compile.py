@@ -502,7 +502,7 @@ def compile_product_pip(sat,
     :rtype: int
     '''
     # pip needs openssl-dev. If openssl is declared in the application, we check it!
-    if "openssl" in config.APPLICATION.products:
+    if "openssl" in config.APPLICATION.products and not src.architecture.is_windows():
         openssl_cfg = src.product.get_product_config(config, "openssl")
         if not src.product.check_installation(config, openssl_cfg):
             raise src.SatException(_("please install system openssl development package, it is required for products managed by pip."))
