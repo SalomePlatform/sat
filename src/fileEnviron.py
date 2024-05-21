@@ -816,8 +816,19 @@ def main(args):
 
   if args == ['--help']:
     from salomeContext import usage
-    usage()
+    appended_opt_doc = \"""
+--keep-paths
+============
+    With this option the environment variables PATH, PYTHONPATH and LD_LIBRARY_PATH defined into the starting shell are kept.
+    Without this option all values set before starting SALOME are simply ignored.
+\"""
+    usage(appended_opt_doc=appended_opt_doc)
     sys.exit(0)
+
+  reinitialise_paths=True
+  if '--keep-paths' in args:
+    reinitialise_paths=False
+    args.remove('--keep-paths')
 
 
   # Create a SalomeContext which parses configFileNames to initialize environment
@@ -904,7 +915,13 @@ def main(args):
 
   if '--help' in args:
     from salomeContext import usage
-    usage()
+    appended_opt_doc = \"""
+--keep-paths
+============
+    With this option the environment variables PATH, PYTHONPATH and LD_LIBRARY_PATH defined into the starting shell are kept.
+    Without this option all values set before starting SALOME are simply ignored.
+\"""
+    usage(appended_opt_doc=appended_opt_doc)
     sys.exit(0)
 
   reinitialise_paths=True
