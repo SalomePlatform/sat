@@ -114,6 +114,8 @@ def get_source_from_git(config,
 
     elif 'repo_dev' in product_info.git_info:
         repo_git = product_info.git_info.repo_dev
+    elif 'repo' in product_info.git_info:
+        repo_git = product_info.git_info.repo
     else:
         logger.error("Error in configuration file: define git repository for product: {}".format(product_info.name))
         return False
