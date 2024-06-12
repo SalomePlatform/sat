@@ -53,18 +53,18 @@ class Builder:
         self.header = ""
         self.debug_mode = False
         self.cmake_build_type = 'Release'
-        if "build_type" in self.product_info and self.product_info.build_type.lower() in ['debug', 'relwithdebinfo', 'release', 'minsizerel']:
-            if self.product_info.build_type.lower() ==  'debug':
+        if "cmake_build_type" in self.product_info and self.product_info.cmake_build_type.lower() in ['debug', 'relwithdebinfo', 'release', 'minsizerel']:
+            if self.product_info.cmake_build_type.lower() ==  'debug':
                 self.cmake_build_type = 'Debug'
                 self.debug_mode = True
-            elif self.product_info.build_type.lower() ==  'relwithdebinfo':
+            elif self.product_info.cmake_build_type.lower() ==  'relwithdebinfo':
                 self.cmake_build_type = 'RelWithDebInfo'
-            elif self.product_info.build_type.lower() ==  'release':
+            elif self.product_info.cmake_build_type.lower() ==  'release':
                 self.cmake_build_type = 'Release'
-            elif self.product_info.build_type.lower() ==  'minsizerel':
+            elif self.product_info.cmake_build_type.lower() ==  'minsizerel':
                 self.cmake_build_type = 'MinSizeRel'
             else:
-                raise src.SatException("Unknown cmake build mode: {}. Supported values are: Debug, RelWithDebInfo, Release or MinSizeRel".format(self.product_info.build_type))
+                raise src.SatException("Unknown cmake build mode: {}. Supported values are: Debug, RelWithDebInfo, Release or MinSizeRel".format(self.product_info.cmake_build_type))
         # keep backward compatibility
         if "debug" in self.product_info and self.product_info.debug == "yes":
             self.debug_mode = True
@@ -132,7 +132,23 @@ class Builder:
     def cmake(self, options=""):
 
         cmake_option = options
-        # cmake_option +=' -DCMAKE_VERBOSE_MAKEFILE=ON -DSALOME_CMAKE_DEBUG=ON'
+        if "cmake_build_type" in self.config.APPLICATION and self.config.APPLICATION.cmake_build_type.lower() in ['debug', 'relwithdebinfo', 'release', 'minsizerel']:
+            if self.config.APPLICATION.cmake_build_type.lower() ==  'debug':
+                self.cmake_build_type = 'Debug'
+                self.debug_mode = True
+            elif self.config.APPLICATION.cmake_build_type.lower() ==  'relwithdebinfo':
+                self.cmake_build_type = 'RelWithDebInfo'
+            elif self.config.APPLICATION.cmake_build_type.lower() ==  'release':
+                self.cmake_build_type = 'Release'
+            elif self.config.APPLICATION.cmake_build_type.lower() ==  'minsizerel':
+                self.cmake_build_type = 'MinSizeRel'
+            else:
+                raise src.SatException("Unknown cmake build mode: {}. Supported values are: Debug, RelWithDebInfo, Release or MinSizeRel".format(self.config.APPLICATION.cmake_build_type))
+        # keep backward compatibility
+        if "debug" in self.config.APPLICATION and self.config.APPLICATION.debug == "yes":
+            self.debug_mode = True
+            self.cmake_build_type = 'Debug'
+
         if 'cmake_options' in self.product_info:
             cmake_option += " %s " % " ".join(
                                         self.product_info.cmake_options.split())
