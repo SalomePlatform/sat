@@ -52,8 +52,24 @@ class Builder:
         self.install_dir = src.Path(self.product_info.install_dir)
         self.header = ""
         self.debug_mode = False
+        self.cmake_build_type = 'Release'
+        if "build_type" in self.product_info and self.product_info.build_type.lower() in ['debug', 'relwithdebinfo', 'release', 'minsizerel']:
+            if self.product_info.build_type.lower() ==  'debug':
+                self.cmake_build_type = 'Debug'
+                self.debug_mode = True
+            elif self.product_info.build_type.lower() ==  'relwithdebinfo':
+                self.cmake_build_type = 'RelWithDebInfo'
+            elif self.product_info.build_type.lower() ==  'release':
+                self.cmake_build_type = 'Release'
+            elif self.product_info.build_type.lower() ==  'minsizerel':
+                self.cmake_build_type = 'MinSizeRel'
+            else:
+                raise src.SatException("Unknown cmake build mode: {}. Supported values are: Debug, RelWithDebInfo, Release or MinSizeRel".format(self.product_info.build_type))
+        # keep backward compatibility
         if "debug" in self.product_info and self.product_info.debug == "yes":
             self.debug_mode = True
+            self.cmake_build_type = 'Debug'
+
         self.verbose_mode = False
         if "verbose" in self.product_info and self.product_info.verbose == "yes":
             self.verbose_mode = True
@@ -121,11 +137,8 @@ class Builder:
             cmake_option += " %s " % " ".join(
                                         self.product_info.cmake_options.split())
 
-        # add debug option
-        if self.debug_mode:
-            cmake_option += " -DCMAKE_BUILD_TYPE=Debug"
-        else :
-            cmake_option += " -DCMAKE_BUILD_TYPE=Release"
+        # add cmake build_type options
+        cmake_option += " -DCMAKE_BUILD_TYPE=" + self.cmake_build_type
 
         # add verbose option if specified in application for this product.
         if self.verbose_mode:
@@ -134,8 +147,7 @@ class Builder:
         # In case CMAKE_GENERATOR is defined in environment, 
         # use it in spite of automatically detect it
         if 'cmake_generator' in self.config.APPLICATION:
-            cmake_option += " -DCMAKE_GENERATOR=\"%s\"" \
-                                       % self.config.APPLICATION.cmake_generator
+            cmake_option += " -G \"%s\" -A x64 " % self.config.APPLICATION.cmake_generator
         command = ("cmake %s -DCMAKE_INSTALL_PREFIX=%s %s" %
                             (cmake_option, self.install_dir, self.source_dir))
 
@@ -264,11 +276,8 @@ CC=\\"hack_libtool\\"%g" libtool'''
             hh += " " + src.printcolors.printcWarning("DEBUG")
         # make
         command = 'msbuild'
-        command = command + " /maxcpucount:" + str(nb_proc)
-        if self.debug_mode:
-            command = command + " /p:Configuration=Debug  /p:Platform=x64 "
-        else:
-            command = command + " /p:Configuration=Release /p:Platform=x64 "
+        command+= " /maxcpucount:" + str(nb_proc)
+        command+= " /p:Configuration={}  /p:Platform=x64 ".format(self.cmake_build_type)
         command = command + " ALL_BUILD.vcxproj"
 
         self.log_command(command)
@@ -290,10 +299,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
     def install(self):
         if src.architecture.is_windows():
             command = 'msbuild INSTALL.vcxproj'
-            if self.debug_mode:
-                command = command + " /p:Configuration=Debug  /p:Platform=x64 "
-            else:
-                command = command + " /p:Configuration=Release  /p:Platform=x64 "
+            command+= ' /p:Configuration={}  /p:Platform=x64 '.format(self.cmake_build_type)
         else :
             command = 'make install'
         self.log_command(command)
@@ -340,7 +346,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
     # Runs 'make_check'.
     def check(self, command=""):
         if src.architecture.is_windows():
-            cmd = 'msbuild RUN_TESTS.vcxproj /p:Configuration=Release  /p:Platform=x64 '
+            cmd = 'msbuild RUN_TESTS.vcxproj /p:Configuration={}  /p:Platform=x64 '.format(self.cmake_build_type)
         else :
             if self.product_info.build_source=="autotools" :
                 cmd = 'make check'
@@ -473,6 +479,7 @@ CC=\\"hack_libtool\\"%g" libtool'''
             self.build_environ.set("SAT_HPC", "1")
         if self.debug_mode:
             self.build_environ.set("SAT_DEBUG", "1")
+        self.build_environ.set("SAT_CMAKE_BUILD_TYPE", self.cmake_build_type)
         if self.verbose_mode:
             self.build_environ.set("SAT_VERBOSE", "1")
 
