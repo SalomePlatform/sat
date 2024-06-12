@@ -495,7 +495,8 @@ CC=\\"hack_libtool\\"%g" libtool'''
             self.build_environ.set("SAT_HPC", "1")
         if self.debug_mode:
             self.build_environ.set("SAT_DEBUG", "1")
-        self.build_environ.set("SAT_CMAKE_BUILD_TYPE", self.cmake_build_type)
+        if "cmake_build_type" in self.config.APPLICATION:
+            self.build_environ.set("SAT_CMAKE_BUILD_TYPE", self.config.APPLICATION.cmake_build_type)
         if self.verbose_mode:
             self.build_environ.set("SAT_VERBOSE", "1")
 
