@@ -53,18 +53,16 @@ class Builder:
         self.header = ""
         self.debug_mode = False
         self.cmake_build_type = 'Release'
-        if "cmake_build_type" in self.product_info and self.product_info.cmake_build_type.lower() in ['debug', 'relwithdebinfo', 'release', 'minsizerel']:
-            if self.product_info.cmake_build_type.lower() ==  'debug':
-                self.cmake_build_type = 'Debug'
-                self.debug_mode = True
-            elif self.product_info.cmake_build_type.lower() ==  'relwithdebinfo':
-                self.cmake_build_type = 'RelWithDebInfo'
-            elif self.product_info.cmake_build_type.lower() ==  'release':
-                self.cmake_build_type = 'Release'
-            elif self.product_info.cmake_build_type.lower() ==  'minsizerel':
-                self.cmake_build_type = 'MinSizeRel'
-            else:
-                raise src.SatException("Unknown cmake build mode: {}. Supported values are: Debug, RelWithDebInfo, Release or MinSizeRel".format(self.product_info.cmake_build_type))
+        if "cmake_build_type" in self.config.APPLICATION:
+            self.set_cmake_build_type(self.config.APPLICATION.cmake_build_type)
+        # keep backward compatibility
+        if "debug" in self.config.APPLICATION and self.config.APPLICATION.debug == "yes":
+            self.debug_mode = True
+            self.cmake_build_type = 'Debug'
+
+        # in case a product defines its own configuration, then use it
+        if "cmake_build_type" in self.product_info:
+            self.set_cmake_build_type(self.product_info.cmake_build_type)
         # keep backward compatibility
         if "debug" in self.product_info and self.product_info.debug == "yes":
             self.debug_mode = True
@@ -74,7 +72,23 @@ class Builder:
         if "verbose" in self.product_info and self.product_info.verbose == "yes":
             self.verbose_mode = True
 
-    ##
+
+    # set cmake build type
+    def set_cmake_build_type(self, build_type):
+        if build_type.lower() in ['debug', 'relwithdebinfo', 'release', 'minsizerel']:
+            if build_type.lower() ==  'debug':
+                self.cmake_build_type = 'Debug'
+                self.debug_mode = True
+            elif build_type.lower() ==  'relwithdebinfo':
+                self.cmake_build_type = 'RelWithDebInfo'
+            elif build_type.lower() ==  'release':
+                self.cmake_build_type = 'Release'
+            elif build_type.lower() ==  'minsizerel':
+                self.cmake_build_type = 'MinSizeRel'
+            else:
+                raise src.SatException("Unknown cmake build mode: {}. Supported values are: Debug, RelWithDebInfo, Release or MinSizeRel".format(build_type))
+        return
+
     # Shortcut method to log in log file.
     def log(self, text, level, showInfo=True):
         self.logger.write(text, level, showInfo)
@@ -132,18 +146,8 @@ class Builder:
     def cmake(self, options=""):
 
         cmake_option = options
-        if "cmake_build_type" in self.config.APPLICATION and self.config.APPLICATION.cmake_build_type.lower() in ['debug', 'relwithdebinfo', 'release', 'minsizerel']:
-            if self.config.APPLICATION.cmake_build_type.lower() ==  'debug':
-                self.cmake_build_type = 'Debug'
-                self.debug_mode = True
-            elif self.config.APPLICATION.cmake_build_type.lower() ==  'relwithdebinfo':
-                self.cmake_build_type = 'RelWithDebInfo'
-            elif self.config.APPLICATION.cmake_build_type.lower() ==  'release':
-                self.cmake_build_type = 'Release'
-            elif self.config.APPLICATION.cmake_build_type.lower() ==  'minsizerel':
-                self.cmake_build_type = 'MinSizeRel'
-            else:
-                raise src.SatException("Unknown cmake build mode: {}. Supported values are: Debug, RelWithDebInfo, Release or MinSizeRel".format(self.config.APPLICATION.cmake_build_type))
+        if "cmake_build_type" in self.config.APPLICATION:
+            self.set_cmake_build_type(self.config.APPLICATION.cmake_build_type)
         # keep backward compatibility
         if "debug" in self.config.APPLICATION and self.config.APPLICATION.debug == "yes":
             self.debug_mode = True
@@ -496,7 +500,8 @@ CC=\\"hack_libtool\\"%g" libtool'''
         if self.debug_mode:
             self.build_environ.set("SAT_DEBUG", "1")
         if "cmake_build_type" in self.config.APPLICATION:
-            self.build_environ.set("SAT_CMAKE_BUILD_TYPE", self.config.APPLICATION.cmake_build_type)
+            self.set_cmake_build_type(self.config.APPLICATION.cmake_build_type)
+            self.build_environ.set("SAT_CMAKE_BUILD_TYPE", self.cmake_build_type)
         if self.verbose_mode:
             self.build_environ.set("SAT_VERBOSE", "1")
 
