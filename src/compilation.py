@@ -75,18 +75,19 @@ class Builder:
 
     # set cmake build type
     def set_cmake_build_type(self, build_type):
-        if build_type.lower() in ['debug', 'relwithdebinfo', 'release', 'minsizerel']:
-            if build_type.lower() ==  'debug':
+        btype = build_type.lower()
+        if btype in ['debug', 'relwithdebinfo', 'release', 'minsizerel']:
+            if btype ==  'debug':
                 self.cmake_build_type = 'Debug'
                 self.debug_mode = True
-            elif build_type.lower() ==  'relwithdebinfo':
+            elif btype ==  'relwithdebinfo':
                 self.cmake_build_type = 'RelWithDebInfo'
-            elif build_type.lower() ==  'release':
+            elif btype ==  'release':
                 self.cmake_build_type = 'Release'
-            elif build_type.lower() ==  'minsizerel':
+            elif btype ==  'minsizerel':
                 self.cmake_build_type = 'MinSizeRel'
-            else:
-                raise src.SatException("Unknown cmake build mode: {}. Supported values are: Debug, RelWithDebInfo, Release or MinSizeRel".format(build_type))
+        else:
+            raise src.SatException("Unknown cmake build mode: {}. Supported values are: Debug, RelWithDebInfo, Release or MinSizeRel".format(build_type))
         return
 
     # Shortcut method to log in log file.
