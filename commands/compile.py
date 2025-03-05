@@ -553,7 +553,7 @@ def compile_product_pip(sat,
                                shell=True,
                                cwd=config.LOCAL.workdir,
                                env=build_environ.environ.environ,
-                               stderr=subprocess.STDOUT).decode(sys.stdout.encoding).strip()
+                               stderr=subprocess.STDOUT).decode('utf-8').strip()
         pip_build_options=int(res_pip_version.split('.')[0]) < 21
     except Exception:
         pip_build_options= True
