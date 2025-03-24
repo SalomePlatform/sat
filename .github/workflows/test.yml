@@ -34,13 +34,3 @@ jobs:
     - name: Run tests
       run: |
         python AllTestLauncherSat.py
-        
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: test-results
-        path: |
-          test/*.xml
-          test/*.txt
-          test/OUT/*.txt 
