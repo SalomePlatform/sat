@@ -1,0 +1,11 @@
+# Core dependencies
+distro 
+
+# Testing dependencies
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Development dependencies
+black>=22.0.0
+flake8>=4.0.0
+isort>=5.0.0 

@@ -131,6 +131,8 @@ class TestCase(unittest.TestCase):
     logger = LOG.getUnittestLogger()
     cmds = SAT.getCommandsList()
     for c in cmds:
+      if c =="jobs": ## paramiko is required for jobs command
+        continue 
       cmd = "%s --help" % c
       DBG.write("test_051", cmd)
       s = SAT.Sat(logger)
