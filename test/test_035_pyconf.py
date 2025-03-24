@@ -174,17 +174,14 @@ Bienvenue, Yves
     # make Hervé valid only with pyconf.py as 0.3.9
     inStream = DBG.InStream(_EXAMPLES[4])
     outStream = DBG.OutStream()
-    with self.assertRaises(Exception):
-      cfg = PYF.Config(inStream)
-
-    return # TODO only with pyconf.py as 0.3.9
-    cfg.save(outStream) # OK
+    cfg = PYF.Config(inStream)
+    #cfg.save(outStream) # OK
     # TODO: cfg = PYF.Config(inStream)
-    # cfg.__save__(outStream)  # KO and sat renamed save() in __save__()
+    cfg.__save__(outStream)  # KO and sat renamed save() in __save__()
     res = outStream.value
     DBG.write("test_045 cfg", res)
     self.assertTrue("aa : 'Yves'" in res)
-    self.assertTrue(r"bb : 'Herv\xc3\xa9'" in res)
+    self.assertTrue(r"bb : 'Hervé'" in res)
     self.assertEqual(cfg.bb, "Hervé")
     
   def test_100(self):

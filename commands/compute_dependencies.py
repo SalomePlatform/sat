@@ -92,12 +92,12 @@ def description():
     :return: The text to display for the compute_dependency command description.
     :rtype: str
     '''
-    return ("The compute_dependency command analyzes and displays all prerequisites "
+    return ("The compute_dependencies command analyzes and displays all prerequisites "
             "required to install specified products.\n\n"
-            "example:\nsat compute_dependency APPLICATION --products KERNEL,GUI,GEOM")
+            "example:\nsat compute_dependencies APPLICATION --products KERNEL,GUI,GEOM")
 
 def run(args, runner, logger):
-    '''method that is called when salomeTools is called with compute_dependency parameter.
+    '''method that is called when salomeTools is called with compute_dependencies parameter.
     '''
     # Parse the options
     (options, args) = parser.parse_args(args)
