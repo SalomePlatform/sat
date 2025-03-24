@@ -119,8 +119,9 @@ class TestCase(unittest.TestCase):
     self.assertEqual(lgr.__class__, LoggerSat)
     self.assertEqual(lgr.name, name)
     self.assertIn("trace", dir(lgr))
-    self.assertIn("TRACE", LOGI._levelNames.keys())
-    self.assertIn(_TRACE, LOGI._levelNames.keys())
+    self.assertIn("TRACE", LOGI.getLevelNamesMapping().keys())
+    
+    self.assertIn(_TRACE, LOGI.getLevelNamesMapping().values())
     self.assertEqual(LOGI.getLevelName(LOGI.INFO), "INFO")
     self.assertEqual(LOGI.getLevelName(_TRACE), "TRACE")
     

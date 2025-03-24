@@ -56,7 +56,7 @@ class TestCase(unittest.TestCase):
     cmd = "sat --help"
     res = SAT.launchSat(cmd)
     self.assertTrue(res.isOk())
-    out = res.getValue()
+    out = res.getValue().decode('utf-8')
     self.assertTrue(" - config" in out)
     self.assertTrue(" - prepare" in out)
     self.assertTrue(" - compile" in out)
@@ -77,7 +77,7 @@ class TestCase(unittest.TestCase):
     cmd = "sat config --help"
     returnCode = SAT.launchSat(cmd)
     self.assertTrue(returnCode.isOk())
-    out = returnCode.getValue()
+    out = returnCode.getValue().decode('utf-8')
     DBG.write("test_030 stdout", out)
     self.assertTrue("--value" in out)
 
@@ -120,7 +120,7 @@ class TestCase(unittest.TestCase):
       if not returnCode.isOk():
         DBG.write("test_050 %s" % cmd, returnCode.getValue(), True)
       self.assertTrue(returnCode.isOk())
-      out = returnCode.getValue()
+      out = returnCode.getValue().decode('utf-8')
       DBG.write("test_050 %s stdout" % c, out)
       self.assertTrue("The %s command" % c in out)
       self.assertTrue("Available options" in out)

@@ -29,8 +29,8 @@ import tempfile
 import shutil
 
 import src
-import printcolors
-import xmlManager
+import src.printcolors as printcolors
+import src.xmlManager as xmlManager
 
 import src.debug as DBG
 
