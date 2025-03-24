@@ -1,0 +1,41 @@
+name: Build Documentation
+
+on:
+  push:
+    branches: [ main, "*" ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:  # Allows manual triggering of the workflow
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Set up environment variables
+      run: |
+        echo "PYTHONPATH=${{ github.workspace }}" >> $GITHUB_ENV
+        
+    - name: Build documentation
+      run: |
+        cd doc
+        make html
+    
+    # see later to add upload documentation
+    # - name: Upload documentation
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: documentation
+    #     path: doc/build/html/
+    

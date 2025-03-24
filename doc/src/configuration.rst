@@ -537,6 +537,7 @@ Command line overwriting is triggered by sat **-o** option, followed in double q
 In the following example, we suppose that the application SALOME-9.4.0 has set both flags debug and verbose to "no", and that we want to recompile MEDCOUPLING in debug mode, with cmake verbosity activated. The command to use is:
 
 .. code-block:: bash
+    
     # recompile MEDCOUPLING in debug mode (-g) and with verbosity
     ./sat -t -o "APPLICATION.verbose='yes'" -o "APPLICATION.debug='yes'" compile\
                  SALOME-9.4.0 -p MEDCOUPLING --clean_all
