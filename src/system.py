@@ -28,9 +28,9 @@ import tarfile
 import time
  
 
-import debug as DBG
-import utilsSat as UTS
 import src
+import src.debug as DBG
+import src.utilsSat as UTS
 
 from . import printcolors
 

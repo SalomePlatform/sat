@@ -6,7 +6,8 @@ appending method tostring serialize 'pretty_xml'
 """
 
 import sys
-import debug as DBG
+import src
+import src.debug as DBG
 
 _versionPython = sys.version_info[0]
 

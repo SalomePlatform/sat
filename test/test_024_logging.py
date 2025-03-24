@@ -1,61 +1,16 @@
 #!/usr/bin/env python
 #-*- coding:utf-8 -*-
 
-#  Copyright (C) 2010-2018  CEA/DEN
-#
-#  This library is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU Lesser General Public
-#  License as published by the Free Software Foundation; either
-#  version 2.1 of the License.
-#
-#  This library is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-#  Lesser General Public License for more details.
-#
-#  You should have received a copy of the GNU Lesser General Public
-#  License along with this library; if not, write to the Free Software
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-
-"""
-see: http://sametmax.com/ecrire-des-logs-en-python
-
-|  # creation d'un formateur qui va ajouter le temps, le niveau
-|  # de chaque message quand on ecrira un message dans le log
-|  formatter = logging.Formatter('%(asctime)s :: %(levelname)s :: %(message)s')
-|
-|  # creation d'un handler qui va rediriger une ecriture du log vers
-|  # un fichier en mode 'append', avec 1 backup et une taille max de 1Mo
-|  file_handler = RotatingFileHandler('activity.log', 'a', 1000000, 1)
-|
-|  # on lui met le niveau sur DEBUG, on lui dit qu'il doit utiliser le formateur
-|  # cree precedement et on ajoute ce handler au logger
-|  file_handler.setLevel(logging.DEBUG)
-|  file_handler.setFormatter(formatter)
-|  logger.addHandler(file_handler)
-|   
-|  # creation d'un second handler qui va rediriger chaque ecriture de log
-|  # sur la console
-|  stream_handler = logging.StreamHandler()
-|  stream_handler.setLevel(logging.DEBUG)
-|  logger.addHandler(stream_handler)
-|
-|  # Après 3 heures, on peut enfin logguer
-|  # Il est temps de spammer votre code avec des logs partout :
-|  logger.info('Hello')
-|  logger.warning('Testing %s', 'foo')
-"""
-
 import os
 import sys
 import unittest
 import pprint as PP
 import logging as LOGI
 from logging.handlers import BufferingHandler
-
+import src
 import src.debug as DBG
 
-verbose = False #True
+verbose = False
 
 _TRACE = LOGI.INFO - 2 # just below info
 
@@ -66,8 +21,6 @@ class LoggerSat(LOGI.Logger):
   below log.info(msg)
   above log.debug(msg)
   to assume store long log asci in files txt under/outside files xml
-  
-  see: /usr/lib64/python2.7/logging/xxx__init__.py etc.
   """
   
   def __init__(self, name, level=LOGI.INFO):
@@ -91,7 +44,7 @@ class LoggerSat(LOGI.Logger):
         self._log(_TRACE, msg, args, **kwargs)
 
 class TestCase(unittest.TestCase):
-  "Test the debug.py"""
+  """Test the debug.py"""
   
   initialLoggerClass = [] # to keep clean module logging
   
@@ -101,7 +54,6 @@ class TestCase(unittest.TestCase):
     LOGI.setLoggerClass(LoggerSat)
     if verbose:
       DBG.push_debug(True)
-      # DBG.write("assert unittest", [a for a in dir(self) if "assert" in a])
     pass
   
   def test_999(self):
@@ -119,8 +71,9 @@ class TestCase(unittest.TestCase):
     self.assertEqual(lgr.__class__, LoggerSat)
     self.assertEqual(lgr.name, name)
     self.assertIn("trace", dir(lgr))
-    self.assertIn("TRACE", LOGI._levelNames.keys())
-    self.assertIn(_TRACE, LOGI._levelNames.keys())
+    if sys.version_info.major == 3 and sys.version_info.minor > 10:
+      self.assertIn("TRACE", LOGI.getLevelNamesMapping().keys())
+      self.assertIn(_TRACE, LOGI.getLevelNamesMapping().values())
     self.assertEqual(LOGI.getLevelName(LOGI.INFO), "INFO")
     self.assertEqual(LOGI.getLevelName(_TRACE), "TRACE")
     
@@ -131,7 +84,6 @@ class TestCase(unittest.TestCase):
     stream_handler.setLevel(LOGI.DEBUG)
     stream_handler.setFormatter(formatter)
     lgr.addHandler(stream_handler)
-    # print # skip one line if outputs in console
     lgr.warning("!!! test warning")
     lgr.info("!!! test info")
     lgr.trace("!!! test trace")
@@ -143,16 +95,12 @@ class TestCase(unittest.TestCase):
     self.assertEqual(stream_handler.get_name(), None) # what to serve ?
     
   def test_020(self):
-    # LOGI.setLoggerClass(LoggerSat)
     name = "testLogging"
     lgr = LOGI.getLogger(name) #  find it as created yet in test_010
     stream_handler = lgr.handlers[0]
     rec = stream_handler.buffer[-1]
     self.assertEqual(rec.levelname, "DEBUG")
     self.assertEqual(rec.msg, "!!! test debug")
-
-      
-          
     
 if __name__ == '__main__':
     unittest.main(exit=False)

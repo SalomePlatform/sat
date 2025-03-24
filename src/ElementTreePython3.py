@@ -97,7 +97,7 @@ import warnings
 import io
 import contextlib
 
-import ElementPath
+import src.ElementPath
 
 
 class ParseError(SyntaxError):
