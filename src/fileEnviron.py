@@ -950,7 +950,7 @@ def main(args):
   # Identify application path then locate configuration files
   __initialize()
 
-  if '--help' in args:
+  if args == ['--help']:
     from salomeContext import usage
     appended_opt_doc = \"""
 --keep-paths
