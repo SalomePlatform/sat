@@ -827,8 +827,8 @@ WARNING: existing binaries directory from previous detar installation:
                     config.APPLICATION.properties.use_mesa=restore_use_mesa_option
                 else:
                     config.APPLICATION.properties.use_mesa="no"
-                if options.with_extra_env_d:
-                    d_products["extra.env.d"] = (os.path.join(tmp_working_dir, "extra.env.d"), "extra.env.d")
+            if options.with_extra_env_d:
+                d_products["extra.env.d"] = (os.path.join(tmp_working_dir, "extra.env.d"), "extra.env.d")
 
             if options.sources:
                 # if we mix binaries and sources, we add a copy of the launcher,
