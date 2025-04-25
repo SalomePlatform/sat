@@ -123,7 +123,7 @@ def run(args, runner, logger):
     logger.write("\nMandatory:\n", 1)
     for product, version, is_optional in flat_deps:
         if not is_optional:
-            logger.write(f"- {product} ({version})\n", 1)
+            logger.write("- {} ({})\n".format(product,version), 1)
     
 
     optional_count = sum(1 for product, _, is_opt in flat_deps if is_opt and product not in options.products)
@@ -131,14 +131,14 @@ def run(args, runner, logger):
         logger.write("\nOptional:\n", 1)
         for product, version, is_optional in flat_deps:
             if is_optional and product not in options.products:
-                logger.write(f"- {product} ({version})\n", 1)
+                logger.write("- {} ({})\n".format(product,version), 1)
 
 
     mandatory_count = sum(1 for _, _, is_opt in flat_deps if not is_opt)
-    logger.write(f"\nSummary:\n", 1)
-    logger.write(f"- Requested products: {len(options.products)}\n", 1)
-    logger.write(f"- Total unique dependencies: {mandatory_count+optional_count}\n", 1)
-    logger.write(f"  • Mandatory: {mandatory_count}\n", 1)
-    logger.write(f"  • Optional: {optional_count}\n", 1)
+    logger.write("\nSummary:\n", 1)
+    logger.write("- Requested products: {}\n".format(len(options.products)), 1)
+    logger.write("- Total unique dependencies: {}\n".format(mandatory_count+optional_count), 1)
+    logger.write("  • Mandatory: {}\n".format(mandatory_count), 1)
+    logger.write("  • Optional: {}\n".format(optional_count), 1)
 
     return 0

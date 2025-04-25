@@ -422,7 +422,7 @@ class ConfigManager:
 
         for project in cfg.PROJECTS.projects:
           if 'git_info' not in  cfg.PROJECTS.projects[project]:
-            logger.warning(f"Project: {project} does not have any git_info section! Please define one!")
+            logger.warning("Project: {} does not have any git_info section! Please define one!".format(project))
             continue
           if 'git_server' in cfg.PROJECTS.projects[project]['git_info']:
             git_servers=cfg.PROJECTS.projects[project]['git_info']['git_server']
