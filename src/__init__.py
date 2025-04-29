@@ -638,6 +638,21 @@ def activate_mesa_property(config):
         config.APPLICATION.addMapping( 'properties', pyconf.Mapping(), None )
     config.APPLICATION.properties.use_mesa="yes"
 
+def package_has_mesa_launcher(config):
+    """
+    check whether package has MESA launcher
+
+    :param config Config: The global configuration. It must have an application!
+    """
+    generate_mesa_launcher = False  # a flag to know if we generate a mesa launcher
+    status = False
+    if ("APPLICATION" in config
+        and "properties" in config.APPLICATION
+        and "mesa_launcher_in_package" in config.APPLICATION.properties
+        and config.APPLICATION.properties.mesa_launcher_in_package == "yes") :
+        status=True
+    return status
+
 def git_server_has_all_repositories( config, the_git_server):
     """check that the git  server contains all repositories (closed and open)
     :param config class 'common.pyconf.Config': The config.

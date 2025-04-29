@@ -1041,7 +1041,7 @@ class FileEnvWriter:
                 pi.uid=uid
             env_file_name = os.path.join(extra_env_dir,  '{}_{}.py'.format('{0:04d}'.format(pi.uid), pi.name))
             if not for_package:
-                self.logger.write(_("Create extra.env.d module file %s\n") %
+                DBG.write(_("Create extra.env.d module file %s\n") %
                                   src.printcolors.printcLabel(env_file_name), 3)
             env_file = open(env_file_name, "w")
             file_environ = src.fileEnviron.get_file_environ(env_file,
@@ -1062,9 +1062,7 @@ class FileEnvWriter:
                 env.set_is_native(product)
 
             env_file.close()
-            if not self.silent:
-                self.logger.write(_("    Create extra.env.d module file %s\n") %
-                                  src.printcolors.printcLabel(env_file_name), 3)
+            DBG.write(_("    Create extra.env.d module file %s\n") % src.printcolors.printcLabel(env_file_name), 3)
             if for_package is not None:
                 src.replace_in_file(env_file_name, 'r"out_dir_Path', 'root_dir + r"' )
                 src.replace_in_file(env_file_name, "r'out_dir_Path + ", "root_dir + r'" )

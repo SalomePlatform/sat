@@ -490,9 +490,36 @@ def produce_install_bin_file(options,
         # substitute the template and write it in file
         content=src.template.substitute(installbin_template_path, d)
         installbin_file.write(content)
+        # remove launchers  if present
+        launcher_name = src.get_launcher_name(config)
+        installbin_file.write("\n")
+        installbin_file.write("echo INFO: remove launcher {}\n".format(launcher_name))
+        installbin_file.write("if [ -f {} ]; then rm -f {}; fi\n".format(launcher_name, launcher_name))
+        if src.package_has_mesa_launcher(config):
+            installbin_file.write("echo INFO: remove MESA launcher mesa_{}\n".format(launcher_name))
+            installbin_file.write("if [ -f mesa_{} ]; then rm -f mesa_{}; fi\n".format(launcher_name, launcher_name))
+        sat_launcher_options="--with-extra.env.d" if options.with_extra_env_d else ""
         if options.with_extra_env_d:
-            installbin_file.write("\nif [ -d extra.env.d ]\nthen\n  rm -rf extra.env.d\nfi\n")
-        installbin_file.write("\necho Caution: you need to regenerate the launcher as well as the environment files! See README file on how to proceed\n")
+            installbin_file.write("echo INFO: remove extra.env.d files if present.\n")
+            installbin_file.write("if [ -d extra.env.d ]; then rm -rf extra.env.d; fi\n")
+        installbin_file.write("echo INFO: generate a new launcher {}\n".format(launcher_name))
+        installbin_file.write("sat/sat launcher {} {}\n".format(config.APPLICATION.name, sat_launcher_options))
+        if src.package_has_mesa_launcher(config):
+            sat_launcher_options+=" --use_mesa"
+            installbin_file.write("echo INFO: generate a new MESA launcher mesa_{}\n".format(launcher_name))
+            installbin_file.write("sat/sat launcher {} --name mesa_{} {}\n".format(config.APPLICATION.name, launcher_name, sat_launcher_options))
+        installbin_file.write("echo INFO: generate environment files\n")
+        installbin_file.write("sat/sat environ {}\n".format(config.APPLICATION.name))
+        installbin_file.write("\n")
+        installbin_file.write("\necho INFO: {} is now ready for developments!".format(config.APPLICATION.name))
+        installbin_file.write("\n")
+        installbin_file.write("\necho INFO: SALOME Platform is brought to you since the early 2000s by:")
+        installbin_file.write("\necho INFO:    CEA: https://www.cea.fr  and  EDF: https://www.edf.fr"   )
+        installbin_file.write("\necho INFO:"                                                            )
+        installbin_file.write("\necho INFO: Please report any error, improvement or suggestion to:"     )
+        installbin_file.write("\necho INFO:    - https://discourse.salome-platform.org"                 )
+        installbin_file.write("\necho INFO:    - https://github.com/SalomePlatform"                     )
+        installbin_file.write("\n")
 
         # change the rights in order to make the file executable for everybody
         os.chmod(filepath,
