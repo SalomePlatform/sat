@@ -178,7 +178,7 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
 
         # Clean the build and the install directories 
         # if the corresponding options was called
-        if options.clean_all:
+        if options.clean_all and not options.no_compile:
             sat.clean(config.VARS.application + 
                       " --products " + p_name + 
                       " --build --install",
@@ -189,7 +189,7 @@ def compile_all_products(sat, config, options, products_infos, all_products_dict
         else:
             # Clean the the install directory 
             # if the corresponding option was called
-            if options.clean_install:
+            if options.clean_install and not options.no_compile:
                 sat.clean(config.VARS.application + 
                           " --products " + p_name + 
                           " --install",

@@ -1110,6 +1110,14 @@ def run(args, runner, logger):
     '''
     # Parse the options
     (options, args) = parser.parse_args(args)
+    
+    # print products list based from the properties key
+    if options.properties:
+        products_infos = src.product.get_products_list(options, runner.cfg, logger)
+        products_list = [pi[0] for pi in products_infos]
+        for product in products_list:
+            logger.write("%s\n" % product, 1)
+        return
 
     # Only useful for completion mechanism : print the keys of the config
     if options.schema:
