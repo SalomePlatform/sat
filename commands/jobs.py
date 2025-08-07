@@ -95,7 +95,7 @@ class Machine(object):
         
         :param logger src.logger.Logger: The logger instance 
         :return: Nothing
-        :rtype: N\A
+        :rtype: N/A
         '''
 
         self._connection_successful = False
@@ -224,7 +224,7 @@ class Machine(object):
     def close(self):
         '''Close the ssh connection
         
-        :rtype: N\A
+        :rtype: N/A
         '''
         self.ssh.close()
      
@@ -234,7 +234,7 @@ class Machine(object):
         
         :param logger src.logger.Logger: The logger instance
         :return: Nothing
-        :rtype: N\A
+        :rtype: N/A
         '''
         logger.write("host : " + self.host + "\n")
         logger.write("port : " + str(self.port) + "\n")
@@ -551,7 +551,7 @@ class Job(object):
         # Do not execute the command if the machine could not be reached
         if not self.machine.successfully_connected(self.logger):
             self._has_finished = True
-            self.out = "N\A"
+            self.out = "N/A"
             self.err += ("Connection to machine (name : %s, host: %s, port:"
                         " %s, user: %s) has failed\nUse the log command "
                         "to get more information."
@@ -569,7 +569,7 @@ class Job(object):
             if (self._stdin, self._stdout, self._stderr) == (None, None, None):
                 self._has_finished = True
                 self._Tf = time.time()
-                self.out += "N\A"
+                self.out += "N/A"
                 self.err += "The server failed to execute the command"
         
         # Put the beginning flag to true.
@@ -708,7 +708,7 @@ class Jobs(object):
            the machines and jobs to be done today.
 
         :return: Nothing
-        :rtype: N\A
+        :rtype: N/A
         '''
         today = datetime.date.weekday(datetime.date.today())
         host_list = []
@@ -793,7 +793,7 @@ class Jobs(object):
            to be used today.
 
         :return: Nothing
-        :rtype: N\A
+        :rtype: N/A
         '''
         self.logger.write(src.printcolors.printcInfo((
                         "Establishing connection with all the machines :\n")))
@@ -897,7 +897,7 @@ class Jobs(object):
            running jobs and the jobs that have already finished.
         
         :return: Nothing. 
-        :rtype: N\A
+        :rtype: N/A
         '''
         jobs_finished_list = []
         jobs_running_list = []
@@ -920,7 +920,7 @@ class Jobs(object):
         '''Function that cancels all the jobs that depend on a failing one.
         
         :return: Nothing. 
-        :rtype: N\A
+        :rtype: N/A
         '''
         
         for job in self.ljobs:
@@ -970,7 +970,7 @@ class Jobs(object):
         
         :param len_col int: the size of the column 
         :return: Nothing
-        :rtype: N\A
+        :rtype: N/A
         '''
         
         display_line = ""
@@ -995,7 +995,7 @@ class Jobs(object):
            This method stops when all the jobs are finished.
         
         :return: Nothing
-        :rtype: N\A
+        :rtype: N/A
         '''
 
         # Print header
@@ -1072,7 +1072,7 @@ class Jobs(object):
         '''Display all the jobs outputs.
         
         :return: Nothing
-        :rtype: N\A
+        :rtype: N/A
         '''
         
         for jb in self.ljobs:
