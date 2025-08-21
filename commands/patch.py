@@ -32,7 +32,7 @@ def apply_patch(config, product_info, max_product_name_len, logger):
     '''The method called to apply patches on a product
 
     :param config Config: The global configuration
-    :param product_info Config: The configuration specific to 
+    :param product_info Config: The configuration specific to
                                the product to be patched
     :param logger Logger: The logger instance to use for the display and logging
     :return: (True if it succeed, else False, message to display)
@@ -49,7 +49,7 @@ def apply_patch(config, product_info, max_product_name_len, logger):
                 "any patch.") % product_info.name
         logger.write(msg, 4)
         logger.write("\n", 4)
-        return True, ""       
+        return True, ""
 
     if not "patches" in product_info or len(product_info.patches) == 0:
         # display and log
@@ -73,37 +73,34 @@ def apply_patch(config, product_info, max_product_name_len, logger):
 
     # At this point, there one or more patches and the source directory exists
     retcode = []
-    res = []
     # Loop on all the patches of the product
     for patch in product_info.patches:
         details = []
-        
+
         # Check the existence and apply the patch
         if os.path.isfile(patch):
             patch_cmd = "patch -p1 < %s" % patch
-            
+
             # Write the command in the terminal if verbose level is at 5
             logger.write(("    >%s\n" % patch_cmd),5)
-            
+
             # Write the command in the log file (can be seen using 'sat log')
             logger.logTxtFile.write("\n    >%s\n" % patch_cmd)
             logger.logTxtFile.flush()
-            
+
             # Call the command
-            res_cmd = (subprocess.call(patch_cmd, 
-                                   shell=True, 
+            res_cmd = (subprocess.call(patch_cmd,
+                                   shell=True,
                                    cwd=product_info.source_dir,
-                                   stdout=logger.logTxtFile, 
-                                   stderr=subprocess.STDOUT) == 0)        
+                                   stdout=logger.logTxtFile,
+                                   stderr=subprocess.STDOUT) == 0)
         else:
             res_cmd = False
-            details.append("  " + 
+            details.append("  " +
                 src.printcolors.printcError(_("Not a valid patch: %s") % patch))
 
-        res.append(res_cmd)
-        
         if res_cmd:
-            message = (_("Apply patch %s") % 
+            message = (_("Apply patch %s") %
                        src.printcolors.printcHighlight(patch))
         else:
             message = src.printcolors.printcWarning(
@@ -113,49 +110,50 @@ def apply_patch(config, product_info, max_product_name_len, logger):
             retcode.append("  %s" % message)
         else:
             retcode.append("%s: %s" % (product_info.name, message))
-        
+
         if len(details) > 0:
             retcode.extend(details)
 
-    res = not (False in res)
-    
-    return res, "\n".join(retcode) + "\n"
+        if not res_cmd:
+            return False, "\n".join(retcode) + "\n"
+
+    return True, "\n".join(retcode) + "\n"
 
 def description():
     '''method that is called when salomeTools is called with --help option.
-    
+
     :return: The text to display for the patch command description.
     :rtype: str
     '''
     return _("The patch command apply the patches on the sources of "
              "the application products if there is any.\n\nexample:\nsat "
              "patch SALOME-master --products qt,boost")
-  
+
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with patch parameter.
     '''
     # Parse the options
     (options, args) = parser.parse_args(args)
-    
+
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
 
     # Print some informations
-    logger.write('Patching sources of the application %s\n' % 
+    logger.write('Patching sources of the application %s\n' %
                 src.printcolors.printcLabel(runner.cfg.VARS.application), 1)
 
-    src.printcolors.print_value(logger, 'workdir', 
+    src.printcolors.print_value(logger, 'workdir',
                                 runner.cfg.APPLICATION.workdir, 2)
     logger.write("\n", 2, False)
 
     # Get the products list with products informations regarding the options
     products_infos = src.product.get_products_list(options, runner.cfg, logger)
-    
+
     # Get the maximum name length in order to format the terminal display
     max_product_name_len = 1
     if len(products_infos) > 0:
         max_product_name_len = max(map(lambda l: len(l), products_infos[0])) + 4
-    
+
     # The loop on all the products on which to apply the patches
     good_result = 0
     for __, product_info in products_infos:
@@ -167,7 +165,7 @@ def run(args, runner, logger):
         logger.write(patch_res, 1, False)
         if return_code:
             good_result += 1
-    
+
     # Display the results (how much passed, how much failed, etc...)
 
     logger.write("\n", 2, False)
@@ -177,10 +175,10 @@ def run(args, runner, logger):
     else:
         status = src.KO_STATUS
         res_count = "%d / %d" % (good_result, len(products_infos))
-    
+
     # write results
     logger.write("Patching sources of the application:", 1)
     logger.write(" " + src.printcolors.printc(status), 1, False)
     logger.write(" (%s)\n" % res_count, 1, False)
-    
+
     return len(products_infos) - good_result

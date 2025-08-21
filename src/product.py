@@ -17,7 +17,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 """\
-In this file are implemented the methods 
+In this file are implemented the methods
 relative to the product notion of salomeTools
 """
 
@@ -37,11 +37,11 @@ config_expression = r"^config-\d+$"
 
 def get_product_config(config, product_name, with_install_dir=True):
     """Get the specific configuration of a product from the global configuration
-    
+
     :param config Config: The global configuration
     :param product_name str: The name of the product
-    :param with_install_dir boolean: If false, do not provide an install 
-                                     directory (at false only for internal use 
+    :param with_install_dir boolean: If false, do not provide an install
+                                     directory (at false only for internal use
                                      of the function check_config_exists)
     :return: the specific configuration of the product
     :rtype: Config
@@ -49,10 +49,10 @@ def get_product_config(config, product_name, with_install_dir=True):
 
     # Get the version of the product from the application definition
     version = config.APPLICATION.products[product_name]
-    
+
     # Define debug and dev modes
     # Get the tag if a dictionary is given in APPLICATION.products for the
-    # current product 
+    # current product
     debug = 'no'
     dev = 'no'
     hpc = 'no'
@@ -61,7 +61,7 @@ def get_product_config(config, product_name, with_install_dir=True):
     section = None
 
     # if no version, then take the default one defined in the application
-    if isinstance(version, bool) or isinstance(version, str): 
+    if isinstance(version, bool) or isinstance(version, str):
         # in this case tag is mandatory, not debug, verbose, dev
         if 'debug' in config.APPLICATION:
             debug = config.APPLICATION.debug
@@ -74,7 +74,7 @@ def get_product_config(config, product_name, with_install_dir=True):
         if 'base' in config.APPLICATION:
             base = config.APPLICATION.base
 
-    # special case for which only the product name is mentionned 
+    # special case for which only the product name is mentionned
     if isinstance(version, bool):
         version = config.APPLICATION.tag
 
@@ -85,25 +85,25 @@ def get_product_config(config, product_name, with_install_dir=True):
             version = config.APPLICATION.tag
         else:
             version = dic_version.tag
-        
+
         # Get the debug if any
         if 'debug' in dic_version:
             debug = dic_version.debug
         elif 'debug' in config.APPLICATION:
             debug = config.APPLICATION.debug
-        
+
         # Get the verbose if any
         if 'verbose' in dic_version:
             verbose = dic_version.verbose
         elif 'verbose' in config.APPLICATION:
             verbose = config.APPLICATION.verbose
-        
+
         # Get the dev if any
         if 'dev' in dic_version:
             dev = dic_version.dev
         elif 'dev' in config.APPLICATION:
             dev = config.APPLICATION.dev
-        
+
         # Get the hpc if any
         if 'hpc' in dic_version:
             hpc = dic_version.hpc
@@ -119,34 +119,34 @@ def get_product_config(config, product_name, with_install_dir=True):
         # Get the section if any
         if 'section' in dic_version:
             section = dic_version.section
-    
+
     # this case occur when version is overwritten, cf sat # 8897
-    if isinstance(version, dict): 
+    if isinstance(version, dict):
         dic_version = version
         # Get the version/tag
         if not 'tag' in dic_version:
             version = config.APPLICATION.tag
         else:
             version = dic_version["tag"]
-        
+
         # Get the debug if any
         if 'debug' in dic_version:
             debug = dic_version["debug"]
         elif 'debug' in config.APPLICATION:
             debug = config.APPLICATION.debug
-        
+
         # Get the verbose if any
         if 'verbose' in dic_version:
             verbose = dic_version["verbose"]
         elif 'verbose' in config.APPLICATION:
             verbose = config.APPLICATION.verbose
-        
+
         # Get the dev if any
         if 'dev' in dic_version:
             dev = dic_version["dev"]
         elif 'dev' in config.APPLICATION:
             dev = config.APPLICATION.dev
-        
+
         # Get the hpc if any
         if 'hpc' in dic_version:
             hpc = dic_version['hpc']
@@ -164,14 +164,14 @@ def get_product_config(config, product_name, with_install_dir=True):
     vv = version
     # substitute some character with _ in order to get the correct definition
     # in config.PRODUCTS. This is done because the pyconf tool does not handle
-    # the . and - characters 
+    # the . and - characters
     for c in ".-/": vv = vv.replace(c, "_")
 
     prod_info = None
     if product_name in config.PRODUCTS:
         # Search for the product description in the configuration
         prod_info = get_product_section(config, product_name, vv, section)
-        
+
         # get salomeTool version
         prod_info.sat_version = src.get_salometool_version(config)
 
@@ -180,32 +180,32 @@ def get_product_config(config, product_name, with_install_dir=True):
             for depend in prod_info.opt_depend:
                 if (depend in config.APPLICATION.products) and (depend not in prod_info.depend) :
                     prod_info.depend.append(depend,'')
-        
 
-        # In case of a product get with a vcs, 
+
+        # In case of a product get with a vcs,
         # put the tag (equal to the version)
         if prod_info is not None and prod_info.get_source in AVAILABLE_VCS:
-            
+
             if prod_info.get_source == 'git':
                 prod_info.git_info.tag = version
-            
+
             if prod_info.get_source == 'svn':
                 prod_info.svn_info.tag = version
-            
+
             if prod_info.get_source == 'cvs':
                 prod_info.cvs_info.tag = version
-        
-        # In case of a fixed product, 
+
+        # In case of a fixed product,
         # define the install_dir (equal to the version)
         if prod_info is not None and \
            (os.path.isdir(version) or version.startswith("/")):
-           # we consider a (fixed) path  existing paths; 
-           # or paths starting with '/' (the objective is to print a correct 
+           # we consider a (fixed) path  existing paths;
+           # or paths starting with '/' (the objective is to print a correct
            # message to the user in case of non existing path.)
             prod_info.install_dir = version
             prod_info.get_source = "fixed"
             prod_info.install_mode = "fixed"
-        
+
         # Check if the product is defined as native in the application
         if prod_info is not None:
             if version == "native":
@@ -250,7 +250,7 @@ No definition corresponding to the version %(1)s was found in the file:
   %(2)s.
 Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
         raise src.SatException(msg)
-    
+
     # Set the debug, dev and version keys
     prod_info.debug = debug
     prod_info.verbose = verbose
@@ -266,7 +266,7 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
             prod_info.addMapping("archive_info",
                                  src.pyconf.Mapping(prod_info),
                                  "")
-        if "archive_name" in prod_info.archive_info: 
+        if "archive_name" in prod_info.archive_info:
             arch_name = prod_info.archive_info.archive_name
         elif "archive_prefix" in prod_info.archive_info:
             arch_name = prod_info.archive_info.archive_prefix + "-" + version + ".tar.gz"
@@ -283,7 +283,7 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
         else:
             prod_info.archive_info.archive_name = arch_path
 
-        
+
     # If the product compiles with a script, check the script existence
     # and if it is executable
     if product_has_script(prod_info):
@@ -293,7 +293,7 @@ Please add a section in it.""") % {"1" : vv, "2" : prod_pyconf_path}
 No compilation script found for the product %s.
 Please provide a 'compil_script' key in its definition.""") % product_name
             raise src.SatException(msg)
-        
+
         # Get the path of the script file
         # if windows supposed '.bat', if linux supposed '.sh'
         # but user set extension script file in his pyconf as he wants, no obligation.
@@ -308,16 +308,16 @@ Please provide a 'compil_script' key in its definition.""") % product_name
                 script_path = "%s_(Not_Found_by_Sat!!)" % script_name
             prod_info.compil_script = script_path
 
-       
+
         # Check that the script is executable
         if os.path.exists(prod_info.compil_script) and not os.access(prod_info.compil_script, os.X_OK):
             DBG.tofix("Compilation script  file is not in 'execute mode'", prod_info.compil_script, True)
-    
+
     # If the product has a post install script, check the script existence
     # and if it is executable
     if product_has_post_script(prod_info):
         # Check the compil_script key existence
-        
+
         # Get the path of the script file
         # if windows supposed '.bat', if linux supposed '.sh'
         # but user set extension script file in his pyconf as he wants, no obligation.
@@ -332,7 +332,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
                 script_path = "%s_(Not_Found_by_Sat!!)" % script_name
             prod_info.post_script = script_path
 
-       
+
         # Check that the script is executable
         if os.path.exists(prod_info.post_script) and not os.access(prod_info.post_script, os.X_OK):
             DBG.tofix("Post install script file is not in 'execute mode'", prod_info.post_script, True)
@@ -346,14 +346,11 @@ Please provide a 'compil_script' key in its definition.""") % product_name
               # If only a filename, then search for the patch in the PRODUCTPATH
               if os.path.basename(patch_path) == patch_path:
                   # Search in the PRODUCTPATH/patches
-                  patch_path = src.find_file_in_lpath(patch,
+                  found_patch_path = src.find_file_in_lpath(patch,
                                                       config.PATHS.PRODUCTPATH,
                                                       "patches")
-                  if not patch_path:
-                      msg = _("Patch %(patch_name)s for %(prod_name)s not found:"
-                              "\n" % {"patch_name" : patch,
-                                       "prod_name" : prod_info.name}) 
-                      raise src.SatException(msg)
+                  if found_patch_path:
+                      patch_path = found_patch_path
               patches.append(patch_path)
         except Exception:
           DBG.tofix("problem in prod_info.patches", prod_info)
@@ -362,7 +359,7 @@ Please provide a 'compil_script' key in its definition.""") % product_name
     # Get the full paths of the environment scripts
     if product_has_env_script(prod_info):
         env_script_path = prod_info.environ.env_script
-        # If only a filename, then search for the environment script 
+        # If only a filename, then search for the environment script
         # in the PRODUCTPATH/env_scripts
         if os.path.basename(env_script_path) == env_script_path:
             # Search in the PRODUCTPATH/env_scripts
@@ -373,35 +370,35 @@ Please provide a 'compil_script' key in its definition.""") % product_name
             if not env_script_path:
                 msg = _("Environment script %(env_name)s for %(prod_name)s not "
                         "found.\n" % {"env_name" : env_script_path,
-                                       "prod_name" : prod_info.name}) 
+                                       "prod_name" : prod_info.name})
                 raise src.SatException(msg)
 
         prod_info.environ.env_script = env_script_path
-    
-    if with_install_dir: 
-        # The variable with_install_dir is at false only for internal use 
+
+    if with_install_dir:
+        # The variable with_install_dir is at false only for internal use
         # of the function get_install_dir
-        
+
         # Save the install_dir key if there is any
         if "install_dir" in prod_info and not "install_dir_save" in prod_info:
             prod_info.install_dir_save = prod_info.install_dir
-        
+
         # if it is not the first time the install_dir is computed, it means
         # that install_dir_save exists and it has to be taken into account.
         if "install_dir_save" in prod_info:
             prod_info.install_dir = prod_info.install_dir_save
-        
+
         # Set the install_dir key
         prod_info.install_dir,prod_info.install_mode = get_install_dir(config, version, prod_info)
     return prod_info
 
 def get_product_section(config, product_name, version, section=None):
     """Build the product description from the configuration
-    
+
     :param config Config: The global configuration
     :param product_name str: The product name
     :param version str: The version of the product as 'V8_4_0', or else.
-    :param section str: The searched section (if not None, the section is 
+    :param section str: The searched section (if not None, the section is
                         explicitly given
     :return: The product description
     :rtype: Config
@@ -480,7 +477,7 @@ def get_product_section(config, product_name, version, section=None):
 
     if is_incr:
         # If the definition is incremental, we take the default section
-        # and then complete it with other sections : 
+        # and then complete it with other sections :
         #   - default_win
         #   - the selected section (pi)
         #   - the selected _win section
@@ -504,28 +501,28 @@ def get_product_section(config, product_name, version, section=None):
     #DBG.write("product info returned for product %s with version %s and section %s" %\
     #          (product_name, version, section), prod_info)
     return prod_info
-    
+
 def get_install_dir(config, version, prod_info):
-    """Compute the installation directory of a given product 
-    
+    """Compute the installation directory of a given product
+
     :param config Config: The global configuration
-    :param base str: This corresponds to the value given by user in its 
+    :param base str: This corresponds to the value given by user in its
                      application.pyconf for the specific product. If "yes", the
                      user wants the product to be in base. If "no", he wants the
                      product to be in the application workdir
     :param version str: The version of the product
-    :param product_info Config: The configuration specific to 
+    :param product_info Config: The configuration specific to
                                the product
-    
+
     :return: The path of the product installation and the mode of the install directory (base/implicit/fixed/value)
     :rtype: str,str
     """
     install_dir = ""
     in_base = False
-    
+
     # prod_info.base : corresponds to what is specified in application pyconf (either from the global key base, or from a product dict)
     # prod_info.install_dir : corresponds to what is specified in product pyconf (usually "base" for prerequisites)
-    if ( ("install_dir" in prod_info and prod_info.install_dir == "base") # product is declared as base in its own config 
+    if ( ("install_dir" in prod_info and prod_info.install_dir == "base") # product is declared as base in its own config
                                       or ("base" in prod_info  and prod_info.base != "no") ):  # product is declared as base in the application
         # a product goes in base if install_dir is set to base, or if product was declared based in application pyconf
         in_base = True
@@ -540,28 +537,28 @@ def get_install_dir(config, version, prod_info):
     else:
         if ("install_mode" in prod_info and prod_info.install_mode in ["implicit", "base"]) or\
            ("install_dir" not in prod_info or prod_info.install_dir == "base"):
-            # the check to "base" comes from the package case were base mode is changed dynamically 
+            # the check to "base" comes from the package case were base mode is changed dynamically
             # to create a package launcher.
 
             # Set it to the default value (in application directory)
             install_mode = "implicit"
-            if ( src.appli_test_property(config,"single_install_dir", "yes") and 
+            if ( src.appli_test_property(config,"single_install_dir", "yes") and
                  src.product.product_test_property(prod_info,"single_install_dir", "yes")):
                 # when single_install_dir mode is activated in tha application
-                # we use config.INTERNAL.config.single_install_dir for products 
+                # we use config.INTERNAL.config.single_install_dir for products
                 # having single_install_dir property
                 install_dir = os.path.join(config.APPLICATION.workdir,
                                            config.INTERNAL.config.install_dir,
                                            config.INTERNAL.config.single_install_dir)
-            elif ( src.appli_test_property(config,"pip", "yes") and 
+            elif ( src.appli_test_property(config,"pip", "yes") and
                    src.product.product_test_property(prod_info,"pip", "yes") and
                    src.appli_test_property(config,"pip_install_dir", "python") ):
                 # when pip mode is activated in the application
-                # and product is pip, and pip_install_dir is set to python 
+                # and product is pip, and pip_install_dir is set to python
                 # we assume python in installed in install_dir/Python
                 install_dir = os.path.join(config.APPLICATION.workdir,
                                            config.INTERNAL.config.install_dir,
-                                           "Python")   
+                                           "Python")
             else:
                 install_dir = os.path.join(config.APPLICATION.workdir,
                                            config.INTERNAL.config.install_dir,
@@ -573,50 +570,50 @@ def get_install_dir(config, version, prod_info):
     return install_dir,install_mode
 
 def get_base_install_dir(config, prod_info, version):
-    """Compute the installation directory of a product in base 
-    
+    """Compute the installation directory of a product in base
+
     :param config Config: The global configuration
-    :param product_info Config: The configuration specific to 
+    :param product_info Config: The configuration specific to
                                the product
-    :param version str: The version of the product    
-    :param base str: This corresponds to the value given by user in its 
+    :param version str: The version of the product
+    :param base str: This corresponds to the value given by user in its
                      application.pyconf for the specific product. If "yes", the
                      user wants the product to be in base. If "no", he wants the
                      product to be in the application workdir.
-                     if it contains something else, is is interpreted as the name 
+                     if it contains something else, is is interpreted as the name
                      of a base we build for module load.
     :return: The path of the product installation
     :rtype: str
     """    
-    
-    # get rid of / to avoid create subdirectories cf sat #18546
-    version_wslash=version.replace("/", "_") 
 
-    if ( src.appli_test_property(config,"pip", "yes") and 
+    # get rid of / to avoid create subdirectories cf sat #18546
+    version_wslash=version.replace("/", "_")
+
+    if ( src.appli_test_property(config,"pip", "yes") and
          src.product.product_test_property(prod_info,"pip", "yes") and
          src.appli_test_property(config,"pip_install_dir", "python") ):
          # when pip mode is activated in the application
-         # and product is pip, and pip_install_dir is set to python 
+         # and product is pip, and pip_install_dir is set to python
         python_info=get_product_config(config, "Python")
         return python_info.install_dir
 
-    base_path = src.get_base_path(config) 
+    base_path = src.get_base_path(config)
     if "base" in prod_info and prod_info.base != "no" and prod_info.base != "yes":
         # we are in the case of a named base
         prod_dir = os.path.join(base_path, "apps", prod_info.base, prod_info.name, version_wslash)
         return prod_dir
-    
+
     prod_dir = os.path.join(base_path, prod_info.name + "-" + version_wslash)
     if not os.path.exists(prod_dir):
         return os.path.join(prod_dir, "config-1")
-    
+
     exists, install_dir = check_config_exists(config, prod_dir, prod_info)
     if exists:
         return install_dir
-    
+
     # Find the first config-<i> directory that is available in the product
     # directory
-    found = False 
+    found = False
     label = 1
     while not found:
         install_dir = os.path.join(prod_dir, "config-%i" % label)
@@ -624,7 +621,7 @@ def get_base_install_dir(config, prod_info, version):
             label+=1
         else:
             found = True
-            
+
     return install_dir
 
 def add_compile_config_file(p_info, config):
