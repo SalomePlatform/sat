@@ -454,6 +454,88 @@ def get_pkg_check_cmd(dist_name):
                     raise src.SatException(manager_msg_err)
     return cmd_is_package_installed
 
+def check_system_pkgs(check_cmd, pkgs):
+    '''Check if a list of packages are installed
+    :param check_cmd list: the list of command to use system package manager
+    :param pkgs list: the list of pkg names to check
+    :rtype: dict
+    :return: a dictionary with package name as key and status message as value
+    '''
+    if not pkgs:
+        return {}
+
+    results = {pkg: src.printcolors.printcError("KO") + " (package is not installed!)\n" for pkg in pkgs}
+    FNULL = open(os.devnull, 'w')
+    cmd = list(check_cmd)
+
+    if check_cmd[0] == "apt":
+        cmd.extend([p + "*" for p in pkgs])
+        p = SP.Popen(cmd, stdout=SP.PIPE, stderr=FNULL)
+        output, _ = p.communicate()
+        output = output.decode("utf-8", "ignore")
+        
+        installed_pkgs_names = set()
+        for line in output.splitlines():
+            if 'installed' in line:
+                installed_pkgs_names.add(line.split('/')[0])
+
+        for installed_name in installed_pkgs_names:
+            best_match = ''
+            for p in pkgs:
+                if installed_name.startswith(p):
+                    if len(p) > len(best_match):
+                        best_match = p
+            if best_match and not results[best_match].startswith('OK'):
+                results[best_match] = src.printcolors.printcSuccess("OK") + " ({} is installed)\n".format(installed_name)
+
+    elif check_cmd[0] == "dpkg-query":
+        cmd.extend([p + "*" for p in pkgs])
+        p = SP.Popen(cmd, stdout=SP.PIPE, stderr=FNULL)
+        output, _ = p.communicate()
+        output = output.decode("utf-8", "ignore")
+
+        installed_packages = []
+        for line in output.splitlines():
+            if line.startswith('ii') or line.startswith('ri'):
+                parts = line.split()
+                if len(parts) > 1:
+                    name = parts[1].split(':')[0]
+                    version = parts[2]
+                    installed_packages.append({'name': name, 'version': version})
+
+        for installed in installed_packages:
+            best_match = ''
+            for p in pkgs:
+                if installed['name'].startswith(p):
+                    if len(p) > len(best_match):
+                        best_match = p
+            if best_match and not results[best_match].startswith('OK'):
+                results[best_match] = src.printcolors.printcSuccess("OK") + " ({} {} is installed)\n".format(installed['name'], installed['version'])
+
+    elif check_cmd[0] == "rpm":
+        cmd.extend(pkgs)
+        p = SP.Popen(cmd, stdout=SP.PIPE, stderr=SP.PIPE)
+        stdout, _ = p.communicate()
+        stdout = stdout.decode("utf-8", "ignore")
+        
+        stdout_lines = stdout.strip().split('\n')
+        
+        for installed_name in stdout_lines:
+            if not installed_name or 'is not installed' in installed_name:
+                continue
+            
+            best_match = ''
+            for p in pkgs:
+                if installed_name.startswith(p + '-'):
+                    if len(p) > len(best_match):
+                        best_match = p
+            
+            if best_match and not results[best_match].startswith('OK'):
+                results[best_match] = src.printcolors.printcSuccess("OK") + " ({})\n".format(installed_name.strip())
+
+    FNULL.close()
+    return results
+
 def check_system_pkg(check_cmd,pkg):
     '''Check if a package is installed
     :param check_cmd list: the list of command to use system package manager
@@ -461,55 +543,4 @@ def check_system_pkg(check_cmd,pkg):
     :rtype: str
     :return: a string with package name with status un message
     '''
-    # build command
-    FNULL = open(os.devnull, 'w')
-    cmd_is_package_installed=[]
-    for cmd in check_cmd:
-        cmd_is_package_installed.append(cmd)
-    cmd_is_package_installed.append(pkg)
-
-
-    if check_cmd[0]=="apt":
-        # special treatment for apt
-        # apt output is too messy for being used
-        # some debian packages have version numbers in their name, we need to add a *
-        # also apt do not return status, we need to use grep
-        # and apt output is too messy for being used 
-        cmd_is_package_installed[-1]+="*" # we don't specify in pyconf the exact name because of version numbers
-        p=SP.Popen(cmd_is_package_installed, stdout=SP.PIPE, stderr=FNULL)
-        try:
-            output = SP.check_output(['grep', pkg], stdin=p.stdout)
-            msg_status=src.printcolors.printcSuccess("OK")
-        except Exception:
-            msg_status=src.printcolors.printcError("KO")
-            msg_status+=" (package is not installed!)\n"
-    elif check_cmd[0] == "dpkg-query":
-        # special treatment for dpkg-query
-        # some debian packages have version numbers in their name, we need to add a *
-        # also dpkg-query do not return status, we need to use grep
-        # and dpkg-query output is too messy for being used
-        cmd_is_package_installed[-1] = (
-            cmd_is_package_installed[-1] + "*"
-        )  # we don't specify in pyconf the exact name because of version numbers
-        p = SP.Popen(cmd_is_package_installed, stdout=SP.PIPE, stderr=FNULL)
-        try:
-            output = SP.check_output(["grep", "-E", "^[ii|ri]"], stdin=p.stdout)
-            msg_status = src.printcolors.printcSuccess("OK")
-        except SP.CalledProcessError:
-            msg_status = src.printcolors.printcError("KO")
-            msg_status += " (package is not installed!)\n"
-    else:
-        p=SP.Popen(cmd_is_package_installed, stdout=SP.PIPE, stderr=FNULL)
-        output, err = p.communicate()
-        rc = p.returncode
-        if rc==0:
-            msg_status=src.printcolors.printcSuccess("OK")
-            # in python3 output is a byte and should be decoded
-            if isinstance(output, bytes):
-                output = output.decode("utf-8", "ignore")
-            msg_status+=" (" + output.replace('\n',' ') + ")\n" # remove output trailing \n
-        else:
-            msg_status=src.printcolors.printcError("KO")
-            msg_status+=" (package is not installed!)\n"
-
-    return msg_status
+    return check_system_pkgs(check_cmd, [pkg])[pkg]
