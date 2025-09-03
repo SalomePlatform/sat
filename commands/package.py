@@ -309,6 +309,19 @@ def produce_relative_launcher(config,
     launcher_name = src.get_launcher_name(config)
     additional_env['APPLI'] = "out_dir_Path" + config.VARS.sep + file_name
 
+    # this hack is required in order to retrieve the PYTHON_LIBDIR
+    global_environ = src.environment.SalomeEnviron(config,
+                                                   src.environment.Environ(additional_env),
+                                                   False)
+    global_environ.set_a_product("Python", logger)
+    global_environ.set_python_libdirs()
+    if 'modules_use_pip' in config.APPLICATION.properties and config.APPLICATION.properties['modules_use_pip']=='yes':
+        additional_env['SAT_INIT_SYS_PATH_VALUE']= os.path.join(kernel_root_dir,global_environ.get("PYTHON_LIBDIR") )
+        additional_env['SAT_MODULES_USE_PIP'] = '1'
+    else:
+        additional_env['SAT_INIT_SYS_PATH_VALUE']=  bin_kernel_install_dir
+        additional_env['SAT_MODULES_USE_PIP'] = '0'
+
     # create an environment file writer
     writer = src.environment.FileEnvWriter(config,
                                            logger,

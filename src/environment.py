@@ -493,8 +493,11 @@ class SalomeEnviron:
             lib_path = os.path.join(env_root_dir, 'lib', 'salome')
             bin_path = os.path.join(env_root_dir, 'bin', 'salome')
             if self.has_python:
-            # if the application doesn't include python, we don't need these two lines
-                pylib_path = os.path.join(env_root_dir, self.python_lib, 'salome')
+                if 'modules_use_pip' in self.cfg.APPLICATION.properties and self.cfg.APPLICATION.properties.modules_use_pip == "yes":
+                    pylib_path = os.path.join(env_root_dir, self.get('PYTHON_LIBDIR'))
+                else:
+                    # if the application doesn't include python, we don't need these two lines
+                    pylib_path = os.path.join(env_root_dir, self.python_lib, 'salome')
 
         # Construct the paths to prepend to PATH and LD_LIBRARY_PATH and 
         # PYTHONPATH
