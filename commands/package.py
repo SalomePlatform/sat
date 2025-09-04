@@ -316,10 +316,10 @@ def produce_relative_launcher(config,
     global_environ.set_a_product("Python", logger)
     global_environ.set_python_libdirs()
     if 'modules_use_pip' in config.APPLICATION.properties and config.APPLICATION.properties['modules_use_pip']=='yes':
-        additional_env['SAT_INIT_SYS_PATH_VALUE']= os.path.join(kernel_root_dir,global_environ.get("PYTHON_LIBDIR") )
+        additional_env['SAT_INIT_SYS_PATH_VALUE']= "out_dir_Path + " + config.VARS.sep + os.path.join(kernel_root_dir,global_environ.get("PYTHON_LIBDIR") )
         additional_env['SAT_MODULES_USE_PIP'] = '1'
     else:
-        additional_env['SAT_INIT_SYS_PATH_VALUE']=  bin_kernel_install_dir
+        additional_env['SAT_INIT_SYS_PATH_VALUE']= "out_dir_Path + " + config.VARS.sep + bin_kernel_install_dir
         additional_env['SAT_MODULES_USE_PIP'] = '0'
 
     # create an environment file writer
