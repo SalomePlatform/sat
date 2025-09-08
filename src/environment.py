@@ -493,7 +493,8 @@ class SalomeEnviron:
             lib_path = os.path.join(env_root_dir, 'lib', 'salome')
             bin_path = os.path.join(env_root_dir, 'bin', 'salome')
             if self.has_python:
-                if 'modules_use_pip' in self.cfg.APPLICATION.properties and self.cfg.APPLICATION.properties.modules_use_pip == "yes":
+                product_without_pip_kernel = src.get_property_in_product_cfg(pi, "without_pip_kernel") is not None and src.get_property_in_product_cfg(pi, "without_pip_kernel") == "yes"
+                if 'modules_use_pip' in self.cfg.APPLICATION.properties and self.cfg.APPLICATION.properties.modules_use_pip == "yes" and not product_without_pip_kernel:
                     pylib_path = os.path.join(env_root_dir, self.get('PYTHON_LIBDIR'))
                 else:
                     # if the application doesn't include python, we don't need these two lines
