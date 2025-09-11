@@ -474,7 +474,7 @@ class LauncherFileEnviron(FileEnviron):
         if self.python_version == 2:
             launcher_header=launcher_header2
         else:
-            if '1' == self.environ.get('SAT_MODULES_USE_PIP'):
+            if '1' == self.environ.get('sat_MODULES_USE_PIP'):
                 launcher_header = launcher_modules_pip_header3
             else:
                 launcher_header=launcher_header3
