@@ -1058,7 +1058,7 @@ def main(args):
   __initialize()
 
   if args == ['--help']:
-    from salomeContext import usage
+    from kernel.salome.salomeContext_impl import usage
     appended_opt_doc = \"""
 --keep-paths
 ============
