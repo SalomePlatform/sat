@@ -651,7 +651,7 @@ def compile_product_cmake_autotools(sat,
         make_arguments = config.VARS.application + " --products " + p_name
         # Get the make_flags option if there is any
         if options.makeflags:
-            make_arguments += " --option -j" + options.makeflags
+            make_arguments += " --option " + options.makeflags
         res_m = sat.make(make_arguments,
                          verbose = 0,
                          logger_add_link = logger)
