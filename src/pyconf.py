@@ -116,7 +116,6 @@ __date__    = "05 October 2007"
 import codecs
 import os
 import sys
-import re
 
 WORD = 'a'
 NUMBER = '9'
@@ -1627,27 +1626,7 @@ class ConfigMerger(object):
             object.__setattr__(overwrite_instruction, 'parent', map1)
             if "__condition__" in overwrite_instruction.keys():
                 overwrite_condition = overwrite_instruction["__condition__"]
-                # check for logical conditions OR, AND, or, and -  For now we only support eval
-                # search for keywords: and, or, AND, OR
-                if (" and " in overwrite_condition) or (" or " in overwrite_condition) or \
-                   (" AND " in overwrite_condition) or (" OR " in overwrite_condition):
-                    # logical condition detected - handle AND/OR explicitly
-                    condition = overwrite_condition
-                    has_and = bool(re.search(' and ', condition, re.IGNORECASE))
-                    has_or  = bool(re.search(' or ', condition, re.IGNORECASE))
-                    # if both and/or present, fall back to eval to preserve precedence
-                    if has_and and has_or:
-                        result = bool(eval(condition, globals(), map1))
-                    elif has_and:
-                        parts = re.split(' and ', condition, flags=re.IGNORECASE)
-                        result = all(bool(eval(p.strip(), globals(), map1)) for p in parts)
-                    else:
-                        parts = re.split(' or ', condition, flags=re.IGNORECASE)
-                        result = any(bool(eval(p.strip(), globals(), map1)) for p in parts)
-                else:
-                    result = bool(eval(overwrite_condition, globals(), map1))
-
-                if result:
+                if eval(overwrite_condition, globals(), map1):
                     for key in overwrite_instruction.keys():
                         if key == "__condition__":
                             continue
