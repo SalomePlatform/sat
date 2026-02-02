@@ -549,12 +549,20 @@ class ConfigManager:
         for rule in self.get_command_line_overrides(options, ["USER"]):
             exec('cfg.' + rule) # this cannot be factorize because of the exec
         
+        # remove application products "blacklisted" in rm_products_for_all_distributions field
+        if "APPLICATION" in cfg and "rm_products_for_all_distributions" in cfg.APPLICATION:
+            for prod_to_remove in cfg.APPLICATION.rm_products_for_all_distributions:
+                cfg.APPLICATION.products.__delitem__(prod_to_remove)
+            # remove rm_products section after usage
+            cfg.APPLICATION.__delitem__("rm_products_for_all_distributions")
+
         # remove application products "blacklisted" in rm_products field
         if "APPLICATION" in cfg and "rm_products" in cfg.APPLICATION:
             for prod_to_remove in cfg.APPLICATION.rm_products:
                 cfg.APPLICATION.products.__delitem__(prod_to_remove)
             # remove rm_products section after usage
             cfg.APPLICATION.__delitem__("rm_products")
+
         return cfg
 
     def set_user_config_file(self, config):
