@@ -60,6 +60,13 @@ import src.utilsSat as UTS
 
 # get path to salomeTools sources
 satdir  = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+
+if ' ' in satdir:
+    msg = "ERROR: SAT does not allow spaces in the installation directory ('%s').\n" % satdir
+    msg += "Please use a directory without spaces."
+    sys.stderr.write(msg + "\n")
+    sys.exit(_KOSYS)
+
 srcdir = os.path.join(satdir, 'src')
 cmdsdir = os.path.join(satdir, 'commands')
 

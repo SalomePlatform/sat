@@ -17,6 +17,7 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
 import os
+import sys
 
 import src
 
@@ -79,6 +80,12 @@ def add_local_project(config, project_file, logger):
     :return: 0 if all is OK, else 1
     :rtype: int
     """
+    if ' ' in os.path.dirname(os.path.abspath(project_file)):
+        msg = _("ERROR: SAT does not allow spaces in the project directory ('%s').\n"
+               "Please use a directory without spaces.") % os.path.dirname(os.path.abspath(project_file))
+        sys.stderr.write(msg + "\n")
+        sys.exit(1)
+
     if not os.path.isfile(project_file):
         logger.write("Unable to add a project in local configuration, project file %s does not exist\n" % project_file, 1)
         return 1

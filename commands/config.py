@@ -35,6 +35,13 @@ verbose = False # True for debug
 
 # internationalization
 satdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+
+if ' ' in satdir:
+    msg = "ERROR: SAT does not allow spaces in the installation directory ('%s').\n" % satdir
+    msg += "Please use a directory without spaces."
+    sys.stderr.write(msg + "\n")
+    sys.exit(1)
+
 gettext.install('salomeTools', os.path.join(satdir, 'src', 'i18n'))
 
 # Define all possible option for config command :  sat config <options>
@@ -254,6 +261,13 @@ class ConfigManager:
         for variable in var:
             cfg.VARS[variable] = var[variable]
         
+        # Check for spaces in SAT installation directory
+        if ' ' in cfg.VARS.salometoolsway:
+            msg = _("ERROR: SAT does not allow spaces in the installation directory ('%s').\n"
+                   "Please use a directory without spaces.") % cfg.VARS.salometoolsway
+            sys.stderr.write(msg + "\n")
+            sys.exit(1)
+
         # apply overwrite from command line if needed
         for rule in self.get_command_line_overrides(options, ["VARS"]):
             exec('cfg.' + rule) # this cannot be factorized because of the exec
@@ -337,6 +351,15 @@ class ConfigManager:
                 # for a relative path (archive case) we complete with sat path
                 project_pyconf_path = os.path.join(cfg.VARS.salometoolsway,
                                                   project_pyconf_path)
+            
+            # Check for spaces in project directory
+            project_dir = os.path.dirname(project_pyconf_path)
+            if ' ' in project_dir:
+                msg = _("ERROR: SAT does not allow spaces in the project directory ('%s').\n"
+                       "Please use a directory without spaces.") % project_dir
+                sys.stderr.write(msg + "\n")
+                sys.exit(1)
+
             if not os.path.exists(project_pyconf_path):
                 msg = _("WARNING: The project file %s cannot be found. "
                         "It will be ignored\n" % project_pyconf_path)
