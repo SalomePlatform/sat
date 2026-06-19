@@ -35,6 +35,8 @@ parser.add_option('', 'force_patch', 'boolean', 'force_patch',
 parser.add_option('c', 'complete', 'boolean', 'complete',
     _("Optional: completion mode, only prepare products not present in SOURCES dir."),
     False)
+parser.add_option('', 'offline', 'boolean', 'offline',
+    _("Optional: use only local archives; disable network; error if missing."))
 
 def find_products_already_prepared(l_products):
     '''function that returns the list of products that have an existing source 
@@ -166,7 +168,9 @@ Use the --force_patch option to overwrite it.
       
     # Construct the final commands arguments
     args_clean = args_appli + args_product_opt_clean + " --sources"
-    args_source = args_appli + args_product_opt  
+    args_source = args_appli + args_product_opt
+    if getattr(options, "offline", False):
+        args_source += " --offline"
     args_patch = args_appli + args_product_opt_patch
     # Initialize the results to a running status
     res_clean = 0
@@ -213,5 +217,4 @@ def removeInList(aList, removeList):
     res1 = [i for i in aList if i not in removeList]
     res2 = [i for i in aList if i in removeList]
     return (res1, res2)
-
 
