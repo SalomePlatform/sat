@@ -26,6 +26,7 @@ import shutil
 import errno
 import stat
 import fnmatch
+import time
 import pprint as PP
 from ftplib import FTP
 
@@ -478,6 +479,48 @@ def find_file_in_lpath(file_name, lpath, additional_dir = ""):
                 return os.path.join(dir_complete, file_name)
     return False
 
+def _human_size(nb_bytes):
+    """Format a number of bytes as a short human readable string (KB, MB, GB)."""
+    size = float(nb_bytes)
+    for unit in ["B", "KB", "MB", "GB"]:
+        if size < 1024.0:
+            return "%3.1f%s" % (size, unit)
+        size /= 1024.0
+    return "%3.1f%s" % (size, "TB")
+
+def _ftp_progress_callback(dest_file, total_size, file_name, logger, bar_length=30):
+    """\
+    Build a callback suitable for ftplib.FTP.retrbinary that writes the
+    received data to dest_file and prints a wget-like progress bar showing
+    the percentage done, the amount downloaded and the download speed.
+
+    :param dest_file file: The already opened destination file
+    :param total_size int: The expected total size of the file, in bytes
+    :param file_name str: The name of the file being downloaded (for display)
+    :param logger Logger: The logging instance to use for the prints.
+    :param bar_length int: The width (in characters) of the progress bar
+    :return: a function to pass as the callback argument of retrbinary
+    :rtype: function
+    """
+    state = {"downloaded": 0, "start": time.time()}
+
+    def callback(data):
+        dest_file.write(data)
+        state["downloaded"] += len(data)
+        downloaded = state["downloaded"]
+        percent = min(100, int(downloaded * 100 / total_size))
+        nb_equals = int(bar_length * percent / 100)
+        bar = "=" * nb_equals + ">" + " " * (bar_length - nb_equals)
+        elapsed = time.time() - state["start"]
+        speed = downloaded / elapsed if elapsed > 0 else 0
+        logger.write("\r   %-40s [%s] %3d%%  %s  %s/s" %
+                      (file_name, bar[:bar_length], percent,
+                       _human_size(downloaded), _human_size(speed)),
+                      3, False)
+        logger.flush()
+
+    return callback
+
 def find_file_in_ftppath(file_name, ftppath, installation_dir, logger, additional_dir = ""):
     """\
     Find in all ftp servers in ftppath the file called file_name
@@ -533,10 +576,18 @@ def find_file_in_ftppath(file_name, ftppath, installation_dir, logger, additiona
            pass
 
        try:
-           if ftp.size(file_name) > 0:
+           total_size = ftp.size(file_name)
+           if total_size > 0:
                # if file exists and is non empty
+               ftp_url_parts = list(ftp_archive_split)
+               if additional_dir:
+                   ftp_url_parts.append(additional_dir)
+               ftp_url = "ftp://" + "/".join(ftp_url_parts + [file_name])
+               logger.write("   Downloading %s\n" % ftp_url, 3)
                with open(destination,'wb') as dest_file:
-                   ftp.retrbinary("RETR "+file_name, dest_file.write)
+                   ftp.retrbinary("RETR "+file_name,
+                                  _ftp_progress_callback(dest_file, total_size, file_name, logger))
+               logger.write("\n", 3, False)
                logger.write("   Archive %s was retrieved and stored in %s\n" % (file_name, destination), 3)
                return destination
        except Exception:
