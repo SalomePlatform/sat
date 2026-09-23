@@ -144,6 +144,10 @@ parser.add_option('', 'without_properties', 'properties', 'without_properties',
     _('Optional: Filter the products by their properties.\n\tSyntax: '
       '--without_properties <property>:<value>'))
 parser.add_option('', 'with-extra.env.d', 'boolean', 'with_extra_env_d', _('Optional: generate one environment per product'), False)
+parser.add_option('', 'build_msi', 'boolean', 'build_msi',
+    _('Optional: (Windows only) build a Windows MSI installer of the application '
+      'from its compiled install tree, using the installer resources defined by '
+      'the project (APPLICATION.installer).'), False)
 
 
 def add_files(tar, name_archive, d_content, logger, f_exclude=None):
@@ -1698,6 +1702,11 @@ def run(args, runner, logger):
     # Parse the options
     (options, args) = parser.parse_args(args)
 
+    # --build_msi builds a Windows installer directly from the application's
+    # compiled install tree (not from a tar.gz). Handle it early and return.
+    if options.build_msi:
+        import src.msi as MSI
+        return MSI.build_msi(runner.cfg, options, logger)
 
     # Check that a type of package is called, and only one
     all_option_types = (options.binaries,
