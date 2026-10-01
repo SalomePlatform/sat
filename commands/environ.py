@@ -139,9 +139,9 @@ def run(args, runner, logger):
     else:
         # add products specified by user (only products 
         # included in the application)
-        environ_info = filter(lambda l:
+        environ_info = list(filter(lambda l:
                               l in runner.cfg.APPLICATION.products.keys(),
-                              options.products)
+                              options.products))
     
     if options.shell == []:
         shell = ["bash"]
