@@ -29,6 +29,10 @@ import src.debug as DBG
 parser = src.options.Options()
 parser.add_option('p', 'products', 'list2', 'products',
     _('Optional: products from which to get the sources. This option accepts a comma separated list.'))
+parser.add_option('', 'offline', 'boolean', 'offline',
+    _('Optional: use only local archives; disable network; error if missing.'))
+
+OFFLINE = False
 
 def get_source_for_dev(config, product_info, source_dir, logger, pad):
     '''The method called if the product is in development mode
@@ -191,19 +195,22 @@ def get_source_from_archive(config, product_info, source_dir, logger):
         logger.write(pip_msg, 3) 
         return True
 
+    # resolve archive path in local ARCHIVEPATH list
+    aname = product_info.archive_info.archive_name
+    if not os.path.isabs(aname) and not os.path.exists(aname):
+        found = src.find_file_in_lpath(aname, config.PATHS.ARCHIVEPATH)
+        if found:
+            product_info.archive_info.archive_name = found
     # check archive exists
     if not os.path.exists(product_info.archive_info.archive_name):
-        # The archive is not found on local file system (ARCHIVEPATH)
-        # We try ftp!
+        if OFFLINE:
+            raise src.SatException(_("Archive not found locally in ARCHIVEPATH: '%s'") % aname)
         logger.write("\n   The archive is not found on local file system, we try ftp\n", 3)
-        ret=src.find_file_in_ftppath(product_info.archive_info.archive_name, 
-                                     config.PATHS.ARCHIVEFTP, config.LOCAL.archive_dir, logger)
+        ret=src.find_file_in_ftppath(aname, config.PATHS.ARCHIVEFTP, config.LOCAL.archive_dir, logger)
         if ret:
-            # archive was found on ftp and stored in ret
             product_info.archive_info.archive_name=ret
         else:
-            raise src.SatException(_("Archive not found in ARCHIVEPATH, nor on ARCHIVEFTP: '%s'") % 
-                                   product_info.archive_info.archive_name)
+            raise src.SatException(_("Archive not found in ARCHIVEPATH, nor on ARCHIVEFTP: '%s'") % aname)
 
     logger.write('arc:%s ... ' % 
                  src.printcolors.printcInfo(product_info.archive_info.archive_name),
@@ -400,6 +407,48 @@ def get_product_sources(config,
                                    logger, 
                                    pad)
 
+    if OFFLINE and product_info.get_source in ["git","cvs","svn"]:
+        # try fallback to local archive by name
+        candidates = []
+        if "archive_info" in product_info and "archive_name" in product_info.archive_info:
+            candidates.append(product_info.archive_info.archive_name)
+        pname = product_info.name
+        candidates.append(pname + ".tar.gz")
+        candidates.append(pname.lower() + ".tar.gz")
+        candidates.append(pname.upper() + ".tar.gz")
+        found = None
+        for cname in candidates:
+            fp = src.find_file_in_lpath(cname, config.PATHS.ARCHIVEPATH)
+            if fp:
+                found = fp
+                break
+        if not found:
+            # try scanning archive directories for case-insensitive prefix match
+            for ap in config.PATHS.ARCHIVEPATH:
+                try:
+                    if not os.path.isdir(ap):
+                        continue
+                    for f in os.listdir(ap):
+                        fl = f.lower()
+                        if fl.endswith(".tar.gz") and (fl.startswith(pname.lower())):
+                            found = os.path.join(ap, f)
+                            break
+                    if found:
+                        break
+                except Exception:
+                    continue
+        if found:
+            # inject archive_info and switch to archive
+            try:
+                product_info.archive_info.archive_name = found
+            except Exception:
+                ai = src.pyconf.Mapping(product_info)
+                ai["archive_name"] = found
+                product_info.archive_info = ai
+            product_info.get_source = "archive"
+            return get_source_from_archive(config, product_info, source_dir, logger)
+        raise src.SatException(_("Offline mode: network source disabled for '%s', no local archive found") % product_info.name)
+
     if product_info.get_source == "git":
         return get_source_from_git(config, product_info, source_dir, logger, pad, 
                                     is_dev, env_appli)
@@ -583,6 +632,8 @@ def run(args, runner, logger):
     DBG.write("source.run()", args)
     # Parse the options
     (options, args) = parser.parse_args(args)
+    global OFFLINE
+    OFFLINE = bool(getattr(options, "offline", False))
     
     # check that the command has been called with an application
     src.check_config_has_application( runner.cfg )
