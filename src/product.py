@@ -1350,6 +1350,17 @@ def check_system_dep(distrib, check_cmd, product_info):
                 if "apt_dev" in additional_sysinfo:
                     build_dep_pkgs.extend(additional_sysinfo.apt_dev)
 
+        elif os.path.basename(check_cmd[0]) in ("brew", "port"):
+            # macOS: Homebrew or MacPorts (see src.system.get_pkg_check_cmd)
+            pkg_key = os.path.basename(check_cmd[0])
+            for info in (sysinfo, additional_sysinfo):
+                if not info:
+                    continue
+                if pkg_key in info:
+                    runtime_dep_pkgs.extend(info[pkg_key])
+                if pkg_key + "_dev" in info:
+                    build_dep_pkgs.extend(info[pkg_key + "_dev"])
+
     runtime_dep = src.system.check_system_pkgs(check_cmd, runtime_dep_pkgs)
     build_dep = src.system.check_system_pkgs(check_cmd, build_dep_pkgs)
 
