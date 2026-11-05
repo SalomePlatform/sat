@@ -110,7 +110,20 @@ $LOCAL.workdir + $VARS.sep + \"""" + PROJECT_DIR + """\" + $VARS.sep + "project.
 """)
 
 # Define all possible option for the package command :  sat package <options>
+#
+# The format of the archive is selected with --archive (tar, dmg or msi).
+# The options are compatible with all the formats, except when the help
+# says otherwise: the msi installer (src/msi.py) only contains the binaries
+# of the application, and the dmg options only apply to the dmg archive.
+NOT_MSI = _("Not compatible with the msi archive.")
+DMG_ONLY = _("Required : dmg archive option")
+
 parser = src.options.Options()
+parser.add_option('a', 'archive', 'string', 'archive',
+    _('Optional : Default option is tar.\n'
+      '           Available options is dmg, tar and msi.\n'
+      '           With dmg, it can also be the path of an archive produced by\n'
+      '           "sat package -b" (the bundle is built from this archive).'), "")
 parser.add_option('b', 'binaries', 'boolean', 'binaries',
     _('Optional: Produce a binary package.'), False)
 parser.add_option('f', 'force_creation', 'boolean', 'force_creation',
@@ -118,32 +131,102 @@ parser.add_option('f', 'force_creation', 'boolean', 'force_creation',
       'there are some missing products.'), False)
 parser.add_option('s', 'sources', 'boolean', 'sources',
     _('Optional: Produce a compilable archive of the sources of the '
-      'application.'), False)
+      'application.') + "\n" + NOT_MSI, False)
 parser.add_option('', 'bin_products', 'boolean', 'bin_products',
     _('Optional: Create binary archives for all products.'), False)
 parser.add_option('', 'with_vcs', 'boolean', 'with_vcs',
     _('Optional: Do not make archive for products in VCS mode (git, cvs, svn). '
       'Sat prepare will use VCS mode instead to retrieve them.'
-      '\n          Also, when combined with "--bin_products" option, restrict the building of product archives to VCS products.'),
+      '\n          Also, when combined with "--bin_products" option, restrict the building of product archives to VCS products.')
+    + "\n" + _('Not compatible with the msi archive, except combined with "--bin_products".'),
     False)
 parser.add_option('', 'ftp', 'boolean', 'ftp',
     _('Optional: Do not embed archives for products in archive mode.'
-    'Sat prepare will use ftp instead to retrieve them'),
+    'Sat prepare will use ftp instead to retrieve them') + "\n" + NOT_MSI,
     False)
 parser.add_option('e', 'exe', 'string', 'exe',
-    _('Optional: Produce an extra launcher based upon the exe given as argument.'), "")
+    _('Optional: Produce an extra launcher based upon the exe given as argument.')
+    + "\n" + NOT_MSI, "")
 parser.add_option('p', 'project', 'string', 'project',
-    _('Optional: Produce an archive that contains a project.'), "")
+    _('Optional: Produce an archive that contains a project.') + "\n" + NOT_MSI, "")
 parser.add_option('t', 'salometools', 'boolean', 'sat',
-    _('Optional: Produce an archive that contains salomeTools.'), False)
+    _('Optional: Produce an archive that contains salomeTools.') + "\n" + NOT_MSI, False)
 parser.add_option('n', 'name', 'string', 'name',
-    _('Optional: The name or full path of the archive.'), None)
+    _('Optional: The name or full path of the archive.\n'
+      '          If dmg archive options is enable the default value will be "%s"')
+    % "SALOME", None)
 parser.add_option('', 'add_files', 'list2', 'add_files',
     _('Optional: The list of additional files to add to the archive.'), [])
 parser.add_option('', 'without_properties', 'properties', 'without_properties',
     _('Optional: Filter the products by their properties.\n\tSyntax: '
       '--without_properties <property>:<value>'))
-parser.add_option('', 'with-extra.env.d', 'boolean', 'with_extra_env_d', _('Optional: generate one environment per product'), False)
+parser.add_option('', 'with-extra.env.d', 'boolean', 'with_extra_env_d',
+    _('Optional: generate one environment per product') + "\n" + NOT_MSI, False)
+# dmg archive options (macOS bundle + disk image, see src/dmg.py)
+parser.add_option('', 'bundle_version', 'string', 'bundle_version',
+    DMG_ONLY + "\n" +
+    _('Optional: the version of the bundle (default: the SALOME version).'), "")
+parser.add_option('', 'bundle_id', 'string', 'bundle_id',
+    DMG_ONLY + "\n" +
+    _('Optional: the CFBundleIdentifier (default: org.salome-platform.salome).'),
+    "org.salome-platform.salome")
+parser.add_option('i', 'icon', 'string', 'icon',
+    DMG_ONLY + "\n" +
+    _('Optional: icon of the bundle, .icns or .png file (1024x1024 recommended).'), "")
+parser.add_option('', 'slim', 'boolean', 'slim',
+    DMG_ONLY + "\n" +
+    _('Optional: remove development files (include/, *.a, *.la, lib/pkgconfig, lib/cmake).'),
+    False)
+parser.add_option('', 'no_test', 'boolean', 'no_test',
+    DMG_ONLY + "\n" +
+    _('Optional: do not run the launch test of the bundle.'), False)
+parser.add_option('', 'sign_adhoc', 'boolean', 'sign_adhoc',
+    DMG_ONLY + "\n" +
+    _('Optional: ad hoc signature of the whole bundle (seals its content).'), False)
+parser.add_option('', 'no_dmg', 'boolean', 'no_dmg',
+    DMG_ONLY + "\n" +
+    _('Optional: do not create the disk image, only the bundle.'), False)
+parser.add_option('', 'replace', 'boolean', 'replace',
+    DMG_ONLY + "\n" +
+    _('Optional: replace an existing bundle and disk image.'), False)
+
+ARCHIVE_TAR = "tar"
+ARCHIVE_DMG = "dmg"
+ARCHIVE_MSI = "msi"
+ARCHIVE_TYPES = (ARCHIVE_TAR, ARCHIVE_DMG, ARCHIVE_MSI)
+
+# options that define the content of the archive: (option name, destination name)
+CONTENT_OPTIONS = [("--binaries", "binaries"),
+                   ("--sources", "sources"),
+                   ("--bin_products", "bin_products"),
+                   ("--with_vcs", "with_vcs"),
+                   ("--ftp", "ftp"),
+                   ("--exe", "exe"),
+                   ("--project", "project"),
+                   ("--salometools", "sat"),
+                   ("--add_files", "add_files"),
+                   ("--without_properties", "without_properties"),
+                   ("--with-extra.env.d", "with_extra_env_d")]
+
+# options of the package command that the msi installer does not support
+# (--with_vcs is accepted with --bin_products)
+NOT_MSI_OPTIONS = [("--sources", "sources"),
+                   ("--with_vcs", "with_vcs"),
+                   ("--ftp", "ftp"),
+                   ("--exe", "exe"),
+                   ("--project", "project"),
+                   ("--salometools", "sat"),
+                   ("--with-extra.env.d", "with_extra_env_d")]
+
+# options that only apply to the dmg archive, with their default value
+DMG_OPTIONS = [("--bundle_version", "bundle_version", ""),
+               ("--bundle_id", "bundle_id", "org.salome-platform.salome"),
+               ("--icon", "icon", ""),
+               ("--slim", "slim", False),
+               ("--no_test", "no_test", False),
+               ("--sign_adhoc", "sign_adhoc", False),
+               ("--no_dmg", "no_dmg", False),
+               ("--replace", "replace", False)]
 
 
 def add_files(tar, name_archive, d_content, logger, f_exclude=None):
@@ -1669,6 +1752,121 @@ def update_config(config, logger,  prop, value):
             config.APPLICATION.products.__delitem__(product_name)
             logger.write("Remove product %s with property %s\n" % (product_name, prop), 5)
 
+def _is_set(options, dest):
+    """True if the option dest was given on the command line"""
+    value = getattr(options, dest, None)
+    return value not in (None, False, "", [])
+
+
+def get_archive_type(options, logger):
+    """Returns (archive type, path of an existing archive to convert or None)
+       from the --archive option, None if the option is wrong.
+
+       --archive accepts tar (default), dmg, msi, or the path of an archive
+       produced by "sat package -b" (dmg built from this archive)."""
+    value = options.archive
+    if not value:
+        return ARCHIVE_TAR, None
+    if value.lower() in ARCHIVE_TYPES:
+        return value.lower(), None
+    if value.endswith((".tar.gz", ".tgz", ".tar")):
+        if not os.path.isfile(value):
+            msg = _("Error: archive %s not found") % value
+            logger.write(src.printcolors.printcError(msg) + "\n", 1)
+            return None
+        return ARCHIVE_DMG, os.path.abspath(value)
+    msg = _("Error: unknown archive type '%(1)s'\nAvailable options are: %(2)s, "
+            "or the path of an archive produced by 'sat package -b'") % \
+          {"1": value, "2": ", ".join(ARCHIVE_TYPES)}
+    logger.write(src.printcolors.printcError(msg) + "\n", 1)
+    return None
+
+
+def check_options_compatibility(options, archive_type, from_archive, logger):
+    """Checks that the options are compatible with the archive type.
+       Returns True if they are."""
+    if archive_type != ARCHIVE_DMG:
+        # the dmg options require --archive dmg
+        dmg_options = [o for o, dest, default in DMG_OPTIONS
+                       if getattr(options, dest, default) != default]
+        if dmg_options:
+            msg = _("Error: option(s) %(1)s require the dmg archive (--archive dmg), "
+                    "not the %(2)s archive") % \
+                  {"1": ", ".join(dmg_options), "2": archive_type}
+            logger.write(src.printcolors.printcError(msg) + "\n", 1)
+            return False
+    incompatible = []
+    if archive_type == ARCHIVE_MSI:
+        incompatible = [o for o, dest in NOT_MSI_OPTIONS if _is_set(options, dest)
+                        and not (dest == "with_vcs" and options.bin_products)]
+    elif archive_type == ARCHIVE_DMG and from_archive:
+        # the content of the bundle is the content of the given archive
+        incompatible = [o for o, dest in CONTENT_OPTIONS if _is_set(options, dest)]
+    if incompatible:
+        what = _("the %s archive") % archive_type if not from_archive else \
+               _("a dmg archive built from %s") % from_archive
+        msg = _("Error: option(s) %(1)s not compatible with %(2)s") % \
+              {"1": ", ".join(incompatible), "2": what}
+        logger.write(src.printcolors.printcError(msg) + "\n", 1)
+        return False
+    return True
+
+
+def build_msi_package(runner, options, logger):
+    """msi archive: the Windows installer is built directly from the
+       compiled install tree of the application (src/msi.py)"""
+    import src.msi as MSI
+    if not MSI.check_prerequisites(logger):
+        return 1
+    src.check_config_has_application(runner.cfg)
+    # the installer contains the binaries of the application
+    options.binaries = True
+    if options.bin_products:
+        ret = bin_products_archives(runner.cfg, logger, options.with_vcs)
+        if ret != 0:
+            return ret
+    return MSI.build_msi(runner.cfg, options, logger)
+
+
+def build_dmg_from_archive(runner, options, from_archive, logger):
+    """dmg archive built from an archive produced by 'sat package -b'"""
+    import src.dmg as DMG
+    if not DMG.check_prerequisites(logger):
+        return 1
+    if "APPLICATION" in runner.cfg:
+        dir_default = os.path.join(runner.cfg.APPLICATION.workdir, "PACKAGE")
+    else:
+        dir_default = os.getcwd()
+    name, dir_name = DMG.DEFAULT_NAME, dir_default
+    if options.name:
+        name = os.path.basename(options.name)
+        if os.path.dirname(options.name):
+            dir_name = os.path.abspath(os.path.dirname(options.name))
+    if name.endswith((".app", ".dmg")):
+        name = name[:-4]
+    return DMG.build_dmg(runner.cfg, logger, options, dir_name, name,
+                         from_archive=from_archive)
+
+
+def _clean_tmp_dirs(runner, tmp_working_dir):
+    """removes the temporary directories of the package command"""
+    # case if no application, only package sat as 'sat package -t'
+    try:
+        app = runner.cfg.APPLICATION
+    except Exception:
+        app = None
+
+    # unconditionaly remove the tmp_local_working_dir
+    if app is not None:
+        tmp_local_working_dir = os.path.join(app.workdir, "tmp_package")
+        if os.path.isdir(tmp_local_working_dir):
+            shutil.rmtree(tmp_local_working_dir)
+
+    # remove the tmp directory, unless user has registered as developer
+    if os.path.isdir(tmp_working_dir) and (not DBG.isDeveloper()):
+        shutil.rmtree(tmp_working_dir)
+
+
 def description():
     '''method that is called when salomeTools is called with --help option.
 
@@ -1688,8 +1886,30 @@ There are four kinds of archive, which can be mixed:
  4 - The salomeTools archive.
      It contains code utility salomeTools.
 
-example:
- >> sat package SALOME-master --binaries --sources""")
+The format of the archive is selected with --archive:
+ tar (default), dmg (macOS bundle and disk image) or msi (Windows installer).
+
+examples:
+ # tar archives (default), in <workdir>/PACKAGE with --binaries or --sources
+ >> sat package SALOME-master --binaries
+ >> sat package SALOME-master --binaries --sources
+ >> sat package SALOME-master --sources --with_vcs
+ >> sat package SALOME-master --binaries --name /tmp/SALOME-master-bin --add_files README.md
+ >> sat package SALOME-master --bin_products --with_vcs
+ >> sat package --salometools
+ >> sat package --project salome --salometools
+
+ # dmg archive (macOS): SALOME.app and SALOME-<version>-<dist>-<arch>.dmg
+ >> sat package SALOME-master-macOS --archive dmg
+ >> sat package SALOME-master-macOS --archive dmg --name SALOME --icon salome.png --slim
+ >> sat package SALOME-master-macOS --archive dmg --bundle_version 9.16.0 --sign_adhoc --replace
+ >> sat package SALOME-master-macOS --archive dmg --no_dmg --no_test
+ # dmg archive built from an archive produced by "sat package -b"
+ >> sat package SALOME-master-macOS --archive /tmp/SALOME-master-MACOS15.tar.gz --icon salome.png
+
+ # msi archive (Windows): <APPLICATION.name>-win64.msi in <workdir>/MSI/build
+ >> sat package SALOME-master-windows --archive msi
+ >> sat package SALOME-master-windows --archive msi --name C:\\packages\\SALOME-9.16.0 --add_files LICENSE.txt""")
 
 def run(args, runner, logger):
     '''method that is called when salomeTools is called with package parameter.
@@ -1698,6 +1918,27 @@ def run(args, runner, logger):
     # Parse the options
     (options, args) = parser.parse_args(args)
 
+    # Format of the archive: tar (default), dmg or msi
+    res = get_archive_type(options, logger)
+    if res is None:
+        return 1
+    archive_type, from_archive = res
+    if not check_options_compatibility(options, archive_type, from_archive, logger):
+        return 1
+
+    # --archive msi builds a Windows installer directly from the application's
+    # compiled install tree (not from a tar.gz). Handle it early and return.
+    if archive_type == ARCHIVE_MSI:
+        return build_msi_package(runner, options, logger)
+
+    if archive_type == ARCHIVE_DMG:
+        import src.dmg as DMG
+        if from_archive:
+            return build_dmg_from_archive(runner, options, from_archive, logger)
+        if not DMG.check_prerequisites(logger):
+            return 1
+        # the bundle runs the binaries of the application
+        options.binaries = True
 
     # Check that a type of package is called, and only one
     all_option_types = (options.binaries,
@@ -1776,7 +2017,17 @@ Please add it in file:
     update_config(runner.cfg, logger, "not_in_package", "yes")
 
     # get the name of the archive or build it
-    if options.name:
+    if archive_type == ARCHIVE_DMG:
+        # name of the bundle: <dir_name>/<archive_name>.app
+        archive_name = DMG.DEFAULT_NAME
+        dir_name = package_default_path
+        if options.name:
+            archive_name = os.path.basename(options.name)
+            if os.path.dirname(options.name):
+                dir_name = os.path.abspath(os.path.dirname(options.name))
+        if archive_name.endswith((".app", ".dmg")):
+            archive_name = archive_name[:-4]
+    elif options.name:
         if os.path.basename(options.name) == options.name:
             # only a name (not a path)
             archive_name = options.name
@@ -1824,7 +2075,8 @@ Please add it in file:
 
     path_targz = os.path.join(dir_name, archive_name + PACKAGE_EXT)
 
-    src.printcolors.print_value(logger, "Package path", path_targz, 2)
+    if archive_type == ARCHIVE_TAR:
+        src.printcolors.print_value(logger, "Package path", path_targz, 2)
 
     # Create a working directory for all files that are produced during the
     # package creation and that will be removed at the end of the command
@@ -1920,6 +2172,13 @@ Please add it in file:
     logger.write("\nfiles and directories to add:\n%s\n\n" % PP.pformat(d_files_to_add), 5)
 
     res = 0
+    if archive_type == ARCHIVE_DMG:
+        # the content of the archive is copied into the bundle instead of a tar file
+        res = DMG.build_dmg(runner.cfg, logger, options, dir_name, archive_name,
+                            d_files=d_files_to_add)
+        _clean_tmp_dirs(runner, tmp_working_dir)
+        return res
+
     try:
         # Creating the object tarfile
         tar = tarfile.open(path_targz, mode='w:gz')
@@ -1942,21 +2201,7 @@ Please add it in file:
         logger.write(_("\n"), 1)
         return 1
 
-    # case if no application, only package sat as 'sat package -t'
-    try:
-        app = runner.cfg.APPLICATION
-    except Exception:
-        app = None
-
-    # unconditionaly remove the tmp_local_working_dir
-    if app is not None:
-        tmp_local_working_dir = os.path.join(app.workdir, "tmp_package")
-        if os.path.isdir(tmp_local_working_dir):
-            shutil.rmtree(tmp_local_working_dir)
-
-    # remove the tmp directory, unless user has registered as developer
-    if os.path.isdir(tmp_working_dir) and (not DBG.isDeveloper()):
-        shutil.rmtree(tmp_working_dir)
+    _clean_tmp_dirs(runner, tmp_working_dir)
 
     # Print again the path of the package
     logger.write("\n", 2)

@@ -16,14 +16,15 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 
-"""
-sat package_dmg: produces a macOS application bundle (NAME.app) and a disk
-image (.dmg) from the binaries of an application.
 
-The content of the bundle is the content of a binary package (sat package -b):
-the INSTALL directories of the products are copied into
-NAME.app/Contents/Resources/BINARIES-<dist>/ together with the relative sat
-launcher. The bundle is then made relocatable on any Mac:
+"""
+Builder of the dmg archive of the package command (sat package --archive dmg):
+produces a macOS application bundle (NAME.app) and a disk image (.dmg).
+
+The content of the bundle is the content of the archive that the package
+command would have put in the tar file (binaries, launcher, and optionally
+sources, project, salomeTools, additional files). It is copied into
+NAME.app/Contents/Resources/, then made relocatable on any Mac:
 
   - absolute dependencies outside the system are rewritten to @rpath/...,
     libraries that are not part of the application (gcc runtime: libgfortran,
@@ -32,6 +33,8 @@ launcher. The bundle is then made relocatable on any Mac:
     @loader_path relative rpaths
   - absolute shebangs are replaced by #!/usr/bin/env <interpreter>
   - Contents/MacOS/NAME runs the relative sat launcher with the embedded Python
+
+The bundle can also be built from an archive produced by "sat package -b".
 """
 
 import os
@@ -49,42 +52,12 @@ import subprocess
 import src
 import src.debug as DBG
 
-# the "package" command module (commands/ directory is in sys.path)
-import package as PKG
+DEFAULT_NAME = "SALOME"
+DEFAULT_BUNDLE_ID = "org.salome-platform.salome"
+REQUIRED_TOOLS = ("otool", "install_name_tool", "codesign", "hdiutil",
+                  "sips", "iconutil", "xattr")
 
-parser = src.options.Options()
-parser.add_option('n', 'name', 'string', 'name',
-    _('Optional: the name of the bundle (default: SALOME).'), "SALOME")
-parser.add_option('', 'bundle_version', 'string', 'bundle_version',
-    _('Optional: the version of the bundle (default: the SALOME version).'), "")
-parser.add_option('', 'bundle_id', 'string', 'bundle_id',
-    _('Optional: the CFBundleIdentifier (default: org.salome-platform.salome).'),
-    "org.salome-platform.salome")
-parser.add_option('i', 'icon', 'string', 'icon',
-    _('Optional: icon of the bundle, .icns or .png file (1024x1024 recommended).'), "")
-parser.add_option('a', 'archive', 'string', 'archive',
-    _('Optional: build the bundle from an existing archive produced by '
-      '"sat package -b" instead of the INSTALL directory.'), "")
-parser.add_option('', 'outdir', 'string', 'outdir',
-    _('Optional: output directory (default: <workdir>/PACKAGE).'), "")
-parser.add_option('f', 'force_creation', 'boolean', 'force_creation',
-    _('Optional: produce the bundle even if there are some missing products.'), False)
-parser.add_option('', 'replace', 'boolean', 'replace',
-    _('Optional: replace an existing bundle and disk image.'), False)
-parser.add_option('', 'slim', 'boolean', 'slim',
-    _('Optional: remove development files (include/, *.a, *.la, lib/pkgconfig, lib/cmake).'), False)
-parser.add_option('', 'keep_abs_rpaths', 'boolean', 'keep_abs_rpaths',
-    _('Optional: keep the absolute LC_RPATHs (removed by default).'), False)
-parser.add_option('', 'no_pyc', 'boolean', 'no_pyc',
-    _('Optional: do not precompile the Python modules.'), False)
-parser.add_option('', 'no_test', 'boolean', 'no_test',
-    _('Optional: do not run the launch test of the bundle.'), False)
-parser.add_option('', 'sign_adhoc', 'boolean', 'sign_adhoc',
-    _('Optional: ad hoc signature of the whole bundle (seals its content).'), False)
-parser.add_option('', 'no_dmg', 'boolean', 'no_dmg',
-    _('Optional: do not create the disk image, only the bundle.'), False)
-
-IGNORED_DIRS = set(PKG.IGNORED_DIRS)
+IGNORED_DIRS = set([".git", ".svn"])
 
 # --------------------------------------------------------------------------
 # Mach-O
@@ -198,7 +171,7 @@ def loader_rpath(file_path, target_dir):
 # --------------------------------------------------------------------------
 class BundleRelocator(object):
 
-    def __init__(self, logger, resources_dir, binaries_dir, keep_abs_rpaths):
+    def __init__(self, logger, resources_dir, binaries_dir, keep_abs_rpaths=False):
         self.logger = logger
         self.resources_dir = resources_dir
         self.binaries_dir = binaries_dir
@@ -437,20 +410,6 @@ class BundleRelocator(object):
         return MachOInfo(path).minos
 
 
-# --------------------------------------------------------------------------
-# Content of the bundle
-# --------------------------------------------------------------------------
-class _PackageOptions(object):
-    '''options expected by package.binary_package()'''
-    def __init__(self, force_creation):
-        self.binaries = True
-        self.sources = False
-        self.project = ""
-        self.sat = False
-        self.force_creation = force_creation
-        self.with_extra_env_d = False
-        self.exe = ""
-
 
 def _copy_tree(src_dir, dst_dir):
     '''copies src_dir into dst_dir (merged if it exists), symbolic links kept,
@@ -476,12 +435,13 @@ def _copy_tree(src_dir, dst_dir):
                 os.chmod(t, os.stat(t).st_mode | stat.S_IWUSR)
 
 
-def populate_from_install(config, logger, options, resources_dir, tmp_dir):
-    '''copies the content of a binary package (sat package -b) into
+
+
+def populate_from_files(logger, d_files, resources_dir):
+    '''copies the content of the archive (dictionary built by the package
+       command: label -> (path_on_local_machine, path_in_archive)) into
        resources_dir. Returns (path of the logs archive, [(source, destination)])'''
-    PKG.update_config(config, logger, "not_in_package", "yes")
-    d_files = PKG.binary_package(config, logger,
-                                 _PackageOptions(options.force_creation), tmp_dir)
+    d_files = dict(d_files)
     logs = d_files.pop("LOGS", (None, None))[0]
 
     copied = set()
@@ -492,6 +452,10 @@ def populate_from_install(config, logger, options, resources_dir, tmp_dir):
         if (local_path, path_in_bundle) in copied:
             continue
         copied.add((local_path, path_in_bundle))
+        if not os.path.exists(local_path):
+            logger.write("  %s %s not found\n"
+                         % (src.printcolors.printcWarning("WARNING:"), local_path), 1)
+            continue
         dest = os.path.join(resources_dir, path_in_bundle)
         logger.write("  %s %s %s\n" % (label, "." * (max_len - len(label) + 3),
                                        path_in_bundle), 3)
@@ -504,7 +468,6 @@ def populate_from_install(config, logger, options, resources_dir, tmp_dir):
             src.ensure_path_exists(os.path.dirname(dest))
             shutil.copy2(local_path, dest)
     return logs, mapping
-
 
 def populate_from_archive(logger, archive, resources_dir, tmp_dir, launcher_name):
     '''extracts an archive made by "sat package -b" into resources_dir'''
@@ -618,7 +581,7 @@ def fix_shebangs(resources_dir):
 
 
 STUB_TEMPLATE = r'''#!/bin/bash
-# Launcher of the bundle @NAME@.app, generated by "sat package_dmg".
+# Launcher of the bundle @NAME@.app, generated by "sat package --archive dmg".
 # Runs the relative sat launcher Contents/Resources/@LAUNCHER@ with the
 # embedded Python. Command line use is supported, through a symbolic link too:
 #   ln -s /Applications/@NAME@.app/Contents/MacOS/@NAME@ /usr/local/bin/@LAUNCHER@
@@ -703,113 +666,91 @@ def make_icon(icon, resources_dir, name, tmp_dir):
     return os.path.basename(icns)
 
 
+
+
 # --------------------------------------------------------------------------
-# Command
+# Entry points (called by commands/package.py)
 # --------------------------------------------------------------------------
 def _step(logger, msg):
     logger.write("\n%s\n" % src.printcolors.printcLabel(msg), 2)
 
 
-def description():
-    '''method that is called when salomeTools is called with --help option.
-
-    :return: The text to display for the package_dmg command description.
-    :rtype: str
-    '''
-    return _("""
-The package_dmg command creates a macOS application bundle (NAME.app) and a
-disk image (.dmg) of the binaries of an application (macOS only).
-
-The bundle contains the same files as a binary package (sat package -b),
-made relocatable on any Mac: dependencies are rewritten to @rpath, absolute
-rpaths are removed, libraries that do not belong to the application (gcc
-runtime...) are embedded, absolute shebangs are fixed.
-
-The bundle is not signed (except with --sign_adhoc): the linker signatures of
-the libraries are kept, only the invalid ones are re-signed ad hoc.
-
-examples:
- >> sat package_dmg SALOME-master
- >> sat package_dmg SALOME-master --name SALOME --icon salome.png --slim
- >> sat package_dmg SALOME-master --archive SALOME-master-MACOS15.tar.gz""")
+def _error(logger, msg):
+    logger.write(src.printcolors.printcError(msg) + "\n", 1)
 
 
-def run(args, runner, logger):
-    '''method that is called when salomeTools is called with package_dmg parameter.
-    '''
-    (options, args) = parser.parse_args(args)
-    cfg = runner.cfg
-
+def check_prerequisites(logger):
+    '''the dmg archive is only available on macOS, with the Xcode Command
+       Line Tools. Returns True if the bundle can be built'''
     if platform.system() != "Darwin":
-        logger.write(src.printcolors.printcError(
-            _("Error: the package_dmg command is only available on macOS")) + "\n", 1)
-        return 1
-    for tool in ("otool", "install_name_tool", "codesign", "hdiutil"):
+        _error(logger, _("Error: the dmg archive is only available on macOS"))
+        return False
+    for tool in REQUIRED_TOOLS:
         if shutil.which(tool) is None:
-            logger.write(src.printcolors.printcError(
-                _("Error: %s not found (Xcode Command Line Tools?)") % tool) + "\n", 1)
-            return 1
+            _error(logger, _("Error: %s not found (Xcode Command Line Tools?)") % tool)
+            return False
+    return True
 
-    has_application = "APPLICATION" in cfg
-    if not options.archive:
-        src.check_config_has_application(cfg)
-    launcher_name = src.get_launcher_name(cfg) if has_application else "salome"
 
-    # names and paths
-    name = options.name
+def get_bundle_version(config, options, from_archive=None):
+    '''--bundle_version, else the SALOME version, else a version found in the
+       name of the archive, else 1.0'''
     version = options.bundle_version
-    if not version and has_application:
+    if not version and "APPLICATION" in config:
         try:
-            version = str(src.get_salome_version(cfg))
+            version = str(src.get_salome_version(config))
         except Exception:
             version = ""
-    if not version and options.archive:
-        m = re.search(r"\d+\.\d+(\.\d+)?", os.path.basename(options.archive))
+    if not version and from_archive:
+        m = re.search(r"\d+\.\d+(\.\d+)?", os.path.basename(from_archive))
         version = m.group(0) if m else ""
-    version = version or "1.0"
+    return version or "1.0"
 
-    if options.outdir:
-        outdir = os.path.abspath(options.outdir)
-    elif has_application:
-        outdir = os.path.join(cfg.APPLICATION.workdir, "PACKAGE")
-    else:
-        outdir = os.getcwd()
+
+def build_dmg(config, logger, options, outdir, name, d_files=None, from_archive=None):
+    '''builds outdir/name.app and outdir/name-<version>-<dist>-<arch>.dmg
+
+    :param config Config: The global configuration.
+    :param logger Logger: the logging instance
+    :param options OptResult: the options of the package command
+    :param outdir str: the output directory
+    :param name str: the name of the bundle
+    :param d_files dict: the content of the archive, built by the package
+                         command: label -> (path_on_local_machine, path_in_archive)
+    :param from_archive str: an archive made by "sat package -b", used
+                             instead of d_files
+    :return: 0 if OK, 1 if the bundle could not be built or has problems
+    :rtype: int
+    '''
+    launcher_name = src.get_launcher_name(config) if "APPLICATION" in config else "salome"
+    version = get_bundle_version(config, options, from_archive)
+
     src.ensure_path_exists(outdir)
     outdir = os.path.realpath(outdir)
-
     app_final = os.path.join(outdir, name + ".app")
     dmg = os.path.join(outdir, "%s-%s-%s-%s.dmg"
-                       % (name, version, cfg.VARS.dist, platform.machine()))
+                       % (name, version, config.VARS.dist, platform.machine()))
     for p in ([app_final] + ([] if options.no_dmg else [dmg])):
         if os.path.lexists(p):
             if not options.replace:
-                logger.write(src.printcolors.printcError(
-                    _("Error: %s already exists (use --replace)") % p) + "\n", 1)
+                _error(logger, _("Error: %s already exists (use --replace)") % p)
                 return 1
             if os.path.isdir(p) and not os.path.islink(p):
                 shutil.rmtree(p)
             else:
                 os.remove(p)
 
-    if options.archive and not os.path.isfile(options.archive):
-        logger.write(src.printcolors.printcError(
-            _("Error: archive %s not found") % options.archive) + "\n", 1)
-        return 1
     if options.icon and not os.path.isfile(options.icon):
-        logger.write(src.printcolors.printcError(
-            _("Error: icon %s not found") % options.icon) + "\n", 1)
+        _error(logger, _("Error: icon %s not found") % options.icon)
         return 1
 
-    if has_application:
-        logger.write(_("Packaging application %s as a macOS bundle\n")
-                     % src.printcolors.printcLabel(cfg.VARS.application), 1)
     src.printcolors.print_value(logger, "Bundle", app_final, 2)
     if not options.no_dmg:
         src.printcolors.print_value(logger, "Disk image", dmg, 2)
 
     # working directory on the same filesystem as the output: the bundle
     # (several GB) is moved, not copied
-    tmp_dir = os.path.join(outdir, ".package_dmg_" + cfg.VARS.datehour)
+    tmp_dir = os.path.join(outdir, ".package_dmg_" + config.VARS.datehour)
     stage_dir = os.path.join(tmp_dir, "dmg")
     app = os.path.join(stage_dir, name + ".app")
     contents = os.path.join(app, "Contents")
@@ -817,28 +758,30 @@ def run(args, runner, logger):
     src.ensure_path_exists(os.path.join(contents, "MacOS"))
 
     try:
-        return _build(cfg, logger, options, name, version, launcher_name,
-                      tmp_dir, stage_dir, app, app_final, dmg, resources_dir, outdir)
+        _step(logger, _("Preparation of the content of the bundle"))
+        if from_archive:
+            logs, mapping = populate_from_archive(logger, os.path.abspath(from_archive),
+                                                  resources_dir, tmp_dir, launcher_name)
+        else:
+            src.ensure_path_exists(resources_dir)
+            logs, mapping = populate_from_files(logger, d_files or {}, resources_dir)
+        return _build(config, logger, options, name, version, launcher_name,
+                      logs, mapping, tmp_dir, stage_dir, app, app_final, dmg,
+                      resources_dir, outdir)
+    except src.SatException as e:
+        _error(logger, "\n%s" % str(e))
+        return 1
     except KeyboardInterrupt:
-        logger.write(src.printcolors.printcError("\nERROR: forced interruption\n"), 1)
+        _error(logger, "\nERROR: forced interruption")
         return 1
     finally:
         if os.path.isdir(tmp_dir) and not DBG.isDeveloper():
             shutil.rmtree(tmp_dir, ignore_errors=True)
 
 
-def _build(cfg, logger, options, name, version, launcher_name,
+def _build(cfg, logger, options, name, version, launcher_name, logs, mapping,
            tmp_dir, stage_dir, app, app_final, dmg, resources_dir, outdir):
     contents = os.path.dirname(resources_dir)
-
-    # 1. content ------------------------------------------------------------
-    _step(logger, _("Preparation of the content of the bundle"))
-    if options.archive:
-        logs, mapping = populate_from_archive(logger, os.path.abspath(options.archive),
-                                              resources_dir, tmp_dir, launcher_name)
-    else:
-        src.ensure_path_exists(resources_dir)
-        logs, mapping = populate_from_install(cfg, logger, options, resources_dir, tmp_dir)
 
     if logs and os.path.isfile(logs):
         logs_dest = os.path.join(outdir, "%s-%s-build-logs.tgz" % (name, version))
@@ -867,7 +810,7 @@ def _build(cfg, logger, options, name, version, launcher_name,
 
     # 2. Mach-O relocation --------------------------------------------------------
     _step(logger, _("Relocation of the binaries"))
-    relocator = BundleRelocator(logger, resources_dir, binaries_dir, options.keep_abs_rpaths)
+    relocator = BundleRelocator(logger, resources_dir, binaries_dir)
     relocator.build_index()
     nb = relocator.scan()
     logger.write("  %d Mach-O files\n" % nb, 2)
@@ -898,15 +841,15 @@ def _build(cfg, logger, options, name, version, launcher_name,
     icon_file = make_icon(os.path.abspath(options.icon), resources_dir, name, tmp_dir) \
                 if options.icon else None
     minos = relocator.minos(python_abs) or "11.0"
-    write_info_plist(os.path.join(contents, "Info.plist"), name, options.bundle_id,
+    bundle_id = options.bundle_id or DEFAULT_BUNDLE_ID
+    write_info_plist(os.path.join(contents, "Info.plist"), name, bundle_id,
                      version, minos, icon_file)
-    logger.write("  Info.plist: %s %s, macOS >= %s\n" % (options.bundle_id, version, minos), 2)
+    logger.write("  Info.plist: %s %s, macOS >= %s\n" % (bundle_id, version, minos), 2)
 
-    if not options.no_pyc:
-        _step(logger, _("Precompilation of the Python modules"))
-        # embedded Python, to get the right magic number. Failures (Python 2
-        # files, templates...) are expected and ignored
-        _run([python_abs, "-m", "compileall", "-q", "-j", "0", resources_dir])
+    _step(logger, _("Precompilation of the Python modules"))
+    # embedded Python, to get the right magic number. Failures (Python 2
+    # files, templates...) are expected and ignored
+    _run([python_abs, "-m", "compileall", "-q", "-j", "0", resources_dir])
 
     if not options.no_test:
         _step(logger, _("Launch test"))
