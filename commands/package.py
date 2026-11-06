@@ -194,6 +194,10 @@ ARCHIVE_TAR = "tar"
 ARCHIVE_DMG = "dmg"
 ARCHIVE_MSI = "msi"
 ARCHIVE_TYPES = (ARCHIVE_TAR, ARCHIVE_DMG, ARCHIVE_MSI)
+# minimal version of Python required by the dmg and msi archives
+# (src/dmg.py uses subprocess.run, src/msi.py shutil.which, subprocess.DEVNULL...)
+ARCHIVE_MIN_PYTHON = {ARCHIVE_DMG: (3, 5),
+                      ARCHIVE_MSI: (3, 3)}
 
 # options that define the content of the archive: (option name, destination name)
 CONTENT_OPTIONS = [("--binaries", "binaries"),
@@ -1782,6 +1786,25 @@ def get_archive_type(options, logger):
     return None
 
 
+def check_python_version(archive_type, logger):
+    """Checks that the version of Python running sat is recent enough for
+       the archive type. Returns True if it is."""
+    required = ARCHIVE_MIN_PYTHON.get(archive_type)
+    if required is None or sys.version_info[:2] >= required:
+        return True
+    current = "%s.%s.%s" % sys.version_info[:3]
+    msg = _("Error: the %(1)s archive requires Python %(2)s or higher, "
+            "but sat is running with Python %(3)s (%(4)s).\n"
+            "Please upgrade Python from version %(3)s to version %(2)s "
+            "(or higher) to create a %(1)s archive.") % \
+          {"1": archive_type,
+           "2": "%s.%s" % required,
+           "3": current,
+           "4": sys.executable}
+    logger.write(src.printcolors.printcError(msg) + "\n", 1)
+    return False
+
+
 def check_options_compatibility(options, archive_type, from_archive, logger):
     """Checks that the options are compatible with the archive type.
        Returns True if they are."""
@@ -1923,6 +1946,8 @@ def run(args, runner, logger):
     if res is None:
         return 1
     archive_type, from_archive = res
+    if not check_python_version(archive_type, logger):
+        return 1
     if not check_options_compatibility(options, archive_type, from_archive, logger):
         return 1
 

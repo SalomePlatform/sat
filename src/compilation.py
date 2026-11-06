@@ -148,9 +148,10 @@ class Builder:
     def find_sdk_path(self, target):
         sdk_path = ''
         try:
-            sdk_path = subprocess.check_output(
-                ['xcrun', '--sdk', 'macosx' + target, '--show-sdk-path'],
-                stderr=subprocess.DEVNULL, text=True).strip()
+            with open(os.devnull, 'w') as devnull:
+                sdk_path = subprocess.check_output(
+                    ['xcrun', '--sdk', 'macosx' + target, '--show-sdk-path'],
+                    stderr=devnull, universal_newlines=True).strip()
         except (subprocess.CalledProcessError, OSError):
             pass
         if not sdk_path or not os.path.isdir(sdk_path):
@@ -308,7 +309,7 @@ class Builder:
 
         def prepend(name, value):
             current = get(name)
-            return f"{current} {value}" if current else value
+            return "%s %s" % (current, value) if current else value
 
         dep_lib_dirs = []
         for _, path in self.get_installed_dependencies():
@@ -318,7 +319,7 @@ class Builder:
                     dep_lib_dirs.append(d)
 
         sdkroot = self.find_sdk_path(target)
-        osx_flags = f"-isysroot {sdkroot} -mmacosx-version-min={deploy_target}"
+        osx_flags = "-isysroot %s -mmacosx-version-min=%s" % (sdkroot, deploy_target)
 
         ldflags = prepend("LDFLAGS", osx_flags) + " -Wl,-headerpad_max_install_names"
         rpath_enabled = ("rpath" in self.config.APPLICATION
@@ -326,16 +327,17 @@ class Builder:
         if rpath_enabled:
             ldflags += " -Wl,-rpath,@loader_path"
         for d in dep_lib_dirs:
-            ldflags += f" -L{d}"
+            ldflags += " -L%s" % d
             if rpath_enabled:
-                ldflags += f" -Wl,-rpath,{d}"
+                ldflags += " -Wl,-rpath,%s" % d
 
         options = (
-            f'CFLAGS="{prepend("CFLAGS", osx_flags)}" '
-            f'CXXFLAGS="{prepend("CXXFLAGS", osx_flags)}" '
-            f'OBJCFLAGS="{prepend("OBJCFLAGS", osx_flags)}" '
-            f'CPPFLAGS="{prepend("CPPFLAGS", f"-isysroot {sdkroot}")}" '
-            f'LDFLAGS="{ldflags}"'
+            'CFLAGS="%s" CXXFLAGS="%s" OBJCFLAGS="%s" CPPFLAGS="%s" LDFLAGS="%s"'
+            % (prepend("CFLAGS", osx_flags),
+               prepend("CXXFLAGS", osx_flags),
+               prepend("OBJCFLAGS", osx_flags),
+               prepend("CPPFLAGS", "-isysroot %s" % sdkroot),
+               ldflags)
         )
         options += self.apple_silicon_host_options()
         return options
