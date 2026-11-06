@@ -487,6 +487,7 @@ class LauncherFileEnviron(FileEnviron):
         # for these path, we use specialired functions in salomeContext api
         self.specialKeys={"PATH": "Path",
                           "LD_LIBRARY_PATH": "LdLibraryPath",
+                          "DYLD_LIBRARY_PATH": "LdLibraryPath",
                           "PYTHONPATH": "PythonPath"}
 
         # we do not want to reinitialise PATH.
@@ -703,6 +704,7 @@ class ExtraEnvFileEnviron(LauncherFileEnviron):
         # for these path, we use specialired functions in salomeContext api
         self.specialKeys={"PATH": "Path",
                           "LD_LIBRARY_PATH": "LdLibraryPath",
+                          "DYLD_LIBRARY_PATH": "LdLibraryPath",
                           "PYTHONPATH": "PythonPath"}
 
         # we do not want to reinitialise PATH.
@@ -788,7 +790,6 @@ then
   echo "You must run this script in a BASH shell."
   echo "As you are using another shell. Please first run: bash"
   echo
-  exit 1
 fi
 ##########################################################################
 #

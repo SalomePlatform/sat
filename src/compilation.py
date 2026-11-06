@@ -18,6 +18,7 @@
 
 import os
 import subprocess
+import platform
 import sys
 import shutil
 import glob
@@ -63,6 +64,7 @@ class Builder:
         # in case a product defines its own configuration, then use it
         if "cmake_build_type" in self.product_info:
             self.set_cmake_build_type(self.product_info.cmake_build_type)
+
         # keep backward compatibility
         if "debug" in self.product_info and self.product_info.debug == "yes":
             self.debug_mode = True
@@ -118,6 +120,7 @@ class Builder:
         environ_info = src.product.get_product_dependencies(self.config,
                                                             self.product_name,
                                                             self.product_info)
+
         #environ_info.append(self.product_info.name)
 
         # create build environment
@@ -126,7 +129,7 @@ class Builder:
                                       True)
         self.build_environ.silent = (self.config.USER.output_verbose_level < 5)
         self.build_environ.set_full_environ(self.logger, environ_info)
-        
+
         if add_env_launch:
         # create runtime environment
             self.launch_environ = src.environment.SalomeEnviron(self.config,
@@ -141,6 +144,92 @@ class Builder:
                 self.log("  %s = %s\n" % (ee, vv), 4, False)
 
         return 0
+
+    def find_sdk_path(self, target):
+        sdk_path = ''
+        try:
+            with open(os.devnull, 'w') as devnull:
+                sdk_path = subprocess.check_output(
+                    ['xcrun', '--sdk', 'macosx' + target, '--show-sdk-path'],
+                    stderr=devnull, universal_newlines=True).strip()
+        except (subprocess.CalledProcessError, OSError):
+            pass
+        if not sdk_path or not os.path.isdir(sdk_path):
+            major = target.split('.')[0]
+            candidates = sorted(glob.glob(
+                '/Library/Developer/CommandLineTools/SDKs/MacOSX%s*.sdk' % major))
+            sdk_path = candidates[-1] if candidates else ''
+        return sdk_path
+
+    @staticmethod
+    def _cmake_option_value(options, var):
+        import re
+        pattern = r'-D%s(?::\w+)?=(?:"([^"]*)"|\'([^\']*)\'|(\S+))' % re.escape(var)
+        value = None
+        for m in re.finditer(pattern, options or ""):
+            value = next(g for g in m.groups() if g is not None)
+        return value
+
+    def setup_cmake_options(self, quoted=False):
+        if sys.platform != 'darwin':
+            return ""
+
+        deploy_target = os.environ.get('MACOSX_DEPLOYMENT_TARGET', '15.0')
+        target = os.environ.get('MACOSX_BUILD_SDK', '26.5')
+        sdk_path = self.find_sdk_path(target)
+
+        cmake_option = " -DCMAKE_OSX_DEPLOYMENT_TARGET=%s" % deploy_target
+        if sdk_path:
+            cmake_option += " -DCMAKE_OSX_SYSROOT=%s" % sdk_path
+            self.build_environ.set("SDKROOT", sdk_path)
+
+        headerpad = "-Wl,-headerpad_max_install_names"
+        product_options = ""
+        if "cmake_options" in self.product_info:
+            product_options = str(self.product_info.cmake_options)
+        for var in ("CMAKE_EXE_LINKER_FLAGS",
+                    "CMAKE_SHARED_LINKER_FLAGS",
+                    "CMAKE_MODULE_LINKER_FLAGS"):
+            user_flags = self._cmake_option_value(product_options, var)
+            flags = headerpad
+            if user_flags and headerpad not in user_flags:
+                flags = "%s %s" % (user_flags, headerpad)
+            elif user_flags:
+                flags = user_flags
+            if quoted or " " in flags:
+                flags = '"%s"' % flags
+            cmake_option += " -D%s=%s" % (var, flags)
+
+        rpath_enabled = ("rpath" in self.config.APPLICATION
+                         and self.config.APPLICATION.rpath == "yes")
+        if rpath_enabled:
+            dep_lib_dirs = []
+            for _, path in self.get_installed_dependencies():
+                for sub in ("lib", "lib64"):
+                    d = os.path.realpath(os.path.join(path, sub))
+                    if os.path.isdir(d):
+                        dep_lib_dirs.append(d)
+
+            rpaths = ["@loader_path/../lib",   # bin/*       -> lib/
+                      "@loader_path",          # lib/*.dylib -> lib/
+                      "@loader_path/.."]       # plugins lib/<sous-dossier>/*.dylib
+            rpaths += dep_lib_dirs
+            rpaths = list(dict.fromkeys(rpaths))
+
+            rpath_value = ";".join(rpaths)
+            if quoted:
+                rpath_value = '"%s"' % rpath_value
+
+            cmake_option += " -DCMAKE_MACOSX_RPATH=ON"
+            cmake_option += " -DCMAKE_SKIP_BUILD_RPATH=OFF"
+            cmake_option += " -DCMAKE_BUILD_WITH_INSTALL_RPATH=OFF"
+            cmake_option += " -DCMAKE_INSTALL_RPATH_USE_LINK_PATH=ON"
+            cmake_option += " -DCMAKE_INSTALL_RPATH=%s" % rpath_value
+        else:
+            cmake_option += " -DCMAKE_MACOSX_RPATH=OFF"
+            cmake_option += " -DCMAKE_INSTALL_NAME_DIR=%s" % os.path.join(
+                                                    str(self.install_dir), "lib")
+        return cmake_option
 
     ##
     # Runs cmake with the given options.
@@ -158,12 +247,19 @@ class Builder:
             cmake_option += " %s " % " ".join(
                                         self.product_info.cmake_options.split())
 
+        # in case a product defines its own configuration, then use it
+        if "cmake_build_type" in self.product_info:
+            self.set_cmake_build_type(self.product_info.cmake_build_type)
+
         # add cmake build_type options
         cmake_option += " -DCMAKE_BUILD_TYPE=" + self.cmake_build_type
 
         # add verbose option if specified in application for this product.
         if self.verbose_mode:
             cmake_option += " -DCMAKE_VERBOSE_MAKEFILE=ON"
+
+        if sys.platform == 'darwin':
+            cmake_option += self.setup_cmake_options(quoted=True)
 
         # In case CMAKE_GENERATOR is defined in environment, 
         # use it in spite of automatically detect it
@@ -187,6 +283,90 @@ class Builder:
             return res
         else:
             return 1
+
+    def get_installed_dependencies(self):
+        deps = src.product.get_product_dependencies(self.config,
+                                                    self.product_name,
+                                                    self.product_info)
+        installed = []
+        for dep_name in deps:
+            dep_info = src.product.get_product_config(self.config, dep_name)
+            if (not src.product.product_compiles(dep_info)
+                    or src.product.product_is_native(dep_info)):
+                continue
+            if src.product.check_installation(self.config, dep_info):
+                installed.append((dep_name, dep_info.install_dir))
+        return installed
+
+    def setup_configure_options(self):
+        if sys.platform != 'darwin':
+            return ""
+        deploy_target = os.environ.get('MACOSX_DEPLOYMENT_TARGET', '15.0')
+        target = os.environ.get('MACOSX_BUILD_SDK', '26.5')
+
+        def get(name):
+            return (self.build_environ.get(name) or "").strip()
+
+        def prepend(name, value):
+            current = get(name)
+            return "%s %s" % (current, value) if current else value
+
+        dep_lib_dirs = []
+        for _, path in self.get_installed_dependencies():
+            for sub in ("lib", "lib64"):
+                d = os.path.join(path, sub)
+                if os.path.isdir(d):
+                    dep_lib_dirs.append(d)
+
+        sdkroot = self.find_sdk_path(target)
+        osx_flags = "-isysroot %s -mmacosx-version-min=%s" % (sdkroot, deploy_target)
+
+        ldflags = prepend("LDFLAGS", osx_flags) + " -Wl,-headerpad_max_install_names"
+        rpath_enabled = ("rpath" in self.config.APPLICATION
+                         and self.config.APPLICATION.rpath == "yes")
+        if rpath_enabled:
+            ldflags += " -Wl,-rpath,@loader_path"
+        for d in dep_lib_dirs:
+            ldflags += " -L%s" % d
+            if rpath_enabled:
+                ldflags += " -Wl,-rpath,%s" % d
+
+        options = (
+            'CFLAGS="%s" CXXFLAGS="%s" OBJCFLAGS="%s" CPPFLAGS="%s" LDFLAGS="%s"'
+            % (prepend("CFLAGS", osx_flags),
+               prepend("CXXFLAGS", osx_flags),
+               prepend("OBJCFLAGS", osx_flags),
+               prepend("CPPFLAGS", "-isysroot %s" % sdkroot),
+               ldflags)
+        )
+        options += self.apple_silicon_host_options()
+        return options
+
+    ##
+    # Apple Silicon: build/host type of the autotools configure scripts,
+    # added to SAT_CONFIGURE_OPTIONS.
+    #
+    # "uname -p" returns "arm" on Apple Silicon: the old config.guess scripts
+    # shipped by some products then detect a 32-bit ARM host
+    # (arm-apple-darwin). Most products do not care, but some silently change
+    # their build: omniORB/omniORBpy add -D__arm__, which enables
+    # OMNI_MIXED_ENDIAN_DOUBLE (every CORBA double gets its two 32-bit words
+    # swapped between Python and C++).
+    #
+    # --build/--host alone is not enough: configure passes the triplet to
+    # config.sub, and the old ones reject it ("machine `aarch64-apple' not
+    # recognized", omniORBpy 4.2.5). The cache variables ac_cv_build and
+    # ac_cv_host, given as configure arguments like CFLAGS=..., make configure
+    # use the triplet as is ("checking build system type... (cached)"):
+    # neither config.guess nor config.sub is run. Build and host are
+    # identical: no cross-compilation mode.
+    @staticmethod
+    def apple_silicon_host_options():
+        if sys.platform != "darwin" or platform.machine() != "arm64":
+            return ""
+        triplet = "aarch64-apple-darwin" + platform.release()
+        return (" --build={0} --host={0}"
+                " ac_cv_build={0} ac_cv_host={0}").format(triplet)
 
     ##
     # Runs build_configure with the given options.
@@ -278,7 +458,7 @@ class Builder:
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
-        
+
         self.put_txt_log_in_appli_log_dir("make")
         if res == 0:
             return res
@@ -301,7 +481,7 @@ class Builder:
                               env=self.build_environ.environ.environ,
                               stdout=self.logger.logTxtFile,
                               stderr=subprocess.STDOUT)
-        
+
         res_check=self.check_install()
         if res_check > 0 :
             self.log_command("Error in sat check install - some files are not installed!")
@@ -343,10 +523,10 @@ class Builder:
                 cmd = 'make check'
             else:
                 cmd = 'make test'
-        
+
         if command:
             cmd = command
-        
+
         self.log_command(cmd)
         self.log_command("For more detailed logs, see test logs in %s" % self.build_dir)
 
@@ -362,7 +542,7 @@ class Builder:
             return res
         else:
             return 1
-      
+
     ##
     # Performs a default build for this module.
     def do_default_build(self,
@@ -394,7 +574,7 @@ class Builder:
             cmd = ""
             if use_autotools: cmd = "(autotools)"
             if use_ctest: cmd = "(ctest)"
-            
+
             self.log("\n", 4, False)
             self.log("%(module)s: Run default compilation method %(cmd)s\n" % \
                 { "module": self.module, "cmd": cmd }, 4)
@@ -407,7 +587,7 @@ class Builder:
             if not self.make(): return self.get_result()
             if not self.install(): return self.get_result()
             if not self.clean(): return self.get_result()
-           
+
         else: # CMake
             if self.config.VARS.dist_name=='Win':
                 if not self.wprepare(): return self.get_result()
@@ -449,6 +629,7 @@ class Builder:
 
         return retcode
 
+
     def complete_environment(self, make_options):
         assert self.build_environ is not None
         # pass additional variables to environment 
@@ -469,6 +650,13 @@ class Builder:
                                           self.config.INTERNAL.config.install_dir,
                                           self.config.INTERNAL.config.single_install_dir)
         self.build_environ.set("SINGLE_INSTALL_DIR", single_install_dir)
+
+        configure_options = self.setup_configure_options()
+        self.build_environ.set("SAT_CONFIGURE_OPTIONS", configure_options)
+
+        setup_cmake_options = self.setup_cmake_options()
+        self.build_environ.set("SAT_CMAKE_OPTIONS", setup_cmake_options)
+
         # if product is in hpc mode, set SAT_HPC to 1 
         # in order for the compilation script to take it into account
         if src.product.product_is_hpc(self.product_info):
@@ -491,7 +679,7 @@ class Builder:
 
         self.log_command("  " + _("Run build script %s\n") % script)
         self.complete_environment(make_options)
-        
+
         res = subprocess.call(script, 
                               shell=True,
                               stdout=self.logger.logTxtFile,
@@ -509,7 +697,7 @@ class Builder:
             return res
         else:
             return 1
-    
+
     def do_script_build(self, script, number_of_proc=0):
         # define make options (may not be used by the script)
         if number_of_proc==0:
@@ -518,20 +706,20 @@ class Builder:
                 nb_proc = self.config.VARS.nb_proc
         else:
             nb_proc = min(number_of_proc, self.config.VARS.nb_proc)
-            
+
         extension = script.split('.')[-1]
         if extension in ["bat","sh"]:
             return self.do_batch_script_build(script, nb_proc)
         if extension == "py":
             return self.do_python_script_build(script, nb_proc)
-        
+
         msg = _("The script %s must have .sh, .bat or .py extension." % script)
         raise src.SatException(msg)
-    
+
     def put_txt_log_in_appli_log_dir(self, file_name):
         '''Put the txt log (that contain the system logs, like make command
            output) in the directory <APPLICATION DIR>/LOGS/<product_name>/
-    
+
         :param file_name Str: the name of the file to write
         '''
         if self.logger.logTxtFile == sys.__stdout__:
@@ -547,4 +735,4 @@ class Builder:
         shutil.move(self.logger.txtFilePath, file_path)
         self.logger.logTxtFile = open(str(self.logger.txtFilePath), 'w')
         self.logger.logTxtFile.write(open(file_path, "r").read())
-        
+

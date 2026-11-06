@@ -509,7 +509,9 @@ class SalomeEnviron:
                 self.prepend('PATH', bin_path)
                 if src.architecture.is_windows():
                     self.prepend('PATH', lib_path)
-                else :
+                elif src.architecture.is_darwin():
+                    self.prepend('DYLD_LIBRARY_PATH', lib_path)
+                else:
                     self.prepend('LD_LIBRARY_PATH', lib_path)
 
             l = [ bin_path, lib_path ]
@@ -539,6 +541,8 @@ class SalomeEnviron:
                 self.prepend('PATH', bin_path)
                 if src.architecture.is_windows():
                     self.prepend('PATH', lib_path)
+                elif src.architecture.is_darwin():
+                    self.prepend('DYLD_LIBRARY_PATH', lib_path)
                 else :
                     self.prepend('LD_LIBRARY_PATH', lib_path)
 

@@ -22,11 +22,13 @@ like open a browser or an editor, or call a git command
 '''
 
 import os
+import sys
+import shlex
+import shutil
 import subprocess as SP
 import time
 import tarfile
-import time
- 
+
 
 import src
 import src.debug as DBG
@@ -34,16 +36,41 @@ import src.utilsSat as UTS
 
 from . import printcolors
 
+def _darwin_viewer(command, filePath=""):
+    '''macOS: the default viewers of the sat user configuration (firefox,
+    evince) are usually not in PATH (applications live in /Applications).
+    If the program of command is not found, "open" is used instead: it opens
+    the file with the default application (browser, Preview...), or with the
+    default text editor ("open -t") for the other files (pyconf, rst...).
+
+    :param command str: The viewer command (may contain %s).
+    :param filePath str: The file(s) to open.
+    :return: command, or an "open" command if its program is not in PATH
+    :rtype: str
+    '''
+    try:
+        words = shlex.split(command) if command else []
+    except ValueError:
+        words = command.split()
+    if words and shutil.which(words[0]):
+        return command
+    if str(filePath).lower().endswith((".pdf", ".html", ".htm", ".xml")):
+        return "open"
+    return "open -t"
+
 def show_in_editor(editor, filePath, logger):
     '''open filePath using editor.
-    
+
     :param editor str: The editor to use.
     :param filePath str: The path to the file to open.
     '''
     # default editor is vi
     if editor is None or len(editor) == 0:
         editor = 'vi'
-    
+    elif src.architecture.is_darwin():
+        # browser or pdf viewer (sat doc) not in PATH -> open
+        editor = _darwin_viewer(editor, filePath)
+
     if '%s' not in editor:
         editor += ' %s'
 
@@ -65,28 +92,47 @@ def show_in_webbrowser(editor, filePath, logger):
     :param filePath str: The path to the file to open.
     '''
     import psutil
-    # default editor is firefox
+    darwin = src.architecture.is_darwin()
+    # default editor is firefox (macOS: default browser if not in PATH)
     if editor is None or len(editor) == 0:
         editor = 'firefox'
-    
+    if darwin:
+        editor = _darwin_viewer(editor, ".html")
+
     path, namefile = os.path.split(filePath)
     basefile, ext = os.path.splitext(namefile)
+
+    # macOS: /usr/bin/python3 is the Xcode stub (may ask to install the
+    # Command Line Tools): use the Python running sat
+    python = shlex.quote(sys.executable) if darwin else "python3"
 
     # previouly http.server 8765/6/7... kill ... or not ? TODO wait and see REX
     port = os.getenv('SAT_PORT_LOG', '8765')
     for proc in psutil.process_iter():
       # help(proc)
-      cmdline = " ".join(proc.cmdline())
-      if "python3 -m http.server %s" % port in cmdline:
+      # macOS: reading the command line of a process of another user
+      # (or of a zombie) raises AccessDenied/ZombieProcess
+      try:
+        cmdline = " ".join(proc.cmdline())
+      except (psutil.AccessDenied, psutil.NoSuchProcess, psutil.ZombieProcess):
+        continue
+      if "-m http.server %s" % port in cmdline:
         print("kill previous process '%s'" % cmdline)
-        proc.kill()  # TODO may be not owner ? -> change 8766/7/8... as SAT_PORT_LOG
-        
+        try:
+          proc.kill()  # TODO may be not owner ? -> change 8766/7/8... as SAT_PORT_LOG
+        except (psutil.AccessDenied, psutil.NoSuchProcess):
+          pass
+
+    # "open" returns at once: wait for the server before opening the page
+    wait_server = "sleep 1" if darwin else ""
     cmd = """
 set -x
-cd %(path)s
-python3 -m http.server %(port)s &> /dev/null &
+cd "%(path)s"
+%(python)s -m http.server %(port)s > /dev/null 2>&1 &
+%(wait_server)s
 %(editor)s http://localhost:%(port)s/%(namefile)s
-""" % {"path": path, "editor": editor, "namefile": namefile, 'port': port}
+""" % {"path": path, "editor": editor, "namefile": namefile, 'port': port,
+       "python": python, "wait_server": wait_server}
 
     # print("show_in_webbrowser:\n%s" % cmd)
     
@@ -116,6 +162,22 @@ def git_describe(repo_path):
         if isinstance(tag_description, bytes):
             tag_description=tag_description.decode("utf-8", "ignore")
         return tag_description
+
+def _touch_last_commit_cmd():
+    '''shell line that sets the modification date of %(where)s to the date
+    of the last commit of the repository %(where_git)s.
+
+    GNU touch: -d "2026-10-01 12:34:56 +0200" (git %ai, "date_format" is
+    replaced by "%ai" in git_extract).
+    macOS: the BSD touch -d only accepts YYYY-MM-DDThh:mm:SS, and rejects the
+    space and the time zone of %ai: touch -t CCYYMMDDhhmm.SS is used, with the
+    commit date converted to the local time (same as touch -t).
+    '''
+    if src.architecture.is_darwin():
+        return ("touch -t \"$(git --git-dir=%(where_git)s log -1 "
+                "--date=format-local:%Y%m%d%H%M.%S --format=%ad)\" %(where)s")
+    return ("touch -d \"$(git --git-dir=%(where_git)s  log -1 "
+            "--format=date_format)\" %(where)s")
 
 def git_extract(from_what, tag, git_options, git_commands, where, logger, environment=None):
   '''Extracts sources from a git repository.
@@ -147,7 +209,7 @@ def git_extract(from_what, tag, git_options, git_commands, where, logger, enviro
       cmd+= "\n" + "if [ $? -ne 0 ]; then"
       cmd+= "\n" + "  exit 1"
       cmd+= "\n" + "fi"
-      cmd+= "\n" + "touch -d \"$(git --git-dir=%(where_git)s  log -1 --format=date_format)\" %(where)s"
+      cmd+= "\n" + _touch_last_commit_cmd()
       cmd+= "\n" + "if [ $? -ne 0 ]; then"
       cmd+= "\n" + "  exit 1"
       cmd+= "\n" + "fi"
@@ -185,7 +247,7 @@ def git_extract(from_what, tag, git_options, git_commands, where, logger, enviro
             cmd+= "\n" + "  exit 1"
             cmd+= "\n" + "fi"
       cmd+= "\n" + "git --git-dir=%(where_git)s status | grep HEAD"
-      cmd+= "\n" + "touch -d \"$(git --git-dir=%(where_git)s  log -1 --format=date_format)\" %(where)s"
+      cmd+= "\n" + _touch_last_commit_cmd()
       cmd+= "\n" + "exit 0"
   aDict = {'%(git_options)s': git_options,
            '%(remote)s'   : from_what,
@@ -420,12 +482,66 @@ def svn_extract(user,
                            stderr=SP.STDOUT)
     return (res == 0)
 
+DARWIN_PKG_MANAGERS = (
+    # (program, default locations, check command)
+    ("brew", ("/opt/homebrew/bin/brew", "/usr/local/bin/brew"),
+     ["list", "--versions"]),
+    ("port", ("/opt/local/bin/port",),
+     ["-q", "installed"]),
+)
+
+def _get_darwin_pkg_check_cmd():
+    '''macOS: command to check if a package is installed, with Homebrew or,
+    if it is not installed, MacPorts. Their default locations are also tried:
+    /opt/homebrew/bin (Apple Silicon) is often missing from the PATH given to sat.'''
+    for prog, locations, args in DARWIN_PKG_MANAGERS:
+        exe = prog if shutil.which(prog) else \
+              next((l for l in locations if os.access(l, os.X_OK)), None)
+        if exe is not None:
+            return [exe] + args
+    raise src.SatException("Error : command failed because sat was not able to "
+                           "find a package manager (brew or port)")
+
+def _check_darwin_pkgs(check_cmd, pkgs, results):
+    '''macOS: checks the packages one by one (a name unknown to brew or port
+    makes the whole command fail). Fills results {pkg: message}.'''
+    env = dict(os.environ)
+    env["HOMEBREW_NO_AUTO_UPDATE"] = "1"
+    env["HOMEBREW_NO_ENV_HINTS"] = "1"
+    is_brew = os.path.basename(check_cmd[0]) == "brew"
+    for pkg in pkgs:
+        cmds = [check_cmd + [pkg]]
+        if is_brew:
+            cmds.append(check_cmd + ["--cask", pkg])   # e.g. xquartz
+        for cmd in cmds:
+            p = SP.Popen(cmd, stdout=SP.PIPE, stderr=SP.DEVNULL, env=env)
+            output, _ = p.communicate()
+            lines = [l.strip() for l in output.decode("utf-8", "ignore").splitlines()
+                     if l.strip()]
+            if is_brew:
+                # "gcc 15.1.0" (exit code 1 if not installed)
+                installed = lines if p.returncode == 0 else []
+            else:
+                # "  gcc14 @14.2.0_3+stdlib_flag (active)": active versions only
+                installed = [l for l in lines if l.endswith("(active)")]
+            if installed:
+                results[pkg] = src.printcolors.printcSuccess("OK") + \
+                               " ({})\n".format(installed[0])
+                break
+
 def get_pkg_check_cmd(dist_name):
-    '''Build the command to use for checking if a linux package is installed or not.'''
+    '''Build the command to use for checking if a linux package is installed or not.
+    macOS: Homebrew (brew list --versions) or MacPorts (port -q installed).'''
+
+    if src.architecture.is_darwin():
+        return _get_darwin_pkg_check_cmd()
 
     if dist_name in ["CO","FD","MG","MD","CO","OS"]: # linux using rpm
         linux="RH"  
         manager_msg_err="Error : command failed because sat was not able to find apt command"
+    elif dist_name == "macOS":
+        linux="MAC"
+        manager_msg_err="Error : command failed because sat was not able to find brew command"
     else:
         linux="DB"
         manager_msg_err="Error : command failed because sat was not able to find rpm command"
@@ -434,6 +550,7 @@ def get_pkg_check_cmd(dist_name):
     cmd_which_rpm  = ["which", "rpm"]
     cmd_which_apt  = ["which", "apt"]
     cmd_which_dpkg = ["which", "dpkg-query"]
+    cmd_which_brew = ["which", "brew"]
     with open(os.devnull, 'w') as devnull:
         # 1) we search for apt (debian based systems)
         completed=SP.call(cmd_which_dpkg,stdout=devnull, stderr=SP.STDOUT)
@@ -450,8 +567,14 @@ def get_pkg_check_cmd(dist_name):
                 if completed==0 and linux=="RH":
                     cmd_is_package_installed=["rpm", "-q"]
                 else:
-                    # no package manager was found corresponding to dist_name
-                    raise src.SatException(manager_msg_err)
+                    # 4) if rpm not found search for brew
+                    completed = SP.call(cmd_which_brew, stdout=devnull, stderr=SP.STDOUT)
+
+                    if completed==0 and linux=="MAC":
+                        cmd_is_package_installed=["brew", "list"]
+                    else:
+                        # no package manager was found corresponding to dist_name
+                        raise src.SatException(manager_msg_err)
     return cmd_is_package_installed
 
 def check_system_pkgs(check_cmd, pkgs):
@@ -532,6 +655,9 @@ def check_system_pkgs(check_cmd, pkgs):
             
             if best_match and not results[best_match].startswith('OK'):
                 results[best_match] = src.printcolors.printcSuccess("OK") + " ({})\n".format(installed_name.strip())
+
+    elif os.path.basename(check_cmd[0]) in ("brew", "port"):
+        _check_darwin_pkgs(check_cmd, pkgs, results)
 
     FNULL.close()
     return results

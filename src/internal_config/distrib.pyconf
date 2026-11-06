@@ -22,4 +22,5 @@ DISTRIBUTIONS :
   "linux mint": "UB"
   "opensuse":"OS"
   "Windows" : "W"
+  "darwin" : "macOS"
 }
